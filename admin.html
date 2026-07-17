@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>金刚管理系统 · P2P开盘坐庄 B端原型 v0.4(独占开盘·盘级押金)</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+body{background:#f0f2f5;min-height:100vh;display:flex}
+.side{width:210px;background:#001529;min-height:100vh;color:#rgba(255,255,255,.65);flex-shrink:0}
+.side .logo{display:flex;align-items:center;gap:8px;padding:16px 18px;color:#fff;font-size:15px;font-weight:600}
+.side .logo i{width:28px;height:28px;background:#2E5BFF;border-radius:6px;display:flex;align-items:center;justify-content:center;font-style:normal}
+.mi{padding:11px 20px;font-size:13px;color:rgba(255,255,255,.65);cursor:pointer;display:flex;align-items:center;gap:8px}
+.mi:hover{color:#fff}
+.mi.on{background:#2E5BFF;color:#fff}
+.mi.sub{padding-left:40px}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:#fff;padding:12px 20px;font-size:13px;color:#666;border-bottom:1px solid #eee}
+.topbar b{color:#222}
+.content{padding:16px 20px;flex:1;overflow:auto}
+.pagebox{background:#fff;border-radius:8px;padding:16px 18px}
+h2{font-size:16px;color:#222;margin-bottom:14px}
+.frow{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.frow label{font-size:13px;color:#333}
+select,input[type=text],input[type=date]{border:1px solid #d9d9d9;border-radius:4px;padding:6px 10px;font-size:13px;outline:none;background:#fff}
+select:focus,input:focus{border-color:#2E5BFF}
+.btn{border:none;border-radius:4px;font-size:13px;cursor:pointer;padding:7px 16px}
+.btn-b{background:#2E5BFF;color:#fff}
+.btn-w{background:#fff;border:1px solid #d9d9d9;color:#333}
+.btn-r{background:#fff;border:1px solid #E24B4A;color:#E24B4A}
+.btn-sm{padding:4px 10px;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#fafafa;color:#333;font-weight:600;text-align:left;padding:10px 10px;border-bottom:1px solid #eee;white-space:nowrap}
+td{padding:10px 10px;border-bottom:1px solid #f5f5f5;color:#333;white-space:nowrap;vertical-align:middle}
+tr:hover td{background:#fafcff}
+.tag{font-size:12px;padding:1px 8px;border-radius:3px;display:inline-block}
+.t-green{background:#E8F7EF;color:#1D9E75}
+.t-blue{background:#E8F0FB;color:#2E7BD6}
+.t-orange{background:#FFF3E5;color:#E8850C}
+.t-red{background:#FCEBEB;color:#E24B4A}
+.t-purple{background:#F1EBFB;color:#7B4BD6}
+.t-gray{background:#f0f0f0;color:#888}
+.link{color:#2E5BFF;cursor:pointer}
+.mono{font-family:Menlo,Consolas,monospace}
+.num{text-align:right}
+th.num{text-align:right}
+.win{color:#1D9E75;font-weight:600}
+.lose{color:#E24B4A;font-weight:600}
+.muted{color:#999;font-size:12px}
+.ovl{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:50}
+.ovl.show{display:flex}
+.modal{background:#fff;border-radius:8px;width:960px;max-height:86vh;display:flex;flex-direction:column}
+.modal .hd{display:flex;align-items:center;padding:14px 18px;border-bottom:1px solid #eee}
+.modal .hd b{font-size:15px;color:#222;flex:1}
+.modal .bd{padding:16px 18px;overflow-y:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:13px}
+.grid2 .k{color:#999}
+.pager{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#666}
+.pgn{width:28px;height:28px;border:1px solid #d9d9d9;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pgn.on{background:#2E5BFF;color:#fff;border-color:#2E5BFF}
+.hint{background:#FFF9F0;border-radius:6px;padding:8px 12px;font-size:12px;color:#B8760A;margin-bottom:12px;line-height:1.6}
+.prog{width:90px;height:6px;background:#f0f0f0;border-radius:3px;display:inline-block;vertical-align:middle;overflow:hidden}
+.prog i{display:block;height:100%;background:#2E7BD6}
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;font-size:13px;padding:8px 18px;border-radius:6px;z-index:99;display:none}
+</style>
+</head>
+<body>
+
+<div class="side">
+  <div class="logo"><i>金</i>金刚管理系统</div>
+  <div class="mi">📊 Dashboard</div>
+  <div class="mi">🏛️ 商户管理</div>
+  <div class="mi">⚙️ 配置管理</div>
+  <div class="mi on">📁 数据管理</div>
+  <div class="mi sub" onclick="page('pg-banker')" id="mi-banker">坐庄管理</div>
+  <div class="mi sub" onclick="page('pg-log')" id="mi-log">操盘日志</div>
+  <div class="mi sub">投注记录</div>
+  <div class="mi sub">用户帐变记录</div>
+  <div class="mi">🏆 体育管理</div>
+  <div class="mi">🔒 权限管理</div>
+</div>
+
+<div class="main">
+  <div class="topbar">数据管理 / <b id="crumb">坐庄管理</b></div>
+  <div class="content">
+
+    <!-- ═════════ 坐庄管理 ═════════ -->
+    <div class="pagebox" id="pg-banker">
+      <h2>坐庄管理</h2>
+      <div class="frow">
+        <label>商户 <select><option>请选择商户</option><option>kksport</option></select></label>
+        <label>庄家会员ID <input type="text" placeholder="请输入庄家会员ID" style="width:150px"></label>
+        <label>坐庄模式 <select id="f-mode" onchange="renderBanker()">
+          <option value="all">全部</option><option value="market">开盘坐庄</option><option value="item">投注项坐庄</option>
+        </select></label>
+        <label>庄单状态 <select id="f-st" onchange="renderBanker()">
+          <option value="all">全部</option><option value="open">卖出中</option><option value="partial">部分成交</option>
+          <option value="soldout">已售罄</option><option value="settled">已结算</option><option value="closed">已关闭</option>
+        </select></label>
+        <label>卖出时间 <input type="date"> → <input type="date"></label>
+        <button class="btn btn-b">查询</button><button class="btn btn-w">重置</button>
+      </div>
+      <div class="hint">独占开盘模型:一场比赛同一时间仅一位庄家开盘,盘关闭/结算后释放;庄家未开放的盘口全平台不可投。开盘坐庄庄单带「所属盘ID」,点击盘ID查看整盘详情(盘 → 投注项庄单 → 子单三层);点击庄单ID跳转投注记录联查子单;强制下架即时释放该比赛。</div>
+      <table>
+        <thead><tr>
+          <th>庄单ID</th><th>所属盘ID</th><th>坐庄模式</th><th>商户</th><th>庄家会员ID</th><th>赛事</th><th>投注项</th>
+          <th class="num">港盘赔率</th><th class="num">点位</th><th class="num">押金(初始/补仓)</th><th class="num">额度(总/已用/剩余)</th>
+          <th>收单进度</th><th class="num">盈亏/抽佣</th><th>状态</th><th>卖出时间</th><th>操作</th>
+        </tr></thead>
+        <tbody id="tb-banker"></tbody>
+      </table>
+      <div class="pager"><span>共 <b id="cnt-banker">0</b> 条</span><span class="pgn on">1</span><span class="pgn">2</span><span>10/页</span></div>
+    </div>
+
+    <!-- ═════════ 操盘日志 ═════════ -->
+    <div class="pagebox" id="pg-log" style="display:none">
+      <h2>操盘日志</h2>
+      <div class="frow">
+        <label>商户 <select><option>请选择商户</option><option>kksport</option></select></label>
+        <label>变更人 <input type="text" placeholder="庄家账号" style="width:140px"></label>
+        <label>功能 <select id="f-func" onchange="renderLog()">
+          <option value="all">全部</option><option value="调水">调水</option><option value="封盘">封盘</option>
+          <option value="恢复开盘">恢复开盘</option><option value="停止收单">停止收单</option><option value="补充额度">补充额度</option>
+          <option value="强制下架">强制下架</option><option value="空盘自动释放">空盘自动释放</option><option value="新增盘口">新增盘口</option><option value="移除盘口">移除盘口</option>
+        </select></label>
+        <label>时间 <input type="date"> → <input type="date"></label>
+        <button class="btn btn-b">查询</button><button class="btn btn-w">重置</button>
+      </div>
+      <table>
+        <thead><tr>
+          <th>渠道</th><th>模块</th><th>功能</th><th>操作</th><th>变更类别</th><th>变更人</th><th>变更对象</th>
+          <th>原始值</th><th>变更值</th><th>时间</th>
+        </tr></thead>
+        <tbody id="tb-log"></tbody>
+      </table>
+      <div class="pager"><span>共 <b id="cnt-log">0</b> 条</span><span class="pgn on">1</span><span>10/页</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═════════ 盘详情弹窗 ═════════ -->
+<div class="ovl" id="ov-mkt">
+  <div class="modal">
+    <div class="hd"><b id="mk-title">开盘详情</b>
+      <button class="btn btn-r btn-sm" id="mk-force" onclick="forceClose()" style="margin-right:10px">强制下架</button>
+      <span style="cursor:pointer;color:#999;font-size:18px" onclick="hide('ov-mkt')">✕</span>
+    </div>
+    <div class="bd" id="mk-body"></div>
+  </div>
+</div>
+
+<!-- ═════════ 二次确认 ═════════ -->
+<div class="ovl" id="ov-cfm" style="z-index:60">
+  <div class="modal" style="width:420px">
+    <div class="bd" id="cfm-body" style="padding:22px"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═════════ 数据 ═════════ */
+const money=n=>(+n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const f2=n=>(+n).toFixed(2);
+const ST={open:['卖出中','t-green'],partial:['部分成交','t-blue'],soldout:['已售罄','t-orange'],settled:['已结算','t-purple'],closed:['已关闭','t-gray']};
+
+let markets=[
+  {id:'MK2026071001',merchant:'kksport',uid:'100460',match:'登克尔克 vs 德罗赫达联',league:'爱尔兰超级联赛',auto:10,created:'07-10 14:02',status:'open',forceClosed:false,dep:1000,extra:500,
+   items:[
+     {bid:'B10021',item:'全场 大/小 · 大 3',odds:1.15,pt:0.13,sold:180,st:'partial',
+      subs:[{oid:'0110000142607104501-2',u:'100252',amt:100,odds:1.15,time:'07-10 15:10',settle:null},{oid:'0110000142607109921-2',u:'100368',amt:80,odds:1.15,time:'07-10 16:42',settle:null}]},
+     {bid:'B10022',item:'全场 独赢 · 主胜',odds:0.70,pt:0.04,sold:0,st:'open',subs:[]}
+   ]},
+  {id:'MK2026062801',merchant:'kksport',uid:'100283',match:'瓦鲁尔(女) vs 斯塔尔南(女)',league:'冰岛女子超级联赛',auto:0,created:'06-28 09:00',status:'settled',profit:1590,commission:31.8,dep:2000,extra:0,
+   items:[
+     {bid:'B10011',item:'全场 独赢 · 客胜',odds:0.70,pt:0.02,sold:1500,st:'settled',settle:1590,
+      subs:[{oid:'0110000142606280011-2',u:'100252',amt:1000,odds:0.70,time:'06-28 10:11',settle:-700},{oid:'0110000142606280012-2',u:'100409',amt:500,odds:0.70,time:'06-28 11:05',settle:-350}]}
+   ]}
+];
+function mOcc(m){return m.items.reduce((s,i)=>s+i.sold*i.odds,0)}
+function mRemainDep(m){return Math.max(0,+((m.dep+m.extra)-mOcc(m)).toFixed(2))}
+let legacy=[
+  {bid:'B09001',merchant:'kksport',uid:'100544',match:'巴萨 vs 皇马',league:'西甲联赛',item:'让球 +0.5',odds:0.90,pt:-0.02,dep:1000,extra:0,sold:0,st:'open',created:'04-28 02:00'},
+  {bid:'B09002',merchant:'kksport',uid:'100368',match:'巴萨 vs 皇马',league:'西甲联赛',item:'客胜',odds:0.90,pt:0.01,dep:1000,extra:0,sold:599,st:'settled',profit:1590,created:'04-28 02:00'}
+];
+let logs=[
+  {func:'新增盘口',cat:'盘【开放盘口】',user:'kg01570046…',obj:'盘MK2026071001',from:'2 项',to:'3 项',time:'2026-07-10 16:05:40'},
+  {func:'空盘自动释放',cat:'盘【收单状态】',user:'system(系统)',obj:'盘MK2026070902',from:'卖出中',to:'已关闭',time:'2026-07-10 09:00:00'},
+  {func:'调水',cat:'庄单【全场 大/小 · 大 3 赔率】',user:'kg01570046…',obj:'B10021 / 盘MK2026071001',from:'@1.10',to:'@1.15',time:'2026-07-10 15:02:11'},
+  {func:'补充额度',cat:'庄单【全场 独赢 · 主胜 押金】',user:'kg01570046…',obj:'B10022 / 盘MK2026071001',from:'¥300.00',to:'¥500.00',time:'2026-07-10 14:40:05'},
+  {func:'封盘',cat:'盘【收单状态】',user:'kg01570029…',obj:'盘MK2026062801',from:'开盘中',to:'已封盘',time:'06-28 18:20:44'},
+  {func:'恢复开盘',cat:'盘【收单状态】',user:'kg01570029…',obj:'盘MK2026062801',from:'已封盘',to:'开盘中',time:'06-28 18:35:12'},
+  {func:'停止收单',cat:'盘【收单状态】',user:'kg01570018…',obj:'盘MK2026062501',from:'开盘中',to:'已关闭',time:'06-25 21:00:31'}
+];
+const $=id=>document.getElementById(id);
+function show(id){$(id).classList.add('show')}
+function hide(id){$(id).classList.remove('show')}
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2000)}
+function page(p){
+  ['pg-banker','pg-log'].forEach(x=>$(x).style.display=x===p?'block':'none');
+  $('mi-banker').classList.toggle('on',p==='pg-banker');
+  $('mi-log').classList.toggle('on',p==='pg-log');
+  $('crumb').textContent=p==='pg-banker'?'坐庄管理':'操盘日志';
+}
+
+/* ═════════ 坐庄管理列表 ═════════ */
+function bankerRows(){
+  const rows=[];
+  markets.forEach(m=>{
+    m.items.forEach(it=>{
+      const st=m.status==='settled'?'settled':m.status==='closed'?'closed':it.st;
+      rows.push({mode:'market',mkid:m.id,m,it,bid:it.bid,merchant:m.merchant,uid:m.uid,match:m.match,item:it.item,
+        odds:it.odds,pt:it.pt,dep:m.dep,extra:m.extra,sold:it.sold,st,shared:true,profit:m.status==='settled'?it.settle:null,
+        commission:m.status==='settled'?(m.commission||0):null,created:m.created});
+    });
+  });
+  legacy.forEach(l=>rows.push({mode:'item',mkid:null,bid:l.bid,merchant:l.merchant,uid:l.uid,match:l.match,item:l.item,
+    odds:l.odds,pt:l.pt,dep:l.dep,extra:l.extra,sold:l.sold,st:l.st==='settled'?'settled':l.st,profit:l.profit??null,commission:l.profit?0:null,created:l.created}));
+  return rows;
+}
+function renderBanker(){
+  const mode=$('f-mode').value,st=$('f-st').value;
+  const rows=bankerRows().filter(r=>(mode==='all'||r.mode===mode)&&(st==='all'||r.st===st));
+  $('cnt-banker').textContent=rows.length;
+  $('tb-banker').innerHTML=rows.map(r=>{
+    const cap=r.shared?Math.floor((mRemainDep(r.m)+r.sold*r.odds)/r.odds*100)/100:Math.floor((r.dep+r.extra)/r.odds*100)/100;
+    const pct=cap?Math.min(100,r.sold/cap*100):0;
+    const[stx,scls]=ST[r.st];
+    return `<tr>
+      <td><span class="link mono" onclick="toast('跳转投注记录,来源单号自动填入 ${r.bid}')">${r.bid}</span></td>
+      <td>${r.mkid?`<span class="link mono" onclick="openMkt('${r.mkid}')">${r.mkid}</span>`:'<span class="muted">—</span>'}</td>
+      <td>${r.mode==='market'?'<span class="tag t-orange">开盘坐庄</span>':'<span class="tag t-blue">投注项坐庄</span>'}</td>
+      <td>${r.merchant}</td><td class="mono">${r.uid}</td>
+      <td>${r.match}</td><td>${r.item}</td>
+      <td class="num mono">@${f2(r.odds)}</td>
+      <td class="num ${r.pt>=0?'win':'lose'}">${r.pt>=0?'+':''}${f2(r.pt)}</td>
+      <td class="num mono">${r.shared?'盘¥'+money(r.dep)+(r.extra?' / 补¥'+money(r.extra):' / —'):'¥'+money(r.dep)+' / '+(r.extra?'¥'+money(r.extra):'—')}</td>
+      <td class="num mono">¥${money(cap)} / ¥${money(r.sold)} / ¥${money(Math.max(0,cap-r.sold))}</td>
+      <td><span class="prog"><i style="width:${pct}%"></i></span> <span class="muted">${Math.round(pct)}%</span></td>
+      <td class="num">${r.profit!=null?`<span class="${r.profit>=0?'win':'lose'}">${r.profit>=0?'+':''}${money(r.profit)}</span> / ${money(r.commission||0)}`:'<span class="muted">— / —</span>'}</td>
+      <td><span class="tag ${scls}">${stx}</span></td>
+      <td class="muted">${r.created}</td>
+      <td>${r.mkid?`<span class="link" onclick="openMkt('${r.mkid}')">盘详情</span>`:`<span class="link" onclick="toast('投注项庄单详情(既有弹窗)')">详情</span>`}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ═════════ 盘详情钻取 ═════════ */
+let curMk=null;
+function openMkt(id){
+  curMk=markets.find(m=>m.id===id);
+  renderMkt();show('ov-mkt');
+}
+function renderMkt(){
+  const m=curMk;
+  const dep=m.dep+m.extra,sold=m.items.reduce((s,i)=>s+i.sold,0),subs=m.items.reduce((s,i)=>s+i.subs.length,0);
+  const[stx,scls]=ST[m.status==='open'?'open':m.status];
+  $('mk-title').textContent='开盘详情 · '+m.id;
+  $('mk-force').style.display=(m.status==='open')?'inline-block':'none';
+  $('mk-body').innerHTML=`
+    <div class="grid2" style="margin-bottom:14px">
+      <div><span class="k">盘ID:</span> <span class="mono">${m.id}</span></div>
+      <div><span class="k">状态:</span> <span class="tag ${scls}">${stx}</span>${m.forceClosed?' <span class="tag t-red">运营强制下架</span>':''}</div>
+      <div><span class="k">商户:</span> ${m.merchant}</div>
+      <div><span class="k">庄家会员ID:</span> <span class="mono">${m.uid}</span></div>
+      <div><span class="k">赛事:</span> ${m.match} <span class="muted">${m.league}</span></div>
+      <div><span class="k">开盘时间:</span> ${m.created} <span class="muted">· 自动封盘:开赛前 ${m.auto} 分钟</span></div>
+      <div><span class="k">盘押金(共享):</span> ¥${money(dep)}${m.extra?` <span class="muted">(初始 ¥${money(m.dep)} + 补仓 ¥${money(m.extra)})</span>`:''} · 剩余 ¥${money(mRemainDep(m))}</div>
+      <div><span class="k">已收单 / 子单数:</span> ¥${money(sold)} / ${subs} 笔</div>
+      ${m.status==='settled'?`<div><span class="k">盘净盈亏:</span> <span class="${(m.profit||0)>=0?'win':'lose'}">${(m.profit||0)>=0?'+':''}¥${money(m.profit||0)}</span></div>
+      <div><span class="k">平台抽佣:</span> ¥${money(m.commission||0)}</div>`:''}
+    </div>
+    ${m.items.map(it=>{
+      const cap=Math.floor((mRemainDep(m)+it.sold*it.odds)/it.odds*100)/100;
+      const st=m.status==='settled'?'settled':m.status==='closed'?'closed':it.st;
+      const[itx,icls]=ST[st];
+      return `<div style="border:1px solid #eee;border-radius:6px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <b style="font-size:13px">${it.item}</b>
+        <span class="mono muted">${it.bid}</span>
+        <span class="tag ${icls}">${itx}</span>
+        <span style="flex:1"></span>
+        <span class="muted">庄单 <b style="color:#1D9E75">@${f2(it.odds)}</b>(固定) · 已收 ¥${money(it.sold)} · 剩余可卖 ¥${money(Math.floor(mRemainDep(m)/it.odds*100)/100)}(共享盘押金)</span>
+        ${it.settle!==undefined&&it.settle!==null?`<span class="${it.settle>=0?'win':'lose'}">结算 ${it.settle>=0?'+':''}¥${money(it.settle)}</span>`:''}
+      </div>
+      ${it.subs.length?`<table>
+        <thead><tr><th>子单号</th><th>买家会员ID</th><th class="num">成交金额</th><th class="num">成交赔率</th><th>成交时间</th><th class="num">结算(庄家视角)</th></tr></thead>
+        <tbody>${it.subs.map(s=>`<tr>
+          <td class="mono"><span class="link" onclick="toast('跳转投注记录 ${s.oid}')">${s.oid}</span></td>
+          <td class="mono">${s.u}</td>
+          <td class="num mono">¥${money(s.amt)}</td>
+          <td class="num mono">@${f2(s.odds)}</td>
+          <td class="muted">${s.time}</td>
+          <td class="num">${s.settle!=null?`<span class="${s.settle>=0?'win':'lose'}">${s.settle>=0?'+':''}¥${money(s.settle)}</span>`:'<span class="muted">未结算</span>'}</td>
+        </tr>`).join('')}</tbody></table>`
+      :'<div class="muted">暂无子单成交</div>'}
+    </div>`}).join('')}`;
+}
+function forceClose(){
+  $('cfm-body').innerHTML=`<h3 style="font-size:15px;color:#E24B4A;margin-bottom:12px">强制下架</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:16px">
+      确认强制下架盘 <b class="mono">${curMk.id}</b>?<br>
+      全部投注项庄单立即从卖单簿下架,已成交子单正常结算,未消费押金结算后退回庄家。<br>
+      该操作将写入操盘日志并<b>立即释放该比赛的独占</b>(可被重新开盘),<b style="color:#E24B4A">不可逆</b>。</div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-w" onclick="hide('ov-cfm')">取消</button>
+      <button class="btn btn-b" style="background:#E24B4A" onclick="doForce()">确认下架</button></div>`;
+  show('ov-cfm');
+}
+function doForce(){
+  curMk.status='closed';curMk.forceClosed=true;
+  logs.unshift({func:'强制下架',cat:'盘【收单状态】',user:'admin(运营)',obj:'盘'+curMk.id,from:'开盘中',to:'已关闭',time:new Date().toLocaleString('zh-CN',{hour12:false})});
+  hide('ov-cfm');toast('已强制下架,比赛已释放,操盘日志已记录');
+  renderMkt();renderBanker();renderLog();
+}
+
+/* ═════════ 操盘日志 ═════════ */
+function renderLog(){
+  const f=$('f-func').value;
+  const list=logs.filter(l=>f==='all'||l.func===f);
+  $('cnt-log').textContent=list.length;
+  $('tb-log').innerHTML=list.map(l=>`<tr>
+    <td>H5</td><td>坐庄管理</td><td>${l.func}</td><td>更新</td>
+    <td>${l.cat}</td><td class="mono">${l.user}</td><td class="mono">${l.obj}</td>
+    <td class="mono">${l.from}</td><td class="mono">${l.to}</td><td class="muted">${l.time}</td>
+  </tr>`).join('');
+}
+document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
+renderBanker();renderLog();
+</script>
+</body>
+</html>
