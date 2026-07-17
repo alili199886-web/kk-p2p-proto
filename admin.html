@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>金刚管理系统 · P2P开盘坐庄 B端原型 v0.4(独占开盘·盘级押金)</title>
+<title>金刚管理系统 · P2P开盘坐庄 B端原型 v0.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
 body{background:#f0f2f5;min-height:100vh;display:flex}
@@ -99,7 +99,7 @@ th.num{text-align:right}
         <label>卖出时间 <input type="date"> → <input type="date"></label>
         <button class="btn btn-b">查询</button><button class="btn btn-w">重置</button>
       </div>
-      <div class="hint">独占开盘模型:一场比赛同一时间仅一位庄家开盘,盘关闭/结算后释放;庄家未开放的盘口全平台不可投。开盘坐庄庄单带「所属盘ID」,点击盘ID查看整盘详情(盘 → 投注项庄单 → 子单三层);点击庄单ID跳转投注记录联查子单;强制下架即时释放该比赛。</div>
+      <div class="hint">复制比赛模型:开盘=复制一场比赛(名称=原比赛名+庄家昵称),多位庄家可各自复制同一场,原比赛与投注项卖出不受影响;庄家档位同时挂入原比赛卖单簿。开盘坐庄庄单带「所属盘ID」,点击盘ID查看整盘详情(盘 → 投注项庄单 → 子单三层);强制下架后复制比赛立即从列表下架。</div>
       <table>
         <thead><tr>
           <th>庄单ID</th><th>所属盘ID</th><th>坐庄模式</th><th>商户</th><th>庄家会员ID</th><th>赛事</th><th>投注项</th>
@@ -120,7 +120,7 @@ th.num{text-align:right}
         <label>功能 <select id="f-func" onchange="renderLog()">
           <option value="all">全部</option><option value="调水">调水</option><option value="封盘">封盘</option>
           <option value="恢复开盘">恢复开盘</option><option value="停止收单">停止收单</option><option value="补充额度">补充额度</option>
-          <option value="强制下架">强制下架</option><option value="空盘自动释放">空盘自动释放</option><option value="新增盘口">新增盘口</option><option value="移除盘口">移除盘口</option>
+          <option value="强制下架">强制下架</option><option value="新增盘口">新增盘口</option><option value="移除盘口">移除盘口</option>
         </select></label>
         <label>时间 <input type="date"> → <input type="date"></label>
         <button class="btn btn-b">查询</button><button class="btn btn-w">重置</button>
@@ -167,13 +167,13 @@ let markets=[
   {id:'MK2026071001',merchant:'kksport',uid:'100460',match:'登克尔克 vs 德罗赫达联',league:'爱尔兰超级联赛',auto:10,created:'07-10 14:02',status:'open',forceClosed:false,dep:1000,extra:500,
    items:[
      {bid:'B10021',item:'全场 大/小 · 大 3',odds:1.15,pt:0.13,sold:180,st:'partial',
-      subs:[{oid:'0110000142607104501-2',u:'100252',amt:100,odds:1.15,time:'07-10 15:10',settle:null},{oid:'0110000142607109921-2',u:'100368',amt:80,odds:1.15,time:'07-10 16:42',settle:null}]},
+      subs:[{oid:'0110000142607104501-2',u:'100252',acc:'kk_wang88',amt:100,odds:1.15,time:'07-10 15:10',settle:null},{oid:'0110000142607109921-2',u:'100368',acc:'lucky_chen',amt:80,odds:1.15,time:'07-10 16:42',settle:null}]},
      {bid:'B10022',item:'全场 独赢 · 主胜',odds:0.70,pt:0.04,sold:0,st:'open',subs:[]}
    ]},
   {id:'MK2026062801',merchant:'kksport',uid:'100283',match:'瓦鲁尔(女) vs 斯塔尔南(女)',league:'冰岛女子超级联赛',auto:0,created:'06-28 09:00',status:'settled',profit:1590,commission:31.8,dep:2000,extra:0,
    items:[
      {bid:'B10011',item:'全场 独赢 · 客胜',odds:0.70,pt:0.02,sold:1500,st:'settled',settle:1590,
-      subs:[{oid:'0110000142606280011-2',u:'100252',amt:1000,odds:0.70,time:'06-28 10:11',settle:-700},{oid:'0110000142606280012-2',u:'100409',amt:500,odds:0.70,time:'06-28 11:05',settle:-350}]}
+      subs:[{oid:'0110000142606280011-2',u:'100252',acc:'kk_wang88',amt:1000,odds:0.70,time:'06-28 10:11',settle:-700},{oid:'0110000142606280012-2',u:'100409',acc:'feima2020',amt:500,odds:0.70,time:'06-28 11:05',settle:-350}]}
    ]}
 ];
 function mOcc(m){return m.items.reduce((s,i)=>s+i.sold*i.odds,0)}
@@ -184,7 +184,6 @@ let legacy=[
 ];
 let logs=[
   {func:'新增盘口',cat:'盘【开放盘口】',user:'kg01570046…',obj:'盘MK2026071001',from:'2 项',to:'3 项',time:'2026-07-10 16:05:40'},
-  {func:'空盘自动释放',cat:'盘【收单状态】',user:'system(系统)',obj:'盘MK2026070902',from:'卖出中',to:'已关闭',time:'2026-07-10 09:00:00'},
   {func:'调水',cat:'庄单【全场 大/小 · 大 3 赔率】',user:'kg01570046…',obj:'B10021 / 盘MK2026071001',from:'@1.10',to:'@1.15',time:'2026-07-10 15:02:11'},
   {func:'补充额度',cat:'庄单【全场 独赢 · 主胜 押金】',user:'kg01570046…',obj:'B10022 / 盘MK2026071001',from:'¥300.00',to:'¥500.00',time:'2026-07-10 14:40:05'},
   {func:'封盘',cat:'盘【收单状态】',user:'kg01570029…',obj:'盘MK2026062801',from:'开盘中',to:'已封盘',time:'06-28 18:20:44'},
@@ -283,10 +282,11 @@ function renderMkt(){
         ${it.settle!==undefined&&it.settle!==null?`<span class="${it.settle>=0?'win':'lose'}">结算 ${it.settle>=0?'+':''}¥${money(it.settle)}</span>`:''}
       </div>
       ${it.subs.length?`<table>
-        <thead><tr><th>子单号</th><th>买家会员ID</th><th class="num">成交金额</th><th class="num">成交赔率</th><th>成交时间</th><th class="num">结算(庄家视角)</th></tr></thead>
+        <thead><tr><th>子单号</th><th>买家会员ID</th><th>会员账号</th><th class="num">成交金额</th><th class="num">成交赔率</th><th>成交时间</th><th class="num">结算(庄家视角)</th></tr></thead>
         <tbody>${it.subs.map(s=>`<tr>
           <td class="mono"><span class="link" onclick="toast('跳转投注记录 ${s.oid}')">${s.oid}</span></td>
           <td class="mono">${s.u}</td>
+          <td class="mono" style="color:#2E5BFF">${s.acc||'—'}</td>
           <td class="num mono">¥${money(s.amt)}</td>
           <td class="num mono">@${f2(s.odds)}</td>
           <td class="muted">${s.time}</td>
@@ -300,7 +300,7 @@ function forceClose(){
     <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:16px">
       确认强制下架盘 <b class="mono">${curMk.id}</b>?<br>
       全部投注项庄单立即从卖单簿下架,已成交子单正常结算,未消费押金结算后退回庄家。<br>
-      该操作将写入操盘日志并<b>立即释放该比赛的独占</b>(可被重新开盘),<b style="color:#E24B4A">不可逆</b>。</div>
+      该操作将写入操盘日志,复制比赛<b>立即从比赛列表下架</b>,<b style="color:#E24B4A">不可逆</b>。</div>
     <div style="display:flex;gap:10px;justify-content:flex-end">
       <button class="btn btn-w" onclick="hide('ov-cfm')">取消</button>
       <button class="btn btn-b" style="background:#E24B4A" onclick="doForce()">确认下架</button></div>`;
@@ -309,7 +309,7 @@ function forceClose(){
 function doForce(){
   curMk.status='closed';curMk.forceClosed=true;
   logs.unshift({func:'强制下架',cat:'盘【收单状态】',user:'admin(运营)',obj:'盘'+curMk.id,from:'开盘中',to:'已关闭',time:new Date().toLocaleString('zh-CN',{hour12:false})});
-  hide('ov-cfm');toast('已强制下架,比赛已释放,操盘日志已记录');
+  hide('ov-cfm');toast('已强制下架,复制比赛已从列表下架,操盘日志已记录');
   renderMkt();renderBanker();renderLog();
 }
 
