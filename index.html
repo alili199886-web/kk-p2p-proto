@@ -3,45 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>KingKong 体育 · P2P 开盘坐庄 · 交付物入口</title>
+<title>KingKong 体育 · P2P 交付物入口</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
 body{background:#f0f2f5;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-.wrap{max-width:560px;width:100%}
+.wrap{max-width:600px;width:100%}
 h1{font-size:22px;color:#1a1a1a;margin-bottom:6px}
-.sub{font-size:13px;color:#999;margin-bottom:24px}
-a.card{display:flex;align-items:center;gap:14px;background:#fff;border-radius:12px;padding:18px;margin-bottom:12px;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:transform .12s,box-shadow .12s}
+.sub{font-size:13px;color:#999;margin-bottom:20px}
+.sec{font-size:12px;color:#9aa0a6;margin:18px 0 8px;letter-spacing:.5px}
+a.card{display:flex;align-items:center;gap:14px;background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;text-decoration:none;box-shadow:0 1px 4px rgba(0,0,0,.06);transition:transform .12s,box-shadow .12s}
 a.card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.10)}
-.ico{width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.ico{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0}
 .i1{background:linear-gradient(180deg,#FFA33A,#FF8C00)}
 .i2{background:#1B5EBE}
 .i3{background:#7B4BD6}
+.i4{background:#1D9E75}
+.i5{background:#8a8f96}
 .t{flex:1}
 .t b{display:block;font-size:15px;color:#1a1a1a;margin-bottom:3px}
 .t span{font-size:12px;color:#999}
 .arrow{color:#ccc;font-size:18px}
-.foot{text-align:center;font-size:12px;color:#bbb;margin-top:20px}
+.foot{text-align:center;font-size:12px;color:#bbb;margin-top:22px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>P2P 开盘坐庄 · 交付物入口</h1>
-  <div class="sub">KingKong 体育 · 第一期(私盘模型 · 盘级押金) · 2026-07</div>
+  <h1>P2P 交付物入口</h1>
+  <div class="sub">KingKong 体育 · 2026-07 · 产品:Ali</div>
+
+  <div class="sec">本期 · P2P 下注流程</div>
   <a class="card" href="./h5.html">
     <div class="ico i1">📱</div>
-    <div class="t"><b>C 端 H5 交互原型 v3.1</b><span>私盘 / 盘级共享押金 / 动态增减盘口 / 两档卖单簿 / 控盘全流程</span></div>
+    <div class="t"><b>C 端 H5 交互原型 v6.3</b><span>赛事大厅 / 盘口详情 / 购物车（买入·串关·卖出）/ 注单确认 / 买单卖单赛果我的 / 挂单分享</span></div>
+    <div class="arrow">›</div>
+  </a>
+  <a class="card" href="./prd-bet-v2.0.docx">
+    <div class="ico i3">📄</div>
+    <div class="t"><b>下注流程需求说明文档（图文版）V2.0</b><span>13 张原型截图 + 规则说明 / 计算公式 / 边界场景 / 验收标准</span></div>
+    <div class="arrow">›</div>
+  </a>
+
+  <div class="sec">本期 · P2P 挂单分享</div>
+  <a class="card" href="./prd-share-v1.1.docx">
+    <div class="ico i4">🔗</div>
+    <div class="t"><b>挂单分享功能需求说明文档 V1.1</b><span>分享链接 / webview 内容页 / 落地行为 / 验收标准</span></div>
+    <div class="arrow">›</div>
+  </a>
+  <a class="card" href="./impl-share.md">
+    <div class="ico i4">🛠️</div>
+    <div class="t"><b>挂单分享实现文档（对接金刚 / IM）</b><span>链路与职责划分 / SDK 参数 / 回流落地 / 待金刚确认事项</span></div>
+    <div class="arrow">›</div>
+  </a>
+
+  <div class="sec">下一期 · P2P 开盘坐庄（暂缓）</div>
+  <a class="card" href="./prd-market-v2.0.docx">
+    <div class="ico i5">📄</div>
+    <div class="t"><b>开盘坐庄第一期需求说明文档 V2.0</b><span>私盘模型 / 盘级押金与结算 / 控盘 / 状态机</span></div>
     <div class="arrow">›</div>
   </a>
   <a class="card" href="./admin.html">
     <div class="ico i2">🖥️</div>
-    <div class="t"><b>B 端 PC 管理后台原型 v0.6</b><span>坐庄管理盘钻取 / 共享押金视图 / 强制下架释放 / 操盘日志</span></div>
+    <div class="t"><b>B 端 PC 管理后台原型 v0.6</b><span>坐庄管理 / 盘详情钻取 / 操盘日志</span></div>
     <div class="arrow">›</div>
   </a>
-  <a class="card" href="./prd-v2.0.docx">
-    <div class="ico i3">📄</div>
-    <div class="t"><b>第一期需求说明文档 V2.0(docx 下载)</b><span>私盘模型 / 盘级押金池 / 业务流程 / 状态机 / 配置 / 边界</span></div>
-    <div class="arrow">›</div>
-  </a>
+
   <div class="foot">内部评审资料 · 请勿外传</div>
 </div>
 </body>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v3.1(私盘)</title>
+<title>P2P 开盘坐庄 · 交互原型 v6.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -48,6 +48,14 @@ input:focus{border-color:#FF8C00}
 .chip{font-size:11px;border:1px solid #ddd;border-radius:4px;padding:3px 8px;color:#666;cursor:pointer;background:#fff}
 .toast{position:absolute;top:90px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.78);color:#fff;font-size:13px;padding:8px 18px;border-radius:20px;z-index:300;display:none;white-space:nowrap;max-width:88%;overflow:hidden;text-overflow:ellipsis}
 .ovl{position:absolute;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;z-index:60}
+/* 购物车:底部固定面板,不加遮罩,赛事列表保持可见可点击 */
+#ov-slip{position:absolute;left:0;right:0;bottom:0;top:auto;height:58%;background:none;display:none;z-index:47}
+#ov-slip.show{display:block}
+#ov-slip .sheet{height:100%;max-height:100%;padding-bottom:0;border-radius:14px 14px 0 0;box-shadow:0 -6px 22px rgba(0,0,0,.16)}
+.cbtn{width:46px;height:46px;border-radius:50%;border:1px solid #e6e8eb;background:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;color:#555;cursor:pointer;flex-shrink:0}
+.cbtn.dis{opacity:.4;pointer-events:none}
+.cbtn.on{background:#FFF0DC;border-color:#FFC97A;color:#E8850C;font-weight:700}
+.plan{width:56px;text-align:right;font-size:12px}
 .ovl.show{display:flex}
 .sheet{background:#f7f8fa;width:100%;border-radius:16px 16px 0 0;display:flex;flex-direction:column;max-height:90%}
 .sheet-body{overflow-y:auto;flex:1}
@@ -61,6 +69,7 @@ input:focus{border-color:#FF8C00}
 .stat4 .v{font-size:13px;font-weight:700;color:#222;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ptab{flex:1;text-align:center;padding:12px 0;font-size:15px;color:#444;cursor:pointer;position:relative}
 .ptab.on{color:#222;font-weight:700}
+.ptab.dis{opacity:.35;pointer-events:none}
 .ptab.on::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:26px;height:3px;background:#FF8C00;border-radius:2px}
 .pill{font-size:13px;padding:6px 14px;border-radius:18px;background:#fff;color:#333;white-space:nowrap}
 .pill.on{background:linear-gradient(180deg,#FFA33A,#FF8C00);color:#fff;font-weight:600}
@@ -68,7 +77,7 @@ input:focus{border-color:#FF8C00}
 .fpill.on{background:#FF8C00;color:#fff;border-color:#FF8C00}
 .tpill{font-size:12px;padding:4px 10px;border-radius:13px;background:transparent;color:#888;white-space:nowrap;cursor:pointer}
 .tpill.on{background:#FF8C00;color:#fff}
-.oddcell{width:70px;border-radius:8px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid transparent;position:relative;padding:5px 2px;min-height:38px}
+.oddcell{width:60px;border-radius:8px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid transparent;position:relative;padding:5px 2px;min-height:38px}
 .oddcell.sel{background:linear-gradient(180deg,#FFA33A,#FF8C00);color:#fff}
 .oddcell .lb{font-size:10px;opacity:.75;white-space:nowrap}
 .oddcell .v{font-weight:700;font-size:13px}
@@ -89,6 +98,42 @@ input:focus{border-color:#FF8C00}
 .sub .r1,.sub .r2{display:flex;align-items:center;gap:8px;font-size:11px;color:#666}
 .sub .r1 span,.sub .r2 span{white-space:nowrap}
 .sub .r2{margin-top:3px;color:#999}
+.kklogo{display:flex;align-items:center;gap:7px}
+.kklogo .mk{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#FFA33A,#FF7A00);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.kklogo .mk i{width:11px;height:11px;background:#fff;transform:rotate(45deg);border-radius:2px;display:block}
+.kklogo .tx{font-size:17px;font-weight:800;letter-spacing:-.2px}
+.kklogo .tx b{color:#FF8C00}.kklogo .tx s{color:#2B2F36;text-decoration:none}
+.stamp{width:50px;height:50px;border-radius:50%;border:2px solid;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;transform:rotate(-14deg);flex-shrink:0}
+.stamp.lose{border-color:#E24B4A;color:#E24B4A}
+.stamp.win{border-color:#1D9E75;color:#1D9E75}
+.radio{width:15px;height:15px;border-radius:50%;border:1.5px solid #ddd;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.radio.on{border-color:#FF8C00}
+.radio.on i{width:8px;height:8px;border-radius:50%;background:#FF8C00;display:block}
+.sw{width:38px;height:21px;border-radius:11px;background:#e2e4e8;position:relative;cursor:pointer;flex-shrink:0;transition:background .18s}
+.sw i{position:absolute;top:2px;left:2px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .18s}
+.sw.on{background:#FF8C00}.sw.on i{left:19px}
+.vsbadge{background:#FFF0DC;color:#E8850C;font-size:11px;font-weight:700;padding:3px 9px;border-radius:11px;flex-shrink:0}
+.grp{background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.grp .gl{font-size:12px;color:#9aa0a6;padding:11px 14px 7px;border-bottom:1px dashed #f0f0f0}
+.grp .gr{display:flex;align-items:center;padding:13px 14px;gap:10px}
+.kv{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f5f5f5;font-size:13px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:#8a8f96;flex:1}
+.kv .v{color:#222;font-weight:600;text-align:right}
+.m3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.m3 .c{background:#fff;border-radius:10px;padding:11px 8px;text-align:center}
+.m3 .c .l{font-size:11px;color:#9aa0a6}
+.m3 .c .v{font-size:15px;font-weight:800;margin-top:4px}
+.bnav{position:absolute;left:10px;right:10px;bottom:10px;height:58px;background:linear-gradient(180deg,rgba(255,255,255,.92),rgba(235,235,235,.92));backdrop-filter:blur(6px);border:1px solid #fff;border-radius:12px;box-shadow:0 2px 8px rgba(100,100,100,.3);display:flex;z-index:46}
+.bnav .bi{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:#86898E;cursor:pointer;position:relative;letter-spacing:.12px}
+.bnav .bi svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bnav .bi.on{color:#FF8C00;font-weight:600}
+.bnav .badge{position:absolute;top:0;right:calc(50% - 22px);background:#FF1515;color:#fff;font-size:11px;min-width:16px;height:16px;border-radius:30px;display:none;align-items:center;justify-content:center;padding:0 3px;font-weight:600}
+.cartball{position:absolute;right:0;bottom:130px;width:64px;height:64px;border-radius:50%;background:linear-gradient(180deg,#FFB25C,#FF8C00);box-shadow:0 4px 14px rgba(255,140,0,.42);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:46}
+.cartball svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cartball .cb-badge{position:absolute;top:12px;left:40px;background:#11AC21;color:#fff;font-size:11px;min-width:16px;height:16px;border-radius:30px;display:none;align-items:center;justify-content:center;padding:0 3px;font-weight:600}
+.sheet{padding-bottom:58px}
+#ov-cfm{z-index:70}
 .spin{display:inline-flex;align-items:stretch;border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;background:#fff}
 .spin input{width:46px;text-align:right;border:none;outline:none;padding:2px 5px;font-size:12px;color:#222}
 .spin .ud{display:flex;flex-direction:column;border-left:1px solid #eee}
@@ -115,8 +160,7 @@ input:focus{border-color:#FF8C00}
     <span class="grow"></span>
     <span style="color:#FF8C00;font-size:14px">⟳</span>
     <span style="font-size:15px;font-weight:700;color:#222" id="bal-home">99,691.71</span><span class="muted" style="font-size:11px">CNY</span>
-    <span style="width:30px;height:30px;background:#fff;border:1px solid #eee;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer" onclick="openOrders(0)">📋</span>
-  </div>
+    </div>
   <div style="display:flex;gap:8px;padding:8px 12px;overflow-x:auto">
     <span class="pill">滚球(93)</span><span class="pill on">今日(1253)</span><span class="pill">早盘(1771)</span><span class="pill">串关(3640)</span><span class="pill">关注(0)</span>
   </div>
@@ -130,64 +174,98 @@ input:focus{border-color:#FF8C00}
     <span style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🎱</span>
   </div>
   <div style="display:flex;gap:8px;padding:6px 12px;overflow-x:auto">
-    <span class="fpill on">联赛</span><span class="fpill">时间</span><span class="fpill">筛选 ▽</span><span class="fpill">P2P</span><span class="fpill">世界杯</span><span class="fpill" id="fp-clone" onclick="toggleCloneOnly()">私盘</span><span class="fpill" id="fp-collapse" onclick="toggleAll()" style="display:flex;align-items:center;gap:4px">收起 <span id="fp-arrow" style="color:#FF8C00;font-size:13px;font-weight:800;display:inline-block;transform:rotate(-90deg)">≫</span></span>
+    <span class="fpill on">联赛</span><span class="fpill">时间</span><span class="fpill">筛选 ▽</span><span class="fpill" id="fp-p2p" onclick="toggleP2POnly()" style="position:relative">P2P<span class="reddot" id="fp-p2p-dot" style="top:-1px;right:-1px"></span></span><span class="fpill" id="fp-clone" onclick="toggleCloneOnly()">私盘</span><span class="fpill" id="fp-collapse" onclick="toggleAll()" style="display:flex;align-items:center;gap:4px">收起 <span id="fp-arrow" style="color:#FF8C00;font-size:13px;font-weight:800;display:inline-block;transform:rotate(-90deg)">≫</span></span>
   </div>
-  <div class="scroll" style="padding:6px 10px" id="home-list"></div>
-  <div id="fab" style="position:absolute;right:0;top:66%;z-index:30">
-    <div id="fab-fold" style="width:22px;height:52px;background:linear-gradient(180deg,#FFA33A,#FF8C00);border-radius:10px 0 0 10px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer" onclick="fabToggle(true)">‹</div>
-    <div id="fab-open" style="display:none;align-items:center;gap:0">
-      <div style="display:flex;align-items:center;background:#fff;border-radius:16px;box-shadow:0 3px 14px rgba(0,0,0,.12);padding:14px 12px 14px 4px">
-        <div onclick="fabToggle(false)" style="width:18px;height:44px;display:flex;align-items:center;justify-content:center;color:#555;cursor:pointer;font-size:13px;font-weight:600">›</div>
-        <div style="display:flex;flex-direction:column;gap:18px">
-          <div style="position:relative;cursor:pointer" onclick="openBetslip()">
-            <svg width="36" height="36" viewBox="0 0 36 36">
-              <defs><linearGradient id="fg1" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#FFA33A"/><stop offset="1" stop-color="#FF7A00"/>
-              </linearGradient></defs>
-              <rect x="2" y="2" width="32" height="32" rx="10" fill="url(#fg1)"/>
-              <rect x="9" y="11" width="18" height="3.6" rx="1.8" fill="#fff"/>
-              <rect x="9" y="17.5" width="18" height="3.6" rx="1.8" fill="#fff"/>
-              <rect x="9" y="24" width="11" height="3.6" rx="1.8" fill="#fff"/>
-            </svg>
-            <span id="fab-selbadge" style="position:absolute;top:-8px;right:-8px;background:#22B24C;color:#fff;font-size:11px;min-width:19px;height:19px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 3px;border:2.5px solid #fff;font-weight:700">0</span>
-          </div>
-          <div style="position:relative;cursor:pointer" onclick="openOrders(0)">
-            <svg width="38" height="34" viewBox="0 0 38 34">
-              <defs><linearGradient id="fg2" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#FFA33A"/><stop offset="1" stop-color="#FF7A00"/>
-              </linearGradient></defs>
-              <circle cx="14" cy="9" r="7" fill="url(#fg2)"/>
-              <path d="M2 31 a12 12 0 0 1 24 0 z" fill="url(#fg2)"/>
-              <path d="M24 20 h9 l-3.2 -3.2 M33 20 l-3.2 3.2" stroke="#FF7A00" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M36 27 h-9 l3.2 -3.2 M27 27 l3.2 3.2" stroke="#FF7A00" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span id="fab-badge" style="position:absolute;top:-8px;right:-4px;background:#E24B4A;color:#fff;font-size:11px;min-width:19px;height:19px;border-radius:10px;display:flex;align-items:center;justify-content:center;padding:0 3px;border:2.5px solid #fff;font-weight:700">1</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="scroll" style="padding:6px 10px 66px" id="home-list"></div>
+  <div id="cartbar" style="display:none;position:absolute;left:10px;right:10px;bottom:74px;height:40px;background:#FF8C00;border-radius:10px;box-shadow:0 3px 12px rgba(255,140,0,.4);align-items:center;padding:0 14px;color:#fff;cursor:pointer;z-index:45" class="row" onclick="openBetslip()">
+    <svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8"><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/><path d="M3 4h2.2l2.2 11.2h10.4L20 8H6.2"/></svg>
+    <span style="font-size:13px;font-weight:600;margin-left:8px" class="nowrap">购物车 <span id="nav-cart-badge">0</span> 单</span>
+    <span class="grow"></span><span style="font-size:12px" class="nowrap">查看 ›</span>
   </div>
+  
+  
 </div>
 
 <!-- ═════════ 注单记录 ═════════ -->
 <div class="page" id="pg-orders">
-  <div style="background:#fff;padding:13px 14px" class="row">
-    <span style="font-size:18px;cursor:pointer" onclick="go('pg-home')">‹</span>
-    <span style="font-size:16px;font-weight:600;color:#222;flex:1;text-align:center">注单记录</span>
-    <span style="width:18px"></span>
-  </div>
-  <div style="display:flex;background:#fff;border-bottom:1px solid #eee">
-    <div class="ptab" style="font-size:14px">未结算</div><div class="ptab" style="font-size:14px">已结算</div><div class="ptab on" style="font-size:14px">我的卖出</div>
-  </div>
-  <div class="scroll" id="orders-wrap">
-    <div style="padding:8px 12px 0" id="orders-stats"></div>
-    <div style="display:flex;gap:8px;padding:2px 12px 8px;align-items:center" id="orders-filters"></div>
-    <div class="seg" style="margin:0 12px 8px">
+  <div style="background:#fff;padding:12px 14px" class="row"><div class="kklogo"><span class="mk"><i></i></span><span class="tx"><b>King</b><s>Kong</s></span></div></div>
+  <div class="scroll" id="orders-wrap" style="background:#F2F3F5;padding-bottom:76px">
+    <div style="padding:10px 12px 0" id="orders-stats"></div>
+    <div style="display:flex;gap:8px;padding:10px 12px 0;overflow-x:auto" id="orders-sfilter"></div>
+    <div style="display:flex;gap:8px;padding:8px 12px;overflow-x:auto;align-items:center" id="orders-tfilter"></div>
+    <div class="seg" style="margin:0 12px 8px;display:none" id="orders-seg">
       <span class="on" id="seg-0" onclick="segTab(0)">开盘</span>
       <span id="seg-1" onclick="segTab(1)">投注项卖单</span>
     </div>
     <div style="padding:0 12px 12px" id="orders-list"></div>
   </div>
+</div>
+
+<!-- ═════════ 庄家卖出详情 ═════════ -->
+<div class="page" id="pg-selldetail" style="background:#F2F3F5">
+  <div style="background:#fff;padding:13px 14px" class="row">
+    <span style="font-size:18px;cursor:pointer" onclick="openOrders(2)">‹</span>
+    <span style="font-size:16px;font-weight:600;color:#222;flex:1;text-align:center">庄家卖出详情</span>
+    <span id="sd-share" style="width:20px;display:none;cursor:pointer" onclick="shareLegacy(sdIdx)">
+      <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#FF8C00;fill:none;stroke-width:1.8"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></span>
+  </div>
+  <div class="scroll" style="padding:10px" id="sd-body"></div>
+  <div style="background:#fff;border-top:1px solid #eee;padding:10px 12px" id="sd-footer"></div>
+</div>
+
+<!-- ═════════ 买单 ═════════ -->
+<div class="page" id="pg-buys" style="background:#F2F3F5">
+  <div style="background:#fff;padding:12px 14px" class="row"><div class="kklogo"><span class="mk"><i></i></span><span class="tx"><b>King</b><s>Kong</s></span></div></div>
+  <div class="scroll">
+    <div style="background:#fff;border-radius:12px;margin:10px 12px 0;display:flex">
+      <div class="ptab on" id="bt-0" onclick="buyTabSel(0)" style="font-size:15px">未结算</div>
+      <div class="ptab" id="bt-1" onclick="buyTabSel(1)" style="font-size:15px">已结算</div>
+    </div>
+    <div style="display:flex;gap:8px;padding:10px 12px 0;overflow-x:auto" id="buys-filters"></div>
+    <div style="padding:10px 12px 0" id="buys-stats"></div>
+    <div style="padding:10px 12px 76px" id="buys-list"></div>
+  </div>
+</div>
+
+<!-- ═════════ 赛果 ═════════ -->
+<div class="page" id="pg-results" style="background:#F2F3F5">
+  <div style="background:#fff;padding:12px 14px" class="row"><div class="kklogo"><span class="mk"><i></i></span><span class="tx"><b>King</b><s>Kong</s></span></div>
+    <span class="grow"></span>
+    <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#FF8C00;fill:none;stroke-width:1.8;cursor:pointer" onclick="toast('筛选(示意)')"><path d="M3 5h18l-7 8v6l-4-2v-4z"/></svg>
+  </div>
+  <div style="background:#fff;padding:0 10px 8px">
+    <div style="display:flex;gap:6px;overflow-x:auto;padding:6px 0" id="res-dates"></div>
+    <div style="display:flex;gap:12px;overflow-x:auto;padding:4px 0;align-items:center" id="res-sports"></div>
+  </div>
+  <div class="scroll" style="padding:8px 10px 76px" id="results-list"></div>
+</div>
+
+<!-- ═════════ 我的 ═════════ -->
+<div class="page" id="pg-me" style="background:#F2F3F5">
+  <div style="background:#fff;padding:12px 14px" class="row"><div class="kklogo"><span class="mk"><i></i></span><span class="tx"><b>King</b><s>Kong</s></span></div></div>
+  <div class="scroll" style="padding:10px 10px 76px" id="me-list"></div>
+</div>
+
+<!-- ═════════ 盘口详情(所有盘口) ═════════ -->
+<div class="page" id="pg-match" style="background:#F2F3F5">
+  <div class="row" style="background:#fff;padding:12px 14px">
+    <span style="font-size:18px;cursor:pointer" onclick="go('pg-home');renderHome();setNav('match')">‹</span>
+    <span style="font-size:15px;font-weight:600;color:#222;flex:1;text-align:center" id="mt-title">联赛</span>
+    <span style="color:#666;cursor:pointer;font-size:14px" onclick="toast('已刷新')">⟳</span>
+    <span style="color:#ccc;margin-left:10px;cursor:pointer" onclick="toast('已收藏(示意)')">☆</span>
+  </div>
+  <div id="mt-banner"></div>
+  <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;overflow-x:auto" id="mt-tabs"></div>
+  <div class="scroll" style="padding:8px 10px 76px" id="mt-body"></div>
+</div>
+
+<!-- ═════════ P2P 分享内容页(金刚/TG webview) ═════════ -->
+<div class="page" id="pg-share" style="background:#EDEFF2">
+  <div class="row" style="background:#2B2F36;padding:9px 14px;color:#fff">
+    <span style="font-size:12px" class="grow nowrap" id="sh-url">sports.kk.com/p2p/s/B10021</span>
+    <span style="font-size:11px;background:rgba(255,255,255,.16);padding:2px 8px;border-radius:8px" class="nowrap">金刚 webview</span>
+  </div>
+  <div class="scroll" style="padding:12px" id="share-body"></div>
 </div>
 
 <!-- ═════════ 盘详情 ═════════ -->
@@ -203,17 +281,16 @@ input:focus{border-color:#FF8C00}
 
 <!-- ═════════ 投注面板 ═════════ -->
 <div class="ovl" id="ov-slip">
-  <div class="sheet" style="height:86%">
-    <div class="row" style="padding:12px 14px;background:#fff;border-radius:16px 16px 0 0">
-      <span style="width:22px;height:22px;background:#FF8C00;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700" id="slip-cnt">0</span>
-      <span style="font-size:16px;font-weight:700;color:#222" class="grow">金刚体育</span>
-      <span style="background:linear-gradient(180deg,#FFA33A,#FF8C00);color:#fff;font-size:13px;font-weight:600;padding:5px 12px;border-radius:16px" class="nowrap">⟳ <span id="bal-slip">99,691.71</span> CNY</span>
-      <span style="font-size:18px;color:#999;cursor:pointer;margin-left:2px" onclick="hide('ov-slip')">✕</span>
-    </div>
-    <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0">
-      <div class="ptab" id="st-0" onclick="slipTab(0)">买入</div>
-      <div class="ptab" id="st-1" onclick="slipTab(1)" style="display:none">串关</div>
-      <div class="ptab" id="st-2" onclick="slipTab(2)">卖出</div>
+  <div class="sheet">
+    <div class="row" style="padding:4px 14px 0;background:#fff;border-radius:14px 14px 0 0">
+      <div style="display:flex" class="grow">
+        <div class="ptab" id="st-0" onclick="slipTab(0)" style="padding:12px 4px;margin-right:20px">买入</div>
+        <div class="ptab" id="st-2" onclick="slipTab(2)" style="padding:12px 4px;margin-right:20px">卖出</div>
+        <div class="ptab" id="st-1" onclick="slipTab(1)" style="padding:12px 4px;display:none">串关</div>
+      </div>
+      <span style="font-size:13px;color:#666" class="nowrap">注单</span>
+      <span style="width:20px;height:20px;background:#FF8C00;border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 10px 0 5px" id="slip-cnt">0</span>
+      <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#8a8f96;fill:none;stroke-width:1.7;cursor:pointer" onclick="clearAll()"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10.5 11v5M13.5 11v5"/></svg>
     </div>
     <div class="sheet-body" style="padding:10px 12px" id="slip-body"></div>
     <div style="background:#fff;border-top:1px solid #f0f0f0;padding:10px 14px;flex-shrink:0" id="slip-footer"></div>
@@ -262,15 +339,32 @@ input:focus{border-color:#FF8C00}
 <div class="ovl" id="ov-cfm" style="z-index:100">
   <div class="sheet" style="padding:16px;background:#fff" id="cfm-body"></div>
 </div>
+<div class="bnav">
+    <div class="bi on" id="nav-i-match" onclick="setNav('match');go('pg-home');renderHome()">
+      <svg viewBox="0 0 24 24"><path d="M7 4h10v3a5 5 0 0 1-10 0z"/><path d="M7 5H4.6v1.6A3.4 3.4 0 0 0 7.6 10M17 5h2.4v1.6A3.4 3.4 0 0 1 16.4 10"/><path d="M12 12v4M9 20h6M10 20l.5-4h3l.5 4"/></svg>
+      赛事</div>
+    <div class="bi" id="nav-i-buy" onclick="openBuys()">
+      <svg viewBox="0 0 24 24"><path d="M6 3h7l4 4v6"/><path d="M6 3v18h5"/><path d="M13 3v4h4"/><circle cx="16.5" cy="17.5" r="4"/><path d="M16.5 15.6v3.8M14.6 17.5h3.8"/></svg>
+      买单</div>
+    <div class="bi" id="nav-i-sell" onclick="openOrders(2)">
+      <svg viewBox="0 0 24 24"><path d="M6 3h7l4 4v6"/><path d="M6 3v18h5"/><path d="M13 3v4h4"/><circle cx="16.5" cy="17.5" r="4"/><path d="M16.5 15.3v4.4M17.9 16.2c0-.6-.6-1-1.4-1s-1.4.4-1.4 1c0 1.3 2.8.7 2.8 2 0 .6-.6 1-1.4 1s-1.4-.4-1.4-1"/></svg>
+      卖单<span class="badge" id="nav-sell-badge">0</span></div>
+    <div class="bi" id="nav-i-result" onclick="openResults()">
+      <svg viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="3"/><text x="12" y="11.4" text-anchor="middle" font-size="6" font-weight="700" fill="currentColor" stroke="none">VS</text><text x="12" y="17.4" text-anchor="middle" font-size="6" font-weight="700" fill="currentColor" stroke="none">1-2</text></svg>
+      赛果</div>
+    <div class="bi" id="nav-i-me" onclick="openMe()">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
+      我的</div>
+  </div>
 <div class="toast" id="toast"></div>
 
 </div>
 <script>
 /* ═════════ 数据模型(参照真实首页截图) ═════════ */
 const LEAGUES=[
-  {name:'TEST测试联赛-接口验收专用',flag:'🔴',mids:['t1']},
-  {name:'爱尔兰超级联赛',flag:'🔴',mids:['m1','m2']},
-  {name:'冰岛女子超级联赛',flag:'🔵',mids:['m3']}
+  {name:'爱尔兰超级联赛',flag:'🔴',mids:['m2','m1']},
+  {name:'冰岛女子超级联赛',flag:'🔵',mids:['m3']},
+  {name:'TEST测试联赛-接口验收专用',flag:'🔴',mids:['t1']}
 ];
 let collapsed={};
 const MATCHES={
@@ -325,13 +419,46 @@ let balance=99691.71;
 let staticLanes={};Object.keys(ITEMS).forEach(k=>staticLanes[k]=[]);
 staticLanes.t1_big=[{odds:0.92,amt:1500,seller:'2人'},{odds:0.88,amt:660,seller:'1人'},{odds:0.80,amt:300,seller:'1人'}];
 staticLanes.t1_small=[{odds:0.98,amt:888,seller:'2人'}];
+/* 爱尔兰超级联赛(置顶)的其他会员卖出档位,与本人挂单混排 */
+staticLanes.m2_hh=[{odds:1.08,amt:195,seller:'2人'},{odds:1.02,amt:8888,seller:'3人'}];
+staticLanes.m2_mw=[{odds:3.62,amt:520,seller:'1人'}];
+staticLanes.m1_big=[{odds:1.06,amt:660,seller:'1人'},{odds:1.02,amt:1200,seller:'2人'}];
 
+let SELL_COMM=0.03;  /* 平台抽水 3% */
 let legacySells=[
-  {itemKey:'demo',label:'让球 +0.5',odds:0.90,pt:-0.02,dep:1000,cap:599,remain:599,sold:0,subs:3,state:'卖出中',match:'巴萨 VS 皇马 西甲联赛',time:'04-28 02:00',bucket:'30d'},
-  {itemKey:'demo',label:'客胜',odds:0.90,pt:0.01,dep:1000,cap:599,remain:0,sold:599,subs:3,state:'已售罄',match:'巴萨 VS 皇马 西甲联赛',time:'04-28 02:00',bucket:'30d'},
-  {itemKey:'demo',label:'客胜',odds:0.90,pt:0.01,dep:1000,cap:599,remain:0,sold:599,subs:3,state:'已结算',profit:1590,match:'巴萨 VS 皇马 西甲联赛',time:'04-28 02:00',bucket:'30d'},
-  {itemKey:'demo',label:'客胜',odds:0.90,pt:0.01,dep:1000,cap:599,remain:180,sold:419,subs:3,state:'已关闭',match:'巴萨 VS 皇马 西甲联赛',time:'04-28 02:00',bucket:'30d'}
+  {id:'S20260731001',league:'爱尔兰超级联赛',home:'瓦特福',away:'圣巴特里克竞技',play:'全场 · 让球',item:'主 +0.5/1',
+   itemKey:'m2_hh',odds:1.05,pt:0.06,ptPct:6.0,dep:1000,cap:952.38,sold:0,subsList:[],
+   state:'卖出中',time:'2026-07-31 02:00',bucket:'today'},
+  {id:'S20260729014',league:'Club Friendly CHS',home:'Celta Vigo',away:'Academico Viseu',play:'全场 · 让球',item:'主 -0.5/1',
+   itemKey:'m1_hh',odds:0.84,pt:0.01,ptPct:1.0,dep:85,cap:101.15,sold:5,
+   subsList:[{u:'al***12',amt:5,time:'2026-07-29 15:24',settle:0}],
+   state:'部分成交',time:'2026-07-29 15:23',bucket:'7d'},
+  {id:'S20260730022',league:'MockOBT2026 CHS',home:'HomeTeamCodeA842 CHS',away:'AwayTeamCodeB3122 CHS',play:'全场 · 独赢',item:'主',
+   itemKey:'m3_ma',odds:0.95,pt:0.03,ptPct:3.0,dep:50,cap:52.63,sold:20,
+   subsList:[{u:'al***12',amt:10,time:'2026-07-30 15:34',settle:-10},{u:'al***11',amt:10,time:'2026-07-30 15:24',settle:-10}],
+   state:'已结算',time:'2026-07-30 15:20',bucket:'yesterday'},
+  {id:'S20260730048',league:'Club Friendly CHS',home:'RCD Mallorca',away:'Ittihad FC',play:'全场 · 独赢',item:'主',
+   itemKey:'m1_ah',odds:0.10,pt:0.01,ptPct:1.0,dep:20,cap:199.99,sold:0,subsList:[],
+   state:'已关闭',time:'2026-07-30 16:48',bucket:'yesterday'},
+  {id:'S20260727005',league:'独立日足球锦标赛(在印度)',home:'参哥里',away:'丁塔尔FC',play:'全场 · 独赢',item:'主',
+   itemKey:'m2_mw',odds:17.01,pt:0.10,ptPct:1.0,dep:100,cap:5.88,sold:0,subsList:[],
+   state:'已关闭',time:'2026-07-27 15:03',bucket:'7d'},
+  {id:'S20260722031',league:'俱乐部友谊赛',home:'诺丁汉森林',away:'布莱克本',play:'全场 · 大/小',item:'大 3',
+   itemKey:'m1_big',odds:1.03,pt:0.03,ptPct:3.0,dep:100,cap:97.09,sold:20,
+   subsList:[{u:'al***45',amt:20,time:'2026-07-22 18:10',settle:20.60}],
+   state:'已结算',time:'2026-07-22 18:03',bucket:'30d'},
+  {id:'S20260721009',league:'瑞典超甲级联赛',home:'法尔肯贝里',away:'赫尔辛堡',play:'全场 · 独赢',item:'主',
+   itemKey:'m3_mw',odds:1.05,pt:0.01,ptPct:1.0,dep:6,cap:5.71,sold:5.71,
+   subsList:[{u:'al***77',amt:5.71,time:'2026-07-21 14:40',settle:-5.71}],
+   state:'已结算',time:'2026-07-21 14:35',bucket:'30d'}
 ];
+/* 派生:剩余额度/进度/庄单最终输赢/抽水/卖出返回 */
+function lsRemain(l){return Math.max(0,+(l.cap-l.sold).toFixed(2))}
+function lsPct(l){return l.cap?Math.min(100,l.sold/l.cap*100):0}
+function lsGross(l){return +((l.subsList||[]).reduce((s,x)=>s-(x.settle||0),0)).toFixed(2)}
+function lsComm(l){const g=lsGross(l);return g>0?+(g*SELL_COMM).toFixed(2):0}
+function lsProfit(l){return +(lsGross(l)-lsComm(l)).toFixed(2)}
+function lsRefund(l){return +(l.dep+lsProfit(l)).toFixed(2)}
 let markets=[
   {id:'M20260710001',mid:'m1',status:'open',nick:'金刚庄',auto:10,created:'07-10 14:02',bucket:'today',dep:1000,
    items:[
@@ -351,7 +478,9 @@ function mOccupied(m){return m.items.reduce((s,i)=>s+i.sold*i.odds,0)}
 function mRemainDep(m){return Math.max(0,+(m.dep-mOccupied(m)).toFixed(2))}
 function itemRemain(m,it){return it.status!=='on'?0:Math.floor(mRemainDep(m)/it.odds*100)/100}
 function maxOdds(arr){return arr.length?Math.max(...arr):0}
-/* ═════ 复制比赛模型 ═════ */
+/* ═════ 开盘坐庄功能开关:本期隐藏,下一版本置 true 即恢复 ═════ */
+const OPEN_MARKET_ENABLED=false;
+/* ═════ 私盘(复制比赛)模型 ═════ */
 let BANKER_NICK='金刚庄';
 let OTHER_MK=[{id:'OM77',nick:'财神爷',mid:'m2',dep:2000,items:[
   {key:'m2_mw',odds:2.86,sold:0},{key:'m2_ma',odds:1.06,sold:0},{key:'m2_md',odds:2.80,sold:0}]}];
@@ -401,30 +530,79 @@ let stFilter='all',tFilter='all';
 const $=id=>document.getElementById(id);
 const f2=n=>(+n).toFixed(2);
 const money=n=>(+n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
-function go(p){document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));$(p).classList.add('active')}
-function show(id){$(id).classList.add('show')}
-function hide(id){$(id).classList.remove('show')}
+const NAV_HIDDEN_PAGES=['pg-selldetail','pg-share','pg-detail'];
+function go(p){
+  document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
+  $(p).classList.add('active');
+  const nav=document.querySelector('.bnav');
+  if(nav)nav.style.display=NAV_HIDDEN_PAGES.includes(p)?'none':'flex';
+  const bar=$('cartbar');
+  if(bar&&p!=='pg-home')bar.style.display='none';
+  if(p==='pg-home')updBadge();
+}
+function show(id){$(id).classList.add('show');if(id==='ov-slip')syncListPad()}
+function hide(id){$(id).classList.remove('show');if(id==='ov-slip')syncListPad()}
 function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';clearTimeout(t._h);t._h=setTimeout(()=>t.style.display='none',2000)}
 function cfm(html){$('cfm-body').innerHTML=html;show('ov-cfm')}
 function closeCfm(){hide('ov-cfm')}
 document.querySelectorAll('.ovl').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('show')}));
-function syncBal(){$('bal-home').textContent=money(balance);$('bal-slip').textContent=money(balance)}
-function fabToggle(open){$('fab-fold').style.display=open?'none':'flex';$('fab-open').style.display=open?'flex':'none'}
+function syncBal(){['bal-home','bal-slip','me-bal'].forEach(id=>{const e=$(id);if(e)e.textContent=money(balance)})}
+function fabToggle(open){/* 浮标已移除,底部导航替代 */}
+function setNav(id){['match','buy','sell','result','me'].forEach(x=>{const e=$('nav-i-'+x);if(e)e.classList.toggle('on',x===id)})}
+function syncListPad(){
+  const open=$('ov-slip')&&$('ov-slip').classList.contains('show');
+  const hl=$('home-list');
+  if(hl)hl.style.paddingBottom=open?'62%':'66px';
+}
 function updBadge(){
-  const n=markets.filter(m=>m.status==='open'||m.status==='soldout').length
-        +legacySells.filter(l=>l.state==='卖出中'||l.state==='已售罄').length;
-  $('fab-badge').textContent=n;
+  syncListPad();
   const s=Object.values(sel).filter(Boolean).length;
-  $('fab-selbadge').style.display=s?'flex':'none';$('fab-selbadge').textContent=s;
-  $('slip-cnt').textContent=s;
+  const b=$('nav-cart-badge');if(b)b.textContent=s;
+  const bar=$('cartbar');
+  if(bar)bar.style.display=(s&&!$('ov-slip').classList.contains('show'))?'flex':'none';
+  const n=(OPEN_MARKET_ENABLED?markets.filter(m=>m.status==='open'||m.status==='soldout').length:0)
+        +legacySells.filter(l=>l.state==='卖出中'||l.state==='已售罄').length;
+  const sb=$('nav-sell-badge');
+  if(sb){sb.style.display=n?'flex':'none';sb.textContent=n;}
+  const sc=$('slip-cnt');if(sc)sc.textContent=s;
 }
 function validPt(v){return /^-?\d+(\.\d{1,2})?$/.test(String(v).trim())}
 
 /* ═════════ 首页渲染(数据驱动) ═════════ */
+let seenDots={},p2pDotSeen=false,matchDotSeen={};
+let p2pOnly=false;
+function toggleP2POnly(){
+  p2pOnly=!p2pOnly;
+  p2pDotSeen=true;                                  /* 点击后红点消失 */
+  const d=$('fp-p2p-dot');if(d)d.style.display='none';
+  const el=$('fp-p2p');if(el)el.classList.toggle('on',p2pOnly);
+  renderHome();
+  toast(p2pOnly?'仅展示有庄单的比赛':'已取消 P2P 筛选');
+}
+function seeMatchDot(mid){matchDotSeen[mid]=true;renderHome();toast('该比赛 P2P 投注项 '+p2pCountOf(mid)+' 个')}
+/* 比赛内不低于官方赔率的 P2P 投注项数量 */
+function p2pCountOf(mid){
+  let n=0;
+  Object.keys(ITEMS).forEach(k=>{
+    if(ITEMS[k].mid!==mid)return;
+    if(lanesFor(k).some(l=>l.odds>=officialHk[k]))n++;
+  });
+  return n;
+}
 function cellHtml(mid,suffix,lb,v){
   const k=mid+'_'+suffix;
-  const dot=lanesFor(k).length?'<span class="reddot"></span>':'';
-  return `<div class="oddcell ${sel[k]?'sel':''}" id="cell-${k}" onclick="toggleSel('${k}')">${dot}<span class="lb">${lb}</span><span class="v">${f2(v)}</span></div>`;
+  const hk=officialHk[k];
+  const lanes=lanesFor(k).filter(l=>l.odds>=hk);
+  const hasP2P=lanes.length>0;
+  /* 红点条件:存在高于官方赔率的 P2P 档位即常驻,不因点击消失 */
+  const dot=lanes.some(l=>l.odds>hk)?'<span class="reddot"></span>':'';
+  let disp=f2(v),vc='';
+  if(hasP2P){
+    const mx=Math.max(...lanes.map(l=>l.odds));
+    const isMw=suffix.endsWith('mw')||suffix.endsWith('ma')||suffix.endsWith('md');
+    disp=f2(isMw?mx+1:mx);vc='color:#FF8C00;font-weight:700';
+  }
+  return `<div class="oddcell ${sel[k]?'sel':''}" id="cell-${k}" onclick="toggleSel('${k}')">${dot}<span class="lb">${lb}</span><span class="v" style="${vc}">${disp}</span></div>`;
 }
 function disCell(txt){return `<div class="oddcell" style="background:#f3f3f3;color:#bbb;cursor:not-allowed">${txt}</div>`}
 function toggleLeague(i){collapsed[i]=!collapsed[i];renderHome()}
@@ -440,6 +618,7 @@ let cloneOnly=false;
 function toggleCloneOnly(){cloneOnly=!cloneOnly;const el=$('fp-clone');if(el)el.classList.toggle('on',cloneOnly);renderHome()}
 function cloneToggle(k){if(!(k in buyAmt))buyAmt[k]='';if(slipIdx===2)slipIdx=0;toggleSel(k)}
 function cloneRowsHtml(mid){
+  if(!OPEN_MARKET_ENABLED)return '';
   const m=MATCHES[mid];
   if(!m||m.special==='test')return '';
   return clonesOf(mid).map(c=>{
@@ -469,7 +648,7 @@ function cloneRowsHtml(mid){
           <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">${cc('mw','主')}${cc('ma','客')}${cc('md','和')}</div>
-        <div style="display:flex;flex-direction:column;gap:5px;margin:0 6px">${cc('hh',o.hhL)}${cc('ah',o.ahL)}</div>
+        <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px">${cc('hh',o.hhL)}${cc('ah',o.ahL)}</div>
         <div style="display:flex;flex-direction:column;gap:5px">${cc('big',o.bigL)}${cc('small',o.smallL)}</div>
       </div>
     </div>`;
@@ -489,15 +668,19 @@ function swE(e,mid){
   else if(d>0&&curP===1)setPage(mid,0); /* 右滑 → 全场 */
 }
 function renderHome(){
-  $('home-list').innerHTML=LEAGUES.map((lg,li)=>`
+  $('home-list').innerHTML=LEAGUES.map((lg,li)=>{
+    const lgMids=p2pOnly?lg.mids.filter(x=>p2pCountOf(x)>0):lg.mids;
+    if(!lgMids.length)return '';
+    return `
     <div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
       <div class="row" style="padding:10px 12px;background:#FFF7ED;border-left:3px solid #FF8C00">
         <span style="font-size:13px">${lg.flag}</span>
-        <span style="font-size:13px;font-weight:600;color:#222" class="grow">${lg.name}</span>
-        <span class="tag tag-p2p">P2P</span>
+        <span style="font-size:13px;font-weight:600;color:#222" class="grow">${lg.name}(${lgMids.length})</span>
+        ${OPEN_MARKET_ENABLED&&lgMids.some(x=>clonesOf(x).length)?'<span class="tag tag-p2p" style="margin-right:5px">私盘</span>':''}
+        ${lgMids.some(x=>p2pCountOf(x)>0)?'<span class="tag tag-p2p">P2P</span>':''}
         <span style="color:#FF8C00;cursor:pointer;padding:2px 4px;font-size:14px" onclick="toggleLeague(${li})">${collapsed[li]?'⌄':'⌃'}</span>
       </div>
-      ${collapsed[li]?'':lg.mids.map((mid,mi)=>{
+      ${collapsed[li]?'':lgMids.map((mid,mi)=>{
         if(cloneOnly)return cloneRowsHtml(mid);
         const m=MATCHES[mid];
         const isTest=m.special==='test';
@@ -509,35 +692,164 @@ function renderHome(){
           ?`<div style="display:flex;flex-direction:column;gap:5px">${disCell('--')}${disCell('--')}</div>`
           :`<div style="display:flex;flex-direction:column;gap:5px">${cellHtml(mid,pre+'mw','主',o.mw)}${cellHtml(mid,pre+'ma','客',o.ma)}${cellHtml(mid,pre+'md','和',o.md)}</div>`;
         const col2=isTest
-          ?`<div style="display:flex;flex-direction:column;gap:5px;margin:0 6px">${disCell('🔒')}${disCell('🔒')}</div>`
-          :`<div style="display:flex;flex-direction:column;gap:5px;margin:0 6px">${cellHtml(mid,pre+'hh',o.hhL,o.hh)}${cellHtml(mid,pre+'ah',o.ahL,o.ah)}</div>`;
+          ?`<div style="display:flex;flex-direction:column;gap:5px;margin:0 4px">${disCell('🔒')}${disCell('🔒')}</div>`
+          :`<div style="display:flex;flex-direction:column;gap:5px;margin:0 4px">${cellHtml(mid,pre+'hh',o.hhL,o.hh)}${cellHtml(mid,pre+'ah',o.ahL,o.ah)}</div>`;
         const col3=`<div style="display:flex;flex-direction:column;gap:5px">${cellHtml(mid,pre+'big',o.bigL,o.big)}${cellHtml(mid,pre+'small',o.smallL,o.small)}</div>`;
         const indicator=isTest
           ?`<span style="display:inline-block;width:18px;height:3px;background:#FF8C00;border-radius:2px"></span>`
           :`<span onclick="setPage('${mid}',0)" style="display:inline-block;width:18px;height:4px;background:${pg===0?'#FF8C00':'#ddd'};border-radius:2px;cursor:pointer"></span><span onclick="setPage('${mid}',1)" style="display:inline-block;width:18px;height:4px;background:${pg===1?'#FF8C00':'#ddd'};border-radius:2px;margin-left:4px;cursor:pointer"></span>`;
-        return `<div style="padding:10px 12px;${mi<lg.mids.length-1?'border-bottom:1px solid #f5f5f5':''}">
+        return `<div style="padding:10px 12px;${mi<lgMids.length-1?'border-bottom:1px solid #f5f5f5':''}">
         <div class="row" style="margin-bottom:4px">
           <span style="color:#ccc">☆</span><span class="muted nowrap" style="font-size:12px">${m.time}</span>
-          <span class="muted nowrap" style="font-size:12px">${m.cnt} ›</span>
-          <button class="btn btn-o btn-sm" style="height:24px;padding:0 10px;font-size:11px;border-radius:12px;white-space:nowrap;flex-shrink:0" onclick="openSheet('${mid}')">开盘</button>
+          ${OPEN_MARKET_ENABLED?`<button class="btn btn-o btn-sm" style="height:24px;padding:0 10px;font-size:11px;border-radius:12px;white-space:nowrap;flex-shrink:0" onclick="openSheet('${mid}')">开盘</button>`:''}
           <span class="grow"></span>
         </div>
         <div class="row" style="margin-bottom:6px">
           <span class="grow"></span>
-          <span class="muted nowrap" style="width:70px;text-align:center;font-size:11px">${scope} 独赢</span>
-          <span class="muted nowrap" style="width:70px;text-align:center;font-size:11px;margin:0 6px">${scope} 让球</span>
-          <span class="muted nowrap" style="width:70px;text-align:center;font-size:11px">${scope} 大/小</span>
+          <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">${scope} 独赢</span>
+          <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px;margin:0 4px">${scope} 让球</span>
+          <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">${scope} 大/小</span>
         </div>
         <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
-          <div class="grow" style="display:flex;flex-direction:column;justify-content:space-around;gap:8px;min-width:0">
+          <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
             <div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span></div>
             <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
+            <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+              <span class="muted nowrap" style="font-size:11px;cursor:pointer;flex-shrink:0" onclick="openMatch('${mid}')">所有盘口 ${m.cnt}▸</span>
+              ${(()=>{const n=p2pCountOf(mid);if(!n)return '';
+                return `<span style="position:relative;background:#FF8C00;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;cursor:pointer;flex-shrink:0" onclick="seeMatchDot('${mid}');openMatch('${mid}')">P2P${matchDotSeen[mid]?'':'<span class="reddot" style="top:-3px;right:-3px;width:6px;height:6px"></span>'}</span>
+                  <span class="muted nowrap" style="font-size:11px;cursor:pointer;flex-shrink:0" onclick="seeMatchDot('${mid}');openMatch('${mid}')">${n}</span>`})()}
+            </div>
           </div>
           ${col1}${col2}${col3}
         </div>
         <div style="text-align:center;margin-top:8px">${indicator}</div>
       </div>${cloneRowsHtml(mid)}`}).join('')}
-    </div>`).join('')+'<div class="hint" style="margin-top:4px">私盘模型演示:开盘=复制一场比赛生成私盘,原比赛不受影响。登克尔克下方为「金刚庄(我)」的私盘;瓦特福下方为庄家「财神爷」的私盘,其档位同时挂入原比赛卖单簿;点私盘赔率格直接购买庄家档位,整盘售罄后私盘消失;筛选行「私盘」只看私盘。</div><div class="muted" style="text-align:center;padding:14px">暂无更多数据</div>';
+    </div>`}).join('')+(OPEN_MARKET_ENABLED
+    ?'<div class="hint" style="margin-top:4px">私盘模型演示:开盘=复制一场比赛生成私盘,原比赛不受影响;私盘档位同时挂入原比赛卖单簿;筛选行「私盘」只看私盘。</div>'
+    :'<div class="hint" style="margin-top:4px">本期范围演示:P2P 投注项卖出与买入(卖单簿依序吃单)、串关、买单/卖单/赛果/我的、P2P 挂单分享。开盘坐庄(私盘、盘级押金、控盘)已隐藏,下一版本开放。分享走查:底部「卖单」→ 卖出中的挂单 →「分享」。</div>')+'<div class="muted" style="text-align:center;padding:14px">暂无更多数据</div>';
+}
+
+/* ═════════ 盘口详情(所有盘口) ═════════ */
+let mtMid=null,mtTab=0,mtFold={};
+const MT_TABS=['全部','让球','大小','进球','半场','特殊'];
+/* 扩展盘口:在既有投注项基础上按截图补足多条让球/大小线,注册进 ITEMS 以复用购物车逻辑 */
+function mtRegister(mid){
+  const m=MATCHES[mid];if(!m||m._mtDone)return;
+  const mk=(suffix,group,label,hk)=>{
+    const key=mid+'_'+suffix;
+    if(ITEMS[key])return;
+    ITEMS[key]={key,mid,label,group,eu:+(hk+1).toFixed(2),hk0:hk};
+    officialHk[key]=hk;staticLanes[key]=staticLanes[key]||[];
+  };
+  const o=m.odds;
+  if(m.special!=='test'){
+    /* 全场让球扩展线 */
+    mk('hh2','全场 让球','主 -1',+(o.hh-0.17).toFixed(2));
+    mk('ah2','全场 让球','客 +1',+(o.ah+0.17).toFixed(2));
+    mk('hh3','全场 让球','主 -1/1.5',+(o.hh+0.45).toFixed(2));
+    mk('ah3','全场 让球','客 +1/1.5',+(o.ah-0.37).toFixed(2));
+    mk('hh4','全场 让球','主 -1.5',+(o.hh+0.70).toFixed(2));
+    mk('ah4','全场 让球','客 +1.5',+(o.ah-0.49).toFixed(2));
+    /* 上半场让球扩展线 */
+    const h=m.half;
+    mk('h_hh2','上半场 让球','主 -0/0.5',+(h.hh-0.02).toFixed(2));
+    mk('h_ah2','上半场 让球','客 +0/0.5',+(h.ah+0.02).toFixed(2));
+    /* 进球数 */
+    mk('g_odd','全场 进球','单',0.95);
+    mk('g_even','全场 进球','双',0.93);
+    /* 特殊玩法 */
+    mk('sp_both','特殊 双方进球','是',0.88);
+    mk('sp_none','特殊 双方进球','否',0.96);
+  }
+  m._mtDone=true;
+}
+function openMatch(mid){
+  mtMid=mid;mtTab=0;mtFold={};
+  mtRegister(mid);renderMatch();go('pg-match');
+}
+/* 按玩法分组 */
+function mtGroups(mid){
+  const g={};
+  Object.values(ITEMS).forEach(it=>{
+    if(it.mid!==mid)return;
+    (g[it.group]=g[it.group]||[]).push(it);
+  });
+  return g;
+}
+function mtTabOk(group){
+  const t=MT_TABS[mtTab];
+  if(t==='全部')return true;
+  if(t==='让球')return group.includes('让球');
+  if(t==='大小')return group.includes('大/小');
+  if(t==='进球')return group.includes('进球');
+  if(t==='半场')return group.startsWith('上半场')||group.startsWith('下半场');
+  return group.startsWith('特殊');
+}
+function mtCell(it){
+  const k=it.key,hk=officialHk[k];
+  const lanes=lanesFor(k).filter(l=>l.odds>=hk);
+  const mx=lanes.length?Math.max(hk,...lanes.map(l=>l.odds)):hk;
+  const hasP2P=lanes.length>0;
+  const dot=lanes.some(l=>l.odds>hk)?'<span class="reddot"></span>':'';
+  return `<div class="row" id="mcell-${k}" style="position:relative;background:${sel[k]?'linear-gradient(180deg,#FFA33A,#FF8C00)':'#F7F8FA'};border-radius:8px;padding:11px 12px;cursor:pointer;margin-bottom:8px" onclick="toggleSel('${k}')">
+    ${dot}
+    <span style="font-size:12px;color:${sel[k]?'rgba(255,255,255,.9)':'#9aa0a6'}" class="grow nowrap">${it.label}</span>
+    <span style="font-size:15px;font-weight:700;color:${sel[k]?'#fff':(hasP2P&&mx>hk?'#FF8C00':'#222')}" class="nowrap">${f2(mx)}</span>
+  </div>`;
+}
+function renderMatch(){
+  const m=MATCHES[mtMid];if(!m)return;
+  $('mt-title').innerHTML=m.league+' <span style="font-size:11px;color:#999">▾</span>';
+  const live=m.tagTxt==='滚球';
+  $('mt-banner').innerHTML=`<div style="background:linear-gradient(160deg,#0E2A18,#1B4D2B 55%,#14351F);padding:16px 14px 14px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% -10%,rgba(255,255,255,.18),transparent 60%)"></div>
+      <div class="row" style="position:relative">
+        <div style="text-align:center;width:96px">
+          <div style="font-size:26px">${m.hIcon}</div>
+          <div style="font-size:12px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</div></div>
+        <div class="grow" style="text-align:center">
+          <div style="font-size:12px;color:rgba(255,255,255,.85)">${live?'滚球中':'未开赛'}</div>
+          <div style="font-size:13px;font-weight:600;margin-top:3px">${m.time}</div>
+        </div>
+        <div style="text-align:center;width:96px">
+          <div style="font-size:26px">${m.aIcon}</div>
+          <div style="font-size:12px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</div></div>
+      </div>
+      <div style="text-align:center;margin-top:12px;position:relative">
+        <span style="background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:14px;cursor:pointer" onclick="toast('动画直播(示意)')">▦ 动画直播</span></div>
+    </div>`;
+  $('mt-tabs').innerHTML=`<span style="padding:11px 8px 9px;color:#FF8C00;font-size:13px;flex-shrink:0">⌃</span>`
+    +MT_TABS.map((t,i)=>`<span style="padding:11px 12px 9px;font-size:14px;flex-shrink:0;cursor:pointer;${mtTab===i?'color:#222;font-weight:700;border-bottom:2px solid #FF8C00':'color:#8a8f96'}" onclick="mtTab=${i};renderMatch()">${t}</span>`).join('')
+    ;
+  const gs=mtGroups(mtMid);
+  const names=Object.keys(gs).filter(mtTabOk);
+  let html='';
+  names.forEach(gname=>{
+    const items=gs[gname];
+    if(!items.length)return;
+    /* 主客两列:含"主/客"或"大/小"按左右分列,其余单列铺满 */
+    const left=items.filter(it=>/^主|^大|^是|^单/.test(it.label));
+    const right=items.filter(it=>/^客|^小|^否|^双/.test(it.label));
+    const mid_=items.filter(it=>!left.includes(it)&&!right.includes(it));
+    const folded=mtFold[gname];
+    html+=`<div style="background:#fff;border-radius:12px;margin-bottom:10px;overflow:hidden">
+      <div class="row" style="padding:12px 14px;cursor:pointer" onclick="mtFold['${gname}']=${folded?'false':'true'};renderMatch()">
+        <span style="font-size:14px;font-weight:700;color:#222" class="grow">${gname}</span>
+        <span style="color:#8a8f96;font-size:13px">${folded?'⌄':'⌃'}</span></div>
+      ${folded?'':`<div style="padding:0 12px 10px">
+        ${(left.length||right.length)?`<div class="row" style="margin-bottom:7px;gap:10px">
+            <span style="font-size:12px;color:#222;font-weight:600;border-left:2px solid #FF8C00;padding-left:6px" class="grow nowrap">${left[0]?(/^大|^是|^单/.test(left[0].label)?'大 / 是 / 单':m.home):m.home}</span>
+            <span style="font-size:12px;color:#222;font-weight:600;border-left:2px solid #FF8C00;padding-left:6px" class="grow nowrap">${right[0]?(/^小|^否|^双/.test(right[0].label)?'小 / 否 / 双':m.away):m.away}</span></div>
+          <div class="row" style="align-items:flex-start;gap:10px">
+            <div class="grow" style="min-width:0">${left.map(mtCell).join('')}</div>
+            <div class="grow" style="min-width:0">${right.map(mtCell).join('')}</div>
+          </div>`:''}
+        ${mid_.length?`<div>${mid_.map(mtCell).join('')}</div>`:''}
+      </div>`}
+    </div>`;
+  });
+  $('mt-body').innerHTML=html||'<div class="muted" style="text-align:center;padding:40px">该筛选下暂无盘口</div>';
 }
 
 /* ═════════ 卖单簿 ═════════ */
@@ -545,57 +857,235 @@ function lanesFor(k){
   const arr=[];
   (staticLanes[k]||[]).forEach(l=>{if(l.amt>0.001)arr.push({...l})});
   legacySells.forEach(s=>{
-    if(s.itemKey===k&&s.state==='卖出中'&&s.remain>0.001)
-      arr.push({odds:s.odds,amt:s.remain,seller:'我',mine:true,legacy:s});
+    if(s.itemKey!==k)return;
+    if(s.state!=='卖出中'&&s.state!=='部分成交')return;
+    const rm=lsRemain(s);
+    if(rm>0.001)arr.push({odds:s.odds,amt:rm,seller:'我',mine:true,bought:s.sold||0,legacy:s});
   });
-  markets.forEach(m=>{
-    if(m.status!=='open'&&m.status!=='soldout')return;
-    m.items.forEach(it=>{
-      if(it.key!==k||it.status!=='on')return;
-      const remain=itemRemain(m,it);
-      if(remain>0.001)arr.push({odds:it.odds,amt:remain,seller:'我',mine:true,mitem:it,market:m});
+  if(OPEN_MARKET_ENABLED){
+    markets.forEach(m=>{
+      if(m.status!=='open'&&m.status!=='soldout')return;
+      m.items.forEach(it=>{
+        if(it.key!==k||it.status!=='on')return;
+        const remain=itemRemain(m,it);
+        if(remain>0.001)arr.push({odds:it.odds,amt:remain,seller:'我',mine:true,mitem:it,market:m});
+      });
     });
-  });
-  OTHER_MK.forEach(o=>{o.items.forEach(it=>{
-    if(it.key!==k)return;
-    const remain=omkItemRemain(o,it);
-    if(remain>0.001)arr.push({odds:it.odds,amt:remain,seller:o.nick,omk:o,oit:it});
-  })});
+    OTHER_MK.forEach(o=>{o.items.forEach(it=>{
+      if(it.key!==k)return;
+      const remain=omkItemRemain(o,it);
+      if(remain>0.001)arr.push({odds:it.odds,amt:remain,seller:o.nick,omk:o,oit:it});
+    })});
+  }
   return arr;
+}
+/* 购买计划:按当前模式把输入金额分配到各档位 */
+/* 加权平均赔率 = Σ(各档成交金额 × 该档赔率) ÷ 成交总额 */
+function avgOdds(k,amt){
+  const hk=officialHk[k];
+  if(!(amt>0))return hk;
+  const p=buyPlan(k,amt);
+  const rows=bookRows(k).filter(r=>r.off||r.odds>=hk);
+  const p2p=rows.filter(r=>!r.off),off=rows.filter(r=>r.off)[0];
+  let w=0,tot=0;
+  p2p.forEach((r,i)=>{const a=p.tiers[i]||0;if(a>0){w+=a*r.odds;tot+=a}});
+  if(p.official>0&&off){w+=p.official*off.odds;tot+=p.official}
+  return tot>0?w/tot:hk;
+}
+function buyPlan(k,amt){
+  const hk=officialHk[k];
+  const rows=bookRows(k).filter(r=>r.off||r.odds>=hk);
+  const p2p=rows.filter(r=>!r.off);
+  const res={tiers:[],official:0};
+  if(!(amt>0))return res;
+  if(!acceptAny){
+    const first=p2p[0];
+    if(first){res.tiers[0]=Math.min(amt,first.amt)}
+    else res.official=amt;
+    return res;
+  }
+  let left=amt;
+  p2p.forEach((r,i)=>{
+    if(left<=0.001)return;
+    const eat=Math.min(left,r.amt);
+    res.tiers[i]=+eat.toFixed(2);left=+(left-eat).toFixed(2);
+  });
+  if(left>0.001)res.official=left;
+  return res;
 }
 function bookRows(k){
   const all=lanesFor(k).concat([{odds:officialHk[k],amt:Infinity,seller:'平台',off:true}]);
   all.sort((a,b)=>b.odds-a.odds||((a.off?1:0)-(b.off?1:0)));
   return all;
 }
-function bookHtml(k){
-  const cn=['卖一','卖二','卖三','卖四','卖五','卖六','卖七'];let ci=0;
-  return `<div class="bkhead"><span style="width:64px">档位</span><span style="flex:1">卖出赔率(港盘)</span><span style="width:90px;text-align:right">可购额度</span><span style="width:44px;text-align:right">卖家</span></div>`+
-  bookRows(k).map(r=>{
-    const lb=r.off?'官方':cn[ci++];
+let kpKey=null,bookOpen={},paraAmt={},batchAmt='';
+function openKp(k){kpKey=(kpKey===k?null:k);renderSlip();
+  if(kpKey)setTimeout(()=>{const el=document.querySelector('#cell-x');const inp=[...document.querySelectorAll('#slip-body input')].find(i=>i.onclick&&String(i.getAttribute('onclick')).includes(k));if(inp)inp.scrollIntoView({block:'center',behavior:'smooth'})},60);
+}
+/* 三方返回的玩法限额 */
+const SYS_LIMIT={min:2,max:10100};
+/* 输入框最大值:未开启自动接受任何赔率 → 三方最大值与卖一可购额度取较小;已开启 → 三方最大值 */
+function betMax(k){
+  if(k.startsWith('C|')){const r=cloneRefOf(k);return r?Math.min(r.remain,SYS_LIMIT.max):SYS_LIMIT.max}
+  if(acceptAny)return SYS_LIMIT.max;
+  const hk=officialHk[k];
+  const first=bookRows(k).filter(r=>r.off||r.odds>=hk)[0];
+  return first?(first.off?SYS_LIMIT.max:Math.min(SYS_LIMIT.max,first.amt)):SYS_LIMIT.max;
+}
+function kpMax(k){return betMax(k)}
+function limitHint(k){return '限额 '+money(SYS_LIMIT.min)+'-'+money(betMax(k))}
+function kpPress(k,key){
+  const isPara=k.startsWith('P|'),isBatch=k==='B|all';
+  const pk=isPara?k.split('|')[1]:null;
+  let v=String((isBatch?batchAmt:(isPara?paraAmt[pk]:buyAmt[k]))||'');
+  if(key==='del')v=v.slice(0,-1);
+  else if(key==='max')v=String((isPara||isBatch)?SYS_LIMIT.max:kpMax(k));
+  else if(key==='hide'){kpKey=null;renderSlip();return}
+  else{if(v.length<9)v+=key}
+  if(isBatch){
+    batchAmt=v;
+    Object.keys(sel).filter(x=>sel[x]).forEach(x=>{buyAmt[x]=v});   /* 单关行统一设置所有注单金额 */
+  }
+  else if(isPara)paraAmt[pk]=v;
+  else buyAmt[k]=v;
+  renderSlip();
+}
+function kpHtml(k){
+  const b=(t,key,st='')=>`<button style="border:none;background:#fff;border-radius:9px;font-size:17px;font-weight:600;color:#222;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.06);${st}" onclick="kpPress('${k}','${key}')">${t}</button>`;
+  const delIcon=`<svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:#444;fill:none;stroke-width:1.6;stroke-linecap:round"><path d="M9 5h10a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H9L2.5 12z"/><path d="M12 9.6l4.8 4.8M16.8 9.6L12 14.4"/></svg>`;
+  const hideIcon=`<svg viewBox="0 0 24 24" style="width:24px;height:24px;stroke:#444;fill:none;stroke-width:1.6;stroke-linecap:round"><rect x="3" y="4" width="18" height="10.5" rx="2"/><path d="M7 7.6h.01M11 7.6h.01M15 7.6h.01M17.6 7.6h.01M7.5 11.2h9"/><path d="M9 18.2l3 3 3-3"/></svg>`;
+  return `<div style="background:#f2f3f5;border-radius:10px;padding:8px;margin-top:8px;display:grid;grid-template-columns:repeat(4,1fr) 1.2fr;grid-template-rows:repeat(3,42px);gap:7px">
+    ${b('1','1')}${b('2','2')}${b('3','3')}${b('4','4')}
+    ${b(delIcon,'del','grid-column:5;grid-row:1/3;display:flex;align-items:center;justify-content:center')}
+    ${b('5','5')}${b('6','6')}${b('7','7')}${b('8','8')}
+    ${b('9','9')}${b('0','0')}${b('00','00')}${b('Max','max','color:#FF8C00;font-size:14px')}
+    ${b(hideIcon,'hide','grid-column:5;grid-row:3;display:flex;align-items:center;justify-content:center')}
+  </div>`;
+}
+function keysOfPara(){return Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|'))}
+function combos(arr,m){const res=[];const f=(s,cur)=>{if(cur.length===m){res.push(cur.reduce((p,x)=>p*x,1));return}for(let i=s;i<arr.length;i++)f(i+1,cur.concat(arr[i]))};f(0,[]);return res}
+function comboRows(eus){
+  const n=eus.length;let h='';
+  const row=(key,label,odds,cnt)=>`<div class="row" style="padding:9px 0;border-bottom:1px dashed #f5f5f5;gap:8px">
+      <span style="font-size:13px;font-weight:700;color:#222" class="nowrap">${label}</span>
+      ${odds?`<span style="font-size:12px;color:#FF8C00" class="nowrap">@${f2(odds)}</span>`:''}
+      <span style="background:#FFF3E5;color:#E8850C;font-size:11px;padding:1px 7px;border-radius:9px" class="nowrap">${cnt}x</span>
+      <span class="grow"></span>
+      <div style="position:relative">
+        <input readonly value="${paraAmt[key]||''}" placeholder="限额 ${money(SYS_LIMIT.min)}-${money(SYS_LIMIT.max)}" style="width:118px;height:32px;text-align:right;background:#fff;padding-right:36px" onclick="openKp('P|${key}')">
+        <span style="position:absolute;right:8px;top:50%;transform:translateY(-50%);color:#bbb;font-size:11px">CNY</span></div>
+    </div>${kpKey==='P|'+key?kpHtml('P|'+key):''}`;
+  for(let m=2;m<=n;m++){
+    const ps=combos(eus,m),avg=ps.reduce((a,b)=>a+b,0)/ps.length;
+    h+=row(String(m),m+'串1',avg,ps.length);
+  }
+  if(n>=3){
+    let all=[];
+    for(let m=2;m<=n;m++)all=all.concat(combos(eus,m));
+    const avgAll=all.reduce((a,b)=>a+b,0)/all.length;
+    h+=row('MIX',n+'串'+all.length+'式',avgAll,all.length);
+  }
+  return h;
+}
+function openBetConfirm(legs,tot,win){
+  window._betWin=win;window._betConfirmed=false;
+  window._betOid='0110001426'+Date.now().toString().slice(-12)+'-1';
+  const legHtml=legs.map(l=>`<div style="border:1px solid #f0f0f0;border-radius:8px;padding:10px;margin-bottom:8px">
+    <div class="row"><span style="font-size:15px;font-weight:700;color:#222">${l.name}</span><span class="grow"></span></div>
+    <div class="row" style="margin-top:5px">
+      ${l.tag?`<span class="tag tag-live">${l.tag}</span>`:''}
+      <span class="muted" style="margin-left:${l.tag?'6px':'0'}">${l.play||''}</span>
+      <span class="grow"></span>
+      <span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${l.odds}</span></div>
+    ${l.match?`<div style="font-size:13px;color:#222;margin-top:4px">${l.match}</div>`:''}
+    ${l.league?`<div style="font-size:12px;color:#FF8C00;margin-top:2px">足球 ${l.league}</div>`:''}
+  </div>`).join('');
+  cfm(`<div id="bc-head" style="text-align:center;margin-bottom:12px">
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:#222">🕐 注单确认中</span></div>
+    ${legHtml}
+    <div class="row" style="margin-top:10px"><span class="muted nowrap">投注金额: <b style="color:#222">${money(tot)} CNY</b></span>
+      <span class="grow"></span><span class="muted nowrap">可赢金额: <b style="color:#222" id="bc-win">0.00 CNY</b></span></div>
+    <div class="row" style="margin-top:8px;padding-top:8px;border-top:1px solid #f5f5f5"><span class="muted grow">注单号:</span>
+      <span class="muted nowrap" style="font-size:11px" id="bc-oid">—</span></div>
+    <div class="row" style="margin-top:5px"><span class="muted grow">投注状态:</span>
+      <span class="muted nowrap" id="bc-st">—</span></div>
+    <button class="btn btn-o" style="width:100%;margin-top:14px" onclick="closeCfm()">保留注单,继续投注</button>
+    <button class="btn btn-p" style="width:100%;margin-top:8px" onclick="betBack()">返回赛事</button>`);
+  setTimeout(()=>{
+    window._betConfirmed=true;
+    buyOrders.filter(o=>o.status==='unsettled'&&o.confirmed===false).forEach(o=>{o.confirmed=true});
+    const h=$('bc-head');
+    if(h&&$('ov-cfm').classList.contains('show')){
+      h.innerHTML='<span style="display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:#222"><span style="color:#1D9E75">✓</span> 注单已确认</span>';
+      const w=$('bc-win');if(w)w.textContent=money(window._betWin)+' CNY';
+      const o=$('bc-oid');if(o)o.innerHTML=window._betOid+' <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:#FF8C00;fill:none;stroke-width:2;vertical-align:-1px;cursor:pointer" onclick="toast(\'注单号已复制\')"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5h10"/></svg>';
+      const s=$('bc-st');if(s){s.textContent='注单已确认';s.style.color='#222'}
+    }else toast('注单已确认');
+  },2200);
+}
+function acceptInfo(){
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">自动接受任何赔率</h3>
+    <div style="font-size:13px;color:#222;font-weight:700;margin-bottom:6px">开启后</div>
+    <div style="font-size:12px;color:#666;line-height:1.8;margin-bottom:12px">① 投注时,接受不低于官方赔率的所有 P2P 赔率。<br>② 投注时,会按最高 P2P 赔率向下购买,最低为官方赔率。<br>③ 如果购买了多个档位,会加权计算平均赔率,作为注单显示赔率。</div>
+    <div style="font-size:13px;color:#222;font-weight:700;margin-bottom:6px">未开启</div>
+    <div style="font-size:12px;color:#666;line-height:1.8;margin-bottom:14px">① 投注时,只接受不低于当前所见赔率的所有 P2P 档位。<br>② 投注时,不会购买低于当前所见赔率的 P2P 档位。<br>③ 如果购买了多个档位,会加权计算平均赔率,作为注单显示赔率。</div>
+    <button class="btn btn-p" style="width:100%" onclick="closeCfm()">我明白了</button>`);
+}
+function betBack(){
+  closeCfm();hide('ov-slip');
+  if(!window._betConfirmed)toast('注单确认中,您可前往【买单】查看注单状态!');
+}
+function bookHtml(k,defOpen){
+  const cn=['卖一','卖二','卖三','卖四','卖五','卖六','卖七','卖八','卖九','卖十'];let ci=0;
+  const open=bookOpen[k]!==undefined?bookOpen[k]:(defOpen!==false);
+  const hk=officialHk[k];
+  const rows=bookRows(k).filter(r=>r.off||r.odds>=hk);
+  const p2pRows=rows.filter(r=>!r.off);
+  const offRow=rows.filter(r=>r.off);
+  const betterTotal=p2pRows.filter(r=>r.odds>=hk).reduce((s,r)=>s+r.amt,0);
+  const plan=buyPlan(k,parseFloat(buyAmt[k])||0);
+  const top=`<div class="row" style="padding:4px 2px 7px;font-size:12px">
+      <span class="nowrap" style="color:#666">官方赔率<b style="color:#222">@${f2(hk)}</b></span>
+      <span class="nowrap" style="color:#666;margin-left:8px">，更优赔率可购额度总计<b style="color:#FF8C00">${money(betterTotal)}</b> CNY</span>
+      <span class="grow"></span>
+      <span style="color:#2E7BD6;cursor:pointer;font-size:11px" class="nowrap" onclick="bookOpen['${k}']=${open?'false':'true'};renderSlip()">${open?'▲':'▼'}</span></div>`;
+  if(!open)return top;
+  const head=`<div class="bkhead"><span style="width:52px">档位</span><span style="flex:1">卖出赔率</span><span style="width:76px;text-align:right">可购额度</span><span class="plan">购买计划</span></div>`;
+  const rowHtml=r=>{
+    const lb=r.off?'官方':(cn[ci]||('卖'+(ci+1)));
+    const pv=r.off?(plan.official||0):(plan.tiers[ci]||0);
+    ci+=r.off?0:1;
     return `<div class="bkrow">
-      <span class="c1" style="${r.off?'color:#FF8C00':''}">${lb}${r.mine?'<span class="metag">我</span>':''}</span>
+      <span class="c1" style="width:52px;${r.off?'color:#FF8C00':''}">${lb}${r.mine?'<span class="metag">我</span>':''}</span>
       <span class="c2" style="color:${r.off?'#FF8C00':'#1D9E75'}">${f2(r.odds)}</span>
-      <span class="c3" style="color:${r.off?'#FF8C00':'#222'}">${r.off?'无限':'¥ '+money(r.amt)}</span>
-      <span class="c4" style="${r.off?'color:#FF8C00':''}">${r.seller}</span></div>`;
-  }).join('');
+      <span class="c3" style="width:76px;color:${r.off?'#FF8C00':'#222'}">${r.off?'无限':money(r.amt)}</span>
+      <span class="plan" style="color:${pv>0?'#FF8C00':'#bbb'};font-weight:${pv>0?'700':'400'}">${pv>0?money(pv):'0'}</span></div>`;
+  };
+  const scroll=p2pRows.length>3;
+  const body=`<div style="${scroll?'max-height:104px;overflow-y:auto':''}">${p2pRows.map(rowHtml).join('')}</div>`;
+  const fixedOff=offRow.length?`<div style="border-top:1px dashed #eee">${offRow.map(rowHtml).join('')}</div>`:'';
+  return top+head+body+fixedOff;
 }
 
 /* ═════════ 选格 & 投注面板 ═════════ */
 function distinctMatches(){return new Set(Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|')).map(k=>ITEMS[k].mid)).size}
 function toggleSel(k){
   sel[k]=!sel[k];
-  $('cell-'+k).classList.toggle('sel',sel[k]);
+  const c=$('cell-'+k);
+  if(c)c.classList.toggle('sel',sel[k]);   /* 红点不因点击消失,仅随档位变化 */
   updBadge();
-  if(sel[k]){if(slipIdx===1&&distinctMatches()<2)slipIdx=0;renderSlip();show('ov-slip')}
+  if(slipIdx===1&&Object.keys(sel).filter(x=>sel[x]&&!x.startsWith('C|')).length<2)slipIdx=0;
+  if(sel[k]){renderSlip();show('ov-slip');}   /* 面板常驻,选新投注项实时加入 */
   else if(!Object.values(sel).some(Boolean))hide('ov-slip');
-  else{if(slipIdx===1&&distinctMatches()<2)slipIdx=0;renderSlip()}
+  else renderSlip();
+  updBadge();
+  if($('pg-match')&&$('pg-match').classList.contains('active'))renderMatch();
 }
 function removeSel(k){sel[k]=false;const c=$('cell-'+k);if(c)c.classList.remove('sel');buyAmt[k]='';updBadge();
-  if(slipIdx===1&&distinctMatches()<2)slipIdx=0;
+  if(slipIdx===1&&Object.keys(sel).filter(x=>sel[x]&&!x.startsWith('C|')).length<2)slipIdx=0;
   renderSlip();
   if(!Object.values(sel).some(Boolean))hide('ov-slip')}
-function openBetslip(){fabToggle(false);
+function openBetslip(){const _b=$('cartbar');if(_b)_b.style.display='none';
   if(!Object.values(sel).some(Boolean))return toast('请先在赛事列表选择投注项');
   slipIdx=0;renderSlip();show('ov-slip')}
 function slipTab(i){slipIdx=i;renderSlip()}
@@ -611,16 +1101,35 @@ function cloneBuyCard(k){
       <span style="font-size:15px;color:#bbb;cursor:pointer" onclick="removeSel('${k}')">🗑</span>
     </div>
     <div class="muted" style="margin-top:4px">${it.group} · ${m.home} vs ${m.away} · ${r.nick}</div>
-    <input type="number" placeholder="庄家剩余可卖 ¥${money(r.remain)}" value="${buyAmt[k]||''}" style="width:100%;height:38px;margin-top:10px" oninput="buyAmt['${k}']=this.value;renderBuyFooter()">
+    <div style="position:relative;margin-top:10px">
+      <input readonly placeholder="限额 ${money(SYS_LIMIT.min)}-${money(betMax(k))}" value="${buyAmt[k]||''}" style="width:100%;height:38px;background:#fff;padding-right:48px" onclick="openKp('${k}')">
+      <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#999;font-size:12px">CNY</span>
+    </div>
+    ${kpKey===k?kpHtml(k):''}
     <div class="muted" style="margin-top:6px">私盘为庄家专属盘:按庄家赔率成交,售罄即止,无官方档位承接</div>
   </div>`;
 }
 function cardHead(k){
   const it=ITEMS[k],m=MATCHES[it.mid];
+  const hk=officialHk[k],lanes=lanesFor(k).filter(l=>l.odds>=hk),mx=lanes.length?Math.max(hk,...lanes.map(l=>l.odds)):hk;
+  const amt=parseFloat(buyAmt[k])||0;
+  let oddsTxt;
+  if(!acceptAny){
+    /* 未开启:显示最高赔率(含 P2P) */
+    oddsTxt=`<span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${f2(mx)}</span>`;
+  }else if(mx>hk&&amt<=0){
+    /* 开启 + 有高于官方的挂单 + 未输入金额:显示【官方赔率~P2P最高赔率】 */
+    oddsTxt=`<span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${f2(hk)}~${f2(mx)}</span>`;
+  }else if(amt>0){
+    /* 开启 + 已输入金额:加权平均赔率 = Σ(各档成交金额 × 该档赔率) ÷ 成交总额 */
+    oddsTxt=`<span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${f2(avgOdds(k,amt))}</span>`;
+  }else{
+    oddsTxt=`<span style="font-size:14px;color:#222;font-weight:600" class="nowrap">@${f2(hk)}</span>`;
+  }
   return `<div class="row">
       <span style="font-size:15px;font-weight:700;color:#222" class="nowrap">${it.label}</span>
       <span class="grow"></span>
-      <span style="font-size:14px;color:#222;font-weight:600" class="nowrap">@${f2(it.eu)}</span>
+      ${oddsTxt}
       <span style="font-size:15px;color:#bbb;cursor:pointer" onclick="removeSel('${k}')">🗑</span>
     </div>
     <div class="row" style="margin-top:6px"><span class="tag tag-live">${m.tagTxt}</span><span class="muted" style="font-size:12px">${it.group} [欧洲盘]</span></div>
@@ -628,30 +1137,49 @@ function cardHead(k){
     <div style="font-size:12px;color:#FF8C00;margin-top:2px">${m.league}</div>`;
 }
 function renderSlip(){
-  $('st-1').style.display=distinctMatches()>=2?'block':'none';
+  const _pk=Object.keys(sel).filter(x=>sel[x]&&!x.startsWith('C|'));
+  const _canPara=_pk.length>=2;                       /* 注单数大于 1 即可串关 */
+  const _para=slipIdx===1;
+  $('st-0').style.display=_para?'none':'block';       /* 串关模式仅保留串关 Tab */
+  $('st-2').style.display=_para?'none':'block';
+  $('st-1').style.display=_para?'block':'none';
+  if(_para&&!_canPara)slipIdx=0;
   ['st-0','st-1','st-2'].forEach((id,i)=>$(id).classList.toggle('on',i===slipIdx));
   updBadge();
   const keys=Object.keys(sel).filter(k=>sel[k]);
   if(!keys.length){$('slip-body').innerHTML='<div class="muted" style="text-align:center;padding:40px">请先在赛事列表选择投注项</div>';$('slip-footer').innerHTML='';return}
   if(slipIdx===0){
-    $('slip-body').innerHTML=keys.map(k=>k.startsWith('C|')?cloneBuyCard(k):`<div class="card">
+    $('slip-body').innerHTML=keys.map((k,ki)=>k.startsWith('C|')?cloneBuyCard(k):`<div class="card" style="border-left:3px solid #FF8C00">
       ${cardHead(k)}
-      <input type="number" placeholder="限额 2.00-10,100.00" value="${buyAmt[k]}" style="width:100%;height:38px;margin-top:10px" oninput="buyAmt['${k}']=this.value;renderBuyFooter()">
-      <div style="margin-top:10px">${bookHtml(k)}</div>
-      <div class="muted" style="margin-top:6px">按簿序自最高赔率档位依次吃单,官方档位额度无限</div>
-    </div>`).join('');
+      <div style="position:relative;margin-top:10px">
+        <input readonly placeholder="${limitHint(k)}" value="${buyAmt[k]||''}" style="width:100%;height:38px;background:#fff;padding-right:48px" onclick="openKp('${k}')">
+        <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#999;font-size:12px">CNY</span>
+      </div>
+      ${(kpKey===k||(keys.length===1&&kpKey===null))?kpHtml(k):''}
+
+      <div style="margin-top:10px">${bookHtml(k,ki===0)}</div>
+      <div class="muted" style="margin-top:6px">${acceptAny?'已开启「自动接受任何赔率」:按簿序自最高赔率档位向下依次吃单,加权平均赔率作为注单显示赔率':'未开启「自动接受任何赔率」:仅按卖一档位赔率成交,超出该档可购金额将提示'}</div>
+    </div>`).join('')
+    +`<div class="row" style="background:#fff;border-radius:10px;padding:11px 12px;margin-top:2px;gap:10px">
+        <span style="font-size:14px;font-weight:700;color:#222" class="nowrap">单关</span>
+        <span style="background:#FFF3E5;color:#E8850C;font-size:11px;padding:1px 7px;border-radius:9px" class="nowrap">${keys.length}x</span>
+        <span class="grow"></span>
+        <div style="position:relative">
+          <input readonly value="${batchAmt||''}" placeholder="限额 ${money(SYS_LIMIT.min)}-${money(SYS_LIMIT.max)}" style="width:150px;height:34px;text-align:right;background:#fff;padding-right:38px" onclick="openKp('B|all')">
+          <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);color:#bbb;font-size:11px">CNY</span></div>
+      </div>${kpKey==='B|all'?kpHtml('B|all'):''}`;
     renderBuyFooter();
   }
   else if(slipIdx===1){
     const pkeys=keys.filter(k=>!k.startsWith('C|'));
-    const euProd=pkeys.reduce((p,k)=>p*ITEMS[k].eu,1);
-    $('slip-body').innerHTML=`<div class="hint" style="margin-bottom:8px">串关不支持庄家单赔率,所有投注项均按官方欧洲盘赔率计算</div>`+
-      `<div class="card"><div class="row" style="margin-bottom:8px"><span style="font-size:14px;font-weight:600;color:#222">串关 ${pkeys.length}串1</span><span class="grow"></span><span style="font-size:13px;color:#FF8C00;font-weight:600" class="nowrap">组合赔率 @${f2(euProd)}</span></div>`+
+    const eus=pkeys.map(k=>ITEMS[k].eu);
+    $('slip-body').innerHTML=`<div class="hint" style="margin-bottom:8px">串关不支持庄家单赔率,所有投注项均按官方欧洲盘赔率计算;私盘投注项不参与串关</div>`+
+      `<div class="card">`+
       pkeys.map(k=>{const it=ITEMS[k],m=MATCHES[it.mid];
-        return `<div style="border-top:1px dashed #f2f2f2;padding:8px 0">
+        return `<div style="border-bottom:1px dashed #f2f2f2;padding:7px 0">
           <div class="row"><span style="font-size:13px;font-weight:600;color:#222" class="nowrap">${it.label}</span><span class="grow"></span><span style="font-size:12px;color:#222" class="nowrap">@${f2(it.eu)}</span></div>
           <div class="muted" style="margin-top:2px">${it.group} · ${m.home} vs ${m.away}</div></div>`}).join('')+
-      `<input type="number" id="para-amt" placeholder="输入串关金额" style="width:100%;height:38px;margin-top:8px" oninput="renderParaFooter()"></div>`;
+      comboRows(eus)+`</div>`;
     renderParaFooter();
   }
   else{
@@ -696,33 +1224,58 @@ function renderBuyFooter(){
   keys.forEach(k=>{const a=parseFloat(buyAmt[k])||0;tot+=a;
     if(k.startsWith('C|')){const r=cloneRefOf(k);if(r)win+=Math.min(a,r.remain)*r.odds}
     else win+=planBuy(k,a).win});
-  $('slip-footer').innerHTML=`<div class="row" style="margin-bottom:8px">
-      <span class="check ${acceptAny?'on':''}" onclick="acceptAny=!acceptAny;renderBuyFooter()"></span>
-      <span style="font-size:12px;color:#666" class="nowrap">自动接受任何赔率 ⓘ</span>
-      <span class="grow"></span><span style="font-size:13px;color:#222" class="nowrap">合计 <b>${money(tot)}</b>CNY</span></div>
-    <div class="row">
-      <span style="width:34px;height:34px;background:#FF8C00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer" onclick="clearAll()">🗑</span>
-      <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doBuy()">投注<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(win)}</span></button></div>`;
+  const canPara=keys.filter(k=>!k.startsWith('C|')).length>=2;
+  $('slip-footer').innerHTML=`<div class="row" style="margin-bottom:9px">
+      <span class="sw ${acceptAny?'on':''}" style="width:32px;height:18px" onclick="acceptAny=!acceptAny;renderSlip()"><i style="width:14px;height:14px;${acceptAny?'left:16px':''}"></i></span>
+      <span style="font-size:12px;color:#666;margin-left:7px" class="nowrap">自动接受任何赔率 <span style="cursor:pointer;color:#FF8C00" onclick="acceptInfo()">ⓘ</span></span>
+      <span class="grow"></span>
+      <span style="color:#FF8C00;font-size:12px" class="nowrap">⟳</span>
+      <span class="muted nowrap" style="margin-left:4px">余额 CNY <b style="color:#222">${money(balance)}</b></span></div>
+    <div class="row" style="gap:10px">
+      <span class="cbtn" onclick="hide('ov-slip');updBadge()">返回</span>
+      <span class="cbtn ${canPara?'on':'dis'}" onclick="slipTab(1)">串关</span>
+      <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doBuy()">投注 CNY ${money(tot)}<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(win)}</span></button></div>`;
 }
 function renderParaFooter(){
-  const amt=parseFloat(($('para-amt')||{}).value)||0;
-  const keys=Object.keys(sel).filter(k=>sel[k]);
-  const euProd=keys.reduce((p,k)=>p*ITEMS[k].eu,1);
+  const keys=Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|'));
+  const eus=keys.map(k=>ITEMS[k].eu),n=eus.length;
+  let tot=0,win=0;const rows=[];
+  for(let m=2;m<=n;m++){
+    const ps=combos(eus,m),avg=ps.reduce((a,b)=>a+b,0)/ps.length;
+    const a=parseFloat(paraAmt[String(m)])||0;
+    if(a>0){tot+=a*ps.length;win+=a*avg*ps.length;rows.push({label:m+'串1',c:ps.length,avg,a});}
+  }
+  if(n>=3){
+    let all=[];for(let m=2;m<=n;m++)all=all.concat(combos(eus,m));
+    const avgAll=all.reduce((a,b)=>a+b,0)/all.length;
+    const a=parseFloat(paraAmt['MIX'])||0;
+    if(a>0){tot+=a*all.length;win+=a*avgAll*all.length;rows.push({label:n+'串'+all.length+'式',c:all.length,avg:avgAll,a});}
+  }
+  window._paraPlan={rows,tot,win};
   $('slip-footer').innerHTML=`<div class="row" style="margin-bottom:8px">
-      <span style="font-size:12px;color:#666" class="nowrap">按官方欧洲盘结算</span>
-      <span class="grow"></span><span style="font-size:13px;color:#222" class="nowrap">合计 <b>${money(amt)}</b>CNY</span></div>
-    <div class="row">
-      <span style="width:34px;height:34px;background:#FF8C00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer" onclick="clearAll()">🗑</span>
-      <button class="btn btn-p grow" ${amt>0?'':'disabled'} onclick="doPara()">投注<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(amt*euProd-amt)}</span></button></div>`;
+      <span style="font-size:12px;color:#666" class="nowrap">按官方欧洲盘结算 · 合计 = 每注 × 组合数</span>
+      <span class="grow"></span><span class="muted nowrap">余额 CNY <b style="color:#222">${money(balance)}</b></span></div>
+    <div class="row" style="gap:10px">
+      <span class="cbtn" onclick="hide('ov-slip');updBadge()">返回</span>
+      <span class="cbtn on" onclick="slipTab(0)">单关</span>
+      <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doPara()">投注 CNY ${money(tot)}<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(win)}</span></button></div>`;
 }
 function doPara(){
-  const amt=parseFloat($('para-amt').value)||0;
-  if(amt>balance)return toast('余额不足');
-  balance=+(balance-amt).toFixed(2);syncBal();
-  toast('串关投注成功 ¥'+money(amt)+'(按官方欧洲盘)');
-  clearAll();
+  const p=window._paraPlan;
+  if(!p||p.tot<=0)return;
+  if(p.tot>balance)return toast('余额不足');
+  balance=+(balance-p.tot).toFixed(2);syncBal();
+  const legs=p.rows.map(r=>({name:`${r.label} × ${r.c} 注(每注 ¥${money(r.a)})`,odds:f2(r.avg),amt:r.a*r.c}));
+  const _pk=keysOfPara();
+  p.rows.forEach(r=>buyOrders.unshift({type:'parlay',title:`${r.label} × ${r.c} 注`,confirmed:false,
+    legs:_pk.map(k=>({item:ITEMS[k].label,play:ITEMS[k].group,eu:ITEMS[k].eu,match:MATCHES[ITEMS[k].mid].home+' vs '+MATCHES[ITEMS[k].mid].away,sport:'足球',league:MATCHES[ITEMS[k].mid].league})),
+    amt:+(r.a*r.c).toFixed(2),win:+(r.a*r.avg*r.c).toFixed(2),oid:'0110000'+Date.now().toString().slice(-13)+'-1',
+    time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,8),status:'unsettled',bucket:'today'}));
+  Object.keys(paraAmt).forEach(x=>paraAmt[x]='');
+  kpKey=null;renderSlip();
+  openBetConfirm(legs,p.tot,p.win);
 }
-function clearAll(){Object.keys(sel).forEach(k=>{if(sel[k]){sel[k]=false;const c=$('cell-'+k);if(c)c.classList.remove('sel')}buyAmt[k]=''});updBadge();hide('ov-slip')}
+function clearAll(){batchAmt='';Object.keys(sel).forEach(k=>{if(sel[k]){sel[k]=false;const c=$('cell-'+k);if(c)c.classList.remove('sel')}buyAmt[k]=''});updBadge();hide('ov-slip')}
 function doBuy(){
   const keys=Object.keys(sel).filter(k=>sel[k]&&(parseFloat(buyAmt[k])||0)>0);
   let tot=keys.reduce((s,k)=>s+parseFloat(buyAmt[k]),0);
@@ -733,11 +1286,30 @@ function doBuy(){
     if(!r)return toast('该庄家盘口已下架');
     if(parseFloat(buyAmt[k])>r.remain)return toast('超出庄家剩余可卖额度 ¥'+money(r.remain));
   }
-  let win=0;
+  if(!acceptAny){
+    for(const k of keys){
+      if(k.startsWith('C|'))continue;
+      const rows=bookRows(k),first=rows[0],amt=parseFloat(buyAmt[k]);
+      if(first&&!first.off&&amt>first.amt){
+        cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">温馨提示</h3>
+          <div style="font-size:13px;color:#666;line-height:1.8;text-align:center;margin-bottom:14px">卖一档位的可购金额不足,请重新输入投注金额,或开启自动接受任何赔率,自动购买不低于官方赔率的所有档位。</div>
+          <div class="row" style="gap:8px">
+            <button class="btn btn-g grow" onclick="closeCfm()">重新输入</button>
+            <button class="btn btn-p grow" onclick="acceptAny=true;closeCfm();doBuy()">开启并买入</button></div>`);
+        return;
+      }
+    }
+  }
+  let win=0;const legs=[];
   keys.forEach(k=>{
     const amt=parseFloat(buyAmt[k]);
     if(k.startsWith('C|')){
       const r=cloneRefOf(k);win+=amt*r.odds;
+      legs.push({name:ITEMS[r.ik].label,odds:f2(r.odds),amt,tag:MATCHES[r.mid].tagTxt,play:ITEMS[r.ik].group+' [香港盘]',match:MATCHES[r.mid].home+' vs '+MATCHES[r.mid].away,league:MATCHES[r.mid].league});
+      buyOrders.unshift({type:'single',item:ITEMS[r.ik].label,tag:MATCHES[r.mid].tagTxt,play:ITEMS[r.ik].group,eu:+f2(r.odds),confirmed:false,
+        match:MATCHES[r.mid].home+' vs '+MATCHES[r.mid].away,sport:'足球',league:MATCHES[r.mid].league,
+        amt,win:+(amt*r.odds).toFixed(2),oid:'0110000'+Date.now().toString().slice(-13)+'-1',
+        time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,8),status:'unsettled',bucket:'today'});
       if(r.typ==='me'){
         r.it.sold=+(r.it.sold+amt).toFixed(2);
         r.it.subs.push({u:'user***'+Math.floor(10+Math.random()*89),amt:amt,odds:r.odds,time:new Date().toTimeString().slice(0,5)});
@@ -749,10 +1321,21 @@ function doBuy(){
       return;
     }
     const plan=planBuy(k,amt);win+=plan.win;
+    const _m0=MATCHES[ITEMS[k].mid];
+    legs.push({name:ITEMS[k].label,odds:f2(plan.win/amt),amt,tag:_m0.tagTxt,play:ITEMS[k].group+' [欧洲盘]',match:_m0.home+' vs '+_m0.away,league:_m0.league});
+    const _m=MATCHES[ITEMS[k].mid];
+    buyOrders.unshift({type:'single',item:ITEMS[k].label,tag:_m.tagTxt,play:ITEMS[k].group,eu:+f2(plan.win/amt),confirmed:false,
+      match:_m.home+' vs '+_m.away,sport:'足球',league:_m.league,
+      amt,win:+plan.win.toFixed(2),oid:'0110000'+Date.now().toString().slice(-13)+'-1',
+      time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,8),status:'unsettled',bucket:'today'});
     plan.eats.forEach(({lane,eat})=>{
       if(lane.off)return;
-      if(lane.legacy){lane.legacy.remain=+(lane.legacy.remain-eat).toFixed(2);lane.legacy.sold=+(lane.legacy.sold+eat).toFixed(2);lane.legacy.subs++;
-        if(lane.legacy.remain<=0.001)lane.legacy.state='已售罄'}
+      if(lane.legacy){const L=lane.legacy;
+        L.sold=+(L.sold+eat).toFixed(2);
+        L.subsList=L.subsList||[];
+        L.subsList.unshift({u:'al***'+Math.floor(10+Math.random()*89),amt:eat,time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,5),settle:0});
+        if(L.state==='卖出中')L.state='部分成交';
+        if(lsRemain(L)<=0.001)L.state='已售罄';}
       else if(lane.mitem){lane.mitem.sold=+(lane.mitem.sold+eat).toFixed(2);
         lane.mitem.subs.push({u:'user***'+Math.floor(10+Math.random()*89),amt:eat,odds:lane.mitem.odds,time:new Date().toTimeString().slice(0,5)});
         if(mRemainDep(lane.market)<=0.001)lane.market.status='soldout';
@@ -763,8 +1346,8 @@ function doBuy(){
     buyAmt[k]='';
   });
   balance=+(balance-tot).toFixed(2);syncBal();updBadge();renderHome();
-  toast(`投注成功 ¥${money(tot)},按簿序成交,最高可赢 ¥${money(win)}`);
-  renderSlip();
+  kpKey=null;renderSlip();
+  openBetConfirm(legs,tot,win);
 }
 function sellStep(k,d){sellForm[k].pt=+f2((parseFloat(sellForm[k].pt)||0)+0.01*d);renderSlip()}
 function sellPt(k,v){
@@ -777,8 +1360,8 @@ function renderSellFooter(){
   $('slip-footer').innerHTML=`<div class="row" style="margin-bottom:8px">
       <span style="font-size:12px;color:#666" class="nowrap">卖出结算规则 ⓘ</span>
       <span class="grow"></span><span style="font-size:13px;color:#222" class="nowrap">合计 <b>${money(tot)}</b>CNY</span></div>
-    <div class="row">
-      <span style="width:34px;height:34px;background:#FF8C00;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer" onclick="clearAll()">🗑</span>
+    <div class="row" style="gap:10px">
+      <span class="cbtn" onclick="hide('ov-slip');updBadge()">返回</span>
       <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doSell()">确认卖出</button></div>`;
 }
 function doSell(){
@@ -881,10 +1464,11 @@ function confirmOpen(){
 }
 
 /* ═════════ 注单记录 / 我的卖出 ═════════ */
-function openOrders(seg){fabToggle(false);segIdx=seg||0;renderOrders();go('pg-orders')}
+function openOrders(seg){setNav('sell');segIdx=Math.min(seg||0,1);renderOrders();go('pg-orders')}
 function segTab(i){segIdx=i;renderOrders()}
 const M_ST={open:['卖出中','tag-open'],soldout:['已售罄','tag-soldout'],settled:['已结算','tag-settled'],closed:['已关闭','tag-closed']};
-const L_ST={'卖出中':'open','已售罄':'soldout','已结算':'settled','已关闭':'closed'};
+const L_ST={'卖出中':'open','部分成交':'open','已售罄':'soldout','已结算':'settled','已关闭':'closed'};
+const L_TAG={'卖出中':'tag-open','部分成交':'tag-open','已售罄':'tag-soldout','已结算':'tag-settled','已关闭':'tag-closed'};
 function bucketOk(b){
   if(tFilter==='all')return true;
   if(tFilter==='today')return b==='today';
@@ -892,63 +1476,398 @@ function bucketOk(b){
   if(tFilter==='7d')return['today','yesterday','7d'].includes(b);
   return true;
 }
+let buyTab=0,btFilter='all';
+let buyOrders=[
+  {type:'parlay',title:'串关 2串1',confirmed:true,
+   legs:[{item:'主 +0.5',play:'全场让球',eu:1.98,match:'乌迪内斯 vs 科莫',sport:'足球',league:'*意大利甲级联赛'},
+         {item:'主 +0.5/1',play:'全场让球',eu:1.69,match:'热那亚 vs 那不勒斯',sport:'足球',league:'*意大利甲级联赛'}],
+   amt:15,win:35.19,oid:'0110000126072012313170-1',time:'2026-07-20 13:43:32',status:'unsettled',bucket:'7d'},
+  {type:'single',item:'主',tag:'滚球',play:'全场独赢',score:'0-0',eu:3.18,confirmed:true,
+   match:'米尔福德 vs 玛盖斯FC',sport:'足球',league:'南非甲级联赛 - 附赛',
+   amt:11,win:23.98,oid:'0110000126060318401070-1',time:'2026-06-03 21:40:02',status:'unsettled',bucket:'30d'},
+  {type:'single',item:'大 0.5',tag:'滚球',play:'上半场大小',score:'0-0',eu:5.76,confirmed:true,
+   match:'米尔福德 vs 玛盖斯FC',sport:'足球',league:'南非甲级联赛 - 附赛',
+   amt:11,win:63.36,oid:'0110000126060318401071-1',time:'2026-06-03 21:41:10',status:'unsettled',bucket:'30d'},
+  {type:'single',item:'主',tag:'滚球',play:'全场独赢',score:'0-0',eu:1.95,
+   match:'HomeTeamCodeA842 CHS vs AwayTeamCodeB3122 CHS',sport:'足球',league:'MockOBT2026 CHS',
+   amt:10,profit:-10,settleScore:'0-0',oid:'0110000226073042407329-1',time:'2026-07-30 15:34:16',status:'settled',bucket:'today'},
+  {type:'single',item:'客 +1',play:'全场让球',eu:1.92,
+   match:'Bayer 04 Leverkusen vs KRC Genk',sport:'足球',league:'Club Friendly CHS',
+   amt:5,profit:-5,settleScore:'4-0',betScore:'0-0',oid:'0110000226072985867379-1',time:'2026-07-29 18:12:04',status:'settled',bucket:'7d'},
+  {type:'single',item:'大 2.5',tag:'今日',play:'全场大小',eu:2.06,
+   match:'登克尔克 vs 德罗赫达联',sport:'足球',league:'爱尔兰超级联赛',
+   amt:100,profit:106,settleScore:'3-1',oid:'0110000226072012313180-1',time:'2026-07-20 20:15:00',status:'settled',bucket:'30d'}
+];
+function buyBucketOk(b){
+  if(btFilter==='all')return true;
+  if(btFilter==='today')return b==='today';
+  if(btFilter==='yesterday')return b==='yesterday';
+  if(btFilter==='7d')return ['today','yesterday','7d'].includes(b);
+  return ['today','yesterday','7d','30d'].includes(b);
+}
+function buyTabSel(i){buyTab=i;renderBuys()}
+function openBuys(){setNav('buy');renderBuys();go('pg-buys')}
+function copyOid(o){toast('注单号已复制');}
+function renderBuys(){
+  $('bt-0').classList.toggle('on',buyTab===0);
+  $('bt-1').classList.toggle('on',buyTab===1);
+  const list=buyOrders.filter(o=>buyTab===0?o.status==='unsettled':(o.status==='settled'&&buyBucketOk(o.bucket)));
+  if(buyTab===0){
+    $('buys-filters').innerHTML='';
+    const tot=list.reduce((s,o)=>s+o.amt,0),win=list.reduce((s,o)=>s+(o.win||0),0);
+    $('buys-stats').innerHTML=`<div class="m3">
+      <div class="c"><div class="l">总笔数</div><div class="v">${list.length}</div></div>
+      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} CNY</div></div>
+      <div class="c"><div class="l">总可赢</div><div class="v nowrap win" style="font-size:14px">${money(win)} CNY</div></div></div>`;
+  }else{
+    const ts=[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
+    $('buys-filters').innerHTML=ts.map(([v,t])=>`<span class="pill ${btFilter===v?'on':''}" style="font-size:13px;padding:7px 18px" onclick="btFilter='${v}';renderBuys()">${t}</span>`).join('');
+    const tot=list.reduce((s,o)=>s+o.amt,0),pf=list.reduce((s,o)=>s+(o.profit||0),0);
+    $('buys-stats').innerHTML=`<div class="m3">
+      <div class="c"><div class="l">总数据</div><div class="v">${list.length}</div></div>
+      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">¥${money(tot)}</div></div>
+      <div class="c"><div class="l">总输赢</div><div class="v nowrap ${pf>=0?'win':'lose'}" style="font-size:14px">${pf>=0?'+':'-'}¥${money(Math.abs(pf))}</div></div></div>`;
+  }
+  const legRow=(g,showScore)=>`
+    <div style="padding:9px 0;border-bottom:1px dashed #f0f0f0">
+      <div class="row">
+        <span style="font-size:14px;font-weight:700;color:#222">${g.item}</span>
+        <span class="grow"></span></div>
+      <div class="row" style="margin-top:3px">
+        <span class="muted">${g.play}${showScore&&g.score?'（'+g.score+'）':''}</span>
+        <span class="grow"></span>
+        <span style="font-size:13px;color:#222;font-weight:600" class="nowrap">@${f2(g.eu)}<span class="muted" style="font-size:11px">(欧洲盘)</span></span></div>
+      <div style="font-size:13px;color:#222;margin-top:4px">${g.match}</div>
+      <div class="muted" style="margin-top:2px">${g.sport} | ${g.league}</div>
+    </div>`;
+  $('buys-list').innerHTML=list.length?list.map(o=>{
+    const settled=o.status==='settled';
+    const head=o.type==='parlay'
+      ?`<div class="row"><span style="font-size:15px;font-weight:700;color:#222">${o.title}</span><span class="grow"></span>
+          ${settled?'':'<span class="tag tag-settled">✓ 已确认</span>'}</div>`
+      :`<div class="row">
+          <span style="font-size:15px;font-weight:700;color:#222">${o.item}</span>
+          <span class="grow"></span>
+          ${settled?`<span class="stamp ${o.profit>=0?'win':'lose'}">${o.profit>=0?'赢':'输'}</span>`:'<span class="tag tag-settled">✓ 已确认</span>'}
+        </div>
+        <div class="row" style="margin-top:5px">
+          ${o.tag?`<span class="tag tag-live">${o.tag}</span>`:''}
+          <span class="muted" style="margin-left:${o.tag?'6px':'0'}">${o.play}${o.score?'（'+o.score+'）':''}</span>
+          <span class="grow"></span>
+          <span style="font-size:13px;color:#222;font-weight:600" class="nowrap">@${f2(o.eu)}<span class="muted" style="font-size:11px">(欧洲盘)</span></span></div>
+        <div style="font-size:13px;color:#222;margin-top:5px">${o.match}</div>
+        <div class="muted" style="margin-top:2px">${o.sport} | ${o.league}</div>`;
+    const legs=o.type==='parlay'?o.legs.map(g=>legRow(g,true)).join(''):'';
+    const money2=settled
+      ?`<div class="row" style="margin-top:9px;border-top:1px dashed #f0f0f0;padding-top:9px">
+          <span style="font-size:13px;color:#222" class="nowrap">投注金额: ${money(o.amt)} CNY</span>
+          <span class="grow"></span>
+          <span style="font-size:13px" class="nowrap">输赢: <b class="${o.profit>=0?'win':'lose'}">${o.profit>=0?'+':'-'}${money(Math.abs(o.profit))} CNY</b></span></div>
+        <div class="row" style="margin-top:6px"><span class="muted nowrap">比分:</span><span class="grow"></span>
+          <span class="muted nowrap">结算比分 ${o.settleScore||'-'}${o.betScore?' / 下注比分 '+o.betScore:''}</span></div>`
+      :`<div class="row" style="margin-top:9px;border-top:1px dashed #f0f0f0;padding-top:9px">
+          <span style="font-size:13px;color:#222" class="nowrap">投注金额: ${money(o.amt)} CNY</span>
+          <span class="grow"></span>
+          <span style="font-size:13px" class="nowrap">可赢金额: <b class="win">${money(o.win)} CNY</b></span></div>`;
+    return `<div class="card" style="margin-bottom:10px">
+      ${head}${legs}${money2}
+      <div class="row" style="margin-top:6px"><span class="muted nowrap">注单号:</span><span class="grow"></span>
+        <span class="muted nowrap" style="font-size:11px">${o.oid}</span>
+        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#FF8C00;fill:none;stroke-width:2;margin-left:5px;cursor:pointer" onclick="copyOid()"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5h10"/></svg></div>
+      <div class="row" style="margin-top:4px"><span class="muted nowrap">投注时间:</span><span class="grow"></span>
+        <span class="muted nowrap" style="font-size:11px">${o.time}</span></div>
+    </div>`;
+  }).join(''):'<div class="muted" style="text-align:center;padding:36px">暂无注单</div>';
+}
+/* ═════ 赛果 ═════ */
+const RESULTS=[
+  {league:'FIFA 22 西班牙甲级联赛',flag:'🇪🇸',rows:[
+    {t:'07-31 11:36',h:'瓦伦西亚(电子竞技)',a:'莱万特(电子竞技)',hIcon:'🟠',aIcon:'🔵',ht:['0','0'],h2:['-','-'],ft:['-','-']},
+    {t:'07-31 11:28',h:'巴塞罗那(电子竞技)',a:'皇家社会(电子竞技)',hIcon:'🔴',aIcon:'🔵',ht:['2','0'],h2:['-','-'],ft:['-','-']},
+    {t:'07-31 11:20',h:'毕尔巴鄂竞技(电子...',a:'皇家贝蒂斯(电子竞...',hIcon:'🔴',aIcon:'🟢',ht:['1','1'],h2:['-','-'],ft:['-','-']},
+    {t:'07-31 11:12',h:'维戈塞尔塔(电子竞...',a:'比利亚雷亚尔(电子...',hIcon:'🔵',aIcon:'🟡',ht:['0','1'],h2:['-','-'],ft:['0','2']},
+    {t:'07-31 11:04',h:'马德里竞技(电子竞...',a:'皇家马德里(电子竞...',hIcon:'🔴',aIcon:'⚪',ht:['1','0'],h2:['-','-'],ft:['2','1']}]},
+  {league:'爱尔兰超级联赛',flag:'🇮🇪',rows:[
+    {t:'07-31 02:45',h:'登克尔克',a:'德罗赫达联',hIcon:'🔴',aIcon:'🟣',ht:['1','0'],h2:['1','1'],ft:['2','1']},
+    {t:'07-31 03:00',h:'瓦特福',a:'圣巴特里克竞技',hIcon:'🔵',aIcon:'🔴',ht:['0','0'],h2:['0','2'],ft:['0','2']}]},
+  {league:'冰岛女子超级联赛',flag:'🇮🇸',rows:[
+    {t:'07-31 02:00',h:'瓦鲁尔(女)',a:'斯塔尔南(女)',hIcon:'🟡',aIcon:'🔵',ht:['2','0'],h2:['1','1'],ft:['3','1']}]},
+];
+const RES_DATES=[['d0','07-31','今日'],['d1','07-30','周四'],['d2','07-29','周三'],['d3','07-28','周二'],['d4','07-27','周一'],['d5','07-26','周日'],['d6','07-25','周六']];
+const RES_SPORTS=['⚽','🏀','🎾','🏸','🏓','🏐','🎱'];
+let resDate='d0',resSport=0,resCollapse={};
+function openResults(){setNav('result');renderResults();go('pg-results')}
+function renderResults(){
+  $('res-dates').innerHTML=RES_DATES.map(([v,d,w])=>`<div style="flex:0 0 auto;text-align:center;padding:5px 10px;border-radius:8px;cursor:pointer;${resDate===v?'background:#FF8C00;color:#fff':'background:#F5F6F8;color:#666'}" onclick="resDate='${v}';renderResults()">
+    <div style="font-size:13px;font-weight:700">${d}</div><div style="font-size:10px;margin-top:1px;opacity:.9">${w}</div></div>`).join('');
+  $('res-sports').innerHTML=RES_SPORTS.map((s,i)=>`<span style="flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;${resSport===i?'background:#FF8C00':'background:#F5F6F8'}" onclick="resSport=${i};renderResults()">${s}</span>`).join('');
+  $('results-list').innerHTML=RESULTS.map((g,gi)=>`<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
+    <div class="row" style="padding:10px 12px;background:#FAFBFC;cursor:pointer" onclick="resCollapse[${gi}]=!resCollapse[${gi}];renderResults()">
+      <span style="font-size:13px">${g.flag}</span>
+      <span style="font-size:13px;font-weight:600;color:#222;margin-left:6px" class="grow">${g.league}</span>
+      <span style="color:#FF8C00;font-size:13px">${resCollapse[gi]?'⌄':'⌃'}</span></div>
+    ${resCollapse[gi]?'':g.rows.map(r=>`
+      <div style="padding:9px 12px;border-top:1px solid #f5f5f5">
+        <div class="row" style="margin-bottom:7px">
+          <span style="background:#E8F7EF;color:#1D9E75;font-size:11px;font-weight:600;padding:2px 7px;border-radius:4px" class="nowrap">${r.t}</span>
+          <span class="grow"></span>
+          <span class="muted nowrap" style="width:50px;text-align:center;font-size:11px">上半场</span>
+          <span class="muted nowrap" style="width:50px;text-align:center;font-size:11px">下半场</span>
+          <span class="nowrap" style="width:44px;text-align:center;font-size:11px;color:#FF8C00;font-weight:600">全场</span></div>
+        <div class="row" style="margin-bottom:5px">
+          <span style="font-size:12px">${r.hIcon}</span>
+          <span style="font-size:13px;color:#222;margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${r.h}</span>
+          <span style="width:50px;text-align:center;font-size:14px;color:#222;font-weight:600" class="nowrap">${r.ht[0]}</span>
+          <span style="width:50px;text-align:center;font-size:14px;color:#999" class="nowrap">${r.h2[0]}</span>
+          <span style="width:44px;text-align:center;font-size:15px;font-weight:800;color:${r.ft[0]==='-'?'#ccc':'#FF8C00'}" class="nowrap">${r.ft[0]}</span></div>
+        <div class="row">
+          <span style="font-size:12px">${r.aIcon}</span>
+          <span style="font-size:13px;color:#222;margin-left:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${r.a}</span>
+          <span style="width:50px;text-align:center;font-size:14px;color:#222;font-weight:600" class="nowrap">${r.ht[1]}</span>
+          <span style="width:50px;text-align:center;font-size:14px;color:#999" class="nowrap">${r.h2[1]}</span>
+          <span style="width:44px;text-align:center;font-size:15px;font-weight:800;color:${r.ft[1]==='-'?'#ccc':'#FF8C00'}" class="nowrap">${r.ft[1]}</span></div>
+      </div>`).join('')}
+  </div>`).join('');
+}
+/* ═════ 我的 ═════ */
+let oddsType='hk',lang='简体中文',theme='day',sortRule='league',balHidden=false;
+function openMe(){setNav('me');renderMe();go('pg-me')}
+function renderMe(){
+  const bal=balHidden?'****':money(balance);
+  $('me-list').innerHTML=`
+    <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div class="row" style="gap:8px">
+        <span style="font-size:16px;font-weight:700;color:#222" class="nowrap">gary02</span>
+        <span style="border:1px solid #eee;border-radius:11px;font-size:11px;color:#666;padding:2px 9px" class="nowrap">CNY</span>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <span style="font-size:26px;font-weight:800;color:#222" class="nowrap">${bal}</span>
+        <span style="color:#9aa0a6;font-size:14px;margin-left:8px;cursor:pointer" onclick="balHidden=!balHidden;renderMe()">${balHidden?'🙈':'👁'}</span>
+        <span style="color:#FF8C00;font-size:15px;margin-left:8px;cursor:pointer" onclick="syncBal();renderMe();toast('余额已刷新')">⟳</span>
+      </div>
+    </div>
+    <div class="grp">
+      <div class="gr" style="cursor:pointer" onclick="openOrders(2)">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#8a8f96;fill:none;stroke-width:1.7"><circle cx="10" cy="8" r="3.2"/><path d="M4 20a6 6 0 0 1 12 0"/><path d="M17 10h4M19 8v4"/></svg>
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">我的卖单</span>
+        <span style="color:#ccc">›</span></div>
+    </div>
+    <div class="grp">
+      <div class="gl">主题风格</div>
+      <div class="gr">
+        <span class="radio ${theme==='day'?'on':''}" onclick="theme='day';renderMe()"><i></i></span>
+        <span style="font-size:14px;color:${theme==='day'?'#222':'#9aa0a6'}">日间</span>
+        <span style="width:22px"></span>
+        <span class="radio ${theme==='night'?'on':''}" onclick="theme='night';renderMe();toast('夜间模式(示意)')"><i></i></span>
+        <span style="font-size:14px;color:${theme==='night'?'#222':'#9aa0a6'}">夜间</span></div>
+    </div>
+    <div class="grp">
+      <div class="gl">盘口设置</div>
+      <div class="gr">
+        <span class="radio ${oddsType==='hk'?'on':''}" onclick="oddsType='hk';renderMe()"><i></i></span>
+        <span style="font-size:14px;color:${oddsType==='hk'?'#222':'#9aa0a6'}">香港盘</span>
+        <span style="width:22px"></span>
+        <span class="radio ${oddsType==='eu'?'on':''}" onclick="oddsType='eu';renderMe()"><i></i></span>
+        <span style="font-size:14px;color:${oddsType==='eu'?'#222':'#9aa0a6'}">欧洲盘</span></div>
+    </div>
+    <div class="grp">
+      <div class="gl">排序规则</div>
+      <div class="gr">
+        <span class="radio ${sortRule==='league'?'on':''}" onclick="sortRule='league';renderMe()"><i></i></span>
+        <span style="font-size:14px;color:${sortRule==='league'?'#222':'#9aa0a6'}">联赛</span>
+        <span style="width:22px"></span>
+        <span class="radio ${sortRule==='time'?'on':''}" onclick="sortRule='time';renderMe()"><i></i></span>
+        <span style="font-size:14px;color:${sortRule==='time'?'#222':'#9aa0a6'}">时间</span></div>
+    </div>
+    <div class="grp">
+      <div class="gl">赔率偏好</div>
+      <div class="gr">
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">自动接受任何赔率</span>
+        <span class="sw ${acceptAny?'on':''}" onclick="acceptAny=!acceptAny;renderMe()"><i></i></span></div>
+    </div>
+    <div class="grp">
+      <div class="gr" style="cursor:pointer" onclick="toast('切换语言(示意)')">
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">切换语言</span>
+        <span style="font-size:13px">🇨🇳</span>
+        <span class="muted" style="margin-left:5px">${lang}</span>
+        <span style="color:#ccc;margin-left:6px">›</span></div>
+    </div>`;
+}
 function renderOrders(){
-  const totalCnt=markets.length+legacySells.length;
-  const running=markets.filter(m=>m.status==='open'||m.status==='soldout').length
-              +legacySells.filter(l=>l.state==='卖出中'||l.state==='已售罄').length;
-  const consumed=markets.reduce((s,m)=>s+m.items.reduce((a,i)=>a+i.sold,0),0)
+  const _mks=OPEN_MARKET_ENABLED?markets:[];
+  if(!OPEN_MARKET_ENABLED){const sg=$('orders-seg');if(sg)sg.style.display='none';segIdx=1;}
+  const totalCnt=_mks.length+legacySells.length;
+  const running=_mks.filter(m=>m.status==='open'||m.status==='soldout').length
+              +legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交').length;
+  const consumed=_mks.reduce((s,m)=>s+m.items.reduce((a,i)=>a+i.sold,0),0)
               +legacySells.reduce((s,l)=>s+l.sold,0);
-  const profit=markets.filter(m=>m.status==='settled').reduce((s,m)=>s+(m.profit||0),0)
-             +legacySells.filter(l=>l.state==='已结算').reduce((s,l)=>s+(l.profit||0),0);
+  const profit=legacySells.filter(l=>l.state==='已结算').reduce((s,l)=>s+lsProfit(l),0);
   $('orders-stats').innerHTML=`<div class="stat4">
     <div><div class="l">总卖出</div><div class="v">${totalCnt}</div></div>
     <div><div class="l">进行中</div><div class="v">${running}</div></div>
-    <div><div class="l">已消费</div><div class="v">¥${money(consumed)}</div></div>
-    <div><div class="l">总结算盈亏</div><div class="v ${profit>=0?'win':'lose'}">${profit>=0?'+':''}¥${money(profit)}</div></div></div>`;
-  const sts=[['all','状态:全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
-  const ts=[['all','时间:全部'],['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
-  const shown=segIdx===0
-    ?markets.filter(m=>(stFilter==='all'||m.status===stFilter)&&bucketOk(m.bucket)).length
-    :legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&bucketOk(l.bucket)).length;
-  $('orders-filters').innerHTML=
-    `<select onchange="stFilter=this.value;renderOrders()" style="border:1px solid #eee;border-radius:14px;padding:4px 8px;font-size:12px;color:#333;background:#fff;outline:none">${sts.map(([v,t])=>`<option value="${v}" ${stFilter===v?'selected':''}>${t}</option>`).join('')}</select>`
-    +`<select onchange="tFilter=this.value;renderOrders()" style="border:1px solid #eee;border-radius:14px;padding:4px 8px;font-size:12px;color:#333;background:#fff;outline:none">${ts.map(([v,t])=>`<option value="${v}" ${tFilter===v?'selected':''}>${t}</option>`).join('')}</select>`
-    +`<span class="grow"></span><span class="muted nowrap">共 ${shown} 条</span>`;
-  $('seg-0').classList.toggle('on',segIdx===0);$('seg-1').classList.toggle('on',segIdx===1);
-  if(segIdx===1){
-    const list=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&bucketOk(l.bucket));
-    $('orders-list').innerHTML=list.map(l=>{
-      const cls='tag-'+L_ST[l.state];
-      const right=l.state==='已结算'?`<span class="${(l.profit||0)>=0?'win':'lose'} nowrap" style="font-size:12px">${(l.profit||0)>=0?'赢':'输'} ${(l.profit||0)>=0?'+':''}${money(l.profit||0)}</span>`:'';
-      return `<div class="card">
-      <div class="row"><span style="font-size:14px;font-weight:600;color:#222" class="nowrap">${l.label}</span><span class="tag ${cls}">${l.state}</span><span class="grow"></span>${right}</div>
-      <div class="muted" style="margin:4px 0">${l.match}</div>
-      <div class="row" style="font-size:12px;color:#666">
-        <span style="background:#FFF3E5;color:#FF8C00;font-size:10px;padding:0 4px;border-radius:3px">押</span>
-        <span class="nowrap">¥${money(l.dep)}</span><span class="nowrap">@${f2(l.odds)} 港</span>
-        <span class="${l.pt>=0?'win':'lose'} nowrap" style="font-size:12px">${l.pt>=0?'+':''}${f2(l.pt)}</span>
-        <span class="nowrap">${l.subs} 笔子单</span>
-        <span class="grow"></span><span class="muted nowrap">${l.time}</span></div>
-      <div class="row"><div class="prog grow"><i style="width:${l.cap?Math.min(100,l.sold/l.cap*100):0}%"></i></div>
+    <div><div class="l">已消费</div><div class="v nowrap">¥${money(consumed)}</div></div>
+    <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>=0?'win':'lose'}">${profit>=0?'+':'-'}¥${money(Math.abs(profit))}</div></div></div>`;
+  const sts=[['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
+  const ts=[['all','全部时间'],['today','今日'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
+  const list=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&bucketOk(l.bucket));
+  $('orders-sfilter').innerHTML=sts.map(([v,t])=>`<span class="pill ${stFilter===v?'on':''}" style="flex:0 0 auto;font-size:13px;padding:6px 15px" onclick="stFilter='${v}';renderOrders()">${t}</span>`).join('');
+  $('orders-tfilter').innerHTML=ts.map(([v,t])=>`<span class="pill ${tFilter===v?'on':''}" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='${v}';renderOrders()">${t}</span>`).join('')
+    +`<span class="grow"></span><span class="muted nowrap">共${list.length}条</span>`;
+  $('orders-list').innerHTML=list.length?list.map(l=>{
+    const idx=legacySells.indexOf(l),pct=lsPct(l);
+    const barColor=l.state==='已结算'?'#1D9E75':(l.state==='已关闭'?'#9aa0a6':'#2E7BD6');
+    const right=l.state==='已结算'
+      ?`<span class="nowrap ${lsProfit(l)>=0?'win':'lose'}" style="font-size:15px;font-weight:800">${lsProfit(l)>0?'+':''}${lsProfit(l)===0?'0':money(lsProfit(l))}</span>`:'';
+    return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openSellDetail(${idx})">
+      <div class="row">
+        <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${l.league}</span>
+        ${(l.state==='卖出中'||l.state==='部分成交')?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
+        <span class="tag ${L_TAG[l.state]}">${l.state}</span></div>
+      <div class="muted" style="margin:6px 0 4px">${l.home} VS ${l.away}</div>
+      <div class="row" style="font-size:12px;color:#666;gap:6px">
+        <span class="nowrap">${l.play.replace(' · ','')} ${l.item}</span>
+        <span class="nowrap">@ ${f2(l.odds)} 港</span>
+        <span style="background:#FFF3E5;color:#FF8C00;font-size:10px;padding:0 4px;border-radius:3px" class="nowrap">押</span>
+        <span class="nowrap">¥${money(l.dep)}</span>
+        <span class="win nowrap" style="font-size:12px">+${l.ptPct.toFixed(1)}%</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${l.time.slice(5,16)}</span></div>
+      <div class="row" style="margin-top:8px">
+        ${right}
+        <div class="prog grow" style="margin:0 8px"><i style="width:${pct}%;background:${barColor}"></i></div>
         <span class="muted nowrap">${Math.round(l.sold)}/${Math.round(l.cap)}</span>
-        <span style="font-size:12px;color:#1D9E75" class="nowrap">查看详情 ›</span></div>
-    </div>`}).join('')||'<div class="muted" style="text-align:center;padding:40px">暂无数据</div>';
-    return;
-  }
-  const list=markets.filter(m=>(stFilter==='all'||m.status===stFilter)&&bucketOk(m.bucket));
-  $('orders-list').innerHTML=list.map(m=>{
-    const dep=m.dep,sold=m.items.reduce((s,i)=>s+i.sold,0);
-    const[txt,cls]=M_ST[m.status];
-    const mt=MATCHES[m.mid];
-    const right=m.status==='settled'?`<span class="${(m.profit||0)>=0?'win':'lose'} nowrap" style="font-size:12px">${(m.profit||0)>=0?'赢':'输'} ${(m.profit||0)>=0?'+':''}${money(m.profit||0)}</span>`:'';
-    return `<div class="card" style="cursor:pointer" onclick="openDetail('${m.id}')">
-      <div class="row"><span style="font-size:14px;font-weight:600;color:#222;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="grow">${mt.home} vs ${mt.away}</span><span class="tag ${cls}">${txt}</span>${right}</div>
-      <div class="muted" style="margin:4px 0">${mt.league} · ${mt.time} · 盘号 ${m.id}</div>
-      <div style="font-size:12px;color:#666" class="nowrap">开放 ${m.items.length} 项 · 总押金 ¥${money(dep)} · 已收单 <span style="color:#2E7BD6">¥${money(sold)}</span></div>
-      <div class="prog"><i style="width:${dep?Math.min(100,sold/dep*100):0}%"></i></div>
-      <div class="row" style="margin-top:6px"><span class="muted grow">卖出 ${m.created}</span><span style="font-size:12px;color:#FF8C00" class="nowrap">查看详情 ›</span></div>
+        <span style="font-size:12px;color:#666;margin-left:8px" class="nowrap">查看详情 ›</span></div>
     </div>`;
-  }).join('')||'<div class="muted" style="text-align:center;padding:40px">暂无数据</div>';
+  }).join(''):'<div class="muted" style="text-align:center;padding:40px">暂无数据</div>';
+}
+
+/* ═════════ 庄家卖出详情 ═════════ */
+let sdIdx=-1;
+function openSellDetail(idx){sdIdx=idx;renderSellDetail();go('pg-selldetail')}
+function renderSellDetail(){
+  const l=legacySells[sdIdx];
+  if(!l){$('sd-body').innerHTML='';return}
+  const settled=l.state==='已结算',pct=lsPct(l);
+  const barColor=settled?'#1D9E75':(l.state==='已关闭'?'#c9ccd1':'#2E7BD6');
+  $('sd-body').innerHTML=`
+    <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div class="row">
+        <span class="muted grow">${l.league}</span>
+        <span class="tag ${L_TAG[l.state]}">${l.state}</span></div>
+      <div class="row" style="margin-top:10px;gap:10px">
+        <span style="font-size:16px;font-weight:800;color:#222;text-align:right" class="grow">${l.home}</span>
+        <span class="vsbadge">VS</span>
+        <span style="font-size:16px;font-weight:800;color:#222" class="grow">${l.away}</span></div>
+      <div class="row" style="margin-top:12px;background:#FFFAF3;border-radius:8px;padding:9px 11px;gap:8px">
+        <span style="background:#E8EEFB;color:#2E5BFF;font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px" class="nowrap">${l.play}</span>
+        <span style="font-size:14px;font-weight:700;color:#222">${l.item}</span></div>
+    </div>
+    ${settled?`<div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:10px;text-align:center">
+      <div class="muted">庄单最终输赢</div>
+      <div class="${lsProfit(l)>=0?'win':'lose'}" style="font-size:30px;font-weight:800;margin-top:6px">${lsProfit(l)>=0?'+':''}${money(lsProfit(l))}</div>
+    </div>`:''}
+    <div class="m3" style="margin-bottom:10px">
+      <div class="c"><div class="l">剩余额度</div><div class="v nowrap" style="font-size:14px">${money(lsRemain(l))} CNY</div></div>
+      <div class="c"><div class="l">已收单</div><div class="v nowrap" style="font-size:14px;color:#FF8C00">${money(l.sold)} CNY</div></div>
+      <div class="c"><div class="l">上浮点位</div><div class="v nowrap win" style="font-size:14px">+ ${f2(l.pt)}</div></div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div class="row"><span class="muted grow">消费进度</span><span style="font-size:13px;font-weight:700;color:#222">${(()=>{const r=Math.round(pct*10)/10;return r%1===0?r.toFixed(0):r.toFixed(1)})()}%</span></div>
+      <div class="prog" style="margin-top:8px;height:6px"><i style="width:${pct}%;background:${barColor}"></i></div>
+    </div>
+    <div style="background:#fff;border-radius:12px;padding:4px 14px;margin-bottom:10px">
+      <div class="kv"><span class="k">抵押类型</span><span class="v nowrap">💰 押金</span></div>
+      <div class="kv"><span class="k">抵押金额 <span style="color:#E24B4A;cursor:pointer" onclick="depHistory(${sdIdx})">❗</span></span><span class="v nowrap">${money(l.dep)} CNY</span></div>
+      <div class="kv"><span class="k">卖出赔率(港盘)</span><span class="v nowrap win">@${f2(l.odds)}</span></div>
+      <div class="kv"><span class="k">总额度</span><span class="v nowrap">${money(l.cap)} CNY</span></div>
+      <div class="kv"><span class="k">子单数</span><span class="v nowrap">${(l.subsList||[]).length}笔</span></div>
+      <div class="kv"><span class="k">卖出时间</span><span class="v nowrap">${l.time}</span></div>
+    </div>
+    ${(l.subsList||[]).length?`<div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px">
+      <div style="font-size:14px;font-weight:700;color:#222;margin-bottom:10px">会员买单列表</div>
+      ${l.subsList.map(s=>`<div style="border-top:1px solid #f5f5f5;padding:10px 0">
+        <div class="row">
+          <span style="background:#FFF3E5;color:#FF8C00;font-size:11px;padding:1px 7px;border-radius:4px" class="nowrap">会员</span>
+          <span style="font-size:13px;color:#222;margin-left:7px" class="grow nowrap">${s.u}</span>
+          <span style="font-size:13px;font-weight:600;color:#222" class="nowrap">${money(s.amt)} CNY</span></div>
+        <div class="row" style="margin-top:4px">
+          <span class="muted grow nowrap" style="font-size:11px">${s.time}</span>
+          <span class="nowrap ${settled?(s.settle>=0?'win':'lose'):'muted'}" style="font-size:13px;font-weight:600">${settled?((s.settle>=0?'':'')+money(s.settle)):'0.00'}</span></div>
+      </div>`).join('')}
+      ${settled?`<div class="row" style="border-top:1px solid #f5f5f5;padding-top:11px;margin-top:2px">
+        <span style="font-size:13px;color:#222;font-weight:600" class="grow">平台抽水${(SELL_COMM*100).toFixed(0)}%</span>
+        <span style="font-size:13px;font-weight:700;color:#222" class="nowrap">${money(lsComm(l))} CNY</span></div>
+      <div class="row" style="border-top:1px solid #f5f5f5;padding-top:11px;margin-top:11px">
+        <span style="font-size:13px;color:#222;font-weight:600" class="grow">卖出返回</span>
+        <span style="font-size:14px;font-weight:800;color:#222" class="nowrap">${money(lsRefund(l))} CNY</span></div>`:''}
+    </div>`:''}`;
+  const canOp=(l.state==='卖出中'||l.state==='部分成交');
+  const sdsh=$('sd-share');if(sdsh)sdsh.style.display=canOp?'block':'none';
+  $('sd-footer').innerHTML=canOp
+    ?`<div class="row" style="gap:10px">
+        <button class="btn btn-p grow" onclick="topupSell()">补充押金</button>
+        <button class="btn btn-g grow" onclick="stopSell()">停止收单</button></div>`
+    :`<button class="btn btn-g" style="width:100%" onclick="openOrders(2)">关闭</button>`;
+}
+function depHistory(idx){
+  const l=legacySells[idx];
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">押金变动详情</h3>
+    <div style="background:#FAFBFC;border-radius:8px;padding:12px">
+      <div class="row" style="padding:6px 0"><span class="muted grow">初始押金</span><span class="nowrap" style="font-weight:600">${money(l.dep0!==undefined?l.dep0:l.dep)} CNY</span></div>
+      ${(l.topups||[]).map(t=>`<div class="row" style="padding:6px 0;border-top:1px dashed #eee"><span class="muted grow">追加押金 ${t.time}</span><span class="win nowrap" style="font-weight:600">+${money(t.amt)} CNY</span></div>`).join('')}
+      <div class="row" style="padding:8px 0 2px;border-top:1px solid #eee;margin-top:4px"><span style="font-weight:600" class="grow">当前抵押金额</span><span class="nowrap" style="font-weight:800">${money(l.dep)} CNY</span></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="closeCfm()">我知道了</button>`);
+}
+function topupSell(){
+  const l=legacySells[sdIdx];
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">补充押金</h3>
+    <div class="muted" style="text-align:center;margin-bottom:12px">追加押金后总额度按卖出赔率同步扩大,卖出赔率与状态不变</div>
+    <div style="background:#FAFBFC;border-radius:8px;padding:12px;margin-bottom:10px">
+      <div class="row"><span class="muted grow">当前抵押金额</span><span class="nowrap" style="font-weight:600">${money(l.dep)} CNY</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow">当前总额度</span><span class="nowrap">${money(l.cap)} CNY</span></div>
+      <div class="row" style="margin-top:10px">
+        <input type="number" id="ts-amt" placeholder="追加金额" style="flex:1;text-align:right" oninput="tsPrev()"><span class="muted">CNY</span></div>
+      <div class="row" style="gap:6px;margin-top:6px">
+        <span class="chip" onclick="tsAdd(50)">+50</span><span class="chip" onclick="tsAdd(100)">+100</span><span class="chip" onclick="tsAdd(500)">+500</span></div>
+      <div class="muted" style="margin-top:8px" id="ts-prev">追加后抵押金额 ${money(l.dep)} CNY · 新增额度 0.00 CNY</div>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-p grow" onclick="doTopupSell()">确认追加</button></div>`);
+}
+function tsAdd(v){const el=$('ts-amt');el.value=(parseFloat(el.value)||0)+v;tsPrev()}
+function tsPrev(){
+  const l=legacySells[sdIdx],v=parseFloat(($('ts-amt')||{}).value)||0;
+  $('ts-prev').textContent=`追加后抵押金额 ${money(l.dep+v)} CNY · 新增额度 ${money(Math.floor(v/l.odds*100)/100)} CNY`;
+}
+function doTopupSell(){
+  const l=legacySells[sdIdx],v=parseFloat(($('ts-amt')||{}).value)||0;
+  if(v<=0)return toast('请输入追加金额');
+  if(v>balance)return toast('余额不足');
+  if(l.dep0===undefined)l.dep0=l.dep;
+  l.topups=l.topups||[];
+  l.topups.push({amt:v,time:new Date().toTimeString().slice(0,5)});
+  l.dep=+(l.dep+v).toFixed(2);
+  l.cap=+(l.cap+Math.floor(v/l.odds*100)/100).toFixed(2);
+  balance=+(balance-v).toFixed(2);syncBal();
+  if(l.state==='已售罄')l.state='部分成交';
+  closeCfm();toast('追加成功,押金已冻结 ¥'+money(v));
+  renderSellDetail();updBadge();
+}
+function stopSell(){
+  const l=legacySells[sdIdx];
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">停止收单</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;text-align:center;margin-bottom:14px">
+      确认停止该挂单收单?<br>挂单立即从卖单簿下架,已成交子单正常结算,<br>未消费押金结算后退回。<br><b style="color:#E24B4A">此操作不可逆。</b></div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-r grow" onclick="doStopSell()">确认停止</button></div>`);
+}
+function doStopSell(){
+  legacySells[sdIdx].state='已关闭';
+  closeCfm();toast('已停止收单,挂单已下架');
+  renderSellDetail();updBadge();renderHome();
 }
 
 /* ═════════ 盘详情 & 控盘 ═════════ */
@@ -1015,10 +1934,11 @@ function renderDetail(){
           ?`<div class="row" style="gap:6px;margin-top:9px">
               <button class="btn btn-o btn-sm grow" onclick="adjSheet(${i})">调水</button>
               <button class="btn btn-ro btn-sm grow" onclick="sealItemSheet(${i})">立即封盘</button>
-              ${it.sold<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 60px" onclick="removeItemSheet(${i})">移除</button>`:''}</div>`
+              ${remain>0.001?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="shareSheet(${i})">分享</button>`:''}
+              ${it.sold<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="removeItemSheet(${i})">移除</button>`:''}</div>`
           :`<div class="row" style="gap:6px;margin-top:9px">
               <button class="btn btn-p btn-sm grow" onclick="resumeItem(${i})">恢复开盘</button>
-              ${it.sold<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 60px" onclick="removeItemSheet(${i})">移除</button>`:''}</div>`):''}
+              ${it.sold<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="removeItemSheet(${i})">移除</button>`:''}</div>`):''}
         ${subsHtml}
       </div>`;
     }).join('')}`;
@@ -1132,6 +2052,150 @@ function removeItem(i){
   closeCfm();toast('已移除该盘口,盘押金不变');
   updBadge();renderDetail();renderHome();
 }
+/* ═════ P2P 分享 ═════ */
+const SHARE_HOST='sports.kk.com/p2p/s/';
+let shareCtx=null;
+function shareUrl(bid){return SHARE_HOST+bid}
+function kickedOff(mid){const m=MATCHES[mid];return !!(m&&m.tagTxt==='滚球')}
+function shareState(o){
+  /* o: {kind:'mk',m,it} 开盘庄单 | {kind:'legacy',l} 投注项卖单 */
+  if(o.kind==='legacy'){
+    const l=o.l;
+    if(l.state==='已结算')return{ok:false,txt:'已结算',why:'赛事已结算,该挂单已完成'};
+    if(l.state==='已关闭')return{ok:false,txt:'已关闭',why:'庄家已停止收单,挂单下架'};
+    if(l.state==='已售罄')return{ok:false,txt:'已售罄',why:'该挂单额度已售罄'};
+    if(lsRemain(l)<=0.001)return{ok:false,txt:'已售罄',why:'该挂单额度已售罄'};
+    if(kickedOff((l.itemKey||'').split('_')[0]))return{ok:false,txt:'赛事已开赛',why:'赛事已开赛,该挂单停止收单'};
+    return{ok:true,txt:l.state==='部分成交'?'部分成交':'卖出中'};
+  }
+  const{m,it}=o;
+  if(m.status==='settled')return{ok:false,txt:'已结算',why:'赛事已结算,该挂单已完成'};
+  if(m.status==='closed')return{ok:false,txt:'已关闭',why:'庄家已停止收单,挂单下架'};
+  if(it.status==='sealed')return{ok:false,txt:'已封盘',why:'庄家已暂停该盘口收单'};
+  if(itemRemain(m,it)<=0.001)return{ok:false,txt:'已售罄',why:'该挂单额度已售罄'};
+  if(kickedOff(m.mid))return{ok:false,txt:'赛事已开赛',why:'赛事已开赛,该挂单停止收单'};
+  return{ok:true,txt:'卖出中'};
+}
+function shareSheet(i){
+  const it=cur.items[i],st=shareState({kind:'mk',m:cur,it}),url=shareUrl(it.bid||('B'+cur.id.slice(-5)+i));
+  shareCtx={kind:'mk',mkId:cur.id,ik:it.key,idx:i};
+  const m=MATCHES[cur.mid];
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">分享 P2P 挂单</h3>
+    <div style="background:#FAFBFC;border:1px solid #f0f0f0;border-radius:10px;padding:12px;margin-bottom:12px">
+      <div class="row"><span style="font-size:13px;font-weight:800;color:#FF8C00" class="nowrap">KING KONG</span>
+        <span class="grow"></span><span class="tag ${st.ok?'tag-live':'tag-closed'}">${st.txt}</span></div>
+      <div style="font-size:13px;font-weight:600;color:#222;margin-top:8px">${m.home} vs ${m.away}</div>
+      <div class="muted" style="margin-top:2px">${m.league} · ${m.time}</div>
+      <div class="row" style="margin-top:8px"><span style="font-size:13px;color:#222" class="grow nowrap">${it.name}</span>
+        <span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${f2(it.odds)}(港)</span></div>
+    </div>
+    <div class="row" style="background:#f6f7f9;border-radius:8px;padding:9px 10px;margin-bottom:12px">
+      <span style="font-size:11px;color:#666;word-break:break-all" class="grow">${url}</span>
+      <span style="color:#FF8C00;font-size:12px;cursor:pointer;margin-left:8px" class="nowrap" onclick="toast('链接已复制')">复制</span>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-p grow" onclick="openShare()">分享到金刚</button>
+      <button class="btn btn-o grow" onclick="openShare()">分享到 TG</button>
+    </div>
+    <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
+}
+function shareLegacy(idx){
+  shareCtx={kind:'legacy',idx};
+  const d=shareResolve();
+  if(!d)return toast('该挂单已不存在');
+  const{st,match}=d;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">分享 P2P 挂单</h3>
+    <div style="background:#FAFBFC;border:1px solid #f0f0f0;border-radius:10px;padding:12px;margin-bottom:12px">
+      <div class="row"><span style="font-size:13px;font-weight:800;color:#FF8C00" class="nowrap">KING KONG</span>
+        <span class="grow"></span><span class="tag ${st.ok?'tag-live':'tag-closed'}">${st.txt}</span></div>
+      <div style="font-size:13px;font-weight:600;color:#222;margin-top:8px">${match.home} VS ${match.away}</div>
+      <div class="muted" style="margin-top:2px">${match.league} · ${match.time}</div>
+      <div class="row" style="margin-top:8px"><span style="font-size:13px;color:#222" class="grow nowrap">${d.play} ${d.item}</span>
+        <span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${f2(d.odds)}(港)</span></div>
+    </div>
+    <div class="row" style="background:#f6f7f9;border-radius:8px;padding:9px 10px;margin-bottom:12px">
+      <span style="font-size:11px;color:#666;word-break:break-all" class="grow">${shareUrl(d.bid)}</span>
+      <span style="color:#FF8C00;font-size:12px;cursor:pointer;margin-left:8px" class="nowrap" onclick="toast('链接已复制')">复制</span>
+    </div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-p grow" onclick="openShare()">分享到金刚</button>
+      <button class="btn btn-o grow" onclick="openShare()">分享到 TG</button>
+    </div>
+    <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
+}
+function openShare(){closeCfm();renderShare();go('pg-share')}
+function shareResolve(){
+  if(!shareCtx)return null;
+  if(shareCtx.kind==='legacy'){
+    const l=legacySells[shareCtx.idx];if(!l)return null;
+    const mid=(l.itemKey||'').split('_')[0];
+    const match={home:l.home,away:l.away,league:l.league,time:l.time};
+    return{kind:'legacy',l,itemKey:l.itemKey,match,mid,
+      play:(l.play||'').replace(' · ',' '),item:l.item,odds:l.odds,nick:'我',
+      st:shareState({kind:'legacy',l}),bid:l.id};
+  }
+  const m=markets.find(x=>x.id===shareCtx.mkId);if(!m)return null;
+  const it=m.items.find(x=>x.key===shareCtx.ik);if(!it)return null;
+  return{kind:'mk',m,it,itemKey:it.key,match:MATCHES[m.mid],
+    play:it.name.split(' · ')[0],item:it.name.split(' · ')[1]||it.name,odds:it.odds,nick:m.nick||BANKER_NICK,
+    st:shareState({kind:'mk',m,it}),bid:it.bid||('B'+m.id.slice(-5)+shareCtx.idx)};
+}
+function renderShare(){
+  const d=shareResolve();
+  if(!d){$('share-body').innerHTML='<div class="muted" style="text-align:center;padding:40px">该挂单已不存在</div>';return}
+  const{st,match}=d;
+  $('sh-url').textContent=shareUrl(d.bid);
+  $('share-body').innerHTML=`
+    <div style="background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)">
+      <div class="row" style="background:linear-gradient(90deg,#FF8C00,#FFB25C);padding:12px 14px">
+        <span style="font-size:15px;font-weight:800;color:#fff;letter-spacing:.5px" class="nowrap">KING KONG</span>
+        <span class="muted" style="color:rgba(255,255,255,.9);margin-left:6px;font-size:11px" class="nowrap">体育 · P2P</span>
+        <span class="grow"></span>
+        <span style="background:rgba(255,255,255,.22);color:#fff;font-size:11px;padding:2px 8px;border-radius:9px" class="nowrap">P2P</span>
+      </div>
+      <div style="padding:14px">
+        <div class="row"><span class="muted nowrap">${match.league}</span><span class="grow"></span><span class="muted nowrap">${match.time}</span></div>
+        <div style="font-size:16px;font-weight:700;color:#222;margin-top:6px">${match.home} <span style="color:#bbb">VS</span> ${match.away}</div>
+        <div style="height:1px;background:#f2f2f2;margin:12px 0"></div>
+        <div class="row"><span class="muted nowrap" style="width:56px">玩法</span><span style="font-size:13px;color:#222">${d.play}</span></div>
+        <div class="row" style="margin-top:6px"><span class="muted nowrap" style="width:56px">投注项</span><span style="font-size:14px;font-weight:700;color:#222">${d.item}</span></div>
+        <div class="row" style="margin-top:6px"><span class="muted nowrap" style="width:56px">庄单赔率</span><span style="font-size:16px;font-weight:800;color:#FF8C00">@${f2(d.odds)}</span><span class="muted" style="margin-left:4px">(港盘)</span></div>
+        <div class="row" style="margin-top:6px"><span class="muted nowrap" style="width:56px">庄家</span><span style="font-size:13px;color:#222">${d.nick}</span></div>
+        <div class="row" style="margin-top:10px;background:#FAFBFC;border-radius:8px;padding:10px">
+          <span class="muted nowrap" style="width:56px">挂单状态</span>
+          <span class="tag ${st.ok?'tag-live':'tag-closed'}">${st.txt}</span>
+        </div>
+        ${st.ok?'':`<div class="hint" style="margin-top:10px">${st.why},可前往体育查看其他 P2P 挂单</div>`}
+        <div class="muted" style="margin-top:10px;font-size:11px">信息更新时间 ${new Date().toTimeString().slice(0,8)} · 每次打开自动获取最新信息</div>
+        <button class="btn ${st.ok?'btn-p':'btn-o'}" style="width:100%;margin-top:12px" onclick="shareLand()">${st.ok?'立即前往投注':'前往查看其他挂单'}</button>
+      </div>
+    </div>
+    <div class="row" style="gap:8px;margin-top:12px">
+      <button class="btn btn-g grow" onclick="renderShare();toast('已重新获取最新信息')">🔄 模拟重新获取</button>
+      <button class="btn btn-g grow" onclick="shareCtx&&shareCtx.kind==='legacy'?openOrders(2):go('pg-detail')">返回体育(演示)</button>
+    </div>
+    <div class="hint" style="margin-top:10px">演示说明:此页为金刚/TG 内的 webview 内容页,公开可访问无需登录;点击按钮模拟唤起体育 App 并按订单状态落地。</div>`;
+}
+function shareLand(){
+  const d=shareResolve();
+  if(!d||!d.st.ok){
+    const why=d?d.st.why:'该挂单已不存在';
+    go('pg-home');renderHome();setNav('match');
+    cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">订单已失效</h3>
+      <div style="font-size:13px;color:#666;text-align:center;line-height:1.8;margin-bottom:14px">${why}。<br>可查看其他正在售卖的 P2P 挂单。</div>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-g grow" onclick="closeCfm()">关闭</button>
+        <button class="btn btn-p grow" onclick="closeCfm();renderHome();toast('已展示全部 P2P 挂单赛事')">查看其他 P2P 挂单</button></div>`);
+    return;
+  }
+  /* 有效:进入比赛详情(原比赛),选中该投注项,弹出购物车 */
+  const k=d.itemKey;
+  go('pg-home');renderHome();setNav('match');
+  Object.keys(sel).forEach(x=>sel[x]=false);
+  sel[k]=true;buyAmt[k]=buyAmt[k]||'';
+  slipIdx=0;renderSlip();show('ov-slip');updBadge();
+  setTimeout(()=>toast('已定位该 P2P 挂单,请输入投注金额'),300);
+}
 function topupSheet(){
   const mo=maxOdds(cur.items.filter(i=>i.status==='on').map(i=>i.odds));
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">补充额度</h3>
@@ -1176,7 +2240,8 @@ function stopSheet(){
 }
 function stopAll(){cur.status='closed';closeCfm();toast('已停止收单,盘已关闭,私盘已从列表下架');updBadge();renderDetail();renderHome()}
 
-renderHome();updBadge();syncBal();
+if(!OPEN_MARKET_ENABLED){const _fc=$('fp-clone');if(_fc)_fc.style.display='none';}
+go('pg-home');renderHome();updBadge();syncBal();
 </script>
 </body>
 </html>
