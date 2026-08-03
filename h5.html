@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v6.3</title>
+<title>P2P 开盘坐庄 · 交互原型 v6.4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -989,6 +989,7 @@ function comboRows(eus){
 }
 function openBetConfirm(legs,tot,win){
   window._betWin=win;window._betConfirmed=false;
+  toast('注单确认中,您可前往【买单】查看注单状态!');   /* 点击投注后即提示 */
   window._betOid='0110001426'+Date.now().toString().slice(-12)+'-1';
   const legHtml=legs.map(l=>`<div style="border:1px solid #f0f0f0;border-radius:8px;padding:10px;margin-bottom:8px">
     <div class="row"><span style="font-size:15px;font-weight:700;color:#222">${l.name}</span><span class="grow"></span></div>
@@ -1033,7 +1034,6 @@ function acceptInfo(){
 }
 function betBack(){
   closeCfm();hide('ov-slip');
-  if(!window._betConfirmed)toast('注单确认中,您可前往【买单】查看注单状态!');
 }
 function bookHtml(k,defOpen){
   const cn=['卖一','卖二','卖三','卖四','卖五','卖六','卖七','卖八','卖九','卖十'];let ci=0;
