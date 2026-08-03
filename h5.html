@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v6.6(分享环境)</title>
+<title>P2P 开盘坐庄 · 交互原型 v6.7</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -2058,14 +2058,13 @@ function removeItem(i){
 const SHARE_HOST='sports.kk.com/p2p/s/';
 /* ═════ 运行容器与商户归属 ═════
    kk     = 金刚 App 内的体育 H5(宿主注入 IM SDK)
-   cash   = 现金盘站点内嵌体育 H5
-   mobile = 手机浏览器直接打开体育 H5
-   pc     = PC 浏览器 */
+   cash   = 现金盘站点内嵌体育 H5(宿主注入 IM SDK)
+   mobile = 手机浏览器直接打开体育 H5(无 IM SDK) */
 let ENV='kk';
-const ENVS=[['kk','金刚 App 内'],['cash','现金盘内嵌'],['mobile','手机浏览器'],['pc','PC 浏览器']];
-const MERCHANTS={kk:'kksport',cash:'cashbet01',mobile:'kksport',pc:'kksport'};
+const ENVS=[['kk','金刚 App 内'],['cash','现金盘内嵌'],['mobile','手机浏览器']];
+const MERCHANTS={kk:'kksport',cash:'cashbet01',mobile:'kksport'};
 function curMerchant(){return MERCHANTS[ENV]||'kksport'}
-function hasIMSDK(){return ENV==='kk'}                 /* 仅金刚容器注入 IM SDK */
+function hasIMSDK(){return ENV==='kk'||ENV==='cash'}   /* 金刚与现金盘容器均注入 IM SDK */
 function canShareKK(){return hasIMSDK()}               /* 以容器判定替代"是否已安装" */
 function canShareTG(){return true}                     /* TG 走网页链接,未安装落 TG 网页版 */
 function setEnv(e){ENV=e;const d=shareResolve();if(d)shareOpenSheet();}
@@ -2134,7 +2133,7 @@ function shareOpenSheet(){
   const btnRow=btns.length
     ?`<div class="row" style="gap:8px">${btns.join('')}</div>`
     :`<div class="hint" style="margin:0">当前环境不支持直接分享,请复制链接后手动发送。</div>`;
-  const pcTip=ENV==='pc'?`<div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-g grow" onclick="toast('二维码(示意):手机扫码打开挂单')">生成二维码</button></div>`:'';
+
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">分享 P2P 挂单</h3>
     ${envRow}
     <div style="background:#FAFBFC;border:1px solid #f0f0f0;border-radius:10px;padding:12px;margin-bottom:12px">
@@ -2149,7 +2148,7 @@ function shareOpenSheet(){
       <span style="font-size:11px;color:#666;word-break:break-all" class="grow">${shareUrl(d.bid)}</span>
       <span style="color:#FF8C00;font-size:12px;cursor:pointer;margin-left:8px" class="nowrap" onclick="toast('链接已复制')">复制</span>
     </div>
-    ${btnRow}${pcTip}
+    ${btnRow}
     <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
 }
 /* 分享到金刚:金刚容器内调 IM SDK 生成 webview 消息体 */
