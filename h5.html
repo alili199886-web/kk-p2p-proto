@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v6.5</title>
+<title>P2P 开盘坐庄 · 交互原型 v6.6(分享环境)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -2056,8 +2056,21 @@ function removeItem(i){
 }
 /* ═════ P2P 分享 ═════ */
 const SHARE_HOST='sports.kk.com/p2p/s/';
+/* ═════ 运行容器与商户归属 ═════
+   kk     = 金刚 App 内的体育 H5(宿主注入 IM SDK)
+   cash   = 现金盘站点内嵌体育 H5
+   mobile = 手机浏览器直接打开体育 H5
+   pc     = PC 浏览器 */
+let ENV='kk';
+const ENVS=[['kk','金刚 App 内'],['cash','现金盘内嵌'],['mobile','手机浏览器'],['pc','PC 浏览器']];
+const MERCHANTS={kk:'kksport',cash:'cashbet01',mobile:'kksport',pc:'kksport'};
+function curMerchant(){return MERCHANTS[ENV]||'kksport'}
+function hasIMSDK(){return ENV==='kk'}                 /* 仅金刚容器注入 IM SDK */
+function canShareKK(){return hasIMSDK()}               /* 以容器判定替代"是否已安装" */
+function canShareTG(){return true}                     /* TG 走网页链接,未安装落 TG 网页版 */
+function setEnv(e){ENV=e;const d=shareResolve();if(d)shareOpenSheet();}
 let shareCtx=null;
-function shareUrl(bid){return SHARE_HOST+bid}
+function shareUrl(bid){return SHARE_HOST+bid+'?m='+curMerchant()}
 function kickedOff(mid){const m=MATCHES[mid];return !!(m&&m.tagTxt==='滚球')}
 function shareState(o){
   /* o: {kind:'mk',m,it} 开盘庄单 | {kind:'legacy',l} 投注项卖单 */
@@ -2105,8 +2118,25 @@ function shareLegacy(idx){
   shareCtx={kind:'legacy',idx};
   const d=shareResolve();
   if(!d)return toast('该挂单已不存在');
+  shareOpenSheet();
+}
+function shareOpenSheet(){
+  const d=shareResolve();
+  if(!d)return;
   const{st,match}=d;
+  const envRow=`<div class="row" style="gap:5px;background:#F5F6F8;border-radius:8px;padding:7px 9px;margin-bottom:10px;overflow-x:auto">
+      <span class="muted nowrap" style="font-size:11px">演示容器</span>
+      ${ENVS.map(([v,t])=>`<span class="pill ${ENV===v?'on':''}" style="flex:0 0 auto;font-size:11px;padding:3px 9px" onclick="setEnv('${v}')">${t}</span>`).join('')}
+    </div>`;
+  const btns=[];
+  if(canShareKK())btns.push(`<button class="btn btn-p grow" onclick="doShareKK()">分享到金刚</button>`);
+  if(canShareTG())btns.push(`<button class="btn btn-o grow" onclick="doShareTG()">分享到 TG</button>`);
+  const btnRow=btns.length
+    ?`<div class="row" style="gap:8px">${btns.join('')}</div>`
+    :`<div class="hint" style="margin:0">当前环境不支持直接分享,请复制链接后手动发送。</div>`;
+  const pcTip=ENV==='pc'?`<div class="row" style="gap:8px;margin-top:8px"><button class="btn btn-g grow" onclick="toast('二维码(示意):手机扫码打开挂单')">生成二维码</button></div>`:'';
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">分享 P2P 挂单</h3>
+    ${envRow}
     <div style="background:#FAFBFC;border:1px solid #f0f0f0;border-radius:10px;padding:12px;margin-bottom:12px">
       <div class="row"><span style="font-size:13px;font-weight:800;color:#FF8C00" class="nowrap">KING KONG</span>
         <span class="grow"></span><span class="tag ${st.ok?'tag-live':'tag-closed'}">${st.txt}</span></div>
@@ -2119,10 +2149,30 @@ function shareLegacy(idx){
       <span style="font-size:11px;color:#666;word-break:break-all" class="grow">${shareUrl(d.bid)}</span>
       <span style="color:#FF8C00;font-size:12px;cursor:pointer;margin-left:8px" class="nowrap" onclick="toast('链接已复制')">复制</span>
     </div>
-    <div class="row" style="gap:8px">
-      <button class="btn btn-p grow" onclick="openShare()">分享到金刚</button>
-      <button class="btn btn-o grow" onclick="openShare()">分享到 TG</button>
-    </div>
+    ${btnRow}${pcTip}
+    <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
+}
+/* 分享到金刚:金刚容器内调 IM SDK 生成 webview 消息体 */
+function doShareKK(){
+  if(!hasIMSDK())return shareFallback('金刚通讯');
+  closeCfm();renderShare();go('pg-share');
+}
+/* 分享到 TG:走 t.me 网页链接,未安装自动落 TG 网页版 */
+function doShareTG(){
+  const d=shareResolve();if(!d)return;
+  closeCfm();renderShare();go('pg-share');
+  setTimeout(()=>toast('已调起 Telegram 分享(t.me/share/url),未安装将打开 TG 网页版'),200);
+}
+/* 唤起失败降级 */
+function shareFallback(app){
+  const d=shareResolve();
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">未检测到${app}</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;text-align:center;margin-bottom:12px">
+      未能唤起${app},可复制链接后手动发送给好友。</div>
+    <div class="row" style="background:#f6f7f9;border-radius:8px;padding:9px 10px;margin-bottom:12px">
+      <span style="font-size:11px;color:#666;word-break:break-all" class="grow">${d?shareUrl(d.bid):''}</span></div>
+    <button class="btn btn-p" style="width:100%" onclick="closeCfm();toast('链接已复制')">复制链接</button>
+    <button class="btn btn-o" style="width:100%;margin-top:8px" onclick="toast('前往下载${app}(示意)')">下载${app}</button>
     <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
 }
 function openShare(){closeCfm();renderShare();go('pg-share')}
@@ -2169,6 +2219,7 @@ function renderShare(){
         </div>
         ${st.ok?'':`<div class="hint" style="margin-top:10px">${st.why},可前往体育查看其他 P2P 挂单</div>`}
         <div class="muted" style="margin-top:10px;font-size:11px">信息更新时间 ${new Date().toTimeString().slice(0,8)} · 每次打开自动获取最新信息</div>
+        <div class="muted" style="margin-top:4px;font-size:11px">来源平台 ${curMerchant()} · 点击后回到该平台的体育入口</div>
         <button class="btn ${st.ok?'btn-p':'btn-o'}" style="width:100%;margin-top:12px" onclick="shareLand()">${st.ok?'立即前往投注':'前往查看其他挂单'}</button>
       </div>
     </div>
@@ -2190,7 +2241,8 @@ function shareLand(){
         <button class="btn btn-p grow" onclick="closeCfm();renderHome();toast('已展示全部 P2P 挂单赛事')">查看其他 P2P 挂单</button></div>`);
     return;
   }
-  /* 有效:进入比赛详情(原比赛),选中该投注项,弹出购物车 */
+  /* 有效:回到链接所属商户的体育入口,进入比赛详情,选中投注项,弹出购物车 */
+  toast('已回到 '+curMerchant()+' 的体育入口');
   const k=d.itemKey;
   go('pg-home');renderHome();setNav('match');
   Object.keys(sel).forEach(x=>sel[x]=false);
