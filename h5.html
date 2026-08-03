@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v6.7</title>
+<title>P2P 开盘坐庄 · 交互原型 v6.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -2231,13 +2231,11 @@ function renderShare(){
 function shareLand(){
   const d=shareResolve();
   if(!d||!d.st.ok){
-    const why=d?d.st.why:'该挂单已不存在';
-    go('pg-home');renderHome();setNav('match');
-    cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">订单已失效</h3>
-      <div style="font-size:13px;color:#666;text-align:center;line-height:1.8;margin-bottom:14px">${why}。<br>可查看其他正在售卖的 P2P 挂单。</div>
-      <div class="row" style="gap:8px">
-        <button class="btn btn-g grow" onclick="closeCfm()">关闭</button>
-        <button class="btn btn-p grow" onclick="closeCfm();renderHome();toast('已展示全部 P2P 挂单赛事')">查看其他 P2P 挂单</button></div>`);
+    /* 订单失效:进入赛事页,不打开购物车,仅 toast 提示 */
+    Object.keys(sel).forEach(x=>sel[x]=false);
+    hide('ov-slip');
+    go('pg-home');renderHome();setNav('match');updBadge();
+    toast('当前订单已失效,请选择其他p2p订单进行购买');
     return;
   }
   /* 有效:回到链接所属商户的体育入口,进入比赛详情,选中投注项,弹出购物车 */
