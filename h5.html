@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v6.8</title>
+<title>P2P 开盘坐庄 · 交互原型 v6.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -1379,15 +1379,21 @@ function doSell(){
     const fm=sellForm[k],odds=+f2(officialHk[k]+(parseFloat(fm.pt)||0));
     const cap=Math.floor(fm.dep/odds*100)/100;
     const m=MATCHES[ITEMS[k].mid];
-    legacySells.unshift({itemKey:k,label:ITEMS[k].group+' · '+ITEMS[k].label,odds,pt:parseFloat(fm.pt),
-      dep:parseFloat(fm.dep),remain:cap,cap,sold:0,subs:0,state:'卖出中',
-      match:m.home+' vs '+m.away+' '+m.league,
-      time:new Date().toTimeString().slice(0,5),bucket:'today'});
+    const _pt=parseFloat(fm.pt)||0;
+    legacySells.unshift({
+      id:'S'+new Date().toISOString().slice(0,10).replace(/-/g,'')+String(legacySells.length+1).padStart(3,'0'),
+      league:m.league,home:m.home,away:m.away,
+      play:ITEMS[k].group,item:ITEMS[k].label,itemKey:k,
+      odds,pt:_pt,ptPct:+(officialHk[k]?(_pt/officialHk[k]*100):0).toFixed(1),
+      dep:parseFloat(fm.dep),cap,sold:0,subsList:[],
+      state:'卖出中',
+      time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,5),
+      bucket:'today'});
     sellForm[k]={dep:'',pt:0.01};
   });
   balance=+(balance-tot).toFixed(2);syncBal();updBadge();renderHome();
   toast('卖出成功,押金已冻结');
-  hide('ov-slip');setTimeout(()=>openOrders(1),400);
+  hide('ov-slip');setTimeout(()=>openOrders(2),400);
 }
 
 /* ═════════ 开盘 ═════════ */
