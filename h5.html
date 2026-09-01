@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v6.9</title>
+<title>P2P 开盘坐庄 · 交互原型 v7.0(新手引导)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -98,6 +98,16 @@ input:focus{border-color:#FF8C00}
 .sub .r1,.sub .r2{display:flex;align-items:center;gap:8px;font-size:11px;color:#666}
 .sub .r1 span,.sub .r2 span{white-space:nowrap}
 .sub .r2{margin-top:3px;color:#999}
+#guide{position:absolute;inset:0;display:none;z-index:90}
+#guide.show{display:block}
+#g-hole{position:absolute;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.74);border:2px solid #FF8C00;transition:all .25s ease}
+#g-ring{position:absolute;border:2px dashed rgba(255,255,255,.55);border-radius:14px;pointer-events:none;transition:all .25s ease}
+.g-tip{position:absolute;border:1px dashed rgba(255,255,255,.9);border-radius:8px;padding:11px 13px;color:#fff;font-size:13px;line-height:1.6;max-width:250px}
+.g-num{display:inline-flex;width:18px;height:18px;border-radius:50%;background:#FF8C00;color:#fff;font-size:11px;font-weight:700;align-items:center;justify-content:center;margin-right:6px;vertical-align:1px}
+.g-bar{position:absolute;left:0;right:0;bottom:0;padding:22px 16px 16px;display:flex;align-items:center;gap:12px;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(0,0,0,.55) 40%)}
+.g-step{color:rgba(255,255,255,.75);font-size:12px}
+.g-skip{color:rgba(255,255,255,.75);font-size:13px;cursor:pointer}
+.g-next{background:#fff;color:#222;font-size:14px;font-weight:600;border:none;border-radius:20px;padding:9px 22px;cursor:pointer}
 .kklogo{display:flex;align-items:center;gap:7px}
 .kklogo .mk{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#FFA33A,#FF7A00);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .kklogo .mk i{width:11px;height:11px;background:#fff;transform:rotate(45deg);border-radius:2px;display:block}
@@ -356,6 +366,21 @@ input:focus{border-color:#FF8C00}
       <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/></svg>
       我的</div>
   </div>
+<div id="guide">
+  <div id="g-hole"></div>
+  <div id="g-ring"></div>
+  <svg id="g-arrow" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none" viewBox="0 0 400 880" preserveAspectRatio="none">
+    <path id="g-path" fill="none" stroke="#fff" stroke-width="1.6" stroke-dasharray="0"/>
+    <polygon id="g-head" fill="#fff"/>
+  </svg>
+  <div class="g-tip" id="g-tip"></div>
+  <div class="g-bar">
+    <span class="g-step" id="g-step">1/4</span>
+    <span class="grow"></span>
+    <span class="g-skip" onclick="guideEnd()">跳过</span>
+    <button class="g-next" id="g-next" onclick="guideNext()">下一步</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 </div>
@@ -1694,6 +1719,11 @@ function renderMe(){
         <span class="sw ${acceptAny?'on':''}" onclick="acceptAny=!acceptAny;renderMe()"><i></i></span></div>
     </div>
     <div class="grp">
+      <div class="gr" style="cursor:pointer" onclick="guideSeen=false;go('pg-home');renderHome();setNav('match');setTimeout(guideStart,300)">
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">重看新手引导</span>
+        <span style="color:#ccc">›</span></div>
+    </div>
+    <div class="grp">
       <div class="gr" style="cursor:pointer" onclick="toast('切换语言(示意)')">
         <span style="font-size:14px;font-weight:600;color:#222" class="grow">切换语言</span>
         <span style="font-size:13px">🇨🇳</span>
@@ -2300,6 +2330,72 @@ function stopAll(){cur.status='closed';closeCfm();toast('已停止收单,盘已�
 Object.keys(MATCHES).forEach(mid=>mtRegister(mid));   /* 启动即注册全部盘口,使投注项数量口径稳定 */
 if(!OPEN_MARKET_ENABLED){const _fc=$('fp-clone');if(_fc)_fc.style.display='none';}
 go('pg-home');renderHome();updBadge();syncBal();
+
+/* ═════════ 新手引导(首次进入展示) ═════════
+   原型用内存标记演示;线上应持久化到会员档案或本地存储,老用户不再展示 */
+let guideSeen=false,guideIdx=0;
+const GUIDE=[
+  {sel:()=>$('cell-m2_hh'),
+   title:'看懂赔率格',
+   text:'这里显示的是该投注项当前最高的 P2P 赔率。右上角有红点，说明有会员挂出了比官方更优的赔率，点击即可选中投注。'},
+  {sel:()=>$('fp-p2p'),
+   title:'快速筛选 P2P',
+   text:'点「P2P」只看有会员挂单的比赛，没有挂单的联赛会整组隐藏，方便你直接找到有更优赔率的场次。'},
+  {sel:()=>{const rs=[...document.querySelectorAll('#home-list .row')].filter(e=>e.innerText.includes('所有盘口'));
+            return rs.sort((a,b)=>a.getBoundingClientRect().height-b.getBoundingClientRect().height)[0]},
+   title:'进入更多盘口',
+   text:'「所有盘口」查看该场比赛的全部玩法；旁边的「P2P + 数字」表示这场有几个投注项已有会员挂单，点击同样进入盘口页。'},
+  {sel:()=>document.querySelector('.bnav'),
+   title:'买单与卖单',
+   text:'「买单」查看你已投注的注单与结算结果；「卖单」管理你挂出的 P2P 挂单，可补充押金、停止收单或分享给好友。'}
+];
+function guideStart(){
+  if(guideSeen)return;
+  guideIdx=0;go('pg-home');renderHome();
+  $('guide').classList.add('show');guideRender();
+}
+function guideNext(){
+  if(guideIdx>=GUIDE.length-1)return guideEnd();
+  guideIdx++;guideRender();
+}
+function guideEnd(){guideSeen=true;$('guide').classList.remove('show')}
+function guideRender(){
+  const g=GUIDE[guideIdx],el=g.sel();
+  if(!el)return guideNext();
+  el.scrollIntoView({block:'center'});
+  setTimeout(()=>{
+    const ph=document.querySelector('.phone').getBoundingClientRect();
+    const r=el.getBoundingClientRect();
+    const x=r.left-ph.left,y=r.top-ph.top,w=r.width,h=r.height;
+    const hole=$('g-hole');
+    hole.style.cssText=`position:absolute;left:${x-4}px;top:${y-4}px;width:${w+8}px;height:${h+8}px;border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.74);border:2px solid #FF8C00`;
+    const ring=$('g-ring');
+    ring.style.cssText=`position:absolute;left:${x-11}px;top:${y-11}px;width:${w+22}px;height:${h+22}px;border:2px dashed rgba(255,255,255,.5);border-radius:14px`;
+    /* 气泡:目标上方空间够则放上方,否则下方 */
+    const tip=$('g-tip');
+    tip.innerHTML=`<div style="font-weight:700;margin-bottom:4px"><span class="g-num">${guideIdx+1}</span>${g.title}</div><div style="color:rgba(255,255,255,.9)">${g.text}</div>`;
+    const above=y>230;
+    const tw=250;
+    let tx=Math.max(14,Math.min(x+w/2-tw/2,ph.width-tw-14));
+    tip.style.left=tx+'px';tip.style.width=tw+'px';
+    tip.style.top='';tip.style.bottom='';
+    if(above)tip.style.top=(y-16-108)+'px';
+    else tip.style.top=(y+h+22)+'px';
+    /* 曲线箭头:气泡指向目标 */
+    setTimeout(()=>{
+      const tr=tip.getBoundingClientRect();
+      const sx=tx+tw/2, sy=above?(tr.top-ph.top+tr.height+2):(tr.top-ph.top-2);
+      const ex=x+w/2, ey=above?(y-8):(y+h+8);
+      const cx=sx+(ex-sx)*0.2, cy=(sy+ey)/2;
+      $('g-path').setAttribute('d',`M${sx},${sy} Q${cx},${cy} ${ex},${ey}`);
+      const dir=above?1:-1;
+      $('g-head').setAttribute('points',`${ex},${ey+dir*6} ${ex-5},${ey-dir*3} ${ex+5},${ey-dir*3}`);
+    },30);
+    $('g-step').textContent=(guideIdx+1)+'/'+GUIDE.length;
+    $('g-next').textContent=guideIdx>=GUIDE.length-1?'知道了':'下一步';
+  },260);
+}
+setTimeout(guideStart,600);   /* 首次进入自动展示 */
 </script>
 </body>
 </html>
