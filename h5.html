@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v7.0(新手引导)</title>
+<title>P2P 开盘坐庄 · 交互原型 v7.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -1511,25 +1511,75 @@ function bucketOk(b){
 }
 let buyTab=0,btFilter='all';
 let buyOrders=[
-  {type:'parlay',title:'串关 2串1',confirmed:true,
-   legs:[{item:'主 +0.5',play:'全场让球',eu:1.98,match:'乌迪内斯 vs 科莫',sport:'足球',league:'*意大利甲级联赛'},
-         {item:'主 +0.5/1',play:'全场让球',eu:1.69,match:'热那亚 vs 那不勒斯',sport:'足球',league:'*意大利甲级联赛'}],
-   amt:15,win:35.19,oid:'0110000126072012313170-1',time:'2026-07-20 13:43:32',status:'unsettled',bucket:'7d'},
-  {type:'single',item:'主',tag:'滚球',play:'全场独赢',score:'0-0',eu:3.18,confirmed:true,
-   match:'米尔福德 vs 玛盖斯FC',sport:'足球',league:'南非甲级联赛 - 附赛',
-   amt:11,win:23.98,oid:'0110000126060318401070-1',time:'2026-06-03 21:40:02',status:'unsettled',bucket:'30d'},
-  {type:'single',item:'大 0.5',tag:'滚球',play:'上半场大小',score:'0-0',eu:5.76,confirmed:true,
-   match:'米尔福德 vs 玛盖斯FC',sport:'足球',league:'南非甲级联赛 - 附赛',
-   amt:11,win:63.36,oid:'0110000126060318401071-1',time:'2026-06-03 21:41:10',status:'unsettled',bucket:'30d'},
-  {type:'single',item:'主',tag:'滚球',play:'全场独赢',score:'0-0',eu:1.95,
-   match:'HomeTeamCodeA842 CHS vs AwayTeamCodeB3122 CHS',sport:'足球',league:'MockOBT2026 CHS',
-   amt:10,profit:-10,settleScore:'0-0',oid:'0110000226073042407329-1',time:'2026-07-30 15:34:16',status:'settled',bucket:'today'},
-  {type:'single',item:'客 +1',play:'全场让球',eu:1.92,
-   match:'Bayer 04 Leverkusen vs KRC Genk',sport:'足球',league:'Club Friendly CHS',
-   amt:5,profit:-5,settleScore:'4-0',betScore:'0-0',oid:'0110000226072985867379-1',time:'2026-07-29 18:12:04',status:'settled',bucket:'7d'},
-  {type:'single',item:'大 2.5',tag:'今日',play:'全场大小',eu:2.06,
-   match:'登克尔克 vs 德罗赫达联',sport:'足球',league:'爱尔兰超级联赛',
-   amt:100,profit:106,settleScore:'3-1',oid:'0110000226072012313180-1',time:'2026-07-20 20:15:00',status:'settled',bucket:'30d'}
+  /* ── 未结算 ── */
+  {type:'single',status:'unsettled',tag:'待开赛',bucket:'today',
+   item:'皇家马德里 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'亚洲盘',
+   match:'皇家马德里 vs 巴塞罗那',sport:'足球',league:'西甲 · 第36轮',
+   amt:12,win:23.40,betAt:'赛前',oid:'5339328801234567',time:'2026-05-26 15:22:10'},
+  {type:'single',status:'unsettled',tag:'投注成功',bucket:'today',
+   item:'黑龙江龙跃冰城 +1',period:'滚球',scope:'全场',play:'全场让球胜负',odds:7.00,mk:'欧洲盘',
+   match:'黑龙江龙跃冰城 vs 北京通州鹏瑞',sport:'足球',league:'中国足协冠军联赛',
+   amt:2,win:12.00,oid:'5339323922940716',time:'2026-05-26 13:50:40'},
+  {type:'single',status:'unsettled',tag:'投注成功',bucket:'today',
+   item:'因邦代罗竞技 胜',period:'滚球',scope:'全场',play:'全场独赢',odds:2.42,mk:'欧洲盘',
+   match:'因邦代罗竞技 vs 圣萨玛的勇士',sport:'足球',league:'安哥拉班图图联赛',
+   amt:20,win:28.40,oid:'5339322194865416',time:'2026-05-26 13:41:04'},
+  {type:'single',status:'unsettled',tag:'待开赛',bucket:'today',isScore:true,
+   item:'0 - 1',period:'赛前',scope:'下半场',play:'下半场波胆',odds:144,mk:'欧洲盘',
+   match:'菲尔特 vs 埃森',sport:'足球',league:'德国乙级联赛 · 附加赛',
+   amt:2,win:14.00,betAt:'赛前',oid:'5339324167947764',time:'2026-05-26 13:52:02'},
+  {type:'parlay',status:'unsettled',tag:'投注成功',bucket:'today',
+   title:'串关3串1',totalOdds:39.67,
+   legs:[{item:'伯恩利 胜',odds:3.20,period:'滚球',scope:'全场',play:'全场独赢',mk:'欧洲盘',
+          match:'布莱顿 vs 伯恩利',sport:'足球',league:'英格兰超级联赛'},
+         {item:'西汉姆联 胜上半',odds:4.75,period:'赛前',scope:'上半场',play:'上半场独赢',mk:'欧洲盘',
+          match:'富勒姆 vs 西汉姆联',sport:'足球',league:'英格兰超级联赛'},
+         {item:'大 1.5',odds:2.61,period:'赛前',scope:'上半场',play:'上半场大小',mk:'欧洲盘',
+          match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛'}],
+   amt:10,win:396.70,oid:'5339327402595231',time:'2026-05-26 14:10:00'},
+  /* ── 已结算 ── */
+  {type:'single',status:'settled',result:'赢',bucket:'today',
+   item:'皇家马德里 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'亚洲盘',
+   match:'皇家马德里 vs 巴塞罗那',sport:'足球',league:'西甲 · 第36轮',
+   amt:12,profit:11.40,score:'全场 3-1　半场 2-0',betAt:'赛前',
+   oid:'5339328801234567',time:'2026-05-26 15:22:10'},
+  {type:'parlay',status:'settled',result:'输',bucket:'today',
+   title:'串关3串1',totalOdds:39.67,
+   legs:[{item:'伯恩利 胜',odds:3.20,period:'滚球',scope:'全场',play:'全场独赢',mk:'欧洲盘',
+          match:'布莱顿 vs 伯恩利',sport:'足球',league:'英格兰超级联赛 PANDA独家EAFC24',
+          betScore:'0-0',endScore:'0-1',legResult:'赢'},
+         {item:'西汉姆联 胜上半',odds:4.75,period:'滚球',scope:'上半场',play:'上半场独赢',mk:'欧洲盘',
+          match:'富勒姆 vs 西汉姆联',sport:'足球',league:'英格兰超级联赛 PANDA独家EAFC24',
+          betScore:'0-0',endScore:'1-1',legScoreLabel:'上半场比分',legResult:'输'},
+         {item:'大 1.5',odds:2.61,period:'滚球',scope:'上半场',play:'上半场大小',mk:'欧洲盘',
+          match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛 PANDA独家EAFC24',
+          betScore:'0-1',endScore:'0-1',legScoreLabel:'上半场比分',legResult:'输'}],
+   amt:10,profit:-10,oid:'5339327402595231',time:'2026-05-26 14:10:00'},
+  {type:'single',status:'settled',result:'赢',bucket:'yesterday',
+   item:'汉坎 -0/0.5',period:'滚球',scope:'全场',play:'全场让球',odds:2.58,mk:'欧洲盘',
+   match:'汉坎 vs 利勒斯特罗姆',sport:'足球',league:'挪威足球超级联赛',
+   amt:200,profit:316.00,score:'全场 2-0　半场 1-0',betAt:'赛前',
+   oid:'0110000126052556603251-1',time:'2026-05-25 17:15:49'},
+  {type:'single',status:'settled',result:'赢半',bucket:'today',
+   item:'河南队 +0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:-218,mk:'美国盘',
+   match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
+   amt:4.36,profit:1.00,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
+   oid:'5339327171709206',time:'2026-05-26 14:08:43'},
+  {type:'single',status:'settled',result:'输半',bucket:'today',
+   item:'浙江队 -0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:128,mk:'美国盘',
+   match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
+   amt:2,profit:-1.00,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
+   oid:'5339327171709207',time:'2026-05-26 14:08:43'},
+  {type:'single',status:'settled',result:'输',bucket:'today',isScore:true,
+   item:'1 - 3',period:'滚球',scope:'全场',play:'全场波胆',odds:9.00,mk:'欧洲盘',
+   match:'黑龙江龙跃冰城 vs 北京通州鹏瑞',sport:'足球',league:'中国足协冠军联赛',
+   amt:20,profit:-20,score:'全场 1-4（未命中）',betScore:'1 - 3',betAt:'0-2（滚球中）',
+   oid:'5339323746618690',time:'2026-05-26 13:49:42'},
+  {type:'single',status:'settled',result:'走水',bucket:'today',
+   item:'黑龙江龙跃冰城 0',period:'滚球',scope:'上半场',play:'上半场让球',odds:2.58,mk:'欧洲盘',
+   match:'黑龙江龙跃冰城 vs 北京通州鹏瑞',sport:'足球',league:'中国足协冠军联赛',
+   amt:2,profit:0,score:'上半场 0-2　全场 1-4',betAt:'0-2（滚球中）',
+   oid:'5339322090651388',time:'2026-05-26 13:40:30'}
 ];
 function buyBucketOk(b){
   if(btFilter==='all')return true;
@@ -1545,73 +1595,81 @@ function renderBuys(){
   $('bt-0').classList.toggle('on',buyTab===0);
   $('bt-1').classList.toggle('on',buyTab===1);
   const list=buyOrders.filter(o=>buyTab===0?o.status==='unsettled':(o.status==='settled'&&buyBucketOk(o.bucket)));
+  /* 时间筛选:未结算 3 项,已结算 4 项 */
+  const ts=buyTab===0?[['today','今天'],['yesterday','昨天'],['7d','近7天']]
+                     :[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
+  $('buys-filters').innerHTML=ts.map(([v,t])=>`<span class="pill ${btFilter===v?'on':''}" style="font-size:13px;padding:7px 18px" onclick="btFilter='${v}';renderBuys()">${t}</span>`).join('');
+  /* 统计 */
+  const tot=list.reduce((s,o)=>s+o.amt,0);
   if(buyTab===0){
-    $('buys-filters').innerHTML='';
-    const tot=list.reduce((s,o)=>s+o.amt,0),win=list.reduce((s,o)=>s+(o.win||0),0);
+    const win=list.reduce((s,o)=>s+(o.win||0),0);
     $('buys-stats').innerHTML=`<div class="m3">
       <div class="c"><div class="l">总笔数</div><div class="v">${list.length}</div></div>
       <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} CNY</div></div>
       <div class="c"><div class="l">总可赢</div><div class="v nowrap win" style="font-size:14px">${money(win)} CNY</div></div></div>`;
   }else{
-    const ts=[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
-    $('buys-filters').innerHTML=ts.map(([v,t])=>`<span class="pill ${btFilter===v?'on':''}" style="font-size:13px;padding:7px 18px" onclick="btFilter='${v}';renderBuys()">${t}</span>`).join('');
-    const tot=list.reduce((s,o)=>s+o.amt,0),pf=list.reduce((s,o)=>s+(o.profit||0),0);
+    const pf=list.reduce((s,o)=>s+(o.profit||0),0);
     $('buys-stats').innerHTML=`<div class="m3">
-      <div class="c"><div class="l">总数据</div><div class="v">${list.length}</div></div>
-      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">¥${money(tot)}</div></div>
-      <div class="c"><div class="l">总输赢</div><div class="v nowrap ${pf>=0?'win':'lose'}" style="font-size:14px">${pf>=0?'+':'-'}¥${money(Math.abs(pf))}</div></div></div>`;
+      <div class="c"><div class="l">总笔数</div><div class="v">${list.length}</div></div>
+      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} CNY</div></div>
+      <div class="c"><div class="l">总输赢</div><div class="v nowrap ${pf>=0?'win':'lose'}" style="font-size:14px">${pf>=0?'+':'-'}${money(Math.abs(pf))} CNY</div></div></div>`;
   }
-  const legRow=(g,showScore)=>`
-    <div style="padding:9px 0;border-bottom:1px dashed #f0f0f0">
-      <div class="row">
-        <span style="font-size:14px;font-weight:700;color:#222">${g.item}</span>
-        <span class="grow"></span></div>
-      <div class="row" style="margin-top:3px">
-        <span class="muted">${g.play}${showScore&&g.score?'（'+g.score+'）':''}</span>
-        <span class="grow"></span>
-        <span style="font-size:13px;color:#222;font-weight:600" class="nowrap">@${f2(g.eu)}<span class="muted" style="font-size:11px">(欧洲盘)</span></span></div>
-      <div style="font-size:13px;color:#222;margin-top:4px">${g.match}</div>
-      <div class="muted" style="margin-top:2px">${g.sport} | ${g.league}</div>
-    </div>`;
+  /* 结算结果标签配色 */
+  const RES={'赢':['#1D9E75','#E8F7EF'],'赢半':['#1D9E75','#E8F7EF'],
+             '输':['#E24B4A','#FDECEC'],'输半':['#E24B4A','#FDECEC'],'走水':['#8a8f96','#F0F1F3']};
+  const resTag=r=>{const c=RES[r]||RES['走水'];
+    return `<span style="background:${c[1]};color:${c[0]};font-size:12px;font-weight:700;padding:3px 10px;border-radius:5px" class="nowrap">${r}</span>`};
+  const stTag=t=>`<span style="background:${t==='待开赛'?'#FFF3E5':'#E8F7EF'};color:${t==='待开赛'?'#E8850C':'#1D9E75'};font-size:12px;font-weight:600;padding:3px 10px;border-radius:5px" class="nowrap">${t}</span>`;
+  /* 玩法行:时段+盘段 · 玩法@赔率 (盘口) */
+  const playLine=o=>`<div class="muted" style="margin-top:3px;font-size:12px">${o.period}${o.scope} · ${o.play}<b style="color:#222;margin-left:2px">@${o.odds}</b> <span style="color:#9aa0a6">(${o.mk})</span></div>`;
+  const kv=(k,v,cls='')=>`<div class="row" style="margin-top:5px"><span class="muted nowrap" style="font-size:12px">${k}</span><span class="grow"></span><span class="nowrap ${cls}" style="font-size:12px">${v}</span></div>`;
+  const oidRow=o=>`<div class="row" style="margin-top:5px"><span class="muted nowrap" style="font-size:12px">注单号：</span><span class="grow"></span>
+      <span class="muted nowrap" style="font-size:11px">${o.oid}</span>
+      <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:#FF8C00;fill:none;stroke-width:2;margin-left:5px;cursor:pointer" onclick="toast('注单号已复制')"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5h10"/></svg></div>`;
+
   $('buys-list').innerHTML=list.length?list.map(o=>{
     const settled=o.status==='settled';
-    const head=o.type==='parlay'
-      ?`<div class="row"><span style="font-size:15px;font-weight:700;color:#222">${o.title}</span><span class="grow"></span>
-          ${settled?'':'<span class="tag tag-settled">✓ 已确认</span>'}</div>`
-      :`<div class="row">
+    let head,body='';
+    if(o.type==='parlay'){
+      head=`<div class="row">
+          <span style="font-size:15px;font-weight:700;color:#222" class="nowrap">${o.title}</span>
+          <span class="muted" style="margin-left:8px;font-size:12px">总赔率 <b style="color:#FF8C00">@${o.totalOdds}</b></span>
+          <span class="grow"></span>${settled?resTag(o.result):stTag(o.tag)}</div>`;
+      body=o.legs.map(g=>`<div style="border-top:1px dashed #f0f0f0;padding:9px 0">
+          <div class="row"><span style="font-size:14px;font-weight:700;color:#222">${g.item}</span>
+            <span style="font-size:13px;color:#FF8C00;font-weight:600;margin-left:6px">@${g.odds}</span></div>
+          <div class="muted" style="margin-top:3px;font-size:12px">${g.period}${g.scope} · ${g.play}${g.mk}</div>
+          <div style="font-size:13px;color:#222;margin-top:3px">${g.match}</div>
+          <div class="muted" style="margin-top:2px;font-size:12px">${g.sport} | ${g.league}</div>
+          ${g.betScore!==undefined?`<div class="muted" style="margin-top:4px;font-size:12px">下注时比分 ${g.betScore}</div>`:''}
+          ${g.endScore!==undefined?`<div class="muted" style="margin-top:2px;font-size:12px">${g.legScoreLabel||'全场比分'} ${g.endScore}</div>`:''}
+          ${g.legResult?`<div style="margin-top:4px;font-size:12px;color:${g.legResult==='赢'?'#1D9E75':'#E24B4A'}">已结算 · ${g.legResult}</div>`:''}
+        </div>`).join('');
+    }else{
+      head=`<div class="row">
           <span style="font-size:15px;font-weight:700;color:#222">${o.item}</span>
-          <span class="grow"></span>
-          ${settled?`<span class="stamp ${o.profit>=0?'win':'lose'}">${o.profit>=0?'赢':'输'}</span>`:'<span class="tag tag-settled">✓ 已确认</span>'}
-        </div>
-        <div class="row" style="margin-top:5px">
-          ${o.tag?`<span class="tag tag-live">${o.tag}</span>`:''}
-          <span class="muted" style="margin-left:${o.tag?'6px':'0'}">${o.play}${o.score?'（'+o.score+'）':''}</span>
-          <span class="grow"></span>
-          <span style="font-size:13px;color:#222;font-weight:600" class="nowrap">@${f2(o.eu)}<span class="muted" style="font-size:11px">(欧洲盘)</span></span></div>
-        <div style="font-size:13px;color:#222;margin-top:5px">${o.match}</div>
-        <div class="muted" style="margin-top:2px">${o.sport} | ${o.league}</div>`;
-    const legs=o.type==='parlay'?o.legs.map(g=>legRow(g,true)).join(''):'';
+          <span class="grow"></span>${settled?resTag(o.result):stTag(o.tag)}</div>
+        ${playLine(o)}
+        <div style="font-size:13px;color:#222;margin-top:4px">${o.match}</div>
+        <div class="muted" style="margin-top:2px;font-size:12px">${o.sport} | ${o.league}</div>`;
+    }
     const money2=settled
-      ?`<div class="row" style="margin-top:9px;border-top:1px dashed #f0f0f0;padding-top:9px">
-          <span style="font-size:13px;color:#222" class="nowrap">投注金额: ${money(o.amt)} CNY</span>
-          <span class="grow"></span>
-          <span style="font-size:13px" class="nowrap">输赢: <b class="${o.profit>=0?'win':'lose'}">${o.profit>=0?'+':'-'}${money(Math.abs(o.profit))} CNY</b></span></div>
-        <div class="row" style="margin-top:6px"><span class="muted nowrap">比分:</span><span class="grow"></span>
-          <span class="muted nowrap">结算比分 ${o.settleScore||'-'}${o.betScore?' / 下注比分 '+o.betScore:''}</span></div>`
-      :`<div class="row" style="margin-top:9px;border-top:1px dashed #f0f0f0;padding-top:9px">
-          <span style="font-size:13px;color:#222" class="nowrap">投注金额: ${money(o.amt)} CNY</span>
-          <span class="grow"></span>
-          <span style="font-size:13px" class="nowrap">可赢金额: <b class="win">${money(o.win)} CNY</b></span></div>`;
+      ? kv('投注金额：',money(o.amt)+' CNY')
+        +kv('输赢：',(o.profit>=0?'+':'-')+money(Math.abs(o.profit))+' CNY',o.profit>0?'win':(o.profit<0?'lose':''))
+        +(o.score?kv('比分：',o.score):'')
+        +(o.betScore?kv('投注比分：',o.betScore):'')
+        +(o.betAt?kv('下注时：',o.betAt):'')
+      : kv('投注金额：',money(o.amt)+' CNY')
+        +kv('最高可赢：',money(o.win)+' CNY','win')
+        +(o.betAt?kv('下注时：',o.betAt):'');
     return `<div class="card" style="margin-bottom:10px">
-      ${head}${legs}${money2}
-      <div class="row" style="margin-top:6px"><span class="muted nowrap">注单号:</span><span class="grow"></span>
-        <span class="muted nowrap" style="font-size:11px">${o.oid}</span>
-        <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:#FF8C00;fill:none;stroke-width:2;margin-left:5px;cursor:pointer" onclick="copyOid()"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5h10"/></svg></div>
-      <div class="row" style="margin-top:4px"><span class="muted nowrap">投注时间:</span><span class="grow"></span>
-        <span class="muted nowrap" style="font-size:11px">${o.time}</span></div>
-    </div>`;
+      ${head}${body}
+      <div style="border-top:1px dashed #f0f0f0;margin-top:9px;padding-top:6px">
+        ${money2}${oidRow(o)}${kv('投注时间：',o.time)}
+      </div></div>`;
   }).join(''):'<div class="muted" style="text-align:center;padding:36px">暂无注单</div>';
 }
+
 /* ═════ 赛果 ═════ */
 const RESULTS=[
   {league:'FIFA 22 西班牙甲级联赛',flag:'🇪🇸',rows:[
@@ -2253,6 +2311,7 @@ function renderShare(){
           <span class="tag ${st.ok?'tag-live':'tag-closed'}">${st.txt}</span>
         </div>
         ${st.ok?'':`<div class="hint" style="margin-top:10px">${st.why},可前往体育查看其他 P2P 挂单</div>`}
+        ${st.ok&&d.odds<officialHk[d.itemKey]?`<div class="hint" style="margin-top:10px">当前官方赔率 @${f2(officialHk[d.itemKey])} 已高于本挂单赔率,该挂单已从卖单簿下架,前往投注时将提示按官方赔率下注</div>`:''}
         <div class="muted" style="margin-top:10px;font-size:11px">信息更新时间 ${new Date().toTimeString().slice(0,8)} · 每次打开自动获取最新信息</div>
         <div class="muted" style="margin-top:4px;font-size:11px">来源平台 ${curMerchant()} · 点击后回到该平台的体育入口</div>
         <button class="btn ${st.ok?'btn-p':'btn-o'}" style="width:100%;margin-top:12px" onclick="shareLand()">${st.ok?'立即前往投注':'前往查看其他挂单'}</button>
@@ -2260,9 +2319,31 @@ function renderShare(){
     </div>
     <div class="row" style="gap:8px;margin-top:12px">
       <button class="btn btn-g grow" onclick="renderShare();toast('已重新获取最新信息')">🔄 模拟重新获取</button>
+      <button class="btn btn-g grow" onclick="demoOfficialUp()">模拟官方赔率反超</button>
       <button class="btn btn-g grow" onclick="shareCtx&&shareCtx.kind==='legacy'?openOrders(2):go('pg-detail')">返回体育(演示)</button>
     </div>
     <div class="hint" style="margin-top:10px">演示说明:此页为金刚/TG 内的 webview 内容页,公开可访问无需登录;点击按钮模拟唤起体育 App 并按订单状态落地。</div>`;
+}
+/* 赔率反超后:按官方赔率继续投注 */
+function landOfficial(k){
+  go('pg-home');renderHome();setNav('match');
+  Object.keys(sel).forEach(x=>sel[x]=false);
+  sel[k]=true;buyAmt[k]=buyAmt[k]||'';
+  slipIdx=0;renderSlip();show('ov-slip');updBadge();
+  setTimeout(()=>toast('已按官方赔率 @'+f2(officialHk[k])+' 选中该投注项'),300);
+}
+/* 赔率反超后:去看其他挂单 */
+function landOthers(){
+  Object.keys(sel).forEach(x=>sel[x]=false);
+  hide('ov-slip');go('pg-home');renderHome();setNav('match');updBadge();
+  toast('可在赛事列表选择其他 P2P 挂单');
+}
+/* 演示用:把官方赔率抬到高于挂单赔率 */
+function demoOfficialUp(){
+  const d=shareResolve();if(!d)return;
+  officialHk[d.itemKey]=+(d.odds+0.07).toFixed(2);
+  renderShare();renderHome();
+  toast('已将官方赔率调整为 @'+f2(officialHk[d.itemKey])+'，再点「立即前往投注」查看提示');
 }
 function shareLand(){
   const d=shareResolve();
@@ -2272,6 +2353,19 @@ function shareLand(){
     hide('ov-slip');
     go('pg-home');renderHome();setNav('match');updBadge();
     toast('当前订单已失效,请选择其他p2p订单进行购买');
+    return;
+  }
+  /* 挂单仍在卖出中,但赔率已被官方赔率反超:该档位不再进入卖单簿,需提示并给出出路 */
+  const _hk=officialHk[d.itemKey];
+  if(d.odds<_hk){
+    /* 赔率变化导致庄单从卖单簿下架:先回到赛事页,再弹提示 */
+    Object.keys(sel).forEach(x=>sel[x]=false);
+    hide('ov-slip');
+    go('pg-home');renderHome();setNav('match');updBadge();
+    setTimeout(()=>cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">该 P2P 挂单已下架</h3>
+      <div style="font-size:13px;color:#666;line-height:1.8;text-align:center;margin-bottom:16px">
+        因赔率变化，该挂单已下架，请选择其他 P2P 订单进行购买。</div>
+      <button class="btn btn-p" style="width:100%" onclick="closeCfm()">我知道了</button>`),260);
     return;
   }
   /* 有效:回到链接所属商户的体育入口,进入比赛详情,选中投注项,弹出购物车 */
