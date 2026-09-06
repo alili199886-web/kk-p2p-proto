@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v7.6(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v7.7(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -1548,15 +1548,15 @@ let buyOrders=[
    legs:[{item:'客 胜',odds:3.20,period:'滚球',scope:'全场',play:'全场独赢',mk:'欧洲盘',
           match:'布莱顿 vs 伯恩利',sport:'足球',league:'英格兰超级联赛 PANDA独家EAFC24',
           betScore:'0-0',endScore:'0-1',legResult:'赢'},
-         {item:'客 胜',odds:4.75,period:'滚球',scope:'上半场',play:'上半场独赢',mk:'欧洲盘',
+         {item:'客 胜',odds:4.75,period:'赛前',scope:'上半场',play:'上半场独赢',mk:'欧洲盘',
           match:'富勒姆 vs 西汉姆联',sport:'足球',league:'英格兰超级联赛 PANDA独家EAFC24',
           betScore:'0-0',endScore:'1-1',legScoreLabel:'上半场比分',legResult:'输'},
-         {item:'大 1.5',odds:2.61,period:'滚球',scope:'上半场',play:'上半场大小',mk:'欧洲盘',
+         {item:'大 1.5',odds:2.61,period:'赛前',scope:'上半场',play:'上半场大小',mk:'欧洲盘',
           match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛 PANDA独家EAFC24',
-          betScore:'0-1',endScore:'0-1',legScoreLabel:'上半场比分',legResult:'输'}],
+          betScore:'0-0',endScore:'0-1',legScoreLabel:'上半场比分',legResult:'输'}],
    amt:10,profit:-10,oid:'5339327402595231',time:'2026-05-26 14:10:00'},
   {type:'single',status:'settled',result:'赢',bucket:'yesterday',
-   item:'主 -0/0.5',period:'滚球',scope:'全场',play:'全场让球',odds:2.58,mk:'欧洲盘',
+   item:'主 -0/0.5',period:'赛前',scope:'全场',play:'全场让球',odds:2.58,mk:'欧洲盘',
    match:'汉坎 vs 利勒斯特罗姆',sport:'足球',league:'挪威足球超级联赛',
    amt:200,profit:316.00,score:'全场 2-0　半场 1-0',betAt:'赛前',
    oid:'0110000126052556603251-1',time:'2026-05-25 17:15:49'},
@@ -1788,11 +1788,6 @@ function renderMe(){
       <div class="gr">
         <span style="font-size:14px;font-weight:600;color:#222" class="grow">自动接受任何赔率</span>
         <span class="sw ${acceptAny?'on':''}" onclick="acceptAny=!acceptAny;renderMe()"><i></i></span></div>
-    </div>
-    <div class="grp">
-      <div class="gr" style="cursor:pointer" onclick="guideSeen=false;go('pg-home');renderHome();setNav('match');setTimeout(guideStart,300)">
-        <span style="font-size:14px;font-weight:600;color:#222" class="grow">重看新手引导</span>
-        <span style="color:#ccc">›</span></div>
     </div>
     <div class="grp">
       <div class="gr" style="cursor:pointer" onclick="toast('切换语言(示意)')">
