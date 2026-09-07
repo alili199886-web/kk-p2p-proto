@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v9.1(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v9.3(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -437,8 +437,10 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>已结算数据按<b>结算时间</b>归集，不按投注时间或挂单时间。</li>
     <li>总盈亏<b>只统计已结算</b>，未结算注单与进行中庄单一律不计入。</li>
-    <li>买单盈亏与卖单盈亏均取<b>扣除平台抽佣后</b>的净额。抽佣比例由后台配置，结算时已扣除。</li>
-    <li>已关闭庄单押金全额退回，盈亏为 0，不计入任何盈亏项。</li>
+    <li>买单盈亏与卖单盈亏均取<b>扣除平台抽佣后</b>的净额，抽佣比例由后台配置。</li>
+    <li>买单直接读取注单的<b>输赢字段</b>，不在本页做任何佣金计算。买方抽佣由已上线的结算功能处理，算法为「购买 P2P 订单盈利 − 购买官方单盈利」的差额乘以抽佣比例，结算时已从输赢中扣除。</li>
+    <li>已关闭庄单：未售出部分的押金<b>原路退回</b>，该部分不计算盈亏；已售出部分仍按正常结算计入盈亏。</li>
+    <li>完全未售出即关闭的庄单，押金全额退回，盈亏为 0，不计入任何盈亏项。</li>
   </ul>
 
   <h4>时间筛选</h4>
@@ -1653,7 +1655,7 @@ let buyOrders=[
   {type:'single',status:'settled',result:'赢',bucket:'today',
    item:'主 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'香港盘',
    match:'皇家马德里 vs 巴塞罗那',sport:'足球',league:'西甲 · 第36轮',
-   amt:12,profit:11.40,score:'全场 3-1　半场 2-0',betAt:'赛前',
+   amt:12,profit:11.40,comm:0.35,score:'全场 3-1　半场 2-0',betAt:'赛前',
    oid:'5339328801234567',time:'2026-05-26 15:22:10',settleTime:'2026-05-26 17:20:00'},
   {type:'parlay',status:'settled',result:'输',bucket:'today',
    title:'串关3串1',totalOdds:39.67,
@@ -1670,12 +1672,12 @@ let buyOrders=[
   {type:'single',status:'settled',result:'赢',bucket:'yesterday',
    item:'主 -0/0.5',period:'赛前',scope:'全场',play:'全场让球',odds:2.58,mk:'欧洲盘',
    match:'汉坎 vs 利勒斯特罗姆',sport:'足球',league:'挪威足球超级联赛',
-   amt:200,profit:316.00,score:'全场 2-0　半场 1-0',betAt:'赛前',
+   amt:200,profit:316.00,comm:9.78,score:'全场 2-0　半场 1-0',betAt:'赛前',
    oid:'0110000126052556603251-1',time:'2026-05-25 17:15:49',settleTime:'2026-05-25 19:10:22'},
   {type:'single',status:'settled',result:'赢半',bucket:'today',
    item:'客 +0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:2.18,mk:'香港盘',
    match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
-   amt:4.36,profit:4.75,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
+   amt:4.36,profit:4.75,comm:0.15,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
    oid:'5339327171709206',time:'2026-05-26 14:08:43',settleTime:'2026-05-26 16:02:15'},
   {type:'single',status:'settled',result:'输半',bucket:'today',
    item:'主 -0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:1.28,mk:'香港盘',
