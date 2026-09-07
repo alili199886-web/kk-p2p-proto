@@ -3,10 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v8.0(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v9.1(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
-body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
+body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
+/* 右侧标注栏:仅说明,不参与交互 */
+.spec{width:400px;max-width:100%;background:#fff;border-radius:14px;border:1px solid #dcdfe3;padding:18px 20px;font-size:13px;line-height:1.75;color:#333;box-shadow:0 8px 40px rgba(0,0,0,.06)}
+.spec h3{font-size:15px;color:#111;margin:0 0 4px}
+.spec h4{font-size:13px;color:#FF8C00;margin:16px 0 6px;padding-top:12px;border-top:1px solid #f0f1f3}
+.spec h4:first-of-type{border-top:none;padding-top:0;margin-top:12px}
+.spec p{margin:0 0 6px;color:#444}
+.spec .sub{color:#8a8f96;font-size:12px;line-height:1.6}
+.spec ul{margin:0 0 6px;padding-left:18px}
+.spec li{margin-bottom:4px}
+.spec code{background:#F5F6F8;border-radius:4px;padding:1px 5px;font-size:12px;color:#C2410C}
+.spec .jump{background:#FFF8F0;border-left:3px solid #FF8C00;border-radius:0 6px 6px 0;padding:8px 10px;margin:6px 0}
 .phone{width:390px;height:820px;background:#f7f8fa;border-radius:28px;border:1px solid #ccc;overflow:hidden;position:relative;box-shadow:0 8px 40px rgba(0,0,0,.12)}
 .page{position:absolute;inset:0;display:none;flex-direction:column;background:#f7f8fa}
 .page.active{display:flex}
@@ -253,6 +264,18 @@ input:focus{border-color:#FF8C00}
   <div class="scroll" style="padding:8px 10px 76px" id="results-list"></div>
 </div>
 
+<!-- ═════════ 汇总报表 ═════════ -->
+<div class="page" id="pg-report" style="background:#F2F3F5">
+  <div style="background:#fff;padding:12px 14px" class="row">
+    <span style="color:#333;font-size:20px;cursor:pointer;line-height:1" onclick="setNav('me');go('pg-me');renderMe()">‹</span>
+    <span style="font-size:16px;font-weight:700;color:#222;margin-left:8px" class="grow">汇总报表</span>
+  </div>
+  <div class="scroll" style="padding-bottom:76px">
+    <div style="background:#fff;border-radius:12px;margin:10px 12px 0;padding:12px 14px;display:flex;align-items:center;gap:18px" id="rp-filters"></div>
+    <div style="padding:10px 12px 12px" id="rp-body"></div>
+  </div>
+</div>
+
 <!-- ═════════ 我的 ═════════ -->
 <div class="page" id="pg-me" style="background:#F2F3F5">
   <div style="background:#fff;padding:12px 14px" class="row"><div class="kklogo"><span class="mk"><i></i></span><span class="tx"><b>King</b><s>Kong</s></span></div></div>
@@ -359,7 +382,7 @@ input:focus{border-color:#FF8C00}
     <input type="date" id="btr-s" style="width:100%;height:42px;border:1px solid #e5e7eb;border-radius:8px;padding:0 12px;font-size:14px;color:#222;background:#fff;box-sizing:border-box">
     <div style="font-size:13px;color:#666;margin:14px 0 6px">结束日期</div>
     <input type="date" id="btr-e" style="width:100%;height:42px;border:1px solid #e5e7eb;border-radius:8px;padding:0 12px;font-size:14px;color:#222;background:#fff;box-sizing:border-box">
-    <div style="font-size:12px;color:#9aa0a6;margin-top:10px">开始日期不得晚于结束日期，结束日期不得晚于今天，最长可查 90 天</div>
+    <div style="font-size:12px;color:#9aa0a6;margin-top:10px">开始日期不得晚于结束日期，结束日期不得晚于今天，最长可查 1 年</div>
     <div class="row" style="margin-top:16px;gap:10px">
       <button class="btn" style="flex:1;background:#F2F3F5;color:#666" onclick="btrReset()">重置</button>
       <button class="btn btn-p" style="flex:1" onclick="btrApply()">确定</button>
@@ -404,6 +427,63 @@ input:focus{border-color:#FF8C00}
 <div class="toast" id="toast"></div>
 
 </div>
+
+<!-- ═════════ 右侧标注:汇总报表 ═════════ -->
+<div class="spec">
+  <h3>汇总报表 · 需求标注</h3>
+  <p class="sub">入口：我的 → 我的卖单下方「汇总报表」。以下为该页全部规则，供研发与测试对照。</p>
+
+  <h4>统计口径</h4>
+  <ul>
+    <li>已结算数据按<b>结算时间</b>归集，不按投注时间或挂单时间。</li>
+    <li>总盈亏<b>只统计已结算</b>，未结算注单与进行中庄单一律不计入。</li>
+    <li>买单盈亏与卖单盈亏均取<b>扣除平台抽佣后</b>的净额。抽佣比例由后台配置，结算时已扣除。</li>
+    <li>已关闭庄单押金全额退回，盈亏为 0，不计入任何盈亏项。</li>
+  </ul>
+
+  <h4>时间筛选</h4>
+  <ul>
+    <li>预置四项：今天 / 昨天 / 本周 / 本月，<b>默认本周</b>，周起始为周一。</li>
+    <li>右侧「筛选」点击直接弹出日期弹窗；筛选二字不带选中态。</li>
+    <li>弹窗约束：日期格式 YYYY-MM-DD；开始不得晚于结束；结束不得晚于今天；跨度上限 1 年。违反时 toast 拦截，不提交。</li>
+    <li>默认值：开始取区间内最早一笔已结算记录日期，结束取今天。</li>
+    <li>选中自定义后，四个预置项全部取消高亮，互斥。</li>
+  </ul>
+
+  <h4>总览卡</h4>
+  <ul>
+    <li>大字为总盈亏 = 买单盈亏 + 卖单盈亏，两者量纲一致可相加。</li>
+    <li>投注额与押金<b>不可相加</b>，不设「总投入」这类合并指标。</li>
+    <li>底部细字为<b>当前时点快照</b>，展示待结算与进行中，<b>不随时间筛选变化</b>——这些单据尚无结算时间，落不进任何区间。</li>
+  </ul>
+
+  <h4>按日表格</h4>
+  <ul>
+    <li>四列：日期 / 买单输赢 / 卖单盈亏 / 合计。合计行固定在表头下方。</li>
+    <li>只列出<b>产生过结算的日期</b>，无结算的日期不占行；按日期倒序。</li>
+    <li>某列当日无数据时显示 <code>0</code>，不用破折号。</li>
+    <li>展开为<b>单开</b>：点第二天时第一天自动收起；切换时间区间时展开态清空。</li>
+    <li>当日无买单则隐藏买单分组，无卖单则隐藏卖单分组，两组都在时才显示中间分隔线。</li>
+  </ul>
+
+  <h4>展开层与跳转</h4>
+  <p>买单分组：买单笔数 / 投注金额 / 平台抽佣。</p>
+  <div class="jump"><b>查看当日买单 ›</b><br>
+    跳转至<b>买单 → 已结算</b>，时间筛选自动设为该日期（自定义态，起止同为当天）。买单页自定义筛选按结算时间过滤，与报表口径一致。</div>
+  <p>卖单分组：卖单笔数 / 已收单金额 / 平台抽佣。</p>
+  <div class="jump"><b>查看当日卖单 ›</b><br>
+    跳转至<b>我的卖单</b>，时间筛选自动设为该日期，筛选行右侧出现「MM-DD ✕」胶囊，点叉清除回到全部时间。状态筛选同步重置为「全部」，避免因状态不匹配显示空列表。</div>
+
+  <h4>货币</h4>
+  <ul>
+    <li>CNY 用 ¥，USD 用 $，VND 用 ₫。符号位于正负号之后，如 <code>+¥319.95</code>、<code>-¥1.20</code>、<code>¥0.00</code>。</li>
+    <li>VND 无辅币单位，按整数展示，不带小数位。</li>
+    <li>取会员账户币种。<b>一名会员仅持有一种币种</b>，不存在跨币种汇总，报表无需按币种分列。</li>
+    <li>原型中点击「我的」页余额旁的币种标签可循环切换，仅供演示，非产品功能。</li>
+    <li>货币符号仅在本页生效，报表外的页面统一展示 CNY。</li>
+  </ul>
+</div>
+
 <script>
 /* ═════════ 数据模型(参照真实首页截图) ═════════ */
 const LEAGUES=[
@@ -481,7 +561,7 @@ let legacySells=[
   {id:'S20260730022',league:'MockOBT2026 CHS',home:'HomeTeamCodeA842 CHS',away:'AwayTeamCodeB3122 CHS',play:'全场 · 独赢',item:'主',
    itemKey:'m3_ma',odds:0.95,pt:0.03,ptPct:3.0,dep:50,cap:52.63,sold:20,
    subsList:[{u:'al***12',amt:10,time:'2026-07-30 15:34',settle:-10},{u:'al***11',amt:10,time:'2026-07-30 15:24',settle:-10}],
-   state:'已结算',time:'2026-07-30 15:20',bucket:'yesterday'},
+   state:'已结算',time:'2026-07-30 15:20',settleTime:'2026-07-30 22:15:00',bucket:'yesterday'},
   {id:'S20260730048',league:'Club Friendly CHS',home:'RCD Mallorca',away:'Ittihad FC',play:'全场 · 独赢',item:'主',
    itemKey:'m1_ah',odds:0.10,pt:0.01,ptPct:1.0,dep:20,cap:199.99,sold:0,subsList:[],
    state:'已关闭',time:'2026-07-30 16:48',bucket:'yesterday'},
@@ -491,11 +571,11 @@ let legacySells=[
   {id:'S20260722031',league:'俱乐部友谊赛',home:'诺丁汉森林',away:'布莱克本',play:'全场 · 大/小',item:'大 3',
    itemKey:'m1_big',odds:1.03,pt:0.03,ptPct:3.0,dep:100,cap:97.09,sold:20,
    subsList:[{u:'al***45',amt:20,time:'2026-07-22 18:10',settle:20.60}],
-   state:'已结算',time:'2026-07-22 18:03',bucket:'30d'},
+   state:'已结算',time:'2026-07-22 18:03',settleTime:'2026-07-22 20:48:00',bucket:'30d'},
   {id:'S20260721009',league:'瑞典超甲级联赛',home:'法尔肯贝里',away:'赫尔辛堡',play:'全场 · 独赢',item:'主',
    itemKey:'m3_mw',odds:1.05,pt:0.01,ptPct:1.0,dep:6,cap:5.71,sold:5.71,
    subsList:[{u:'al***77',amt:5.71,time:'2026-07-21 14:40',settle:-5.71}],
-   state:'已结算',time:'2026-07-21 14:35',bucket:'30d'}
+   state:'已结算',time:'2026-07-21 14:35',settleTime:'2026-07-21 17:05:00',bucket:'30d'}
 ];
 /* 派生:剩余额度/进度/庄单最终输赢/抽水/卖出返回 */
 function lsRemain(l){return Math.max(0,+(l.cap-l.sold).toFixed(2))}
@@ -569,7 +649,7 @@ function imMap(mid){
 let sel={},buyAmt={},sellForm={};
 Object.keys(ITEMS).forEach(k=>{sel[k]=false;buyAmt[k]='';sellForm[k]={dep:'',pt:0.01}});
 let acceptAny=true,setupItems=[],setupMid=null,cur=null,segIdx=0,slipIdx=0;
-let stFilter='all',tFilter='all';
+let stFilter='all',tFilter='all',tDay='';
 
 /* ═════════ 工具 ═════════ */
 const $=id=>document.getElementById(id);
@@ -1530,6 +1610,18 @@ function bucketOk(b){
   return true;
 }
 let buyTab=0,btFilter='all',btrS='',btrE='';
+let btrTarget='buys',rpFilter='week',rpS='',rpE='',rpOpenDay='';
+/* 会员币种与货币符号:VND 无小数位 */
+let CUR='CNY';
+const CUR_SYM={CNY:'¥',USD:'$',VND:'₫'};
+const curSym=()=>CUR_SYM[CUR]||'';
+const curAmt=v=>curSym()+(CUR==='VND'
+  ? Math.round(+v).toLocaleString('zh-CN')
+  : money(v));
+const curSigned=v=>(v>0?'+':(v<0?'-':''))+curSym()+(CUR==='VND'
+  ? Math.round(Math.abs(+v)).toLocaleString('zh-CN')
+  : money(Math.abs(+v)));
+function curCycle(){const k=['CNY','USD','VND'];CUR=k[(k.indexOf(CUR)+1)%3];renderMe()}
 let buyOrders=[
   /* ── 未结算 ── */
   {type:'single',status:'unsettled',tag:'确认中',bucket:'today',
@@ -1562,7 +1654,7 @@ let buyOrders=[
    item:'主 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'香港盘',
    match:'皇家马德里 vs 巴塞罗那',sport:'足球',league:'西甲 · 第36轮',
    amt:12,profit:11.40,score:'全场 3-1　半场 2-0',betAt:'赛前',
-   oid:'5339328801234567',time:'2026-05-26 15:22:10'},
+   oid:'5339328801234567',time:'2026-05-26 15:22:10',settleTime:'2026-05-26 17:20:00'},
   {type:'parlay',status:'settled',result:'输',bucket:'today',
    title:'串关3串1',totalOdds:39.67,
    legs:[{item:'客 胜',odds:3.20,period:'滚球',scope:'全场',play:'全场独赢',mk:'欧洲盘',
@@ -1574,48 +1666,209 @@ let buyOrders=[
          {item:'大 1.5',odds:2.61,period:'赛前',scope:'上半场',play:'上半场大小',mk:'欧洲盘',
           match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛 PANDA独家EAFC24',
           betScore:'0-0',endScore:'0-1',legScoreLabel:'上半场比分',legResult:'输'}],
-   amt:10,profit:-10,oid:'5339327402595231',time:'2026-05-26 14:10:00'},
+   amt:10,profit:-10,oid:'5339327402595231',time:'2026-05-26 14:10:00',settleTime:'2026-05-26 16:05:00'},
   {type:'single',status:'settled',result:'赢',bucket:'yesterday',
    item:'主 -0/0.5',period:'赛前',scope:'全场',play:'全场让球',odds:2.58,mk:'欧洲盘',
    match:'汉坎 vs 利勒斯特罗姆',sport:'足球',league:'挪威足球超级联赛',
    amt:200,profit:316.00,score:'全场 2-0　半场 1-0',betAt:'赛前',
-   oid:'0110000126052556603251-1',time:'2026-05-25 17:15:49'},
+   oid:'0110000126052556603251-1',time:'2026-05-25 17:15:49',settleTime:'2026-05-25 19:10:22'},
   {type:'single',status:'settled',result:'赢半',bucket:'today',
    item:'客 +0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:2.18,mk:'香港盘',
    match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
    amt:4.36,profit:4.75,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
-   oid:'5339327171709206',time:'2026-05-26 14:08:43'},
+   oid:'5339327171709206',time:'2026-05-26 14:08:43',settleTime:'2026-05-26 16:02:15'},
   {type:'single',status:'settled',result:'输半',bucket:'today',
    item:'主 -0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:1.28,mk:'香港盘',
    match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
    amt:2,profit:-1.00,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
-   oid:'5339327171709207',time:'2026-05-26 14:08:43'},
+   oid:'5339327171709207',time:'2026-05-26 14:08:43',settleTime:'2026-05-26 16:02:15'},
   {type:'single',status:'settled',result:'输',bucket:'today',isScore:true,
    item:'1-3',period:'滚球',scope:'全场',play:'全场波胆',odds:9.00,mk:'欧洲盘',
    match:'黑龙江龙跃冰城 vs 北京通州鹏瑞',sport:'足球',league:'中国足协冠军联赛',
    amt:20,profit:-20,score:'全场 1-4（未命中）',betScore:'1-3',betAt:'0-2（滚球中）',
-   oid:'5339323746618690',time:'2026-05-26 13:49:42'},
+   oid:'5339323746618690',time:'2026-05-26 13:49:42',settleTime:'2026-05-26 15:44:08'},
   {type:'single',status:'settled',result:'走水',bucket:'today',
    item:'主 0',period:'滚球',scope:'上半场',play:'上半场让球',odds:2.58,mk:'欧洲盘',
    match:'黑龙江龙跃冰城 vs 北京通州鹏瑞',sport:'足球',league:'中国足协冠军联赛',
    amt:2,profit:0,score:'上半场 0-2　全场 1-4',betAt:'0-2（滚球中）',
-   oid:'5339322090651388',time:'2026-05-26 13:40:30'}
+   oid:'5339322090651388',time:'2026-05-26 13:40:30',settleTime:'2026-05-26 15:35:12'}
 ];
 /* 自定义时间:按注单实际日期过滤;其余按预置区间 */
 function buyTimeOk(o){
   if(btFilter==='custom'){
     if(!btrS||!btrE)return true;
-    const d=(o.time||'').slice(0,10);
+    /* 已结算按结算时间,未结算按投注时间 */
+    const d=((o.settleTime||o.time)||'').slice(0,10);
     return d>=btrS&&d<=btrE;
   }
   return buyBucketOk(o.bucket);
 }
-function todayStr(){return new Date().toISOString().slice(0,10)}
-function btrOpen(){
-  /* 默认值:开始=已结算最早一笔注单日期,结束=今天 */
-  const ds=buyOrders.filter(o=>o.status==='settled').map(o=>(o.time||'').slice(0,10)).filter(Boolean).sort();
-  $('btr-s').value=btrS||ds[0]||todayStr();
-  $('btr-e').value=btrE||todayStr();
+/* 卖单列表时间过滤:已结算按结算时间,其余按挂单时间 */
+function sellTimeOk(l){
+  if(tFilter==='day'){
+    if(!tDay)return true;
+    return ((l.settleTime||l.time)||'').slice(0,10)===tDay;
+  }
+  return bucketOk(l.bucket);
+}
+const fmtD=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+function todayStr(){return fmtD(new Date())}
+function dOff(n){const d=new Date();d.setDate(d.getDate()-n);return fmtD(d)}
+function bucketOf(n){return n===0?'today':(n===1?'yesterday':(n<=7?'7d':'30d'))}
+/* 样例数据日期按「距今天数」动态生成,避免原型随时间推移全部落在区间外 */
+function seedSampleDates(){
+  const uOff=[0,0,0,0,0], uT=['15:22:10','13:50:40','13:41:04','13:52:02','14:10:00'];
+  buyOrders.filter(o=>o.status==='unsettled').forEach((o,i)=>{
+    const n=uOff[i]||0; o.time=dOff(n)+' '+(uT[i]||'12:00:00'); o.bucket=bucketOf(n);
+  });
+  const sOff=[0,0,1,2,2,9,20],
+        sT =['15:22:10','14:10:00','17:15:49','14:08:43','14:08:43','13:49:42','13:40:30'],
+        stT=['17:20:00','16:05:00','19:10:22','16:02:15','16:02:15','15:44:08','15:35:12'];
+  buyOrders.filter(o=>o.status==='settled').forEach((o,i)=>{
+    const n=sOff[i]!==undefined?sOff[i]:20;
+    o.time=dOff(n)+' '+(sT[i]||'12:00:00');
+    o.settleTime=dOff(n)+' '+(stT[i]||'20:00:00');
+    o.bucket=bucketOf(n);
+  });
+  const lOff=[1,6,25], lT=['22:15:00','20:48:00','17:05:00'];
+  legacySells.filter(l=>l.state==='已结算').forEach((l,i)=>{
+    const n=lOff[i]!==undefined?lOff[i]:25;
+    l.settleTime=dOff(n)+' '+(lT[i]||'20:00:00');
+    l.time=dOff(n)+' '+(['15:20:00','18:03:00','14:35:00'][i]||'12:00:00');
+    l.bucket=bucketOf(n);
+  });
+  const oOff=[0,2,1,6], oT=['02:00:00','15:23:00','16:48:00','15:03:00'];
+  legacySells.filter(l=>l.state!=='已结算').forEach((l,i)=>{
+    const n=oOff[i]!==undefined?oOff[i]:6;
+    l.time=dOff(n)+' '+(oT[i]||'12:00:00'); l.bucket=bucketOf(n);
+  });
+}
+/* ═════════ 汇总报表 ═════════
+   归集口径:已结算数据按结算时间归集;未结算/进行中不计入盈亏,单独列示当前快照 */
+function openReport(){rpFilter='week';rpOpenDay='';renderReport();go('pg-report')}
+/* 区间:按结算日期计算,周起始为周一 */
+function rpRange(){
+  const t=todayStr();
+  if(rpFilter==='custom')return (rpS&&rpE)?[rpS,rpE]:['0000-01-01','9999-12-31'];
+  if(rpFilter==='today')return [t,t];
+  if(rpFilter==='yesterday')return [dOff(1),dOff(1)];
+  if(rpFilter==='week'){const w=(new Date().getDay()+6)%7;return [dOff(w),t]}
+  if(rpFilter==='month'){const d=new Date();return [fmtD(new Date(d.getFullYear(),d.getMonth(),1)),t]}
+  return ['0000-01-01','9999-12-31'];
+}
+function rpTimeOk(rec){
+  const r=rpRange(),d=(rec.settleTime||'').slice(0,10);
+  return !!d&&d>=r[0]&&d<=r[1];
+}
+/* 指标格:两列网格,标签在上数值在下 */
+function rpCell(k,v,cls){return `<div style="padding:7px 0">
+    <div style="font-size:11px;color:#9aa0a6;line-height:1.3">${k}</div>
+    <div class="${cls||''} nowrap" style="font-size:15px;font-weight:700;margin-top:2px">${v}</div>
+  </div>`}
+function rpGrid(cells){return `<div style="display:grid;grid-template-columns:1fr 1fr;column-gap:14px;margin-top:2px">${cells.join('')}</div>`}
+function rpToggleDay(d){rpOpenDay=(rpOpenDay===d?'':d);renderReport()}
+function rpJumpBuy(d){btFilter='custom';btrS=d;btrE=d;openBuys();buyTabSel(1)}
+function rpJumpSell(d){tFilter='day';tDay=d;stFilter='all';openOrders(2)}
+function renderReport(){
+  /* 时间筛选行:今天 / 昨天 / 本周 / 本月 + 自定义 */
+  const ts=[['today','今天'],['yesterday','昨天'],['week','本周'],['month','本月']];
+  $('rp-filters').innerHTML=ts.map(([v,t])=>`<span class="tf ${rpFilter===v?'on':''}" onclick="rpFilter='${v}';rpOpenDay='';renderReport()">${t}</span>`).join('')
+    +`<span class="grow"></span><span style="font-size:14px;color:#FF8C00;font-weight:700;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;cursor:pointer" onclick="btrOpen('report')">筛选
+      <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:#FF8C00"><path d="M5 8.5h14L12 17z"/></svg></span>`;
+
+  /* 按结算日期归集 */
+  const D={};
+  const day=k=>D[k]||(D[k]={bc:0,ba:0,bp:0,bcomm:0,sc:0,sdep:0,ssold:0,ssub:0,scomm:0,sp:0});
+  buyOrders.filter(o=>o.status==='settled'&&rpTimeOk(o)).forEach(o=>{
+    const d=day(o.settleTime.slice(0,10));
+    d.bc++; d.ba+=o.amt||0; d.bp+=o.profit||0; d.bcomm+=o.comm||0;
+  });
+  legacySells.filter(l=>l.state==='已结算'&&rpTimeOk(l)).forEach(l=>{
+    const d=day(l.settleTime.slice(0,10));
+    d.sc++; d.sdep+=l.dep||0; d.ssold+=l.sold||0; d.ssub+=(l.subsList||[]).length;
+    d.scomm+=lsComm(l); d.sp+=lsProfit(l);
+  });
+  const days=Object.keys(D).sort().reverse();
+  const T=days.reduce((a,k)=>{const v=D[k];a.bp+=v.bp;a.sp+=v.sp;return a},{bp:0,sp:0});
+  const bPnl=+T.bp.toFixed(2),sPnl=+T.sp.toFixed(2),tot=+(bPnl+sPnl).toFixed(2);
+
+  /* 当前快照:未结算与进行中,不参与时间筛选 */
+  const bU=buyOrders.filter(o=>o.status==='unsettled');
+  const sO=legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交');
+
+  const cls=v=>v>0?'win':(v<0?'lose':'');
+  const sg=v=>curSigned(v);
+  const cell=v=>`<span class="${cls(v)} nowrap" style="font-weight:700">${sg(v)}</span>`;
+
+  const rows=days.map(k=>{
+    const v=D[k],open=rpOpenDay===k;
+    const line=`<div class="row" style="padding:11px 14px;border-top:1px dashed #f2f3f5;font-size:13px;color:#333;cursor:pointer" onclick="rpToggleDay('${k}')">
+        <span style="flex:1.15">${k.slice(5)} <span style="color:#c9ced6;font-size:11px">${open?'⌄':'›'}</span></span>
+        <span style="flex:1;text-align:right">${cell(+v.bp.toFixed(2))}</span>
+        <span style="flex:1;text-align:right">${cell(+v.sp.toFixed(2))}</span>
+        <span style="flex:1;text-align:right">${cell(+(v.bp+v.sp).toFixed(2))}</span>
+      </div>`;
+    if(!open)return line;
+    const g=(t,cells,btn,fn)=>`<div style="padding:8px 0">
+        <div style="font-size:11px;color:#9aa0a6;font-weight:700">${t}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;column-gap:10px;margin-top:5px">
+          ${cells.map(c=>`<div><div style="font-size:11px;color:#9aa0a6">${c[0]}</div><div class="nowrap" style="font-size:13px;font-weight:700;color:#333;margin-top:1px">${c[1]}</div></div>`).join('')}
+        </div>
+        <div style="margin-top:7px;font-size:12px;color:#FF8C00;font-weight:600;cursor:pointer" onclick="${fn}('${k}')">${btn} ›</div>
+      </div>`;
+    /* 当日无买单或无卖单时,隐藏对应分组 */
+    const gb=v.bc?g('买单',[['买单笔数',v.bc+' 笔'],['投注金额',curAmt(v.ba)],['平台抽佣',curAmt(v.bcomm)]],'查看当日买单','rpJumpBuy'):'';
+    const gs=v.sc?g('卖单',[['卖单笔数',v.sc+' 笔'],['已收单金额',curAmt(v.ssold)],['平台抽佣',curAmt(v.scomm)]],'查看当日卖单','rpJumpSell'):'';
+    const dv=(gb&&gs)?'<div style="border-top:1px dashed #eef0f2"></div>':'';
+    return line+`<div style="background:#FAFBFC;padding:4px 14px 10px;border-top:1px dashed #f2f3f5">
+        ${gb}${dv}${gs}
+      </div>`;
+  }).join('');
+
+  $('rp-body').innerHTML=`
+  <div class="card" style="padding:12px 14px">
+    <div style="font-size:11px;color:#9aa0a6">总盈亏</div>
+    <div class="${cls(tot)}" style="font-size:26px;font-weight:800;margin-top:2px">${sg(tot)}</div>
+    <div class="row" style="margin-top:8px;gap:0">
+      <div style="flex:1">
+        <div style="font-size:11px;color:#9aa0a6">买单盈亏</div>
+        <div class="${cls(bPnl)}" style="font-size:15px;font-weight:700;margin-top:2px">${sg(bPnl)}</div>
+      </div>
+      <div style="width:1px;height:26px;background:#f0f0f0"></div>
+      <div style="flex:1;padding-left:14px">
+        <div style="font-size:11px;color:#9aa0a6">卖单盈亏</div>
+        <div class="${cls(sPnl)}" style="font-size:15px;font-weight:700;margin-top:2px">${sg(sPnl)}</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#9aa0a6;margin-top:9px;border-top:1px dashed #f2f3f5;padding-top:8px">
+      待结算 ${bU.length} 笔 ${curAmt(bU.reduce((a,o)=>a+(o.amt||0),0))} · 进行中庄单 ${sO.length} 笔 冻结 ${curAmt(sO.reduce((a,l)=>a+(l.dep||0),0))}
+    </div>
+  </div>
+
+  <div class="card" style="padding:0;margin-top:8px;overflow:hidden">
+    <div class="row" style="padding:9px 14px;background:#FAFAFB;font-size:11px;color:#9aa0a6">
+      <span style="flex:1.15">日期</span><span style="flex:1;text-align:right">买单输赢</span>
+      <span style="flex:1;text-align:right">卖单盈亏</span><span style="flex:1;text-align:right">合计</span>
+    </div>
+    <div class="row" style="padding:10px 14px;border-top:1px solid #f2f3f5;font-size:13px;font-weight:700;color:#222">
+      <span style="flex:1.15">合计</span>
+      <span style="flex:1;text-align:right">${cell(bPnl)}</span>
+      <span style="flex:1;text-align:right">${cell(sPnl)}</span>
+      <span style="flex:1;text-align:right">${cell(tot)}</span>
+    </div>
+    ${days.length?rows:'<div class="muted" style="text-align:center;padding:30px;font-size:12px">该区间暂无已结算数据</div>'}
+  </div>`;
+}
+function btrOpen(tg){
+  btrTarget=tg||'buys';
+  const rp=btrTarget==='report';
+  /* 默认值:开始=区间内最早一笔已结算记录日期,结束=今天 */
+  const ds=rp
+    ? [].concat(buyOrders.filter(o=>o.status==='settled'&&o.settleTime).map(o=>o.settleTime.slice(0,10)),
+                legacySells.filter(l=>l.state==='已结算'&&l.settleTime).map(l=>l.settleTime.slice(0,10))).sort()
+    : buyOrders.filter(o=>o.status==='settled').map(o=>(o.time||'').slice(0,10)).filter(Boolean).sort();
+  $('btr-s').value=(rp?rpS:btrS)||ds[0]||todayStr();
+  $('btr-e').value=(rp?rpE:btrE)||todayStr();
   $('btr-s').max=todayStr(); $('btr-e').max=todayStr();
   show('ov-btr');
 }
@@ -1624,10 +1877,16 @@ function btrApply(){
   if(!a||!b){toast('请选择完整的时间范围');return}
   if(a>b){toast('开始日期不得晚于结束日期');return}
   if(b>todayStr()){toast('结束日期不得晚于今天');return}
-  if((new Date(b)-new Date(a))/86400000>89){toast('查询跨度最长 90 天');return}
-  btrS=a;btrE=b;btFilter='custom';hide('ov-btr');renderBuys();
+  if((new Date(b)-new Date(a))/86400000>364){toast('查询跨度最长 1 年');return}
+  hide('ov-btr');
+  if(btrTarget==='report'){rpS=a;rpE=b;rpFilter='custom';renderReport()}
+  else{btrS=a;btrE=b;btFilter='custom';renderBuys()}
 }
-function btrReset(){btrS='';btrE='';if(btFilter==='custom')btFilter='all';hide('ov-btr');renderBuys()}
+function btrReset(){
+  hide('ov-btr');
+  if(btrTarget==='report'){rpS='';rpE='';if(rpFilter==='custom')rpFilter='all';renderReport()}
+  else{btrS='';btrE='';if(btFilter==='custom')btFilter='all';renderBuys()}
+}
 function buyBucketOk(b){
   if(btFilter==='all')return true;
   if(btFilter==='today')return b==='today';
@@ -1794,7 +2053,7 @@ function renderMe(){
     <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px">
       <div class="row" style="gap:8px">
         <span style="font-size:16px;font-weight:700;color:#222" class="nowrap">gary02</span>
-        <span style="border:1px solid #eee;border-radius:11px;font-size:11px;color:#666;padding:2px 9px" class="nowrap">CNY</span>
+        <span style="border:1px solid #eee;border-radius:11px;font-size:11px;color:#666;padding:2px 9px;cursor:pointer" class="nowrap" onclick="curCycle()">${CUR}</span>
       </div>
       <div class="row" style="margin-top:8px">
         <span style="font-size:26px;font-weight:800;color:#222" class="nowrap">${bal}</span>
@@ -1806,6 +2065,10 @@ function renderMe(){
       <div class="gr" style="cursor:pointer" onclick="openOrders(2)">
         <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#8a8f96;fill:none;stroke-width:1.7"><circle cx="10" cy="8" r="3.2"/><path d="M4 20a6 6 0 0 1 12 0"/><path d="M17 10h4M19 8v4"/></svg>
         <span style="font-size:14px;font-weight:600;color:#222" class="grow">我的卖单</span>
+        <span style="color:#ccc">›</span></div>
+      <div class="gr" style="cursor:pointer;border-top:1px dashed #f0f0f0" onclick="openReport()">
+        <svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:#8a8f96;fill:none;stroke-width:1.7;stroke-linecap:round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 16v-3.5M12 16V8.5M16 16v-5.5"/></svg>
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">汇总报表</span>
         <span style="color:#ccc">›</span></div>
     </div>
     <div class="grp">
@@ -1865,9 +2128,10 @@ function renderOrders(){
     <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>=0?'win':'lose'}">${profit>=0?'+':'-'}¥${money(Math.abs(profit))}</div></div></div>`;
   const sts=[['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
   const ts=[['all','全部时间'],['today','今日'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
-  const list=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&bucketOk(l.bucket));
+  const list=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&sellTimeOk(l));
   $('orders-sfilter').innerHTML=sts.map(([v,t])=>`<span class="pill ${stFilter===v?'on':''}" style="flex:0 0 auto;font-size:13px;padding:6px 15px" onclick="stFilter='${v}';renderOrders()">${t}</span>`).join('');
   $('orders-tfilter').innerHTML=ts.map(([v,t])=>`<span class="pill ${tFilter===v?'on':''}" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='${v}';renderOrders()">${t}</span>`).join('')
+    +(tFilter==='day'&&tDay?`<span class="pill on nowrap" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='all';tDay='';renderOrders()">${tDay.slice(5)} ✕</span>`:'')
     +`<span class="grow"></span><span class="muted nowrap">共${list.length}条</span>`;
   $('orders-list').innerHTML=list.length?list.map(l=>{
     const idx=legacySells.indexOf(l),pct=lsPct(l);
@@ -2483,6 +2747,7 @@ function stopAll(){cur.status='closed';closeCfm();toast('已停止收单,盘已�
 
 Object.keys(MATCHES).forEach(mid=>mtRegister(mid));   /* 启动即注册全部盘口,使投注项数量口径稳定 */
 if(!OPEN_MARKET_ENABLED){const _fc=$('fp-clone');if(_fc)_fc.style.display='none';}
+seedSampleDates();
 go('pg-home');renderHome();updBadge();syncBal();
 
 /* ═════════ 新手引导(首次进入展示) ═════════
