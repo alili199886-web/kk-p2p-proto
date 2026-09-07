@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v7.7(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v8.0(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px 0}
@@ -70,6 +70,9 @@ input:focus{border-color:#FF8C00}
 .ptab{flex:1;text-align:center;padding:12px 0;font-size:15px;color:#444;cursor:pointer;position:relative}
 .ptab.on{color:#222;font-weight:700}
 .ptab.dis{opacity:.35;pointer-events:none}
+.tf{position:relative;font-size:14px;color:#444;cursor:pointer;padding:4px 2px;white-space:nowrap}
+.tf.on{color:#FF8C00;font-weight:700}
+.tf.on::after{content:"";position:absolute;bottom:-2px;left:0;right:0;height:2px;background:#FF8C00;border-radius:2px}
 .ptab.on::after{content:"";position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:26px;height:3px;background:#FF8C00;border-radius:2px}
 .pill{font-size:13px;padding:6px 14px;border-radius:18px;background:#fff;color:#333;white-space:nowrap}
 .pill.on{background:linear-gradient(180deg,#FFA33A,#FF8C00);color:#fff;font-weight:600}
@@ -231,7 +234,7 @@ input:focus{border-color:#FF8C00}
       <div class="ptab on" id="bt-0" onclick="buyTabSel(0)" style="font-size:15px">未结算</div>
       <div class="ptab" id="bt-1" onclick="buyTabSel(1)" style="font-size:15px">已结算</div>
     </div>
-    <div style="display:flex;gap:8px;padding:10px 12px 0;overflow-x:auto" id="buys-filters"></div>
+    <div style="background:#fff;border-radius:12px;margin:10px 12px 0;padding:12px 14px;display:flex;align-items:center;gap:18px" id="buys-filters"></div>
     <div style="padding:10px 12px 0" id="buys-stats"></div>
     <div style="padding:10px 12px 76px" id="buys-list"></div>
   </div>
@@ -346,6 +349,23 @@ input:focus{border-color:#FF8C00}
   </div>
 </div>
 
+<div class="ovl" id="ov-btr" style="z-index:100">
+  <div class="sheet" style="padding:16px;background:#fff">
+    <div class="row" style="margin-bottom:14px">
+      <span style="font-size:16px;font-weight:700;color:#222" class="grow">自定义时间</span>
+      <span style="color:#bbb;font-size:20px;cursor:pointer" onclick="hide('ov-btr')">×</span>
+    </div>
+    <div style="font-size:13px;color:#666;margin-bottom:6px">开始日期</div>
+    <input type="date" id="btr-s" style="width:100%;height:42px;border:1px solid #e5e7eb;border-radius:8px;padding:0 12px;font-size:14px;color:#222;background:#fff;box-sizing:border-box">
+    <div style="font-size:13px;color:#666;margin:14px 0 6px">结束日期</div>
+    <input type="date" id="btr-e" style="width:100%;height:42px;border:1px solid #e5e7eb;border-radius:8px;padding:0 12px;font-size:14px;color:#222;background:#fff;box-sizing:border-box">
+    <div style="font-size:12px;color:#9aa0a6;margin-top:10px">开始日期不得晚于结束日期，结束日期不得晚于今天，最长可查 90 天</div>
+    <div class="row" style="margin-top:16px;gap:10px">
+      <button class="btn" style="flex:1;background:#F2F3F5;color:#666" onclick="btrReset()">重置</button>
+      <button class="btn btn-p" style="flex:1" onclick="btrApply()">确定</button>
+    </div>
+  </div>
+</div>
 <div class="ovl" id="ov-cfm" style="z-index:100">
   <div class="sheet" style="padding:16px;background:#fff" id="cfm-body"></div>
 </div>
@@ -1509,11 +1529,11 @@ function bucketOk(b){
   if(tFilter==='7d')return['today','yesterday','7d'].includes(b);
   return true;
 }
-let buyTab=0,btFilter='all';
+let buyTab=0,btFilter='all',btrS='',btrE='';
 let buyOrders=[
   /* ── 未结算 ── */
   {type:'single',status:'unsettled',tag:'确认中',bucket:'today',
-   item:'主 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'亚洲盘',
+   item:'主 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'香港盘',
    match:'皇家马德里 vs 巴塞罗那',sport:'足球',league:'西甲 · 第36轮',
    amt:12,win:23.40,betAt:'赛前',oid:'5339328801234567',time:'2026-05-26 15:22:10'},
   {type:'single',status:'unsettled',tag:'已确认',bucket:'today',
@@ -1539,7 +1559,7 @@ let buyOrders=[
    amt:10,win:396.70,oid:'5339327402595231',time:'2026-05-26 14:10:00'},
   /* ── 已结算 ── */
   {type:'single',status:'settled',result:'赢',bucket:'today',
-   item:'主 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'亚洲盘',
+   item:'主 -0.5',period:'赛前',scope:'全场',play:'全场让球',odds:1.95,mk:'香港盘',
    match:'皇家马德里 vs 巴塞罗那',sport:'足球',league:'西甲 · 第36轮',
    amt:12,profit:11.40,score:'全场 3-1　半场 2-0',betAt:'赛前',
    oid:'5339328801234567',time:'2026-05-26 15:22:10'},
@@ -1561,12 +1581,12 @@ let buyOrders=[
    amt:200,profit:316.00,score:'全场 2-0　半场 1-0',betAt:'赛前',
    oid:'0110000126052556603251-1',time:'2026-05-25 17:15:49'},
   {type:'single',status:'settled',result:'赢半',bucket:'today',
-   item:'客 +0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:-218,mk:'美国盘',
+   item:'客 +0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:2.18,mk:'香港盘',
    match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
-   amt:4.36,profit:1.00,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
+   amt:4.36,profit:4.75,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
    oid:'5339327171709206',time:'2026-05-26 14:08:43'},
   {type:'single',status:'settled',result:'输半',bucket:'today',
-   item:'主 -0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:128,mk:'美国盘',
+   item:'主 -0/0.5',period:'滚球',scope:'上半场',play:'上半场让球',odds:1.28,mk:'香港盘',
    match:'浙江队 vs 河南队',sport:'足球',league:'中国超级联赛',
    amt:2,profit:-1.00,score:'上半场 0-1　全场 1-1',betAt:'0-1（滚球中）',
    oid:'5339327171709207',time:'2026-05-26 14:08:43'},
@@ -1581,6 +1601,33 @@ let buyOrders=[
    amt:2,profit:0,score:'上半场 0-2　全场 1-4',betAt:'0-2（滚球中）',
    oid:'5339322090651388',time:'2026-05-26 13:40:30'}
 ];
+/* 自定义时间:按注单实际日期过滤;其余按预置区间 */
+function buyTimeOk(o){
+  if(btFilter==='custom'){
+    if(!btrS||!btrE)return true;
+    const d=(o.time||'').slice(0,10);
+    return d>=btrS&&d<=btrE;
+  }
+  return buyBucketOk(o.bucket);
+}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function btrOpen(){
+  /* 默认值:开始=已结算最早一笔注单日期,结束=今天 */
+  const ds=buyOrders.filter(o=>o.status==='settled').map(o=>(o.time||'').slice(0,10)).filter(Boolean).sort();
+  $('btr-s').value=btrS||ds[0]||todayStr();
+  $('btr-e').value=btrE||todayStr();
+  $('btr-s').max=todayStr(); $('btr-e').max=todayStr();
+  show('ov-btr');
+}
+function btrApply(){
+  const a=$('btr-s').value,b=$('btr-e').value;
+  if(!a||!b){toast('请选择完整的时间范围');return}
+  if(a>b){toast('开始日期不得晚于结束日期');return}
+  if(b>todayStr()){toast('结束日期不得晚于今天');return}
+  if((new Date(b)-new Date(a))/86400000>89){toast('查询跨度最长 90 天');return}
+  btrS=a;btrE=b;btFilter='custom';hide('ov-btr');renderBuys();
+}
+function btrReset(){btrS='';btrE='';if(btFilter==='custom')btFilter='all';hide('ov-btr');renderBuys()}
 function buyBucketOk(b){
   if(btFilter==='all')return true;
   if(btFilter==='today')return b==='today';
@@ -1594,11 +1641,16 @@ function copyOid(o){toast('注单号已复制');}
 function renderBuys(){
   $('bt-0').classList.toggle('on',buyTab===0);
   $('bt-1').classList.toggle('on',buyTab===1);
-  const list=buyOrders.filter(o=>buyTab===0?o.status==='unsettled':(o.status==='settled'&&buyBucketOk(o.bucket)));
-  /* 时间筛选:未结算 3 项,已结算 4 项 */
+  const list=buyOrders.filter(o=>buyTab===0?o.status==='unsettled':(o.status==='settled'&&buyTimeOk(o)));
+  /* 时间筛选:未结算 3 项;已结算 4 项 + 自定义 */
   const ts=buyTab===0?[['today','今天'],['yesterday','昨天'],['7d','近7天']]
                      :[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
-  $('buys-filters').innerHTML=ts.map(([v,t])=>`<span class="pill ${btFilter===v?'on':''}" style="font-size:13px;padding:7px 18px" onclick="btFilter='${v}';renderBuys()">${t}</span>`).join('');
+  let fh=ts.map(([v,t])=>`<span class="tf ${btFilter===v?'on':''}" onclick="btFilter='${v}';renderBuys()">${t}</span>`).join('');
+  if(buyTab===1){
+    fh+=`<span class="grow"></span><span style="font-size:14px;color:#FF8C00;font-weight:700;display:inline-flex;align-items:center;gap:3px;white-space:nowrap;cursor:pointer" onclick="btrOpen()">筛选
+      <svg viewBox="0 0 24 24" style="width:11px;height:11px;fill:#FF8C00"><path d="M5 8.5h14L12 17z"/></svg></span>`;
+  }
+  $('buys-filters').innerHTML=fh;
   /* 统计 */
   const tot=list.reduce((s,o)=>s+o.amt,0);
   if(buyTab===0){
