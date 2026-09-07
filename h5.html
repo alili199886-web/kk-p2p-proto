@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v9.4(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v9.5(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -440,7 +440,8 @@ input:focus{border-color:#FF8C00}
     <li>买单盈亏与卖单盈亏均取<b>扣除平台抽佣后</b>的净额，抽佣比例由后台配置。</li>
     <li>买单直接读取注单的<b>输赢字段</b>，不在本页做任何佣金计算。买方抽佣由已上线的结算功能处理，算法为「购买 P2P 订单盈利 − 购买官方单盈利」的差额乘以抽佣比例，结算时已从输赢中扣除。</li>
     <li>已关闭庄单：未售出部分的押金<b>原路退回</b>，该部分不计算盈亏；已售出部分仍按正常结算计入盈亏。</li>
-    <li>完全未售出即关闭的庄单，押金全额退回，盈亏为 0，不计入任何盈亏项。</li>
+    <li>完全未售出即关闭的庄单，押金全额退回，盈亏为 0，计入卖单笔数但不影响盈亏。</li>
+    <li>赛事结算后，庄单状态由「已关闭」<b>转为「已结算」</b>。因此本页取数条件为状态等于「已结算」，无需额外纳入「已关闭」。</li>
   </ul>
 
   <h4>时间筛选</h4>
