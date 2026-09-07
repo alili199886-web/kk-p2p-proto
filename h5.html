@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v9.3(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v9.4(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -429,7 +429,7 @@ input:focus{border-color:#FF8C00}
 </div>
 
 <!-- ═════════ 右侧标注:汇总报表 ═════════ -->
-<div class="spec">
+<div class="spec" id="spec-report" style="display:none">
   <h3>汇总报表 · 需求标注</h3>
   <p class="sub">入口：我的 → 我的卖单下方「汇总报表」。以下为该页全部规则，供研发与测试对照。</p>
 
@@ -666,6 +666,9 @@ function go(p){
   const bar=$('cartbar');
   if(bar&&p!=='pg-home')bar.style.display='none';
   if(p==='pg-home')updBadge();
+  /* 需求标注栏仅在汇总报表页展示 */
+  const sp=$('spec-report');
+  if(sp)sp.style.display=(p==='pg-report')?'block':'none';
 }
 function show(id){$(id).classList.add('show');if(id==='ov-slip')syncListPad()}
 function hide(id){$(id).classList.remove('show');if(id==='ov-slip')syncListPad()}
