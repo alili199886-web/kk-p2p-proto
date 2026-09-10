@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>竞彩联赛简写表</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;700&family=Noto+Sans+SC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#FBFAF8; --surface:#FFFFFF; --raise:#F5F2ED;
+  --ink:#1C1A17; --ink-2:#4A453E; --muted:#7C746A; --hair:#E6E1D9;
+  --accent:#D9661A; --accent-soft:#FBEEE3; --accent-line:#F0C9A6;
+  --bk:#1F6F8B; --bk-soft:#E7F1F5; --bk-line:#A9CEDC;
+  --serif:"Noto Serif SC",Songti SC,SimSun,Georgia,serif;
+  --sans:"Noto Sans SC",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#17150F; --surface:#1F1C16; --raise:#272319;
+  --ink:#EFEAE1; --ink-2:#C6BEB1; --muted:#948B7D; --hair:#332E25;
+  --accent:#EE9548; --accent-soft:#2C2015; --accent-line:#5C4126;
+  --bk:#69AEC7; --bk-soft:#132227; --bk-line:#2C4A55;
+}}
+:root[data-theme="dark"]{
+  --ground:#17150F; --surface:#1F1C16; --raise:#272319;
+  --ink:#EFEAE1; --ink-2:#C6BEB1; --muted:#948B7D; --hair:#332E25;
+  --accent:#EE9548; --accent-soft:#2C2015; --accent-line:#5C4126;
+  --bk:#69AEC7; --bk-soft:#132227; --bk-line:#2C4A55;
+}
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.6;
+  -webkit-font-smoothing:antialiased;padding:0 20px 72px}
+.page{max-width:980px;margin:0 auto}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+header{padding-block:44px 22px;border-bottom:2px solid var(--ink)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-family:var(--serif);font-weight:700;font-size:clamp(27px,5vw,38px);line-height:1.18;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lede{color:var(--ink-2);margin:12px 0 0;max-width:62ch}
+.meta{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:14px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.meta b{color:var(--ink);font-weight:500}
+
+.rules{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--hair);border:1px solid var(--hair)}
+.rule{background:var(--surface);padding:14px 16px}
+.rule dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--accent);margin:0 0 5px}
+.rule dd{margin:0;font-size:13px;color:var(--ink-2);line-height:1.65}
+.rule dd em{font-style:normal;color:var(--ink);font-weight:500}
+
+.bar{position:sticky;top:0;z-index:5;background:var(--ground);padding-block:14px;margin-top:26px;
+  border-bottom:1px solid var(--hair);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--hair);border-radius:999px;overflow:hidden;background:var(--surface);flex:none}
+.seg button{appearance:none;border:0;background:none;font:inherit;font-size:13.5px;padding:7px 18px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff;font-weight:500}
+.seg button.bk[aria-pressed="true"]{background:var(--bk)}
+#q{flex:1;min-width:180px;font:inherit;font-size:14px;padding:8px 14px;border-radius:999px;
+  border:1px solid var(--hair);background:var(--surface);color:var(--ink)}
+#q::placeholder{color:var(--muted)}
+#q:focus-visible,.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.count{font-family:var(--mono);font-size:12.5px;color:var(--muted);flex:none;font-variant-numeric:tabular-nums}
+.count b{color:var(--ink)}
+
+section{margin-top:34px}
+.sec-h{display:flex;align-items:baseline;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--ink)}
+.sec-h h2{font-family:var(--serif);font-size:19px;font-weight:600;margin:0}
+.sec-h .n{font-family:var(--mono);font-size:12px;color:var(--muted);margin-left:auto;font-variant-numeric:tabular-nums}
+.sec-h .tag{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--muted)}
+
+.row{display:grid;grid-template-columns:112px minmax(0,1.15fr) minmax(0,1.35fr) minmax(0,1fr);
+  gap:14px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--hair)}
+.row:last-child{border-bottom:none}
+.chip{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:3px 10px;
+  border:1px solid var(--hair);border-radius:999px;background:var(--surface);font-size:13.5px;font-weight:500;
+  color:var(--ink);text-align:center;line-height:1.25}
+.b .chip{border-color:var(--bk-line);color:var(--bk)}
+.full{font-size:14px}
+.en{font-family:var(--mono);font-size:12px;color:var(--muted);word-break:break-word}
+.note{font-size:12.5px;color:var(--ink-2)}
+.note .alt{background:var(--accent-soft);border:1px solid var(--accent-line);border-radius:3px;padding:0 5px;
+  font-size:11.5px;white-space:nowrap;display:inline-block;margin-right:4px}
+.b .note .alt{background:var(--bk-soft);border-color:var(--bk-line)}
+@media (max-width:640px){
+  .row{grid-template-columns:96px minmax(0,1fr);row-gap:4px}
+  .row .en,.row .note{grid-column:2}
+}
+.empty{padding:40px 0;text-align:center;color:var(--muted);font-size:14px}
+footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--hair);font-size:13px;color:var(--muted);line-height:1.8}
+footer b{color:var(--ink-2);font-weight:500}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <p class="eyebrow">League Dictionary · 竞彩体育</p>
+  <h1>竞彩联赛简写表</h1>
+  <p class="lede">按中文盘口惯用的简写整理，用于联赛筛选面板与联赛字典配置。简写只是展示名，落库的唯一键仍是数据源的联赛 ID。</p>
+  <div class="meta">
+    <span>足球 <b id="mf">0</b> 条</span>
+    <span>篮球 <b id="mb">0</b> 条</span>
+    <span>整理日期 <b>2026-09-10</b></span>
+  </div>
+
+  <dl class="rules">
+    <div class="rule"><dt>国家 + 层级</dt><dd>顶级用<em>超</em>或<em>甲</em>，次级顺延：英超→英冠→英甲→英乙，意甲→意乙→意丙。同一国家用哪个字看历史习惯，不能推导。</dd></div>
+    <div class="rule"><dt>杯赛带「杯」</dt><dd>国内杯赛写<em>某某杯</em>，联赛杯写<em>联赛杯</em>，赛季前的超级杯写<em>超杯</em>。</dd></div>
+    <div class="rule"><dt>洲际用简称</dt><dd>欧冠、欧联、欧协联、亚冠精英、解放者杯——不带国家前缀，且不可与国内赛事重名。</dd></div>
+    <div class="rule"><dt>篮球加「篮」</dt><dd>与足球同名国家的联赛必须区分：西甲对西篮甲、意甲对意篮甲，否则筛选面板会串。</dd></div>
+  </dl>
+</header>
+
+<div class="bar">
+  <div class="seg" role="group" aria-label="球类">
+    <button id="tf" type="button" aria-pressed="true">足球</button>
+    <button id="tb" class="bk" type="button" aria-pressed="false">篮球</button>
+  </div>
+  <input id="q" type="search" placeholder="搜索简写、全称或英文原名，如 英超 / Serie A / K League">
+  <span class="count">命中 <b id="hit">0</b> 条</span>
+</div>
+
+<main id="out"></main>
+
+<footer>
+  <b>关于简写的稳定性。</b>中文简写没有统一标准，各数据源和各家盘口叫法有出入，备注列里的「别名」是市面上同样常见的另一种写法。落地时以你方数据源下发的联赛 ID 为唯一键，简写只做展示映射，别用简写做匹配——同名联赛（葡超 / 葡超B、瑞典超 / 瑞典甲）靠简写区分不了。<br>
+  <b>覆盖范围。</b>只收常规在售、盘口方普遍开出的联赛与杯赛，不含各国低级别联赛、青年队、预备队和友谊赛类目。女足与女篮单列在各自末尾。
+</footer>
+</div>
+
+<script>
+/* [球类, 分区, 简写, 全称, 原名, 别名或备注] */
+var D=[
+/* ── 足球 · 国际与洲际 ── */
+["f","国际与洲际","世界杯","国际足联世界杯","FIFA World Cup",""],
+["f","国际与洲际","世预赛","世界杯预选赛","World Cup Qualifiers","按大洲分：世预赛欧、世预赛亚、世预赛南美、世预赛非、世预赛中北美"],
+["f","国际与洲际","欧洲杯","欧洲足球锦标赛","UEFA European Championship",""],
+["f","国际与洲际","欧预赛","欧洲杯预选赛","Euro Qualifiers",""],
+["f","国际与洲际","欧国联","欧洲国家联赛","UEFA Nations League",""],
+["f","国际与洲际","美洲杯","南美足球锦标赛","Copa América",""],
+["f","国际与洲际","亚洲杯","亚洲杯足球赛","AFC Asian Cup","与篮球亚洲杯同名，需按球类隔离"],
+["f","国际与洲际","非洲杯","非洲国家杯","Africa Cup of Nations",""],
+["f","国际与洲际","金杯赛","中北美及加勒比金杯赛","CONCACAF Gold Cup",""],
+["f","国际与洲际","奥运男足","奥运会男子足球","Olympic Men's Football","女子写：奥运女足"],
+["f","国际与洲际","世俱杯","世俱杯","FIFA Club World Cup",""],
+["f","国际与洲际","欧冠","欧洲冠军联赛","UEFA Champions League",""],
+["f","国际与洲际","欧联","欧洲联赛","UEFA Europa League","别名 欧罗巴"],
+["f","国际与洲际","欧协联","欧洲协会联赛","UEFA Conference League","别名 欧会联"],
+["f","国际与洲际","欧超杯","欧洲超级杯","UEFA Super Cup",""],
+["f","国际与洲际","解放者杯","南美解放者杯","Copa Libertadores",""],
+["f","国际与洲际","南美杯","南美俱乐部杯","Copa Sudamericana",""],
+["f","国际与洲际","南美超杯","南美优胜者杯","Recopa Sudamericana",""],
+["f","国际与洲际","亚冠精英","亚足联冠军联赛精英级","AFC Champions League Elite","2024/25 改制，旧称 亚冠"],
+["f","国际与洲际","亚冠二级","亚足联冠军联赛二级","AFC Champions League Two","原亚协杯"],
+["f","国际与洲际","非冠","非洲冠军联赛","CAF Champions League",""],
+["f","国际与洲际","中北美冠","中北美洲冠军杯","CONCACAF Champions Cup",""],
+
+/* ── 足球 · 英格兰与不列颠 ── */
+["f","英格兰与不列颠","英超","英格兰超级联赛","Premier League",""],
+["f","英格兰与不列颠","英冠","英格兰冠军联赛","EFL Championship",""],
+["f","英格兰与不列颠","英甲","英格兰甲级联赛","EFL League One",""],
+["f","英格兰与不列颠","英乙","英格兰乙级联赛","EFL League Two",""],
+["f","英格兰与不列颠","英国家联","英格兰全国联赛","National League","别名 英议联"],
+["f","英格兰与不列颠","英足总杯","英格兰足总杯","FA Cup",""],
+["f","英格兰与不列颠","英联赛杯","英格兰联赛杯","EFL Cup","别名 英联杯"],
+["f","英格兰与不列颠","英锦赛","英格兰联赛锦标赛","EFL Trophy",""],
+["f","英格兰与不列颠","英社区盾","英格兰社区盾","FA Community Shield",""],
+["f","英格兰与不列颠","苏超","苏格兰超级联赛","Scottish Premiership","注意与中超的「超」不同源，勿写成苏格兰超"],
+["f","英格兰与不列颠","苏冠","苏格兰冠军联赛","Scottish Championship",""],
+["f","英格兰与不列颠","苏甲","苏格兰甲级联赛","Scottish League One",""],
+["f","英格兰与不列颠","苏乙","苏格兰乙级联赛","Scottish League Two",""],
+["f","英格兰与不列颠","苏格兰杯","苏格兰足总杯","Scottish Cup",""],
+["f","英格兰与不列颠","苏联赛杯","苏格兰联赛杯","Scottish League Cup",""],
+["f","英格兰与不列颠","北爱超","北爱尔兰超级联赛","NIFL Premiership",""],
+["f","英格兰与不列颠","威超","威尔士超级联赛","Cymru Premier",""],
+["f","英格兰与不列颠","爱尔超","爱尔兰超级联赛","League of Ireland Premier",""],
+
+/* ── 足球 · 西班牙 ── */
+["f","西班牙","西甲","西班牙甲级联赛","La Liga",""],
+["f","西班牙","西乙","西班牙乙级联赛","Segunda División",""],
+["f","西班牙","西丙","西班牙丙级联赛","Primera Federación","旧称 西乙B"],
+["f","西班牙","西班牙杯","西班牙国王杯","Copa del Rey","别名 国王杯"],
+["f","西班牙","西超杯","西班牙超级杯","Supercopa de España",""],
+
+/* ── 足球 · 意大利 ── */
+["f","意大利","意甲","意大利甲级联赛","Serie A",""],
+["f","意大利","意乙","意大利乙级联赛","Serie B",""],
+["f","意大利","意丙","意大利丙级联赛","Serie C",""],
+["f","意大利","意大利杯","意大利杯","Coppa Italia",""],
+["f","意大利","意超杯","意大利超级杯","Supercoppa Italiana",""],
+
+/* ── 足球 · 德国 ── */
+["f","德国","德甲","德国甲级联赛","Bundesliga",""],
+["f","德国","德乙","德国乙级联赛","2. Bundesliga",""],
+["f","德国","德丙","德国丙级联赛","3. Liga",""],
+["f","德国","德国杯","德国足协杯","DFB-Pokal",""],
+["f","德国","德超杯","德国超级杯","DFL-Supercup",""],
+
+/* ── 足球 · 法国 ── */
+["f","法国","法甲","法国甲级联赛","Ligue 1",""],
+["f","法国","法乙","法国乙级联赛","Ligue 2",""],
+["f","法国","法丙","法国全国联赛","Championnat National",""],
+["f","法国","法国杯","法国杯","Coupe de France",""],
+["f","法国","法超杯","法国超级杯","Trophée des Champions",""],
+
+/* ── 足球 · 荷比葡 ── */
+["f","荷比葡","荷甲","荷兰甲级联赛","Eredivisie",""],
+["f","荷比葡","荷乙","荷兰乙级联赛","Eerste Divisie",""],
+["f","荷比葡","荷兰杯","荷兰杯","KNVB Beker",""],
+["f","荷比葡","荷超杯","荷兰超级杯","Johan Cruijff Schaal",""],
+["f","荷比葡","比甲","比利时甲级联赛","Belgian Pro League",""],
+["f","荷比葡","比乙","比利时乙级联赛","Challenger Pro League",""],
+["f","荷比葡","比利时杯","比利时杯","Belgian Cup",""],
+["f","荷比葡","葡超","葡萄牙超级联赛","Primeira Liga",""],
+["f","荷比葡","葡甲","葡萄牙甲级联赛","Liga Portugal 2","部分盘口写 葡乙"],
+["f","荷比葡","葡萄牙杯","葡萄牙杯","Taça de Portugal",""],
+["f","荷比葡","葡联赛杯","葡萄牙联赛杯","Taça da Liga",""],
+
+/* ── 足球 · 北欧 ── */
+["f","北欧","瑞典超","瑞典超级联赛","Allsvenskan",""],
+["f","北欧","瑞典甲","瑞典甲级联赛","Superettan",""],
+["f","北欧","挪超","挪威超级联赛","Eliteserien",""],
+["f","北欧","挪甲","挪威甲级联赛","OBOS-ligaen",""],
+["f","北欧","丹超","丹麦超级联赛","Danish Superliga",""],
+["f","北欧","丹甲","丹麦甲级联赛","Danish 1st Division",""],
+["f","北欧","芬超","芬兰超级联赛","Veikkausliiga",""],
+["f","北欧","芬甲","芬兰甲级联赛","Ykkösliiga",""],
+["f","北欧","冰岛超","冰岛超级联赛","Besta deild karla",""],
+["f","北欧","法罗超","法罗群岛超级联赛","Betri deildin",""],
+
+/* ── 足球 · 中东欧与其他欧洲 ── */
+["f","其他欧洲","瑞士超","瑞士超级联赛","Swiss Super League",""],
+["f","其他欧洲","瑞士甲","瑞士挑战联赛","Swiss Challenge League",""],
+["f","其他欧洲","奥甲","奥地利甲级联赛","Austrian Bundesliga",""],
+["f","其他欧洲","奥乙","奥地利乙级联赛","Austrian 2. Liga",""],
+["f","其他欧洲","土超","土耳其超级联赛","Süper Lig",""],
+["f","其他欧洲","土甲","土耳其甲级联赛","TFF 1. Lig",""],
+["f","其他欧洲","希腊超","希腊超级联赛","Super League Greece",""],
+["f","其他欧洲","俄超","俄罗斯超级联赛","Russian Premier League",""],
+["f","其他欧洲","俄甲","俄罗斯甲级联赛","Russian First League",""],
+["f","其他欧洲","乌超","乌克兰超级联赛","Ukrainian Premier League",""],
+["f","其他欧洲","捷甲","捷克甲级联赛","Czech First League",""],
+["f","其他欧洲","波兰甲","波兰甲级联赛","Ekstraklasa",""],
+["f","其他欧洲","罗甲","罗马尼亚甲级联赛","Liga I",""],
+["f","其他欧洲","塞超","塞尔维亚超级联赛","Serbian SuperLiga",""],
+["f","其他欧洲","克甲","克罗地亚甲级联赛","HNL",""],
+["f","其他欧洲","匈甲","匈牙利甲级联赛","Nemzeti Bajnokság I",""],
+["f","其他欧洲","保超","保加利亚超级联赛","First Professional League",""],
+["f","其他欧洲","斯洛伐超","斯洛伐克超级联赛","Slovak Super Liga",""],
+["f","其他欧洲","斯洛文超","斯洛文尼亚超级联赛","PrvaLiga",""],
+["f","其他欧洲","波黑超","波黑超级联赛","Premier League of BiH",""],
+["f","其他欧洲","黑山超","黑山超级联赛","Montenegrin First League",""],
+["f","其他欧洲","北马超","北马其顿超级联赛","Macedonian First League",""],
+["f","其他欧洲","阿尔巴超","阿尔巴尼亚超级联赛","Kategoria Superiore",""],
+["f","其他欧洲","白俄超","白俄罗斯超级联赛","Belarusian Premier League",""],
+["f","其他欧洲","拉脱超","拉脱维亚超级联赛","Virsliga",""],
+["f","其他欧洲","立陶甲","立陶宛甲级联赛","A Lyga",""],
+["f","其他欧洲","爱沙超","爱沙尼亚超级联赛","Meistriliiga",""],
+["f","其他欧洲","塞浦甲","塞浦路斯甲级联赛","Cypriot First Division",""],
+["f","其他欧洲","以超","以色列超级联赛","Israeli Premier League",""],
+["f","其他欧洲","亚美超","亚美尼亚超级联赛","Armenian Premier League",""],
+["f","其他欧洲","格鲁甲","格鲁吉亚甲级联赛","Erovnuli Liga",""],
+["f","其他欧洲","阿塞超","阿塞拜疆超级联赛","Azerbaijan Premier League",""],
+["f","其他欧洲","哈萨超","哈萨克斯坦超级联赛","Kazakhstan Premier League",""],
+["f","其他欧洲","摩尔多超","摩尔多瓦超级联赛","Moldovan Super Liga",""],
+["f","其他欧洲","马耳他超","马耳他超级联赛","Maltese Premier League",""],
+["f","其他欧洲","卢森超","卢森堡全国联赛","Luxembourg National Division",""],
+
+/* ── 足球 · 南美 ── */
+["f","南美","巴甲","巴西甲级联赛","Brasileirão Série A",""],
+["f","南美","巴乙","巴西乙级联赛","Brasileirão Série B",""],
+["f","南美","巴西杯","巴西杯","Copa do Brasil",""],
+["f","南美","阿甲","阿根廷甲级联赛","Liga Profesional",""],
+["f","南美","阿乙","阿根廷乙级联赛","Primera Nacional",""],
+["f","南美","阿根廷杯","阿根廷杯","Copa Argentina",""],
+["f","南美","智利甲","智利甲级联赛","Primera División de Chile",""],
+["f","南美","哥伦甲","哥伦比亚甲级联赛","Categoría Primera A",""],
+["f","南美","秘鲁甲","秘鲁甲级联赛","Liga 1",""],
+["f","南美","乌拉甲","乌拉圭甲级联赛","Primera División",""],
+["f","南美","巴拉甲","巴拉圭甲级联赛","División Profesional",""],
+["f","南美","玻利甲","玻利维亚甲级联赛","División Profesional",""],
+["f","南美","厄瓜甲","厄瓜多尔甲级联赛","LigaPro",""],
+["f","南美","委内甲","委内瑞拉甲级联赛","Liga FUTVE",""],
+
+/* ── 足球 · 中北美 ── */
+["f","中北美","美职业","美国职业足球大联盟","Major League Soccer","别名 美职足、MLS"],
+["f","中北美","墨超","墨西哥超级联赛","Liga MX",""],
+["f","中北美","墨西哥杯","墨西哥杯","Copa MX",""],
+["f","中北美","加超","加拿大超级联赛","Canadian Premier League",""],
+["f","中北美","哥斯甲","哥斯达黎加甲级联赛","Liga FPD",""],
+["f","中北美","洪都甲","洪都拉斯甲级联赛","Liga Nacional",""],
+["f","中北美","危地甲","危地马拉甲级联赛","Liga Nacional",""],
+["f","中北美","萨尔瓦甲","萨尔瓦多甲级联赛","Primera División",""],
+["f","中北美","巴拿甲","巴拿马甲级联赛","LPF",""],
+
+/* ── 足球 · 亚洲与大洋洲 ── */
+["f","亚洲与大洋洲","中超","中国足球超级联赛","Chinese Super League",""],
+["f","亚洲与大洋洲","中甲","中国足球甲级联赛","China League One",""],
+["f","亚洲与大洋洲","中乙","中国足球乙级联赛","China League Two",""],
+["f","亚洲与大洋洲","足协杯","中国足协杯","Chinese FA Cup",""],
+["f","亚洲与大洋洲","港超","中国香港超级联赛","Hong Kong Premier League",""],
+["f","亚洲与大洋洲","日职联","日本职业足球甲级联赛","J1 League","别名 日职、J1"],
+["f","亚洲与大洋洲","日职乙","日本职业足球乙级联赛","J2 League","别名 J2"],
+["f","亚洲与大洋洲","日丙","日本职业足球丙级联赛","J3 League",""],
+["f","亚洲与大洋洲","日联杯","日本联赛杯","J.League Cup",""],
+["f","亚洲与大洋洲","日皇杯","日本天皇杯","Emperor's Cup","别名 天皇杯"],
+["f","亚洲与大洋洲","韩K联","韩国职业足球甲级联赛","K League 1","别名 K1"],
+["f","亚洲与大洋洲","韩K2联","韩国职业足球乙级联赛","K League 2","别名 K2"],
+["f","亚洲与大洋洲","韩足总杯","韩国足协杯","Korean FA Cup",""],
+["f","亚洲与大洋洲","澳超","澳大利亚超级联赛","A-League Men",""],
+["f","亚洲与大洋洲","沙特联","沙特职业联赛","Saudi Pro League","别名 沙特超"],
+["f","亚洲与大洋洲","沙特甲","沙特甲级联赛","Saudi First Division",""],
+["f","亚洲与大洋洲","卡塔尔联","卡塔尔星级联赛","Qatar Stars League",""],
+["f","亚洲与大洋洲","阿联酋联","阿联酋职业联赛","UAE Pro League",""],
+["f","亚洲与大洋洲","伊朗超","伊朗超级联赛","Persian Gulf Pro League",""],
+["f","亚洲与大洋洲","伊拉克超","伊拉克超级联赛","Iraq Stars League",""],
+["f","亚洲与大洋洲","乌兹超","乌兹别克斯坦超级联赛","Uzbekistan Super League",""],
+["f","亚洲与大洋洲","泰超","泰国超级联赛","Thai League 1",""],
+["f","亚洲与大洋洲","越南联","越南职业联赛","V.League 1",""],
+["f","亚洲与大洋洲","印尼超","印尼超级联赛","Liga 1",""],
+["f","亚洲与大洋洲","马来超","马来西亚超级联赛","Malaysia Super League",""],
+["f","亚洲与大洋洲","新加坡联","新加坡超级联赛","Singapore Premier League",""],
+["f","亚洲与大洋洲","印度超","印度超级联赛","Indian Super League",""],
+["f","亚洲与大洋洲","印度甲","印度甲级联赛","I-League",""],
+["f","亚洲与大洋洲","新西兰超","新西兰全国联赛","New Zealand National League",""],
+
+/* ── 足球 · 非洲 ── */
+["f","非洲","埃及超","埃及超级联赛","Egyptian Premier League",""],
+["f","非洲","南非超","南非超级联赛","Betway Premiership",""],
+["f","非洲","摩洛超","摩洛哥超级联赛","Botola Pro",""],
+["f","非洲","突尼甲","突尼斯甲级联赛","Tunisian Ligue 1",""],
+["f","非洲","阿尔及甲","阿尔及利亚甲级联赛","Algerian Ligue 1",""],
+["f","非洲","尼日超","尼日利亚超级联赛","NPFL",""],
+
+/* ── 足球 · 女足 ── */
+["f","女足","女世界杯","国际足联女子世界杯","FIFA Women's World Cup",""],
+["f","女足","女欧洲杯","欧洲女子足球锦标赛","UEFA Women's Euro",""],
+["f","女足","女欧冠","欧洲女子冠军联赛","UEFA Women's Champions League",""],
+["f","女足","英女超","英格兰女子超级联赛","Women's Super League",""],
+["f","女足","美女足联","美国女子足球大联盟","NWSL",""],
+["f","女足","西女超","西班牙女子超级联赛","Liga F",""],
+["f","女足","德女甲","德国女子甲级联赛","Frauen-Bundesliga",""],
+["f","女足","法女甲","法国女子甲级联赛","Première Ligue",""],
+["f","女足","意女甲","意大利女子甲级联赛","Serie A Femminile",""],
+["f","女足","瑞典女超","瑞典女子超级联赛","Damallsvenskan",""],
+["f","女足","挪威女超","挪威女子超级联赛","Toppserien",""],
+["f","女足","澳女超","澳大利亚女子超级联赛","A-League Women",""],
+["f","女足","日女足联","日本女子足球联赛","WE League",""],
+
+/* ── 篮球 ── */
+["b","国际赛事","男篮世界杯","国际篮联世界杯","FIBA Basketball World Cup",""],
+["b","国际赛事","女篮世界杯","国际篮联女子世界杯","FIBA Women's World Cup",""],
+["b","国际赛事","奥运男篮","奥运会男子篮球","Olympic Men's Basketball","女子写：奥运女篮"],
+["b","国际赛事","欧锦赛","欧洲篮球锦标赛","EuroBasket","女子写：女篮欧锦赛"],
+["b","国际赛事","美锦赛","美洲篮球锦标赛","FIBA AmeriCup",""],
+["b","国际赛事","篮亚洲杯","亚洲篮球锦标赛","FIBA Asia Cup","与足球亚洲杯重名，必须按球类隔离"],
+["b","国际赛事","篮非洲杯","非洲篮球锦标赛","AfroBasket",""],
+
+["b","北美","NBA","美国职业篮球联赛","NBA",""],
+["b","北美","NBA夏联","NBA夏季联赛","NBA Summer League","别名 夏季联赛"],
+["b","北美","WNBA","美国女子职业篮球联赛","WNBA",""],
+["b","北美","NCAA","美国大学篮球联赛","NCAA Division I",""],
+["b","北美","发展联盟","NBA发展联盟","NBA G League","别名 G联赛"],
+
+["b","中国与亚太","CBA","中国男子篮球职业联赛","Chinese Basketball Association",""],
+["b","中国与亚太","WCBA","中国女子篮球职业联赛","Women's CBA",""],
+["b","中国与亚太","日B1联赛","日本职业篮球甲级联赛","B.League B1","别名 日职篮"],
+["b","中国与亚太","韩篮甲","韩国篮球联赛","KBL",""],
+["b","中国与亚太","韩女篮","韩国女子篮球联赛","WKBL",""],
+["b","中国与亚太","菲篮职","菲律宾职业篮球联赛","PBA",""],
+["b","中国与亚太","澳NBL","澳大利亚国家篮球联赛","NBL Australia",""],
+["b","中国与亚太","新西篮联","新西兰国家篮球联赛","NZ NBL",""],
+
+["b","欧洲","欧篮联","欧洲篮球联赛","EuroLeague","别名 欧洲联赛"],
+["b","欧洲","欧篮杯","欧洲篮球杯","EuroCup",""],
+["b","欧洲","篮冠联赛","篮球冠军联赛","Basketball Champions League","别名 BCL"],
+["b","欧洲","西篮甲","西班牙篮球甲级联赛","Liga ACB","别名 ACB"],
+["b","欧洲","意篮甲","意大利篮球甲级联赛","Lega Basket Serie A","别名 LBA"],
+["b","欧洲","德篮甲","德国篮球甲级联赛","Basketball Bundesliga","别名 BBL"],
+["b","欧洲","法篮甲","法国篮球甲级联赛","Betclic Élite","旧称 Pro A"],
+["b","欧洲","希篮甲","希腊篮球甲级联赛","Greek Basket League",""],
+["b","欧洲","土篮超","土耳其篮球超级联赛","Basketbol Süper Ligi",""],
+["b","欧洲","立陶篮甲","立陶宛篮球甲级联赛","LKL",""],
+["b","欧洲","塞篮联","塞尔维亚篮球联赛","KLS",""],
+["b","欧洲","以篮超","以色列篮球超级联赛","Israeli Premier League",""],
+["b","欧洲","波兰篮甲","波兰篮球甲级联赛","PLK",""],
+["b","欧洲","捷克篮甲","捷克篮球甲级联赛","NBL",""],
+["b","欧洲","俄篮超","俄罗斯篮球超级联赛","VTB United League","别名 VTB联赛"],
+["b","欧洲","葡篮甲","葡萄牙篮球甲级联赛","LPB",""],
+["b","欧洲","比篮甲","比利时篮球甲级联赛","BNXT League",""],
+
+["b","南美","阿篮甲","阿根廷篮球甲级联赛","Liga Nacional de Básquet",""],
+["b","南美","巴篮甲","巴西篮球甲级联赛","NBB",""],
+["b","南美","南美篮联","南美篮球联赛","Basketball Champions League Americas",""]
+];
+
+var out=document.getElementById('out'),q=document.getElementById('q'),
+    hit=document.getElementById('hit'),tf=document.getElementById('tf'),tb=document.getElementById('tb');
+var sport='f';
+
+document.getElementById('mf').textContent=D.filter(function(r){return r[0]==='f'}).length;
+document.getElementById('mb').textContent=D.filter(function(r){return r[0]==='b'}).length;
+
+function esc(s){return s.replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c]})}
+function noteHtml(t){
+  if(!t)return '';
+  var m=t.match(/^别名 (.+)$/);
+  if(m)return m[1].split('、').map(function(x){return '<span class="alt">'+esc(x)+'</span>'}).join('');
+  return esc(t);
+}
+function render(){
+  var kw=q.value.trim().toLowerCase();
+  var rows=D.filter(function(r){
+    if(r[0]!==sport)return false;
+    if(!kw)return true;
+    return (r[2]+r[3]+r[4]+r[5]).toLowerCase().indexOf(kw)>=0;
+  });
+  hit.textContent=rows.length;
+  if(!rows.length){out.innerHTML='<p class="empty">没有匹配的联赛。换个关键词，或切换球类再试。</p>';return}
+  var groups=[],map={};
+  rows.forEach(function(r){
+    if(!map[r[1]]){map[r[1]]=[];groups.push(r[1])}
+    map[r[1]].push(r);
+  });
+  out.innerHTML=groups.map(function(g){
+    return '<section class="'+sport+'"><div class="sec-h"><h2>'+esc(g)+'</h2>'+
+      '<span class="tag">'+(sport==='f'?'足球':'篮球')+'</span>'+
+      '<span class="n">'+map[g].length+' 条</span></div>'+
+      map[g].map(function(r){
+        return '<div class="row"><span class="chip">'+esc(r[2])+'</span>'+
+          '<span class="full">'+esc(r[3])+'</span>'+
+          '<span class="en">'+esc(r[4])+'</span>'+
+          '<span class="note">'+noteHtml(r[5])+'</span></div>';
+      }).join('')+'</section>';
+  }).join('');
+}
+function setSport(s){
+  sport=s;
+  tf.setAttribute('aria-pressed',String(s==='f'));
+  tb.setAttribute('aria-pressed',String(s==='b'));
+  render();
+}
+tf.addEventListener('click',function(){setSport('f')});
+tb.addEventListener('click',function(){setSport('b')});
+q.addEventListener('input',render);
+render();
+</script>
+</body>
+</html>
