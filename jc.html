@@ -145,7 +145,8 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 .mc-lc{display:flex;flex-direction:column;gap:5px;align-items:center}
 .lg{background:var(--app-badge);color:#fff;font-size:10.5px;font-weight:600;border-radius:3px;padding:2px 5px;white-space:nowrap}
 .mc-tm{font-size:11.5px;color:var(--app-sub);font-variant-numeric:tabular-nums}
-.an{font-size:11.5px;color:var(--o);cursor:pointer;white-space:nowrap}
+.an{font-size:11.5px;color:#4A4A52;cursor:pointer;white-space:nowrap}
+.an.on{color:var(--o);font-weight:600}
 .mc-rc{display:flex;flex-direction:column;gap:5px}
 .orow{display:grid;gap:5px}
 .orow.c3{grid-template-columns:30px repeat(3,1fr)}
@@ -427,7 +428,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 <body>
 <div class="wrap">
 <header class="mast">
-  <div class="mast-kicker"><span>交互原型 v15</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
+  <div class="mast-kicker"><span>交互原型 v21</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
   <h1>竞彩交互原型</h1>
   <p class="mast-sub">可点击原型，覆盖竞彩足球与竞彩篮球两套盘口、最近两个赛事日。注数与奖金按真实公式实时计算。右侧需求说明跟随当前页面切换，只写规则、约束、算法与待决策项，版面细节以设计稿为准。</p>
   <div class="mast-meta">
@@ -470,7 +471,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
       <li>注单赔率与赛事池对齐，并新增「赔率类型：下单锁定赔率」独立字段说明快照语义。</li>
       <li>投注时间后拼接的「（欧洲盘）」移出，改为赔率类型字段。</li>
       <li>联赛筛选由联赛名改为联赛 ID 作为键。</li>
-      <li>基础金额默认由 1000 元改为 2 元；含比分／胜分差被锁定后，移除该选项会恢复用户原先档位。</li>
+      <li>基础金额默认由 1000 元改为 10 元；含比分／胜分差被锁定后，移除该选项会恢复用户原先档位。</li>
       <li>说明页映射修正（篮球大小分不再落到胜分差页），「重置原型」同时重置赛事日与明细展开态。</li></ol></div>
   </div>
   </details>
@@ -478,19 +479,19 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
   <div class="revgrid">
     <div><em>入口与列表</em>
       <ol><li><b>竞彩入口</b>：复用「体育赛事」大卡 → 游戏大厅 → 竞彩厂商卡；九宫格「彩票」去掉点击事件。</li>
-      <li><b>列表分组</b>：按<b>开赛时间的自然日</b>分组，今日进周三组、明日进周四组；赛事日（期次）另存，仅用于编号域与结算归属。</li>
+      <li><b>列表分组</b>：按<b>开赛时间的自然日</b>分组，分组头不加「今日／明日」字样；赛事日（期次）另存，仅用于编号域与结算归属。</li>
       <li><b>赛事日来源</b>：由后端接口返回，前端不限制天数。</li>
       <li><b>封盘</b>：时间由三方数据源推送；封盘后赛事从列表移除，投注单内已选项标红「封盘，不可投注」并阻止下单。</li>
-      <li><b>单关资格</b>：盘口级，<b>跟随三方数据源推送，运营不可配置</b>。</li>
-      <li><b>符号释义</b>：「单」角标与让球位数字仅写进需求说明，界面不做图例。</li></ol></div>
+      <li><b>单关资格</b>：<b>不做限制</b>，所有盘口一律可单关，列表不再有「单」角标。</li>
+      <li><b>符号释义</b>：让球位数字仅写进需求说明，界面不做图例。</li></ol></div>
     <div><em>投注与计算</em>
       <ol start="7"><li><b>关数与场次</b>：不分玩法，统一最高 8 关、最多 8 场，超出提示「最多选择8场赛事」。</li>
       <li><b>足篮混串</b>：<b>不允许</b>，切换球类需二次确认后清空投注单。</li>
       <li><b>倍数与注数</b>：倍数折算进注数，展示注数 = 组合注数 × 倍数，注单卡不出现倍数字段。</li>
-      <li><b>M串N 命名</b>：N 只统计关数组合数 C(M,k)，复式不并入 N，统一表述「M串N · 共 X 注」。</li>
+      <li><b>M串N 命名</b>：N 只统计关数组合数 C(M,k)，复式不并入 N，统一表述「M串N · 共 X 注」；投注面板第三格固定显示「过关选择」。</li>
       <li><b>派奖封顶</b>：按官方分档，单场 10 万 / 2–3 场 20 万 / 4–5 场 50 万 / 6 场及以上 100 万，逐注封顶、不拦下单。</li>
-      <li><b>投注限额</b>：单张彩票上限 20,000 元，每注最低 2 元；余额不足在下注时 toast「余额不足，请充值。」</li>
-      <li><b>基础金额</b>：七档配置下发，不支持手动输入。</li>
+      <li><b>投注限额</b>：单张彩票上限 20,000 元，每注最低 2 元（默认档位 10 元）；余额不足在下注时 toast「余额不足，请充值。」</li>
+      <li><b>基础金额</b>：七档配置下发，<b>默认 10 元</b>，不支持手动输入。</li>
       <li><b>结算口径文案</b>：玩法展开后不展示，只写进需求说明。</li></ol></div>
     <div><em>注单与结算</em>
       <ol start="15"><li><b>状态口径</b>：待结算 / 赢 / 输 / 已退款 / 已作废，逐场标记同为赢 / 输 / 作废。</li>
@@ -599,7 +600,7 @@ var BT_NAME={1:'让分/让球',2:'大小分盘',3:'胜负/独赢',4:'半全场�
 var S={route:'home',sp:1,sel:[],expanded:null,analysis:null,openDays:{'2026-09-09':1,'2026-09-10':0},oExpand:null,
   filterOpen:false,filterPick:[],filterApplied:[],
   slip:false,openSel:true,openFold:false,openPad:false,foldTouched:false,spAsk:null,
-  mode:'parlay',folds:{},base:2,baseUser:2,mult:1,
+  mode:'parlay',folds:{},base:10,baseUser:10,mult:1,
   amountPop:false,tips:false,result:null,toast:'',closedDemo:null,
   sTab:'unsettled',sSub:'single',sRange:'today',rgOpen:false};
 
@@ -635,13 +636,13 @@ function marketOf(m,bt){
 }
 function chipSingle(m,bt){
   if(bt===2)return m.ou.single;
-  return true; /* 5/4/6/7 设计稿恒可单关 */
+  return true; /* 已取消单关资格限制 */
 }
 function matchCount(){var o={};S.sel.forEach(function(s){o[s.uid]=1});return Object.keys(o).length}
-function locked(){return S.sel.some(function(s){return FIXED_BT.indexOf(s.bt)>=0})}
+function locked(){return false}   /* 已取消强制固定基础金额 */
 function foldCap(){var c=8;S.sel.forEach(function(s){var v=FOLD_CAP[s.bt]||8;if(v<c)c=v});return Math.min(c,MAX_MATCH)}
 function emode(){return (S.mode==='parlay'&&matchCount()>=2)?'parlay':'single'}
-function invalidSingles(){return S.sel.filter(function(s){return !s.single})}
+function invalidSingles(){return []}   /* 已取消单关资格限制，所有盘口均可单关 */
 function countIn(uid,bt){return S.sel.filter(function(s){return s.uid===uid&&s.bt===bt}).length}
 function toast(t){S.toast=t;render();setTimeout(function(){if(S.toast===t){S.toast='';render()}},2300)}
 function normalize(){
@@ -649,7 +650,7 @@ function normalize(){
   Object.keys(S.folds).forEach(function(k){if(+k>Mc||+k>cap)delete S.folds[k]});
   if(Mc<2)S.folds={};
   if(Mc>=2&&S.mode==='parlay'&&!S.foldTouched&&!Object.keys(S.folds).length)S.folds[Math.min(Mc,cap)]=1;
-  S.base=(locked()&&emode()==='parlay')?FIXED_AMOUNT:S.baseUser;
+  S.base=S.baseUser;
 }
 function toggleSel(uid,bt,k,price){
   var m=mById(uid),K=key(uid,bt,k),i=-1;
@@ -712,20 +713,26 @@ A2:{n:'游戏大厅',node:'9304:316047',f:'ok',dl:[
  ['维护态','厂商维护中时卡片不可点。']
 ]},
 A3:{n:'竞彩足球赛事列表',node:'9303:313570',f:'ok',dl:[
- ['列表分组','<div class="callout"><b>已定：按开赛时间的自然日分组</b>，不按赛事日期次分组。今日开赛的进「周三 2026-09-09（今日）」组，明日开赛的进「周四 2026-09-10（明日）」组。</div>'+
-  li(['分组头 = 周几 + 日期 + 今日／明日 + 可投场次数，场次数为<b>筛选后且未封盘</b>的场次，跟着筛选实时变。',
+ ['列表分组','<div class="callout"><b>已定：按开赛时间的自然日分组</b>，不按赛事日期次分组。</div>'+
+  li(['分组头 = 周几 + 日期 + 可投场次数，<b>不加「今日／明日」字样</b>；场次数为<b>筛选后且未封盘</b>的场次，跟着筛选实时变。',
   '默认第一组展开、第二组收起，展开状态会话内保持。',
   '赛事卡只显示 HH:mm，不加「次日」前缀——日期由分组头承载。'])],
  ['赛事日与分组的关系','<div class="callout"><b>两者不是一回事，都要保留。</b>赛事日（期次）跨自然日、由数据源给定，是<b>赛事编号的编号域</b>和结算归属；列表分组按开赛日期。所以一个赛事日的晚场会落在下一个日期分组里。<br>原型里 d1 期次（2026-09-09）的 001–013 在周三组，同期次的 014、015 因为 00:45 和 02:00 开赛，落在周四组，编号仍是 d1 的 014、015——这正是需要两套概念的原因。</div>'],
- ['符号释义','<p>列表页两个符号的含义，<b>仅作为需求说明，界面上不展示图例</b>：</p>'+
-  li(['<b>「单」角标</b> —— 该盘口支持单关投注；<b>没有这个角标只能组合过关</b>。资格跟随官方公布，运营不可配置。',
-  '<b>0</b> —— 赔率行第一行固定是独赢盘（篮球为胜负盘），不让球／不让分，让球位显示 0。',
+ ['单关资格','<div class="callout"><b>已定：不做单关资格限制。</b>所有盘口一律可单关，列表页与玩法胶囊都<b>不再有「单」角标</b>，投注单也不存在「不支持单关」的红色态。<br>这与官方竞彩不同——官方按盘口逐场公布单关资格。取消后交互简单很多，代价是风控少一道闸：比分（最高 600）、胜分差（最高 33）这类高赔玩法可以单关下注，单注赔付完全靠派奖封顶兜住（见 C7）。</div>'],
+ ['符号释义','<p>让球位数字的含义，<b>仅作为需求说明，界面上不展示图例</b>：</p>'+
+  li(['<b>0</b> —— 赔率行第一行固定是独赢盘（篮球为胜负盘），不让球／不让分，让球位显示 0。',
   '<b>−1</b> —— 第二行是让球盘（篮球为让分盘），数字即让球／让分数，负数表示<b>主队让</b>，橙色。',
   '<b>1.5</b> —— 仅篮球出现，正数表示<b>客队让</b>，绿色。足球让球只有负数。'])],
- ['待确认','用户侧是否需要一个玩法说明入口（标题栏加 ⓘ 或规则说明页）来承载这些释义。当前界面不做任何图例，新用户看不懂这两个符号。'],
  ['赛事唯一键','<div class="callout">赛事编号在<b>每个赛事日内独立编号</b>，两个赛事日都会出现 001。唯一键必须是「球类 + 赛事日 + 编号」——不能只用编号，也<b>不能用开赛日期替代赛事日</b>，因为跨午夜场次的开赛日期和赛事日不是同一天。</div>'],
  ['盘口动态','按接口返回渲染，不是每场都有全部玩法（原型 007 无半全场盘、009 无独赢盘，都是真实形态）。'],
- ['单关资格','盘口级、<b>跟随三方数据源推送</b>，<b>运营不可配置</b>。有资格的盘口带「单」角标，列表页与投注单必须一致。'],
+ ['玩法胶囊角标','<p>比分盘、半全场盘、进球数盘（篮球为胜分差盘、大小分盘）选中投注项后，对应胶囊<b>右上角出现红色圆形数字角标</b>。</p>'+
+  li(['角标数字 = <b>该赛事该盘口已选的选项数</b>，按「赛事 + 盘口」独立计数，同一赛事的三个胶囊各算各的。',
+  '<b>0 时不渲染</b>，出现第一个选项才显示；取消选项即减 1，减到 0 角标消失。',
+  '复式会累加：比分盘选了 1-0、2-0、2-1 三项，角标显示 <b>3</b>。',
+  '<b>收起展开面板后角标仍在</b>——这是它的主要价值。选项表格很长（比分盘 31 项），用户展开选完通常会收起，角标是收起状态下唯一能看出「这场我选过东西」的线索。',
+  '数的是<b>选项数不是注数</b>。单关下 3 个选项 = 3 注，但进组合过关后要和其他场次相乘，注数远大于 3，两个概念不能混。',
+  '与胶囊自身的<b>橙色描边态</b>是两套信号：描边表示「当前正展开」，角标表示「已选了几项」，可以同时出现也可以只有角标。'])],
+ ['角标与购物车的关系','<div class="callout">胶囊角标是<b>单赛事单盘口</b>的计数，底部购物车的「购物车(N)」是<b>全部已选选项</b>的总数，两个数不相等也不冲突。上限校验只看购物车那个总数：最多 8 场、最多 20 个选项（见 B4）。</div>'],
  ['封盘','<div class="callout"><b>已定：封盘时间由三方数据源推送决定</b>，我们不自己按「开赛前 N 分钟」推算，也不做本地倒计时——收到数据源的封盘状态即封盘，避免两边时钟不一致造成已封盘还能下单。</div>'+
   li(['封盘后该赛事<b>直接从列表移除</b>，不做锁定态保留。',
   '分组头场次数与联赛筛选计数都<b>不含封盘场次</b>，与列表所见一致。',
@@ -752,33 +759,37 @@ B1:{n:'比分盘',node:'9343:152637',f:'ok',dl:[
  ['规则',li([
   '同一张卡内三个玩法互斥展开。',
   '同盘口可多选（复式），每个选项独立参与组合计算、独立计注。',
-  '恒可单关。',
-  '进入组合过关后<b>强制固定单注金额 2 元</b>。',
-  '关数上限统一 <b>8 关</b>（见 C6）。'])]
+  '关数上限统一 <b>8 关</b>（见 C6）。',
+  '选中后胶囊右上角出现红色数字角标，显示本场本盘口已选选项数，收起面板后仍在（见 A3）。'])]
 ]},
 B2:{n:'半全场盘',node:'9317:323661',f:'ok',dl:[
- ['选项','9 项，前者上半场、后者全场。'],
+ ['玩法定义','<p>同时猜<b>半场结果</b>与<b>全场结果</b>两个结果，两个都对才算中。每个结果各有胜、平、负三种，组合出 <b>3 × 3 = 9</b> 个互斥选项。</p>'+
+  li(['写法是「半场／全场」：前者上半场结果，后者全场结果，<b>都以主队为准</b>。例「胜/平」= 上半场主队领先、全场打成平。',
+  '<b>不让球</b>，按实际比分判定，与让球盘无关。',
+  '9 个选项覆盖全部可能，必中且只中一个，所以<b>没有兜底项</b>——这点与比分盘、进球数盘不同。',
+  '「负/胜」不是不可能，指上半场落后、下半场反超；赔率最高的几项通常就是这类逆转组合。'])],
+ ['选项','9 项：胜/胜、胜/平、胜/负、平/胜、平/平、平/负、负/胜、负/平、负/负。'],
  ['结算口径','上半场 45 分钟含补时 + 全场 90 分钟含补时，均以主队为准，<b>不含加时</b>。仅需求口径，<b>界面不展示</b>。'],
- ['规则','恒可单关；关数上限统一 8 关。部分赛事不开该盘时胶囊<b>不渲染</b>，而非置灰。']
+ ['规则','关数上限统一 8 关。部分赛事不开该盘时胶囊<b>不渲染</b>，而非置灰。选中后胶囊右上角出现红色数字角标，显示本场本盘口已选选项数（见 A3）。']
 ]},
 B3:{n:'进球数盘',node:'9317:324535',f:'ok',dl:[
  ['选项','8 项，「7+ 球」为开区间兜底，文案不可写成「7 球」。'],
  ['结算口径','双方进球数之和，全场 90 分钟含补时，不含加时。仅需求口径，<b>界面不展示</b>。'],
- ['规则','恒可单关；<b>不属于</b>强制固定金额玩法，基础金额可调；关数上限统一 8 关。']
+ ['规则','基础金额可调；关数上限统一 8 关。选中后胶囊右上角出现红色数字角标，显示本场本盘口已选选项数（见 A3）。']
 ]},
 B4:{n:'购物车与选择上限',node:'9317:322243',f:'ok',dl:[
- ['计数口径','购物车 N 为已选<b>选项</b>数，不是场次数。玩法胶囊角标显示该盘口已选选项数。'],
+ ['计数口径','购物车 N 为已选<b>选项</b>数，不是场次数。玩法胶囊右上角的红色角标是该赛事该盘口的已选选项数，与购物车总数不是同一个口径（见 A3 玩法胶囊角标）。'],
  ['上限',li([
   '最多 <b>8 场</b>、最多 <b>20 个选项</b>，各有独立提示。',
   '投注单已有另一球类选项时拦截，提示不可混合过关。'])]
 ]},
 C1:{n:'投注面板',node:'9322:325388',f:'ok',dl:[
- ['三段按钮','已选 N 场 / N 倍 / 过关方式，点哪个展开哪个区块，可同时展开多个。'],
+ ['三段按钮','<b>已选 N 场 / N 倍 / 过关选择</b>，点哪个展开哪个区块，可同时展开多个。第三格文案<b>固定为「过关选择」</b>，不随已选关数变化——当前过关方式在展开后的「组合详情」里给（M串N · 共 X 注）。'],
  ['下单前置校验',li([
-  '未选关数时金额与奖金为 0，「立即投注」置灰，第三段显示「过关选择」。',
+  '未选关数时金额与奖金为 0，「立即投注」置灰；取消掉全部关数即可复现，不再自动回填最大关数。',
   '投注金额超过<b>可用余额</b>时置灰并提示。',
   '投注金额超过<b>单张彩票上限 20,000 元</b>（官方值）时置灰并提示。',
-  '单关模式下存在不支持单关的选项时置灰。'])],
+  '投注单内有选项已封盘时置灰。'])],
  ['余额不足','<div class="callout"><b>下注时校验，不置灰按钮。</b>「立即投注」保持可点，点击时若投注金额超过可用余额，弹 toast「<b>余额不足，请充值。</b>」并<b>不进入</b>二次确认弹窗。<br>与「超过单张彩票上限」区别对待：上限是硬规则，直接置灰；余额是可以去充值解决的，置灰会让用户找不到原因。<br><b>原型说明：</b>演示余额调成 12,800 元。设计稿写的 888,688 元配合官方单张 2 万上限时，余额永远够用，这条规则跑不到。</div>'],
  ['其他','垃圾桶为清空整单，需二次确认；点蒙层收起面板但保留已选选项。']
 ]},
@@ -787,35 +798,24 @@ C2:{n:'已选展开',node:'9329:328785',f:'ok',dl:[
  ['删除粒度','该场红色圆形删除移除该场<b>全部</b>选项；胶囊 ✕ 只删该选项。']
 ]},
 C3:{n:'基础金额',node:'9329:328161',f:'ok',dl:[
- ['档位','七档 2 / 10 / 50 / 100 / 300 / 500 / 1000 由配置接口下发，前端不写死，<b>默认 2 元</b>。官方每注最低 2 元，档位不得低于此值。'],
+ ['档位','七档 2 / 10 / 50 / 100 / 300 / 500 / 1000 由配置接口下发，前端不写死，<b>默认档位 10 元</b>。官方每注最低 2 元，所以档位不得低于 2，但默认值取 10。'],
  ['生效','选中即生效无确认按钮，立即重算金额与奖金，用户选择在会话内记住。'],
- ['已定','<b>不支持手动输入</b>，只能在七档里选。避免出现非整档金额导致对账口径不一致。']
-]},
-C4:{n:'基础金额锁定',node:'9329:329149',f:'ok',dl:[
- ['触发','投注单含<b>比分盘</b>（足球）或<b>胜分差盘</b>（篮球），且当前为组合过关模式。'],
- ['原因','这两个玩法赔率极高（比分盘最高 600、胜分差最高 33），放开金额会使串关单注赔付不可控。强制固定金额的玩法清单由配置下发。'],
- ['解除','只作用于组合过关。切回单关或移除该玩法后，<b>恢复用户锁定前选择的档位</b>，不是停留在 2 元。']
-]},
-C5:{n:'不支持单关',node:'9333:330875',f:'ok',dl:[
- ['资格来源','单关资格<b>跟随三方数据源推送</b>，<b>运营不可配置</b>；若下单前资格变化，以投注确认时刻显示的信息为准。'],
- ['处理',li([
-  '不合格选项<b>不自动移除</b>，由用户决定删掉还是再加一场组成组合过关。',
-  '只有一场时提示「该选项不支持单关，需再选 1 场组成组合过关」；单关模式下多个不合格选项时提示「部分下注项不支持单关」。',
-  '该盘口在列表页无「单」角标，两处状态必须一致。'])],
- ['倍数','<div class="callout">设计稿在此态把三段按钮收成两段、去掉倍数。<b>倍数与单关资格无关</b>，用户可能先调好倍数再补一场组成组合过关，此时隐藏就丢了。原型恢复为三段常驻。</div>']
+ ['已定','<b>不支持手动输入</b>，只能在七档里选。避免出现非整档金额导致对账口径不一致。'],
+ ['无强制固定金额','<div class="callout"><b>已定：取消强制固定金额。</b>原设计稿里含比分盘（足球）或胜分差盘（篮球）进组合过关时，基础金额会被锁死在 2 元、其余档位置灰。现在<b>不做这个限制</b>，任何玩法组合都保持用户所选档位，默认 10 元。<br>这条原本是风控闸——这两个玩法赔率极高（比分最高 600、胜分差最高 33），放开金额会让串关单注赔付不可控。取消后连同已取消的单关资格限制，高赔玩法的赔付<b>完全靠派奖封顶兜底</b>（单场 10 万 / 2–3 场 20 万 / 4–5 场 50 万 / 6 场及以上 100 万，见 C7）。请风控确认这个敞口可接受。</div>']
 ]},
 C6:{n:'过关方式·单场',node:'9339:12745',f:'ok',dl:[
- ['规则','单场时只有「单关」可选；单关与关数互斥；关数可多选。'],
+ ['规则','单场时只有「单关」可选（所有盘口均可单关）；单关与关数互斥；关数可多选。'],
  ['关数上限','<div class="callout"><b>已定：不分玩法，所有玩法统一最高 8 关、最多选择 8 场赛事。</b>超过 8 场时提示「最多选择8场赛事」。官方对不同玩法的串关场次是分档的（公开资料里让球胜平负 8 场、总进球 6 场、比分与半全场 4 场），我方<b>不采用分档</b>。<br>代价是比分盘这类高赔玩法能放到 8 关，单注理论赔付极高，风险由<b>派奖封顶</b>兜住（见 C7）。</div>']
 ]},
 C7:{n:'过关方式·多场',node:'9341:13489',f:'ok',dl:[
  ['公式','<p class="kv">注数(k) = Σ<sub>C(M,k)</sub> Π<sub>组合内每场</sub>(该场选项数)</p><p class="kv">奖金 = [Σ<sub>k</sub> Σ<sub>C(M,k)</sub> Π W<sub>场</sub>] × 基础金额 × 倍数，W<sub>场</sub> = Σ<sub>玩法</sub> max(该玩法已选赔率)</p>'],
- ['命名口径','<div class="callout"><b>N 只来自关数组合。</b>M串N 里 N = Σ<sub>k</sub> C(M,k)，复式产生的注数<b>不并入 N</b>，否则会出现「2串2」这种不存在的过关方式（2 场只可能是 2串1）。统一表述「M串N · 共 X 注」，面板、组合详情、二次确认、结果弹窗、注单卡五处同源。</div>'],
+ ['命名口径','<div class="callout"><b>N 只来自关数组合。</b>M串N 里 N = Σ<sub>k</sub> C(M,k)，复式产生的注数<b>不并入 N</b>，否则会出现「2串2」这种不存在的过关方式（2 场只可能是 2串1）。统一表述「M串N · 共 X 注」，出现在组合详情、二次确认、结果弹窗、注单卡四处；投注面板第三格是固定文案「过关选择」，不显示过关方式。</div>'],
  ['派奖封顶','<div class="callout"><b>已定：按官方数值，逐注封顶，不拦下单。</b>单场 <b>10 万</b>，2–3 场 <b>20 万</b>，4–5 场 <b>50 万</b>，6 场及以上 <b>100 万</b>。超过只提示「超出部分不派奖」。<br>硬拦截是另外两条：余额不足，以及单张彩票投注金额上限 <b>20,000 元</b>（官方值）。</div>'],
  ['跨球类','<div class="callout"><b>已定：不允许足篮混串。</b>投注单已有一个球类的选项时，再点另一球类的赔率直接拦截并提示「竞彩足球与竞彩篮球不可混合过关」；切换球类需二次确认后清空投注单。竞品允许混串，我方不跟。</div>']
 ]},
 C8:{n:'倍数',node:'9353:336610',f:'ok',dl:[
  ['规则',li([
+  '只用数字键盘输入，<b>不做 −／＋ 步进器</b>，预计最高奖金下方也不放倍数算式提示。',
   '快选 10 / 20 / 30 为<b>赋值</b>而非累加。',
   'MAX = min(余额允许的最大倍数, 单笔投注上限允许的最大倍数)；派奖封顶不参与 MAX，因为它不阻止下单。',
   '正整数、最小 1；清为 0 时置灰并提示「投注倍数错误，不可小于 1」。',
@@ -832,7 +832,7 @@ C9:{n:'下单确认',node:'9333:330423',f:'ok',dl:[
 C10:{n:'投注单内赛事封盘',node:'新增',f:'todo',dl:[
  ['触发','已加入投注单的选项，其所属赛事被三方数据源推送封盘。设计稿没有这一屏。'],
  ['展示',li([
-  '该选项所在的玩法行下方给<b>红色「已封盘」</b>文案，与「不支持单关」同一位置、同一样式；两者同时命中时优先显示「已封盘」。',
+  '该选项所在的玩法行下方给<b>红色「封盘，不可投注」</b>文案。',
   '选项胶囊<b>不自动移除</b>，由用户手动删除——静默移除会让用户以为自己点错了。',
   '面板给一条汇总提示「投注单内有 N 个选项所属赛事已封盘，请删除后再下单」，「立即投注」置灰。',
   '同一赛事在列表页<b>同步从列表移除</b>，所以用户在列表里已经找不到它，投注单内的这条提示是唯一线索——文案必须明确。'])],
@@ -851,7 +851,7 @@ D2:{n:'投注结果·多票',node:'9343:152257',f:'ok',dl:[
 ]},
 D3:{n:'点击分析',node:'9353:336228',f:'ok',dl:[
  ['展开内容','<div class="callout"><b>已定：按竞品做官方投注比例。</b>卡内就地展开两行表格——第一行独赢／胜负盘的胜、平、负投注占比，第二行让球（让分）盘的让胜、让平、让负占比。设计稿这一屏是空缺的，按竞品补齐。</div>'],
- ['规则','每行三项之和应为 100%；数据缺失或不足时整块不渲染、入口置灰。篮球没有平局，两行都改成两列（胜／负、让胜／让负）。分析与玩法展开互不冲突，可同时展开。']
+ ['规则','每行三项之和应为 100%；数据缺失或不足时整块不渲染、入口置灰。篮球没有平局，两行都改成两列（胜／负、让胜／让负）。分析与玩法展开互不冲突，可同时展开。展开区<b>不标数据来源</b>。']
 ]},
 E1:{n:'注单记录·未结算单关',node:'9343:153757',f:'ok',dl:[
  ['页面命名','叫「<b>注单记录</b>」而非「结算」——这一页承载全部注单含未结算，叫结算会让用户以为只有已出结果的单。'],
@@ -860,11 +860,12 @@ E1:{n:'注单记录·未结算单关',node:'9343:153757',f:'ok',dl:[
   '次行「<b>1场:1注</b>」；组合过关在后面追加过关方式「<b>2场:1注 2串1</b>」——用 M串N 而不是「N关」，与投注面板、结果弹窗口径一致。',
   '赛事行带<b>赛事编号</b>；开赛时间为完整 MM/DD HH:mm。列表页与注单页都<b>不用「次日」前缀</b>。',
   '字段两列：投注金额｜注数，未结算再给最高可赢。<b>不展示倍数</b>（见 C8）。',
+  '选项行只给盘口与赔率胶囊。<b>单关注单不跟逐场赢／输标记</b>——头部印章已经给出赢／输／已退款，行内再标一次是重复；<b>组合过关保留</b>，因为要看清是哪一场拖累了整注。',
   '卡底：下注时间 + 注单号。'])],
  ['注单号','<div class="callout">「彩票订单号」是官方出票后的实体票号；我们自营固定赔率、不出实体票，应叫「<b>注单号</b>」。若后续接入官方出票再单独增加「票号」字段，两者<b>不可混用</b>。号码内的时间必须与下注时间一致。</div>'],
  ['状态枚举','<b>待结算 → 赢 / 输 / 已退款 / 已作废</b>，圆形印章直接显示这四个词，不用「待开奖／已中奖／未中奖」。逐场标记同口径：<b>赢 / 输 / 作废</b>。竞彩让球为整数、<b>无走盘</b>，不存在「赢半/输半」。'],
  ['球类混排','足篮注单在同一列表内混排，注单卡必须<b>携带球类字段</b>，不能靠页面上下文推断。'],
- ['部分结算','<div class="callout"><b>已定：放在「未结算」分组下。</b>串关注单在部分场次已完赛时，整单印章仍是「待结算」、仍留在未结算 tab；已完赛的场次直接展示赛果比分与<b>赢／输</b>标记，未开赛的场次不展示赛果。<b>不加</b>「部分结算」之类的提示文案，靠场次自身的标记表达即可。<br>本期不做提前结算，所以已完赛场次的「输」也会出现在未结算里。原型两种形态都有：<b>U3</b> 第一场赢、第二场未开赛；<b>U4</b> 第一场已输、第二场未开赛——整注已必输，仍停留在未结算等剩余场次完赛。</div>']
+ ['部分结算','<div class="callout"><b>已定：放在「未结算」分组下。</b>串关注单在部分场次已完赛时，整单印章仍是「待结算」、仍留在未结算 tab；已完赛的场次直接展示赛果比分，组合过关再跟<b>赢／输</b>标记，未开赛的场次不展示赛果。<b>不加</b>「部分结算」之类的提示文案，靠场次自身的标记表达即可。<br>本期不做提前结算，所以已完赛场次的「输」也会出现在未结算里。原型两种形态都有：<b>U3</b> 第一场赢、第二场未开赛；<b>U4</b> 第一场已输、第二场未开赛——整注已必输，仍停留在未结算等剩余场次完赛。</div>']
 ]},
 E1b:{n:'注单记录·未结算组合',node:'新增',f:'todo',dl:[
  ['现状','设计稿的「组合过关」tab 下没有画任何注单卡，竞品截图也只给了单关，这一屏按同一套结构推演补齐。'],
@@ -879,12 +880,12 @@ E2:{n:'注单记录·已结算单关',node:'9343:153007',f:'ok',dl:[
   '「最高可赢」与「<b>中奖金额</b>」是两个标签，<b>不可共用</b>；退款单再换成「退款金额」。',
   '「注数」与「<b>中奖注数</b>」分列两格。',
   '保留「输赢」与「结算时间」两项——竞品没有，但组合过关多注时需要直给的净额，结算时间是客诉锚点。',
-  '每场需<b>半场与全场比分</b>及中／未中／作废标记；设计稿完全没画，没有它用户看不出为什么输。'])],
+  '每场需<b>半场与全场比分</b>；逐场的赢／输／作废标记只在<b>组合过关</b>上给，单关不给（见 E1）。设计稿比分完全没画，没有它用户看不出为什么输。'])],
  ['无效场次','<div class="callout">单关按<b>退款</b>处理，状态「已退款」、输赢记 0；串关该场<b>赔率置 1.00</b>、按剩余场次继续结算，该场行标注「作废」并同时展示下单锁定赔率与实际生效赔率。原型「昨天」范围下有两条样例。</div>']
 ]},
 E2b:{n:'注单记录·已结算组合',node:'新增',f:'todo',dl:[
  ['结算时机','<div class="callout"><b>已定：本期不做提前结算。</b>串关必须等<b>全部场次完赛</b>后统一结算，结算时间取最后一场的结算时刻。即使某场已判负、整注已不可能中奖，注单仍留在「未结算」里等剩余场次。<br><b>后果：</b>用户会看到「已经输了但还挂着待结算」的注单，这部分认知由未结算的逐场标记承担（见 E1b 部分结算）。后续版本若要补提前结算，只影响结算触发时机与结算时间取值，展示结构不用改。</div>'],
- ['过关方式一致性','五处必须统一为「M串N（· 共 X 注）」：投注面板第三段、组合详情、二次确认、结果弹窗、注单卡头行。设计稿原先的「2关」「2注 2关」「2串1」三种写法作废。']
+ ['过关方式一致性','四处必须统一为「M串N（· 共 X 注）」：组合详情、二次确认、结果弹窗、注单卡头行；投注面板第三格是固定文案「过关选择」，不参与这套口径。设计稿原先的「2关」「2注 2关」「2串1」三种写法作废。']
 ]},
 F1:{n:'竞彩篮球赛事列表',node:'篮球-列表',f:'ok',dl:[
  ['盘口结构','<div style="overflow-x:auto"><table class="tbl"><tr><th>betType</th><th>盘口</th><th>选项</th><th>让分</th><th>最多关数</th></tr>'+
@@ -896,7 +897,7 @@ F1:{n:'竞彩篮球赛事列表',node:'篮球-列表',f:'ok',dl:[
   '篮球<b>没有平局</b>，赔率行两格而不是三格，列表卡不能与足球共用同一套栅格。',
   '让分数<b>正负都存在</b>，需用颜色区分；足球让球数只有负数。',
   '篮球所有玩法的比赛结果<b>包含加时赛</b>，与足球恰好相反。这条必须在规则说明页明写。',
-  '单关资格同样是盘口级：原型 301 的大小分不可单关、302 可以。'])]
+  '不做单关资格限制，所有盘口一律可单关（见 A3）。'])]
 ]},
 F2:{n:'篮球筛选',node:'篮球-筛选',f:'ok',dl:[
  ['联赛列表','随球类整体替换。切换球类时已应用的筛选必须清空，否则会出现「足球联赛过滤篮球赛事」的空列表。']
@@ -907,22 +908,19 @@ F3:{n:'筛选选中',node:'篮球-筛选后',f:'ok',dl:[
 F4:{n:'胜分差盘',node:'篮球-胜分差盘',f:'ok',dl:[
  ['选项','固定 12 项 = 6 个分差区间 × 胜负两个方向，「26+」为开区间兜底。'],
  ['结算口径','<b>含加时</b>：加时得分计入分差判定。仅需求口径，<b>界面不展示</b>。'],
- ['规则','恒可单关；关数上限统一 8 关；<b>强制固定单注金额</b>，与足球比分盘同档。']
+ ['规则','关数上限统一 8 关。']
 ]},
 F5:{n:'胜分差选中',node:'篮球-胜分差投注项',f:'ok',dl:[
- ['复式','同盘口可多选，例如同时选「胜 1-5」与「胜 6-10」，两者互斥、构成两注。']
+ ['复式','同盘口可多选，例如同时选「胜 1-5」与「胜 6-10」，两者互斥、构成两注。胶囊右上角的红色角标随之显示 2（见 A3）。']
 ]},
 F6:{n:'大小分盘',node:'篮球-大小分盘',f:'ok',dl:[
  ['盘口值','总分线来自 point 字段，随赛事不同，<b>需与赔率一起快照进注单</b>并在注单中展示。'],
  ['结算口径','<b>含加时</b>：加时得分计入总分。仅需求口径，<b>界面不展示</b>。'],
- ['规则','关数上限统一 8 关，不属于强制固定金额玩法。单关资格盘口级，同一玩法在不同赛事上可能不同。']
+ ['规则','关数上限统一 8 关。']
 ]},
 F7:{n:'篮球投注面板',node:'篮球-投注框',f:'ok',dl:[
  ['共用性','投注面板、金额浮层、倍数键盘、下单确认、结果弹窗五个组件足篮<b>完全共用</b>，只有球类图标与盘口名称不同。开发上应做成一套组件 + 球类参数。'],
- ['关数限制','单场且可单关时第三段直接显示「单关」。篮球场次少，可组关数受<b>可投场次数</b>限制（不足 8 场时更高关数灰态），网格下方常驻说明当前上限。']
-]},
-F8:{n:'篮球不支持单关',node:'篮球-不支持单关',f:'ok',dl:[
- ['约束','不合格选项的唯一出路是再选一场组成组合过关。<b>赛事量少的球类上这个约束会很明显</b>（当日只有 2 场时只能组 2 关），需产品确认是否接受。']
+ ['关数限制','单场时第三段直接显示「单关」。篮球场次少，可组关数受<b>可投场次数</b>限制（不足 8 场时更高关数灰态），网格下方常驻说明当前上限。']
 ]},
 F9:{n:'篮球投注结果',node:'篮球-投注单',f:'ok',dl:[
  ['赔率基准','最高可赢以<b>下单时锁定的赔率</b>计算，与投注面板的预估值可能因赔率跳动而不同，以此处为准并在注单中留存快照。']
@@ -931,10 +929,10 @@ F9:{n:'篮球投注结果',node:'篮球-投注单',f:'ok',dl:[
 var NAVDEF=[
  ['A · 入口与足球列表',[['A1','平台首页'],['A2','游戏大厅'],['A3','足球列表'],['A4','联赛筛选'],['A5','筛选项选中'],['A6','筛选结果']]],
  ['B · 足球玩法',[['B1','比分盘'],['B2','半全场盘'],['B3','进球数盘'],['B4','购物车与上限']]],
- ['C · 投注面板（共用）',[['C1','投注面板'],['C2','已选展开'],['C3','基础金额'],['C4','金额锁定'],['C5','不支持单关'],['C6','过关方式·单场'],['C7','过关方式·多场'],['C8','倍数'],['C9','下单确认'],['C10','单内封盘']]],
+ ['C · 投注面板（共用）',[['C1','投注面板'],['C2','已选展开'],['C3','基础金额'],['C6','过关方式·单场'],['C7','过关方式·多场'],['C8','倍数'],['C9','下单确认'],['C10','单内封盘']]],
  ['D · 结果与分析',[['D1','结果·单关'],['D2','结果·多票'],['D3','点击分析']]],
  ['E · 注单记录',[['E1','未结算·单关'],['E1b','未结算·组合'],['E2','已结算·单关'],['E2b','已结算·组合']]],
- ['F · 竞彩篮球',[['F1','篮球列表'],['F2','篮球筛选'],['F3','筛选选中'],['F4','胜分差盘'],['F5','胜分差选中'],['F6','大小分盘'],['F7','篮球投注面板'],['F8','篮球不支持单关'],['F9','篮球投注结果']]]
+ ['F · 竞彩篮球',[['F1','篮球列表'],['F2','篮球筛选'],['F3','筛选选中'],['F4','胜分差盘'],['F5','胜分差选中'],['F6','大小分盘'],['F7','篮球投注面板'],['F9','篮球投注结果']]]
 ];
 function specKey(){
   if(S.route==='entry')return 'A1';
@@ -943,11 +941,10 @@ function specKey(){
   var bk=S.sp===2;
   if(S.result)return bk?'F9':(S.result.tickets.length>1?'D2':'D1');
   if(S.tips)return 'C9';
-  if(S.amountPop)return (locked()&&emode()==='parlay')?'C4':'C3';
+  if(S.amountPop)return 'C3';
   if(S.filterOpen)return bk?(S.filterPick.length?'F3':'F2'):(S.filterPick.length?'A5':'A4');
   if(S.slip){
     if(S.sel.some(function(x){var mm=mById(x.uid);return mm&&isClosed(mm)}))return 'C10';
-    if(emode()==='single'&&invalidSingles().length)return bk?'F8':'C5';
     if(S.openPad)return 'C8';
     if(S.openFold)return matchCount()>=2?'C7':'C6';
     if(bk)return 'F7';
@@ -997,7 +994,7 @@ function viewLobby(){
 }
 function inlineRow(m,mkt){
   var cls=m.sp===2?'c2':'c3';
-  var badge=mkt.single?'<i class="d">单</i>':'';
+  var badge='';
   var pt,pcls='';
   if(mkt.point==='0'){pt='0'}
   else if(mkt.point.charAt(0)==='-'){pt=mkt.point.replace('-','−');pcls=' neg'}
@@ -1048,17 +1045,17 @@ function card(m){
       '<div style="font-size:11.5px;color:var(--app-sub)">投注比例</div>'+
       '<div style="background:var(--app-cell);border-radius:5px;overflow:hidden">'+rr(L1,V1,1)+rr(L1,V1,0)+
       '<div style="height:1px;background:#E4E4EA"></div>'+rr(L2,V2,1)+rr(L2,V2,0)+'</div></div>'+
-      '<div style="font-size:10.5px;color:#C0C0C8">数据来源：官方投注比例字段</div></div>';
+      '</div>';
   }
   var plays=m.chips.map(function(bt){
     var on=(S.expanded&&S.expanded.no===m.uid&&S.expanded.bt===bt)?' on':'';
-    var n=countIn(m.uid,bt), sg=chipSingle(m,bt);
-    return '<span class="pc'+on+'" data-a="expand" data-no="'+m.uid+'" data-bt="'+bt+'">'+(sg?'<i class="d">单</i>':'')+chipName(bt)+(n?'<i class="n">'+n+'</i>':'')+'</span>';
+    var n=countIn(m.uid,bt);
+    return '<span class="pc'+on+'" data-a="expand" data-no="'+m.uid+'" data-bt="'+bt+'">'+chipName(bt)+(n?'<i class="n">'+n+'</i>':'')+'</span>';
   }).join('');
   return '<div class="mc"><div class="mc-top"><div class="mc-no">'+m.no+'</div>'+
     '<div class="mc-teams"><span class="h">'+m.h+'</span><span class="vs">VS</span><span class="a">'+m.a+'</span></div></div>'+
     '<div class="mc-body"><div class="mc-lc"><span class="lg">'+m.lg+'</span><span class="mc-tm">'+tmOf(m)+'</span>'+
-      '<span class="an" data-a="analysis" data-no="'+m.uid+'">分析 '+(S.analysis===m.uid?'⌃':'⌄')+'</span></div>'+
+      '<span class="an'+(S.analysis===m.uid?' on':'')+'" data-a="analysis" data-no="'+m.uid+'">分析 '+(S.analysis===m.uid?'⌃':'⌄')+'</span></div>'+
       '<div class="mc-rc">'+m.inline.map(function(k){return inlineRow(m,k)}).join('')+'</div></div>'+
     ratio+'<div class="mc-plays">'+plays+'</div>'+exp+'</div>';
 }
@@ -1075,7 +1072,7 @@ function viewHome(){
     var ms=all.filter(function(m){return m.date===d.k}), open=!!S.openDays[d.k];
     var okn=ms.length;
     body+='<div class="dgrp" data-a="day" data-k="'+d.k+'"><span class="wk">'+d.wk+'</span>'+
-      '<span class="dt">'+d.k+'</span><span class="rel">'+d.rel+'</span><span class="ct">共 <b>'+okn+'</b> 场</span>'+
+      '<span class="dt">'+d.k+'</span><span class="ct">共 <b>'+okn+'</b> 场</span>'+
       '<span class="cv">'+(open?'⌃':'⌄')+'</span></div>';
     if(open)body+= ms.length?('<div class="mlist">'+ms.map(card).join('')+'</div>')
       :'<div class="empty" style="padding:26px 0"><div class="cir" style="width:64px;height:64px"></div>当前筛选下该赛事日无赛事</div>';
@@ -1094,7 +1091,7 @@ function viewHome(){
   return h;
 }
 function slipView(){
-  var c=calc(),Mc=c.M,em=emode(),lock=locked()&&em==='parlay',bad=invalidSingles(),cap=foldCap();
+  var c=calc(),Mc=c.M,em=emode(),bad=invalidSingles(),cap=foldCap();
   var h='<div class="dim" data-a="closeslip"></div><div class="bp">';
   h+='<div class="bp-h">立即投注<span class="bal"><i>⟳</i>余额CNY '+BAL+'</span><span class="tr" data-a="clear">🗑</span></div>';
   if(S.openSel&&S.sel.length){
@@ -1104,10 +1101,10 @@ function slipView(){
       return '<div class="mblk"><div class="mh"><span class="no">'+m.no+'</span>'+ballOf(m.sp)+m.h+' VS '+m.a+
         '<span class="del" data-a="delmatch" data-no="'+g.uid+'">−</span></div>'+
         ord.map(function(bt){
-          var br=(em==='single'&&!bb[bt][0].single), cl=isClosed(m);
+          var cl=isClosed(m);
           return '<div class="mr"><span class="mtag">'+mtagOf(bb[bt][0])+'</span>'+
-            bb[bt].map(function(s){return '<span class="oz'+(br?' bad':'')+'">'+ozOf(s)+'<i class="x" data-a="del" data-key="'+s.key+'">✕</i></span>'}).join('')+
-            (cl?'<div class="nosingle">封盘，不可投注</div>':(br?'<div class="nosingle">不支持单关</div>':''))+'</div>';
+            bb[bt].map(function(s){return '<span class="oz">'+ozOf(s)+'<i class="x" data-a="del" data-key="'+s.key+'">✕</i></span>'}).join('')+
+            (cl?'<div class="nosingle">封盘，不可投注</div>':'')+'</div>';
         }).join('')+'</div>';
     }).join('')+'</div>';
   }
@@ -1127,10 +1124,7 @@ function slipView(){
   h+='<div class="seg3">'+
     '<span class="'+(S.openSel?'on':'')+'" data-a="tsel">已选'+Mc+'场</span>'+
     '<span class="'+(S.openPad?'on':'')+'" data-a="tpad">'+S.mult+'倍</span>'+
-    '<span class="'+(S.openFold?'on':'')+'" data-a="tfold">'+wayLabel(c)+'</span></div>';
-  if(em==='single'&&bad.length)
-    h+='<div class="warn">'+(bad.length===1&&S.sel.length===1?'该选项不支持单关，需再选 1 场组成组合过关':'部分下注项不支持单关（'+bad.length+' 个）')+'</div>';
-  else if(lock)h+='<div class="warn">含'+(S.sp===2?'胜分差盘':'比分盘')+'，基础金额锁定 '+FIXED_AMOUNT+' 元</div>';
+    '<span class="'+(S.openFold?'on':'')+'" data-a="tfold">过关选择</span></div>';
   var overs=c.detail.filter(function(d){return d.maxNote>d.cap});
   overs.forEach(function(d){h+='<div class="warn">'+d.label+' 单注最高派奖 '+fmt(d.maxNote)+' 元，超过封顶 '+fmt(d.cap)+' 元，超出部分不派奖</div>'});
   var overStake=c.stake>MAX_STAKE;
@@ -1138,14 +1132,11 @@ function slipView(){
   h+='<div class="amtline">金额: <b>'+(c.stake?fmt(c.stake):'0')+'</b> 元</div>';
   var closedSel=S.sel.filter(function(x){var mm=mById(x.uid);return mm&&isClosed(mm)});
   if(closedSel.length)h+='<div class="warn">投注单内有 '+closedSel.length+' 个选项已封盘，不可投注，请删除后再下单</div>';
-  var can=c.notes>0&&S.mult>=1&&!overStake&&!closedSel.length&&!(em==='single'&&bad.length);
+  var can=c.notes>0&&S.mult>=1&&!overStake&&!closedSel.length;
   h+='<div class="betrow"><div class="lft">预计最高奖金: <b>'+fmt(c.maxWin)+'</b> 元</div>'+
     '<div class="btn'+(can?'':' dis')+'"'+(can?' data-a="tips"':'')+'>立即投注</div>'+
     '<div class="gear" data-a="amountpop">'+svgGear()+'</div></div>';
-  if(S.openPad)h+='<div class="mrow"><span class="mb'+(S.mult<=1?' dis':'')+'" data-a="mstep" data-v="-1">−</span>'+
-    '<span class="mv">'+S.mult+' 倍</span><span class="mb" data-a="mstep" data-v="1">＋</span>'+
-    '<span class="mn">'+S.mult+' 倍 = '+c.notes+' 注 · 单注 '+S.base+' 元 · 合计 '+fmt(c.stake)+' 元</span></div>'+
-    '<div class="pad">'+
+  if(S.openPad)h+='<div class="pad">'+
     '<span data-a="kp" data-v="1">1</span><span data-a="kp" data-v="2">2</span><span data-a="kp" data-v="3">3</span><span class="q" data-a="kq" data-v="10">10</span>'+
     '<span data-a="kp" data-v="4">4</span><span data-a="kp" data-v="5">5</span><span data-a="kp" data-v="6">6</span><span class="q" data-a="kq" data-v="20">20</span>'+
     '<span data-a="kp" data-v="7">7</span><span data-a="kp" data-v="8">8</span><span data-a="kp" data-v="9">9</span><span class="q" data-a="kq" data-v="30">30</span>'+
@@ -1153,10 +1144,9 @@ function slipView(){
   h+='</div>';
   if(S.amountPop)h+='<div class="dim" style="background:transparent" data-a="closeamount"></div>'+
     '<div class="pop" style="left:60px;right:14px;bottom:132px"><div class="pt">基础金额设置：</div><div class="kgrid">'+
-    BASE_OPTS.map(function(v){var dis=lock&&v!==FIXED_AMOUNT;
-      return '<span class="'+(dis?'dis':(S.base===v?'on':''))+'"'+(dis?'':' data-a="setbase" data-v="'+v+'"')+'>'+v+'</span>'}).join('')+
-    '</div>'+(lock?'<div class="poptip">温馨提示：个别玩法串关不允许调整基础金额，只适用默认金额：'+FIXED_AMOUNT+'元</div>'
-      :'<div style="font-size:11px;color:var(--app-sub);margin-top:9px">当前单注金额 '+S.base+' 元</div>')+'</div>';
+    BASE_OPTS.map(function(v){
+      return '<span class="'+(S.base===v?'on':'')+'" data-a="setbase" data-v="'+v+'">'+v+'</span>'}).join('')+
+    '</div><div style="font-size:11px;color:var(--app-sub);margin-top:9px">当前单注金额 '+S.base+' 元</div></div>';
   if(S.tips)h+='<div class="dim"></div><div class="tips"><div class="bang">!</div><span class="cl" data-a="closetips">✕</span>'+
     '<h5>温馨提示</h5><p>确认无误，是否立即下注？</p>'+
     '<div class="bs"><div class="btn gh" data-a="closetips">否</div><div class="btn" data-a="place">是</div></div></div>';
@@ -1246,8 +1236,8 @@ function orderCard(o){
       '<div class="l2">'+ballOf(g.sp)+'<b>'+g.h+'</b><span style="color:var(--app-sub);font-size:11.5px">vs</span><b>'+g.a+'</b>'+
       (g.score?'<span class="sco">'+g.score+'</span>':'')+'</div>'+
       '<div class="picks"><span class="ozb">'+g.pick+' @'+g.odds+'</span>'+
-      (g.res===1?'<span class="rmk win">赢</span>':(g.res===0?'<span class="rmk lose">输</span>':
-       (g.res==='void'?'<span class="rmk void">作废</span>':'')))+
+      (o.legs.length>1?(g.res===1?'<span class="rmk win">赢</span>':(g.res===0?'<span class="rmk lose">输</span>':
+       (g.res==='void'?'<span class="rmk void">作废</span>':''))):'')+
       (g.res==='void'?'<div class="voidtip">赛事取消：下单锁定赔率 '+g.odds+'，'+(g.eff?'串关按生效赔率 '+g.eff+' 计算':'单关全额退款')+'</div>':'')+
       '</div>';
   });
@@ -1301,7 +1291,7 @@ function renderSpec(){
   if(S.sel.length)live='<div class="live">实时计算 &nbsp;'+(S.sp===2?'篮球':'足球')+' &nbsp;已选 <b>'+c.M+'</b> 场 / <b>'+S.sel.length+
     '</b> 选项 · '+wayLabel(c)+'<br>注数 <b>'+c.notes+'</b>（组合 '+c.combo+' × '+S.mult+' 倍）· 单注 <b>'+S.base+
     '</b> 元 · 金额 <b>'+fmt(c.stake)+'</b> 元<br>预计最高奖金 <b>'+fmt(c.maxWin)+
-    '</b> 元 · 关数上限 <b>'+foldCap()+'</b>'+(locked()&&emode()==='parlay'?' · 金额已锁定':'')+'</div>';
+    '</b> 元 · 关数上限 <b>'+foldCap()+'</b>'+''+'</div>';
   SP.innerHTML='<div class="spec-h"><h3>'+s.n+'</h3>'+fid+'<span class="node">'+k+' · '+s.node+'</span></div>'+
     live+'<dl>'+s.dl.map(function(r){return '<dt>'+r[0]+'</dt><dd>'+r[1]+'</dd>'}).join('')+'</dl>';
   HS.textContent='当前：'+k+' '+s.n;
@@ -1323,7 +1313,7 @@ function reset(silent){
   S.route='home';S.sp=1;S.sel=[];S.expanded=null;S.analysis=null;
   S.filterOpen=false;S.filterPick=[];S.filterApplied=[];
   S.slip=false;S.openSel=true;S.openFold=false;S.openPad=false;S.foldTouched=false;S.spAsk=null;S.oExpand=null;S.openDays={'2026-09-09':1,'2026-09-10':0};
-  S.mode='parlay';S.folds={};S.base=2;S.baseUser=2;S.mult=1;
+  S.mode='parlay';S.folds={};S.base=10;S.baseUser=10;S.mult=1;
   S.amountPop=false;S.tips=false;S.result=null;S.toast='';S.closedDemo=null;
   S.sTab='unsettled';S.sSub='single';S.sRange='today';S.rgOpen=false;
   if(!silent)render();
@@ -1348,15 +1338,13 @@ function jump(id){
     case 'B2':S.expanded={no:'1_d1_001',bt:4};add('1_d1_001',4,'胜/平',17.00);break;
     case 'B3':S.expanded={no:'1_d1_001',bt:6};add('1_d1_001',6,'0球',8.50);break;
     case 'B4':add('1_d1_002',3,'胜',1.86);break;
-    case 'C1':add('1_d1_002',3,'胜',1.86);S.baseUser=10;S.mode='single';S.slip=true;S.openSel=false;break;
+    case 'C1':add('1_d1_002',3,'胜',1.86);S.mode='single';S.slip=true;S.openSel=false;break;
     case 'C2':add('1_d1_001',5,'1-0',6.00);S.mode='single';S.slip=true;break;
     case 'C3':add('1_d1_002',3,'胜',1.86);S.mode='single';S.slip=true;S.openSel=false;S.amountPop=true;break;
-    case 'C4':add('1_d1_001',5,'1-0',6.00);add('1_d1_002',3,'胜',1.86);S.slip=true;S.openSel=false;S.amountPop=true;break;
-    case 'C5':add('1_d1_001',3,'胜',1.86);S.mode='single';S.slip=true;break;
     case 'C6':add('1_d1_001',5,'1-0',6.00);S.mode='single';S.slip=true;S.openFold=true;break;
     case 'C7':add('1_d1_001',5,'1-0',6.00);add('1_d1_002',3,'胜',1.86);add('1_d1_002',3,'平',2.97);S.slip=true;S.openSel=false;S.openFold=true;S.folds={2:1};break;
     case 'C8':add('1_d1_001',5,'1-0',6.00);add('1_d1_002',3,'胜',1.86);S.slip=true;S.openSel=false;S.openPad=true;break;
-    case 'C9':add('1_d1_002',3,'胜',1.86);S.baseUser=10;S.mode='single';S.slip=true;S.openSel=false;S.tips=true;break;
+    case 'C9':add('1_d1_002',3,'胜',1.86);S.mode='single';S.slip=true;S.openSel=false;S.tips=true;break;
     case 'C10':add('1_d1_002',3,'胜',1.86);add('1_d1_003',3,'胜',1.86);S.closedDemo='1_d1_002';S.slip=true;break;
     case 'D1':S.result={tickets:[{day:'周三',no:'001',lg:'意甲',sp:1,h:'卡利亚里',a:'莱切',rows:[{m:'进球数盘',o:'2球 3.20'}]}],way:'单关',notes:1,maxWin:6.40,stake:2};break;
     case 'D2':S.result={tickets:[
@@ -1374,10 +1362,8 @@ function jump(id){
     case 'F5':S.expanded={no:'2_d1_301',bt:7};add('2_d1_301',7,'胜 1-5',4.10);break;
     case 'F6':S.expanded={no:'2_d1_301',bt:2};break;
     case 'F7':add('2_d1_302',2,'大于',1.70);S.mode='single';S.slip=true;break;
-    case 'F8':add('2_d1_301',2,'大于',1.62);S.mode='single';S.slip=true;S.toast='部分下注项不支持单关';break;
     case 'F9':S.result={tickets:[{day:'周三',no:'301',lg:'女世界杯',sp:2,h:'匈牙利女篮',a:'日本女篮',rows:[{m:'胜分差盘',o:'胜 1-5 4.10'}]}],way:'单关',notes:1,maxWin:8.20,stake:2};break;
   }
-  if(id==='C1'){S.baseUser=10;}
   normalize();render();
   if(S.toast){var tv=S.toast;setTimeout(function(){if(S.toast===tv){S.toast='';render()}},2300)}
 }
@@ -1410,7 +1396,7 @@ P.addEventListener('click',function(e){
     normalize();if(!S.sel.length)S.slip=false;render();return}
   if(a==='delmatch'){var dn=t.getAttribute('data-no');S.sel=S.sel.filter(function(s){return s.uid!==dn});
     normalize();if(!S.sel.length)S.slip=false;render();return}
-  if(a==='mode'){S.mode='single';S.folds={};S.foldTouched=false;if(invalidSingles().length)toast('部分下注项不支持单关');render();return}
+  if(a==='mode'){S.mode='single';S.folds={};S.foldTouched=false;render();return}
   if(a==='fold'){var v2=+t.getAttribute('data-v');
     if(matchCount()<2){toast('组合过关至少需要选择两场比赛');return}
     if(v2>foldCap()){toast('当前玩法最多支持 '+foldCap()+' 关');return}
@@ -1424,9 +1410,6 @@ P.addEventListener('click',function(e){
     if(nv>999){toast('倍数上限 999');return}S.mult=nv;render();return}
   if(a==='kq'){S.mult=+t.getAttribute('data-v');render();return}
   if(a==='kbs'){S.mult=Math.floor(S.mult/10);render();return}
-  if(a==='mstep'){var st=+t.getAttribute('data-v');var nn=S.mult+st;
-    if(nn<1){toast('投注倍数错误，不可小于 1');return}
-    if(nn>999){toast('倍数上限 999');return}S.mult=nn;render();return}
   if(a==='kmax'){var c0=calc(),per=c0.notes*S.base;if(!per){toast('请先选择投注项');return}
     var lim=Math.min(Math.floor(BAL_N/per),Math.floor(MAX_STAKE/per));
     S.mult=Math.max(1,Math.min(999,lim));
