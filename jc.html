@@ -428,13 +428,13 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 <body>
 <div class="wrap">
 <header class="mast">
-  <div class="mast-kicker"><span>交互原型 v23</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
+  <div class="mast-kicker"><span>交互原型 v24</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
   <h1>竞彩交互原型</h1>
   <p class="mast-sub">可点击原型，覆盖竞彩足球与竞彩篮球两套盘口、最近两个赛事日。注数与奖金按真实公式实时计算。右侧需求说明跟随当前页面切换，只写规则、约束、算法与待决策项，版面细节以设计稿为准。</p>
   <div class="mast-meta">
     <span>设计稿 <b>竞彩足球-0907 / 竞彩篮球-0907</b></span>
     <span>画板 <b>393 × 852</b></span>
-    <span>覆盖状态 <b>35</b></span>
+    <span>覆盖状态 <b>37</b></span>
     <span>规则依据 <b>竞彩体育需求规格 v0.2</b></span>
     <span>注单记录 <b>已对齐竞品</b></span>
   </div>
@@ -923,24 +923,49 @@ F2:{n:'篮球筛选',node:'篮球-筛选',f:'ok',dl:[
 F3:{n:'筛选选中',node:'篮球-筛选后',f:'ok',dl:[
  ['规则','与足球一致：多选取并集，收起不提交，只有确认才应用。']
 ]},
-F4:{n:'胜分差盘',node:'篮球-胜分差盘',f:'ok',dl:[
+F4:{n:'胜负盘（让分位 0）',node:'篮球-列表',f:'ok',dl:[
+ ['玩法定义','<p>赔率行<b>第一行</b>的玩法，猜哪支球队获胜，<b>不让分</b>，按实际得分判。</p>'+
+  li(['只有<b>胜／负两项</b>，<b>没有平</b>——这不是产品选择，是结算口径决定的：篮球结算<b>含加时</b>，常规时间打平要打加时直到分出胜负，所以平局这个结果不存在。',
+  '让分位固定显示 <code>0</code>，只用来与第二行做区分，不参与计算。',
+  '赔率行因此是<b>两格</b>而不是足球的三格，列表卡不能与足球共用同一套栅格（让分位宽度也不同，38 对 30）。'])],
+ ['与足球的对应','对应足球的独赢盘（B1），但两点不同：没有平局、结算含加时。这两条差异贯穿篮球全部玩法。']
+]},
+F5:{n:'让分胜负盘（让分位 ±X）',node:'篮球-列表',f:'ok',dl:[
+ ['玩法定义','<p>赔率行<b>第二行</b>的玩法。先把让分数加到主队实际得分上，再用<b>让分后的比分</b>判胜负。</p>'+
+  li(['<p class="kv">让分后主队得分 = 主队实际得分 + 让分数</p><b>负数表示主队让分</b>（原型 302 的 −14.5），<b>正数表示客队让分</b>（301 的 1.5）。足球让球只有负数，篮球两个方向都有，所以让分位的<b>正负必须用颜色区分</b>：正数绿色、负数橙色。',
+  '以让分 −14.5 为例：主队 100:88 赢 12 分，让分后 85.5:88 算<b>让负</b>——赢了球但没让赢，这是篮球最容易被当成 bug 报上来的地方。',
+  '<b>让分数通常带 .5，所以不会出现平</b>，同样只有胜／负两项。这与足球让球是整数、必须保留「平」正好相反。',
+  '让分数由数据源下发、开售后不再变动，但必须随注单<b>快照</b>并展示。'])],
+ ['与足球的对应','对应足球的让球胜平负（B2）。足球让球为整数、有让平；篮球让分带 .5、无让平。这条差异直接决定选项数和结算分支，不能共用一套判定。']
+]},
+F6:{n:'胜分差盘',node:'篮球-胜分差盘',f:'ok',dl:[
+ ['玩法定义','<p>同时猜<b>哪队获胜</b>和<b>赢多少分</b>，两个都对才算中。方向对但分差落在别的区间，算未中。</p>'+
+  li(['固定 <b>12 项</b> = 6 个分差区间 × 胜／负两个方向：1-5、6-10、11-15、16-20、21-25、26+。',
+  '「26+」是开区间兜底，文案不可写成「26 分」。',
+  '<b>不让分</b>，按实际分差判。分差 = 胜方得分 − 负方得分，恒为正数，方向由「胜」「负」前缀表达。',
+  '12 项覆盖全部可能且互斥，必中且只中一个，所以没有额外兜底项。'])],
  ['选项','固定 12 项 = 6 个分差区间 × 胜负两个方向，「26+」为开区间兜底。'],
  ['结算口径','<b>含加时</b>：加时得分计入分差判定。仅需求口径，<b>界面不展示</b>。'],
  ['规则','关数上限统一 8 关。']
 ]},
-F5:{n:'胜分差选中',node:'篮球-胜分差投注项',f:'ok',dl:[
+F7:{n:'胜分差选中',node:'篮球-胜分差投注项',f:'ok',dl:[
  ['复式','同盘口可多选，例如同时选「胜 1-5」与「胜 6-10」，两者互斥、构成两注。胶囊右上角的红色角标随之显示 2（见 A3）。']
 ]},
-F6:{n:'大小分盘',node:'篮球-大小分盘',f:'ok',dl:[
+F8:{n:'大小分盘',node:'篮球-大小分盘',f:'ok',dl:[
+ ['玩法定义','<p>猜两队<b>得分之和</b>高于还是低于盘口给出的总分线，与谁输谁赢无关。</p>'+
+  li(['两个选项：<b>大于</b>（总分高于盘口值）、<b>小于</b>（总分低于盘口值）。',
+  '盘口值即<b>总分线</b>，如 148.5。带 .5 所以不会出现「正好等于」，也就没有平局或退款分支。',
+  '例：盘口 148.5，终场 82:70 合计 152 分 → <b>大于</b>中；终场 70:66 合计 136 分 → <b>小于</b>中。',
+  '结算<b>含加时</b>，加时得分计入总分。常规时间刚好压线的比赛，加时会直接改变结果，这条必须写进规则说明。'])],
  ['盘口值','总分线来自 point 字段，随赛事不同，<b>需与赔率一起快照进注单</b>并在注单中展示。'],
  ['结算口径','<b>含加时</b>：加时得分计入总分。仅需求口径，<b>界面不展示</b>。'],
  ['规则','关数上限统一 8 关。']
 ]},
-F7:{n:'篮球投注面板',node:'篮球-投注框',f:'ok',dl:[
+F9:{n:'篮球投注面板',node:'篮球-投注框',f:'ok',dl:[
  ['共用性','投注面板、金额浮层、倍数键盘、下单确认、结果弹窗五个组件足篮<b>完全共用</b>，只有球类图标与盘口名称不同。开发上应做成一套组件 + 球类参数。'],
  ['关数限制','单场时第三段直接显示「单关」。篮球场次少，可组关数受<b>可投场次数</b>限制（不足 8 场时更高关数灰态），网格下方常驻说明当前上限。']
 ]},
-F9:{n:'篮球投注结果',node:'篮球-投注单',f:'ok',dl:[
+F10:{n:'篮球投注结果',node:'篮球-投注单',f:'ok',dl:[
  ['赔率基准','最高可赢以<b>下单时锁定的赔率</b>计算，与投注面板的预估值可能因赔率跳动而不同，以此处为准并在注单中留存快照。']
 ]}
 };
@@ -950,7 +975,7 @@ var NAVDEF=[
  ['C · 投注面板（共用）',[['C1','投注面板'],['C2','已选展开'],['C3','基础金额'],['C6','过关方式·单场'],['C7','过关方式·多场'],['C8','倍数'],['C9','下单确认'],['C10','单内封盘']]],
  ['D · 结果与分析',[['D1','结果·单关'],['D2','结果·多票'],['D3','点击分析']]],
  ['E · 注单记录',[['E1','未结算·单关'],['E1b','未结算·组合'],['E2','已结算·单关'],['E2b','已结算·组合']]],
- ['F · 竞彩篮球',[['F1','篮球列表'],['F2','篮球筛选'],['F3','筛选选中'],['F4','胜分差盘'],['F5','胜分差选中'],['F6','大小分盘'],['F7','篮球投注面板'],['F9','篮球投注结果']]]
+ ['F · 竞彩篮球',[['F1','篮球列表'],['F2','篮球筛选'],['F3','筛选选中'],['F4','胜负盘'],['F5','让分胜负盘'],['F6','胜分差盘'],['F7','胜分差选中'],['F8','大小分盘'],['F9','篮球投注面板'],['F10','篮球投注结果']]]
 ];
 function specKey(){
   if(S.route==='entry')return 'A1';
@@ -958,7 +983,7 @@ function specKey(){
   if(S.route==='settle')return S.sTab==='unsettled'?(S.sSub==='single'?'E1':'E1b'):(S.sSub==='single'?'E2':'E2b');
   if(S.doc)return S.doc;   /* 纯说明页：赔率行两个玩法没有独立交互态 */
   var bk=S.sp===2;
-  if(S.result)return bk?'F9':(S.result.tickets.length>1?'D2':'D1');
+  if(S.result)return bk?'F10':(S.result.tickets.length>1?'D2':'D1');
   if(S.tips)return 'C9';
   if(S.amountPop)return 'C3';
   if(S.filterOpen)return bk?(S.filterPick.length?'F3':'F2'):(S.filterPick.length?'A5':'A4');
@@ -966,18 +991,18 @@ function specKey(){
     if(S.sel.some(function(x){var mm=mById(x.uid);return mm&&isClosed(mm)}))return 'C10';
     if(S.openPad)return 'C8';
     if(S.openFold)return matchCount()>=2?'C7':'C6';
-    if(bk)return 'F7';
+    if(bk)return 'F9';
     if(S.openSel&&S.sel.length)return 'C2';
     return 'C1';
   }
   if(S.analysis!=null)return 'D3';
   if(S.expanded){
     var b=S.expanded.bt;
-    if(b===7)return countIn(S.expanded.no,7)?'F5':'F4';
-    if(b===2)return 'F6';
+    if(b===7)return countIn(S.expanded.no,7)?'F7':'F6';
+    if(b===2)return 'F8';
     return b===5?'B3':(b===4?'B4':'B5');
   }
-  if(S.sel.length){if(!bk)return 'B6';var lb=S.sel[S.sel.length-1].bt;return lb===2?'F6':(lb===7?'F5':'F1')}
+  if(S.sel.length){if(!bk)return 'B6';var lb=S.sel[S.sel.length-1].bt;return lb===2?'F8':(lb===7?'F7':'F1')}
   if(S.filterApplied.length)return bk?'F3':'A6';
   return bk?'F1':'A3';
 }
@@ -1379,11 +1404,13 @@ function jump(id){
     case 'E2b':S.route='settle';S.sTab='settled';S.sSub='parlay';S.sRange='yest';break;
     case 'F2':S.filterOpen=true;break;
     case 'F3':S.filterOpen=true;S.filterPick=[LID['女世界杯']];break;
-    case 'F4':S.expanded={no:'2_d1_301',bt:7};break;
-    case 'F5':S.expanded={no:'2_d1_301',bt:7};add('2_d1_301',7,'胜 1-5',4.10);break;
-    case 'F6':S.expanded={no:'2_d1_301',bt:2};break;
-    case 'F7':add('2_d1_302',2,'大于',1.70);S.mode='single';S.slip=true;break;
-    case 'F9':S.result={tickets:[{day:'周三',no:'301',lg:'女世界杯',sp:2,h:'匈牙利女篮',a:'日本女篮',rows:[{m:'胜分差盘',o:'胜 1-5 4.10'}]}],way:'单关',notes:1,maxWin:8.20,stake:2};break;
+    case 'F4':add('2_d1_301',3,'胜',1.75);S.doc='F4';break;
+    case 'F5':add('2_d1_301',1,'胜',1.65);S.doc='F5';break;
+    case 'F6':S.expanded={no:'2_d1_301',bt:7};break;
+    case 'F7':S.expanded={no:'2_d1_301',bt:7};add('2_d1_301',7,'胜 1-5',4.10);break;
+    case 'F8':S.expanded={no:'2_d1_301',bt:2};break;
+    case 'F9':add('2_d1_302',2,'大于',1.70);S.mode='single';S.slip=true;break;
+    case 'F10':S.result={tickets:[{day:'周三',no:'301',lg:'女世界杯',sp:2,h:'匈牙利女篮',a:'日本女篮',rows:[{m:'胜分差盘',o:'胜 1-5 4.10'}]}],way:'单关',notes:1,maxWin:8.20,stake:2};break;
   }
   normalize();render();
   if(S.toast){var tv=S.toast;setTimeout(function(){if(S.toast===tv){S.toast='';render()}},2300)}
