@@ -428,7 +428,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 <body>
 <div class="wrap">
 <header class="mast">
-  <div class="mast-kicker"><span>交互原型 v21</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
+  <div class="mast-kicker"><span>交互原型 v23</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
   <h1>竞彩交互原型</h1>
   <p class="mast-sub">可点击原型，覆盖竞彩足球与竞彩篮球两套盘口、最近两个赛事日。注数与奖金按真实公式实时计算。右侧需求说明跟随当前页面切换，只写规则、约束、算法与待决策项，版面细节以设计稿为准。</p>
   <div class="mast-meta">
@@ -601,7 +601,7 @@ var S={route:'home',sp:1,sel:[],expanded:null,analysis:null,openDays:{'2026-09-0
   filterOpen:false,filterPick:[],filterApplied:[],
   slip:false,openSel:true,openFold:false,openPad:false,foldTouched:false,spAsk:null,
   mode:'parlay',folds:{},base:10,baseUser:10,mult:1,
-  amountPop:false,tips:false,result:null,toast:'',closedDemo:null,
+  amountPop:false,tips:false,result:null,toast:'',closedDemo:null,doc:null,
   sTab:'unsettled',sSub:'single',sRange:'today',rgOpen:false};
 
 var TODAY='2026-09-09', YEST='2026-09-08', NOW='2026-09-09 11:30';
@@ -732,7 +732,7 @@ A3:{n:'竞彩足球赛事列表',node:'9303:313570',f:'ok',dl:[
   '<b>收起展开面板后角标仍在</b>——这是它的主要价值。选项表格很长（比分盘 31 项），用户展开选完通常会收起，角标是收起状态下唯一能看出「这场我选过东西」的线索。',
   '数的是<b>选项数不是注数</b>。单关下 3 个选项 = 3 注，但进组合过关后要和其他场次相乘，注数远大于 3，两个概念不能混。',
   '与胶囊自身的<b>橙色描边态</b>是两套信号：描边表示「当前正展开」，角标表示「已选了几项」，可以同时出现也可以只有角标。'])],
- ['角标与购物车的关系','<div class="callout">胶囊角标是<b>单赛事单盘口</b>的计数，底部购物车的「购物车(N)」是<b>全部已选选项</b>的总数，两个数不相等也不冲突。上限校验只看购物车那个总数：最多 8 场、最多 20 个选项（见 B4）。</div>'],
+ ['角标与购物车的关系','<div class="callout">胶囊角标是<b>单赛事单盘口</b>的计数，底部购物车的「购物车(N)」是<b>全部已选选项</b>的总数，两个数不相等也不冲突。上限校验只看购物车那个总数：最多 8 场、最多 20 个选项（见 B6）。</div>'],
  ['封盘','<div class="callout"><b>已定：封盘时间由三方数据源推送决定</b>，我们不自己按「开赛前 N 分钟」推算，也不做本地倒计时——收到数据源的封盘状态即封盘，避免两边时钟不一致造成已封盘还能下单。</div>'+
   li(['封盘后该赛事<b>直接从列表移除</b>，不做锁定态保留。',
   '分组头场次数与联赛筛选计数都<b>不含封盘场次</b>，与列表所见一致。',
@@ -753,7 +753,25 @@ A6:{n:'筛选结果',node:'9317:321755',f:'ok',dl:[
  ['保持与清空','筛选条件在会话内保持，切换赛事日不清空；切换球类时清空。'],
  ['边界','命中 0 场时空态并提供重置。漏斗图标保持高亮作为筛选态的退出线索。']
 ]},
-B1:{n:'比分盘',node:'9343:152637',f:'ok',dl:[
+B1:{n:'胜平负（让球位 0）',node:'9303:313570',f:'ok',dl:[
+ ['玩法定义','<p>列表页赔率<b>第一行</b>的玩法，也叫独赢盘。猜全场的直接胜负结果，<b>不让球</b>，按实际比分判。</p>'+
+  li(['三个选项：<b>胜</b>（主队赢）、<b>平</b>、<b>负</b>（客队赢），三者互斥必中其一，没有兜底项。',
+  '让球位固定显示 <code>0</code>，作用只是与第二行的让球盘做区分，不参与计算。',
+  '结算口径：足球取<b>全场 90 分钟含补时</b>，不含加时与点球——杯赛打加时也按 90 分钟的比分判。',
+  '篮球对应<b>胜负盘</b>，只有胜／负两项（篮球没有平局），且结算<b>含加时</b>，与足球恰好相反。'])],
+ ['在列表中的位置','赔率行<b>第一行</b>，让球位固定显示 <code>0</code>。与第二行的让球盘是两个独立盘口，可以同时选。']
+]},
+B2:{n:'让球胜平负（让球位 −1）',node:'9303:313570',f:'ok',dl:[
+ ['玩法定义','<p>列表页赔率<b>第二行</b>的玩法。先把让球数加到主队实际进球上，再用<b>让球后的比分</b>判胜平负。</p>'+
+  li(['<p class="kv">让球后主队得分 = 主队实际进球 + 让球数</p>负数表示主队让球，正数表示客队让球（足球只有负数，篮球两者都有）。',
+  '以让球 <b>−1</b> 为例：主队 2:0 → 让后 1:0 算<b>让胜</b>；主队 1:0 → 让后 0:0 算<b>让平</b>；主队 1:1 → 让后 0:1 算<b>让负</b>。同一场比赛，独赢盘是主胜、让球盘可能是让平或让负，两行结果不一定一致。',
+  '<b>让球数是整数，所以「平」这一项必须保留</b>——让球后打平是真实可能的结果。这点与体育盘的亚盘不同，亚盘让半球不会走平，也因此竞彩<b>没有走盘</b>、不存在赢半输半。',
+  '让球数由数据源下发、开售后<b>不再变动</b>；但它必须随注单<b>快照</b>并在注单里展示，否则赛后无法复核（见 E1b）。',
+  '结算口径与独赢盘一致：足球 90 分钟含补时、不含加时；篮球为<b>让分胜负</b>，只有胜／负两项，含加时，且让分通常带 .5 所以不会出现平。',
+  '同一场的两行是<b>两个独立盘口</b>，可以同时选。但同场两个盘口之间不能互串，单关下算两注，进组合过关时该场只按最高赔率参与计算（见 C7）。'])],
+ ['在列表中的位置','赔率行<b>第二行</b>，让球位显示实际让球数。让球数由数据源下发、开售后不再变动，但必须随注单快照并展示。']
+]},
+B3:{n:'比分盘',node:'9343:152637',f:'ok',dl:[
  ['选项','三组共 31 项：主队胜比分 13、平比分 5、主队负比分 13，各含一个兜底项（胜其他 / 平其他 / 负其他）。'],
  ['结算口径','全场 <b>90 分钟含补时</b>，不含加时与点球。'],
  ['规则',li([
@@ -762,7 +780,7 @@ B1:{n:'比分盘',node:'9343:152637',f:'ok',dl:[
   '关数上限统一 <b>8 关</b>（见 C6）。',
   '选中后胶囊右上角出现红色数字角标，显示本场本盘口已选选项数，收起面板后仍在（见 A3）。'])]
 ]},
-B2:{n:'半全场盘',node:'9317:323661',f:'ok',dl:[
+B4:{n:'半全场盘',node:'9317:323661',f:'ok',dl:[
  ['玩法定义','<p>同时猜<b>半场结果</b>与<b>全场结果</b>两个结果，两个都对才算中。每个结果各有胜、平、负三种，组合出 <b>3 × 3 = 9</b> 个互斥选项。</p>'+
   li(['写法是「半场／全场」：前者上半场结果，后者全场结果，<b>都以主队为准</b>。例「胜/平」= 上半场主队领先、全场打成平。',
   '<b>不让球</b>，按实际比分判定，与让球盘无关。',
@@ -772,12 +790,12 @@ B2:{n:'半全场盘',node:'9317:323661',f:'ok',dl:[
  ['结算口径','上半场 45 分钟含补时 + 全场 90 分钟含补时，均以主队为准，<b>不含加时</b>。仅需求口径，<b>界面不展示</b>。'],
  ['规则','关数上限统一 8 关。部分赛事不开该盘时胶囊<b>不渲染</b>，而非置灰。选中后胶囊右上角出现红色数字角标，显示本场本盘口已选选项数（见 A3）。']
 ]},
-B3:{n:'进球数盘',node:'9317:324535',f:'ok',dl:[
+B5:{n:'进球数盘',node:'9317:324535',f:'ok',dl:[
  ['选项','8 项，「7+ 球」为开区间兜底，文案不可写成「7 球」。'],
  ['结算口径','双方进球数之和，全场 90 分钟含补时，不含加时。仅需求口径，<b>界面不展示</b>。'],
  ['规则','基础金额可调；关数上限统一 8 关。选中后胶囊右上角出现红色数字角标，显示本场本盘口已选选项数（见 A3）。']
 ]},
-B4:{n:'购物车与选择上限',node:'9317:322243',f:'ok',dl:[
+B6:{n:'购物车与选择上限',node:'9317:322243',f:'ok',dl:[
  ['计数口径','购物车 N 为已选<b>选项</b>数，不是场次数。玩法胶囊右上角的红色角标是该赛事该盘口的已选选项数，与购物车总数不是同一个口径（见 A3 玩法胶囊角标）。'],
  ['上限',li([
   '最多 <b>8 场</b>、最多 <b>20 个选项</b>，各有独立提示。',
@@ -928,7 +946,7 @@ F9:{n:'篮球投注结果',node:'篮球-投注单',f:'ok',dl:[
 };
 var NAVDEF=[
  ['A · 入口与足球列表',[['A1','平台首页'],['A2','游戏大厅'],['A3','足球列表'],['A4','联赛筛选'],['A5','筛选项选中'],['A6','筛选结果']]],
- ['B · 足球玩法',[['B1','比分盘'],['B2','半全场盘'],['B3','进球数盘'],['B4','购物车与上限']]],
+ ['B · 足球玩法',[['B1','胜平负'],['B2','让球胜平负'],['B3','比分盘'],['B4','半全场盘'],['B5','进球数盘'],['B6','购物车与上限']]],
  ['C · 投注面板（共用）',[['C1','投注面板'],['C2','已选展开'],['C3','基础金额'],['C6','过关方式·单场'],['C7','过关方式·多场'],['C8','倍数'],['C9','下单确认'],['C10','单内封盘']]],
  ['D · 结果与分析',[['D1','结果·单关'],['D2','结果·多票'],['D3','点击分析']]],
  ['E · 注单记录',[['E1','未结算·单关'],['E1b','未结算·组合'],['E2','已结算·单关'],['E2b','已结算·组合']]],
@@ -938,6 +956,7 @@ function specKey(){
   if(S.route==='entry')return 'A1';
   if(S.route==='lobby')return 'A2';
   if(S.route==='settle')return S.sTab==='unsettled'?(S.sSub==='single'?'E1':'E1b'):(S.sSub==='single'?'E2':'E2b');
+  if(S.doc)return S.doc;   /* 纯说明页：赔率行两个玩法没有独立交互态 */
   var bk=S.sp===2;
   if(S.result)return bk?'F9':(S.result.tickets.length>1?'D2':'D1');
   if(S.tips)return 'C9';
@@ -956,9 +975,9 @@ function specKey(){
     var b=S.expanded.bt;
     if(b===7)return countIn(S.expanded.no,7)?'F5':'F4';
     if(b===2)return 'F6';
-    return b===5?'B1':(b===4?'B2':'B3');
+    return b===5?'B3':(b===4?'B4':'B5');
   }
-  if(S.sel.length){if(!bk)return 'B4';var lb=S.sel[S.sel.length-1].bt;return lb===2?'F6':(lb===7?'F5':'F1')}
+  if(S.sel.length){if(!bk)return 'B6';var lb=S.sel[S.sel.length-1].bt;return lb===2?'F6':(lb===7?'F5':'F1')}
   if(S.filterApplied.length)return bk?'F3':'A6';
   return bk?'F1':'A3';
 }
@@ -1314,7 +1333,7 @@ function reset(silent){
   S.filterOpen=false;S.filterPick=[];S.filterApplied=[];
   S.slip=false;S.openSel=true;S.openFold=false;S.openPad=false;S.foldTouched=false;S.spAsk=null;S.oExpand=null;S.openDays={'2026-09-09':1,'2026-09-10':0};
   S.mode='parlay';S.folds={};S.base=10;S.baseUser=10;S.mult=1;
-  S.amountPop=false;S.tips=false;S.result=null;S.toast='';S.closedDemo=null;
+  S.amountPop=false;S.tips=false;S.result=null;S.toast='';S.closedDemo=null;S.doc=null;
   S.sTab='unsettled';S.sSub='single';S.sRange='today';S.rgOpen=false;
   if(!silent)render();
 }
@@ -1334,10 +1353,12 @@ function jump(id){
     case 'A4':S.filterOpen=true;break;
     case 'A5':S.filterOpen=true;S.filterPick=[LID['意甲']];break;
     case 'A6':S.filterApplied=[LID['意甲']];break;
-    case 'B1':S.expanded={no:'1_d1_001',bt:5};add('1_d1_001',5,'1-0',6.00);break;
-    case 'B2':S.expanded={no:'1_d1_001',bt:4};add('1_d1_001',4,'胜/平',17.00);break;
-    case 'B3':S.expanded={no:'1_d1_001',bt:6};add('1_d1_001',6,'0球',8.50);break;
-    case 'B4':add('1_d1_002',3,'胜',1.86);break;
+    case 'B1':add('1_d1_002',3,'胜',1.86);S.doc='B1';break;
+    case 'B2':add('1_d1_002',1,'胜',1.86);S.doc='B2';break;
+    case 'B3':S.expanded={no:'1_d1_001',bt:5};add('1_d1_001',5,'1-0',6.00);break;
+    case 'B4':S.expanded={no:'1_d1_001',bt:4};add('1_d1_001',4,'胜/平',17.00);break;
+    case 'B5':S.expanded={no:'1_d1_001',bt:6};add('1_d1_001',6,'0球',8.50);break;
+    case 'B6':add('1_d1_002',3,'胜',1.86);break;
     case 'C1':add('1_d1_002',3,'胜',1.86);S.mode='single';S.slip=true;S.openSel=false;break;
     case 'C2':add('1_d1_001',5,'1-0',6.00);S.mode='single';S.slip=true;break;
     case 'C3':add('1_d1_002',3,'胜',1.86);S.mode='single';S.slip=true;S.openSel=false;S.amountPop=true;break;
@@ -1371,7 +1392,7 @@ function doSp(v){S.sp=v;S.expanded=null;S.analysis=null;S.filterApplied=[];S.fil
 /* ═════ 事件 ═════ */
 P.addEventListener('click',function(e){
   var t=e.target.closest('[data-a]');if(!t)return;
-  var a=t.getAttribute('data-a');
+  var a=t.getAttribute('data-a');S.doc=null;
   if(a==='pick'){toggleSel(t.getAttribute('data-no'),+t.getAttribute('data-bt'),t.getAttribute('data-k'),parseFloat(t.getAttribute('data-p')));return}
   if(a==='sp'){var v=+t.getAttribute('data-v');if(v===S.sp)return;
     if(S.sel.length&&S.sel[0].sp!==v){S.spAsk=v;render();return}
