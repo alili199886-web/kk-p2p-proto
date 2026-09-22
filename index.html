@@ -22,6 +22,7 @@ a.card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.10)}
 .t{flex:1}
 .t b{display:block;font-size:15px;color:#1a1a1a;margin-bottom:3px}
 .t span{font-size:12px;color:#999}
+.tag{display:inline-block;font-size:10px;color:#FF8C00;border:1px solid #FFD2A3;background:#FFF6EC;border-radius:3px;padding:0 4px;margin-left:6px;vertical-align:1px}
 .arrow{color:#ccc;font-size:18px}
 .foot{text-align:center;font-size:12px;color:#bbb;margin-top:22px}
 </style>
@@ -31,42 +32,15 @@ a.card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.10)}
   <h1>P2P 交付物入口</h1>
   <div class="sub">KingKong 体育 · 2026-07 · 产品:Ali</div>
 
-  <div class="sec">本期 · P2P 下注流程</div>
+  <div class="sec">本期 · P2P 下注流程 · 交互原型</div>
   <a class="card" href="./h5.html">
     <div class="ico i1">📱</div>
     <div class="t"><b>C 端 H5 交互原型 v7.4</b><span>赛事大厅 / 盘口详情 / 购物车（买入·串关·卖出）/ 注单确认 / 买单卖单赛果我的 / 挂单分享 / 新手引导</span></div>
     <div class="arrow">›</div>
   </a>
-  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/prd-bet.md">
-    <div class="ico i3">📄</div>
-    <div class="t"><b>下注流程需求说明文档（图文版）V2.2</b><span>Markdown · 13 张原型截图 + 规则说明 / 计算公式 / 边界场景 / 验收标准</span></div>
-    <div class="arrow">›</div>
-  </a>
-  <a class="card" href="./prd-bet.md">
-    <div class="ico i3">⬇️</div>
-    <div class="t"><b>下载 Markdown 源文件</b><span>prd-bet.md（图片位于 ./img/ 目录）</span></div>
-    <div class="arrow">›</div>
-  </a>
-
-  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/tutorial-sell.md">
-    <div class="ico i1">🎓</div>
-    <div class="t"><b>P2P 卖出新手教程（图文分步）</b><span>Markdown · 14 张标注截图 / 八步卖出流程 / 首次进入新手引导 / 常见问题</span></div>
-    <div class="arrow">›</div>
-  </a>
-  <a class="card" href="./buys.html">
-    <div class="ico i2">🧾</div>
-    <div class="t"><b>买单投注记录（独立页）</b><span>仅含买单模块 · 未结算/已结算 · 五种结算结果 · 串关多腿 · 波胆比分</span></div>
-    <div class="arrow">›</div>
-  </a>
-  <div class="sec">本期 · P2P 挂单分享</div>
-  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/prd-share.md">
-    <div class="ico i4">🔗</div>
-    <div class="t"><b>挂单分享功能需求说明文档 V1.6</b><span>Markdown · 三类容器与按钮展示规则 / 商户归属落地 / 降级方案 / 验收标准</span></div>
-    <div class="arrow">›</div>
-  </a>
-  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/impl-share.md">
-    <div class="ico i4">🛠️</div>
-    <div class="t"><b>挂单分享实现文档（对接金刚 / IM）</b><span>容器能力分级 / SDK 参数 / 商户路由 / 待金刚确认 8 条</span></div>
+  <a class="card" href="./pc.html">
+    <div class="ico i1">🖥️</div>
+    <div class="t"><b>C 端 PC 交互原型 v1.0<span class="tag">需宽屏</span></b><span>按线上 PC 环境还原并叠加 H5 差异 · 滚球/热门/今日早盘/赛事详情 / 购物车（买入·串关·卖出·卖单薄）/ 我的买单·我的卖单·卖单详情 / 汇总报表 / 赛果比分 / 体育规则 / 右侧视频区 / 新手引导 · 右栏常驻需求说明（H5 ⇄ PC 差异）</span></div>
     <div class="arrow">›</div>
   </a>
 
@@ -91,6 +65,40 @@ a.card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.10)}
   <a class="card" href="./admin.html">
     <div class="ico i2">🖥️</div>
     <div class="t"><b>B 端 PC 管理后台原型 v0.6</b><span>坐庄管理 / 盘详情钻取 / 操盘日志</span></div>
+    <div class="arrow">›</div>
+  </a>
+
+  <div class="sec">本期 · P2P 下注流程 · 文档与附件</div>
+  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/prd-bet.md">
+    <div class="ico i3">📄</div>
+    <div class="t"><b>下注流程需求说明文档（图文版）V2.2</b><span>Markdown · 13 张原型截图 + 规则说明 / 计算公式 / 边界场景 / 验收标准</span></div>
+    <div class="arrow">›</div>
+  </a>
+  <a class="card" href="./prd-bet.md">
+    <div class="ico i3">⬇️</div>
+    <div class="t"><b>下载 Markdown 源文件</b><span>prd-bet.md（图片位于 ./img/ 目录）</span></div>
+    <div class="arrow">›</div>
+  </a>
+  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/tutorial-sell.md">
+    <div class="ico i1">🎓</div>
+    <div class="t"><b>P2P 卖出新手教程（图文分步）</b><span>Markdown · 14 张标注截图 / 八步卖出流程 / 首次进入新手引导 / 常见问题</span></div>
+    <div class="arrow">›</div>
+  </a>
+  <a class="card" href="./buys.html">
+    <div class="ico i2">🧾</div>
+    <div class="t"><b>买单投注记录（独立页）</b><span>仅含买单模块 · 未结算/已结算 · 五种结算结果 · 串关多腿 · 波胆比分</span></div>
+    <div class="arrow">›</div>
+  </a>
+
+  <div class="sec">本期 · P2P 挂单分享</div>
+  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/prd-share.md">
+    <div class="ico i4">🔗</div>
+    <div class="t"><b>挂单分享功能需求说明文档 V1.6</b><span>Markdown · 三类容器与按钮展示规则 / 商户归属落地 / 降级方案 / 验收标准</span></div>
+    <div class="arrow">›</div>
+  </a>
+  <a class="card" href="https://github.com/alili199886-web/kk-p2p-proto/blob/main/impl-share.md">
+    <div class="ico i4">🛠️</div>
+    <div class="t"><b>挂单分享实现文档（对接金刚 / IM）</b><span>容器能力分级 / SDK 参数 / 商户路由 / 待金刚确认 8 条</span></div>
     <div class="arrow">›</div>
   </a>
 
