@@ -312,8 +312,9 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 .ocard .hr{height:1px;background:var(--app-line);margin:10px 0}
 .ocard .l1{display:flex;font-size:12.5px}
 .ocard .l1 .r{margin-left:auto;color:var(--app-sub);font-size:11.5px;font-variant-numeric:tabular-nums}
-.ocard .l2{display:flex;align-items:center;gap:7px;font-size:13px;margin-top:6px;min-width:0;flex-wrap:wrap}
-.ocard .l2 b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ocard .l2{display:flex;align-items:center;gap:7px;font-size:13px;margin-top:6px;min-width:0;flex-wrap:nowrap}
+.ocard .l2 b{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ocard .l2 .vs,.ocard .l2 i{flex:none}
 .ocard .kvr{display:flex;font-size:12.5px;padding:5px 0;font-variant-numeric:tabular-nums}
 .ocard .kvr span:first-child{color:#5C5C66}
 .ocard .kvr span:last-child{margin-left:auto}
@@ -321,6 +322,20 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 .ocard .oh .stt.win{color:var(--app-green)}
 .ocard .oh .stt.lose{color:var(--app-red)}
 .ocard .sco{margin-left:auto;font-size:11.5px;color:var(--app-sub);font-variant-numeric:tabular-nums}
+.nd{margin-top:2px}
+.nd .ndh{display:flex;align-items:center;gap:5px;font-size:12.5px;color:#3A3A42;cursor:pointer;padding:2px 0}
+.nd .ndh i{width:14px;height:14px;border-radius:50%;background:#8C8C96;color:#fff;font-style:normal;font-size:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.nd .ndh .cv{margin-left:auto;color:var(--app-sub);font-size:11px}
+.nd .ndl{background:var(--app-cell);border-radius:6px;padding:2px 9px;margin-top:7px}
+.ndr{display:flex;align-items:center;gap:7px;font-size:12px;padding:7px 0;border-top:1px solid var(--app-line)}
+.ndr:first-child{border-top:0}
+.ndr .k{flex:none;font-weight:700;font-size:11.5px;font-variant-numeric:tabular-nums;min-width:82px}
+.ndr.gp{padding:6px 0 2px;font-size:11px;color:var(--o);font-weight:700}
+.ndr .f{flex:1 1 auto;min-width:0;color:var(--app-sub);font-size:11px;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ndr .v{flex:none;font-weight:700;font-variant-numeric:tabular-nums}
+.ndr .rmk{flex:none;min-width:34px;text-align:center}
+.ndr.hd{color:var(--app-sub);font-size:11px}
+.ndr.hd .k,.ndr.hd .v{font-weight:400}
 .rmk{font-size:11px;border-radius:3px;padding:2px 7px;font-weight:700}
 .rmk.win{background:var(--ok-soft);color:var(--app-green)}
 .rmk.lose{background:var(--flag-soft);color:var(--app-red)}
@@ -435,6 +450,17 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 .dgrp .rel{color:var(--o);margin-left:8px;font-size:11.5px;font-weight:700}
 .mc-plays.inline{margin-top:10px;padding-left:0}
 .mc.one .mc-lc{gap:4px}
+/* 拉丁语系文本更长：印章、状态角标做收窄处理 */
+[data-lang="en"] .seal,[data-lang="vi"] .seal{font-size:9.5px;line-height:1.15;padding:0 5px;text-align:center;letter-spacing:0}
+[data-lang="en"] .seal.s1,[data-lang="vi"] .seal.s1{font-size:11px}
+[data-lang="en"] .rmk,[data-lang="vi"] .rmk{font-size:10px;padding:2px 5px}
+[data-lang="en"] .pc,[data-lang="vi"] .pc{font-size:11px}
+[data-lang="en"] .ndr .k,[data-lang="vi"] .ndr .k{min-width:76px}
+.langbar{display:flex;align-items:center;gap:6px;margin:0 auto 10px;width:min(393px,100%);padding:0 2px}
+.langbar .lb-t{font-size:11px;color:var(--ink-3,#8C8C96);letter-spacing:.08em;margin-right:2px}
+.langbar span[data-lang]{flex:1;text-align:center;font-size:12px;padding:6px 0;border-radius:7px;border:1px solid var(--hair);background:var(--surface);color:var(--ink-2,#4A4A52);cursor:pointer;user-select:none}
+.langbar span[data-lang]:hover{border-color:var(--accent)}
+.langbar span[data-lang].on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:700}
 </style>
 </head>
 <body>
@@ -442,7 +468,7 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 
 <div class="wrap">
 <header class="mast">
-  <div class="mast-kicker"><span>交互原型 v27</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
+  <div class="mast-kicker"><span>交互原型 v37</span><span>竞彩足球 + 竞彩篮球</span><span>按我方 UI 还原</span></div>
   <h1>竞彩交互原型</h1>
   <p class="mast-sub">可点击原型，覆盖竞彩足球与竞彩篮球两套盘口、最近两个赛事日。注数与奖金按真实公式实时计算。右侧需求说明跟随当前页面切换，只写规则、约束、算法与待决策项，版面细节以设计稿为准。</p>
   <div class="mast-meta">
@@ -456,6 +482,26 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 <section class="revlog">
   <details><summary>逻辑修订记录（v5 19 项 + v6 对齐竞品）</summary>
   <div class="revgrid">
+    <div><em>v37 · 国际化</em>
+      <ol><li>手机内 UI 文案四语化：简体中文（源）／繁体中文／English／Tiếng Việt，顶部加语言切换器。</li>
+      <li>216 条文案（文本 194 · 含参数 22）整理为配套 Excel，含 key、四语译文、出现位置与长度风险。</li>
+      <li>队名、联赛名不纳入 —— 属赛事数据，由数据源按语言下发。</li>
+      <li>拉丁语系文本更长：印章、状态角标、玩法胶囊按语言降字号，避免溢出。</li>
+      <li>需求说明（内部 PRD）不在国际化范围内，保持中文。</li></ol></div>
+    <div><em>v36 · 部分中奖</em>
+      <ol><li>已结算组合新增 S11：3串4 中 1 注，派奖 32.55 &lt; 投注 40.00，整单净亏 −7.45、印章仍为「赢」。</li>
+      <li>明确印章与输赢是两个维度：印章判「中没中」，输赢判「赚没赚」，不因净亏改判印章。</li></ol></div>
+    <div><em>v35 · 3串4</em>
+      <ol><li>注单数据结构由单个 fold 改为 folds 数组，支持一张注单同时含多个关数。</li>
+      <li>逐注明细在混合关数时按关数分组，组内标注注数：「2串1（3注）」「3串1（1注）」。</li>
+      <li>组合列宽按最长组合对齐，两串与三串的行左对齐一致。</li>
+      <li>样例：U8（3串4 未结算，4 注可赢合计 236.44）、S10（3串4 已结算，三场全中、4 注全中）。</li></ol></div>
+    <div><em>v34 · 逐注明细</em>
+      <ol><li>多注串关（注数 &gt; 1）的注单卡底部新增「逐注明细」折叠区，默认收起；单注与 1 注串关不出现该入口。</li>
+      <li>每行给出：组合（赛事编号）／赔率算式／金额。已结算为派奖 + 赢输角标，未结算为可赢、无角标。</li>
+      <li>各行金额之和严格等于卡上的最高可赢 / 中奖金额，作为用户验算入口。</li>
+      <li>作废场次在算式里按 1.00 显示，与 E2「无效场次」口径一致。</li>
+      <li>样例：U7（3场 2串1 未结算 3 注）、S9（同形态已结算，中 1 注）。</li></ol></div>
     <div><em>v6 · 对齐竞品已结算</em>
       <ol><li>顶栏改为一行胶囊式 tab：未结算 / 已结算（竞品的「竞彩体育 ▼」体育源下拉不做）。</li>
       <li>二级 tab 改为两个独立圆角按钮，不再相连。</li>
@@ -521,6 +567,10 @@ code{font-family:var(--mono);font-size:.88em;background:var(--surface);padding:1
 <div class="deck">
   <nav class="nav" id="nav"></nav>
   <div class="stage">
+    <div class="langbar" id="langbar">
+      <span class="lb-t">语言</span>
+      <span class="on" data-lang="zh-CN">简体</span><span data-lang="zh-TW">繁體</span><span data-lang="en">EN</span><span data-lang="vi">VI</span>
+    </div>
     <div class="phone" id="phone"></div>
     <div class="hint"><span>直接在手机上操作</span><b id="hintState"></b></div>
   </div>
@@ -669,6 +719,20 @@ function foldCap(){var c=8;S.sel.forEach(function(s){var v=FOLD_CAP[s.bt]||8;if(
 function emode(){return (S.mode==='parlay'&&matchCount()>=2)?'parlay':'single'}
 function invalidSingles(){return []}   /* 已取消单关资格限制，所有盘口均可单关 */
 function countIn(uid,bt){return S.sel.filter(function(s){return s.uid===uid&&s.bt===bt}).length}
+
+/* ═════ 国际化（原型展示层：以简体为源串做整串映射；正式实现按右侧 Excel 的 key 落地） ═════ */
+var LANG='zh-CN';
+var I18N_LIT={"确认": {"zh-TW": "確認", "en": "Confirm", "vi": "Xác nhận"}, "取消": {"zh-TW": "取消", "en": "Cancel", "vi": "Hủy"}, "是": {"zh-TW": "是", "en": "Yes", "vi": "Có"}, "否": {"zh-TW": "否", "en": "No", "vi": "Không"}, "复制": {"zh-TW": "複製", "en": "Copy", "vi": "Sao chép"}, "展开 ⌄": {"zh-TW": "展開 ⌄", "en": "Expand ⌄", "vi": "Mở rộng ⌄"}, "收起 ⌃": {"zh-TW": "收起 ⌃", "en": "Collapse ⌃", "vi": "Thu gọn ⌃"}, "没有更多数据了": {"zh-TW": "沒有更多資料了", "en": "No more records", "vi": "Đã hết dữ liệu"}, "暂无数据": {"zh-TW": "暫無資料", "en": "No records", "vi": "Chưa có dữ liệu"}, "元": {"zh-TW": "元", "en": "CNY", "vi": "CNY"}, "金刚": {"zh-TW": "金剛", "en": "KingKong", "vi": "KingKong"}, "ⓘ 尊敬的客户：当日总有效投注额满足活动要求，即可申…": {"zh-TW": "ⓘ 尊敬的客戶：當日總有效投注額滿足活動要求，即可申…", "en": "ⓘ Dear customer: meet the daily valid turnover target to claim…", "vi": "ⓘ Kính gửi quý khách: đạt mức cược hợp lệ trong ngày để nhận…"}, "次日返利": {"zh-TW": "次日返利", "en": "Next-day Rebate", "vi": "Hoàn trả hôm sau"}, "充值优惠": {"zh-TW": "充值優惠", "en": "Deposit Bonus", "vi": "Ưu đãi nạp tiền"}, "幸运转盘": {"zh-TW": "幸運轉盤", "en": "Lucky Wheel", "vi": "Vòng quay may mắn"}, "每日签到": {"zh-TW": "每日簽到", "en": "Daily Check-in", "vi": "Điểm danh hằng ngày"}, "推广代理": {"zh-TW": "推廣代理", "en": "Affiliate", "vi": "Đại lý"}, "客服中心": {"zh-TW": "客服中心", "en": "Support", "vi": "Hỗ trợ"}, "真人": {"zh-TW": "真人", "en": "Live Casino", "vi": "Casino trực tuyến"}, "老虎机": {"zh-TW": "老虎機", "en": "Slots", "vi": "Slots"}, "彩票": {"zh-TW": "彩票", "en": "Lottery", "vi": "Xổ số"}, "弹珠": {"zh-TW": "彈珠", "en": "Pinball", "vi": "Pinball"}, "趣投": {"zh-TW": "趣投", "en": "Fun Bets", "vi": "Cược vui"}, "刮刮乐": {"zh-TW": "刮刮樂", "en": "Scratch", "vi": "Cào thẻ"}, "棋牌": {"zh-TW": "棋牌", "en": "Card & Board", "vi": "Bài & Cờ"}, "捕鱼": {"zh-TW": "捕魚", "en": "Fishing", "vi": "Bắn cá"}, "电竞": {"zh-TW": "電競", "en": "Esports", "vi": "Thể thao điện tử"}, "最佳好友组局": {"zh-TW": "最佳好友組局", "en": "Play with friends", "vi": "Chơi cùng bạn bè"}, "金刚牌局": {"zh-TW": "金剛牌局", "en": "KingKong Poker", "vi": "KingKong Poker"}, "玩家自由买卖": {"zh-TW": "玩家自由買賣", "en": "Peer-to-peer trading", "vi": "Giao dịch giữa người chơi"}, "体育赛事": {"zh-TW": "體育賽事", "en": "Sports", "vi": "Thể thao"}, "大厅": {"zh-TW": "大廳", "en": "Home", "vi": "Trang chủ"}, "社区": {"zh-TW": "社群", "en": "Community", "vi": "Cộng đồng"}, "会话": {"zh-TW": "訊息", "en": "Chat", "vi": "Tin nhắn"}, "我的": {"zh-TW": "我的", "en": "Me", "vi": "Tôi"}, "游戏大厅": {"zh-TW": "遊戲大廳", "en": "Game Lobby", "vi": "Sảnh trò chơi"}, "最爱": {"zh-TW": "最愛", "en": "Favorites", "vi": "Yêu thích"}, "牌局": {"zh-TW": "牌局", "en": "Poker", "vi": "Poker"}, "体育": {"zh-TW": "體育", "en": "Sports", "vi": "Thể thao"}, "活动中心": {"zh-TW": "活動中心", "en": "Promotions", "vi": "Khuyến mãi"}, "KG 体育": {"zh-TW": "KG 體育", "en": "KG Sports", "vi": "KG Sports"}, "BTi 体育": {"zh-TW": "BTi 體育", "en": "BTi Sports", "vi": "BTi Sports"}, "IM 体育": {"zh-TW": "IM 體育", "en": "IM Sports", "vi": "IM Sports"}, "SABA 体育": {"zh-TW": "SABA 體育", "en": "SABA Sports", "vi": "SABA Sports"}, "竞彩体育": {"zh-TW": "競彩體育", "en": "Sports Lottery", "vi": "Xổ số thể thao"}, "金刚体育彩票": {"zh-TW": "金剛體育彩票", "en": "KingKong Sports Lottery", "vi": "Xổ số thể thao KingKong"}, "竞彩足球": {"zh-TW": "競彩足球", "en": "Football", "vi": "Bóng đá"}, "竞彩篮球": {"zh-TW": "競彩籃球", "en": "Basketball", "vi": "Bóng rổ"}, "当前筛选下该赛事日无赛事": {"zh-TW": "目前篩選條件下該賽事日無賽事", "en": "No matches on this day under the current filter", "vi": "Không có trận nào trong ngày này với bộ lọc hiện tại"}, "分析 ⌃": {"zh-TW": "分析 ⌃", "en": "Stats ⌃", "vi": "Thống kê ⌃"}, "分析 ⌄": {"zh-TW": "分析 ⌄", "en": "Stats ⌄", "vi": "Thống kê ⌄"}, "投注比例": {"zh-TW": "投注比例", "en": "Bet Ratio", "vi": "Tỷ lệ đặt cược"}, "查看": {"zh-TW": "查看", "en": "View", "vi": "Xem"}, "周一": {"zh-TW": "週一", "en": "Mon", "vi": "T2"}, "周二": {"zh-TW": "週二", "en": "Tue", "vi": "T3"}, "周三": {"zh-TW": "週三", "en": "Wed", "vi": "T4"}, "周四": {"zh-TW": "週四", "en": "Thu", "vi": "T5"}, "周五": {"zh-TW": "週五", "en": "Fri", "vi": "T6"}, "周六": {"zh-TW": "週六", "en": "Sat", "vi": "T7"}, "周日": {"zh-TW": "週日", "en": "Sun", "vi": "CN"}, "独赢盘": {"zh-TW": "獨贏盤", "en": "1X2", "vi": "1X2"}, "独赢": {"zh-TW": "獨贏", "en": "1X2", "vi": "1X2"}, "全场让球": {"zh-TW": "全場讓球", "en": "Handicap", "vi": "Chấp toàn trận"}, "胜负盘": {"zh-TW": "勝負盤", "en": "Moneyline", "vi": "Thắng thua"}, "让分胜负盘": {"zh-TW": "讓分勝負盤", "en": "Point Spread", "vi": "Chấp điểm"}, "让分胜负": {"zh-TW": "讓分勝負", "en": "Point Spread", "vi": "Chấp điểm"}, "比分盘": {"zh-TW": "比分盤", "en": "Correct Score", "vi": "Tỷ số chính xác"}, "半全场盘": {"zh-TW": "半全場盤", "en": "Half/Full Time", "vi": "Hiệp 1 / Cả trận"}, "进球数盘": {"zh-TW": "進球數盤", "en": "Total Goals", "vi": "Tổng bàn thắng"}, "进球数": {"zh-TW": "進球數", "en": "Total Goals", "vi": "Tổng bàn thắng"}, "胜分差盘": {"zh-TW": "勝分差盤", "en": "Winning Margin", "vi": "Cách biệt điểm"}, "胜分差": {"zh-TW": "勝分差", "en": "Winning Margin", "vi": "Cách biệt điểm"}, "大小分盘": {"zh-TW": "大小分盤", "en": "Over/Under", "vi": "Tài/Xỉu"}, "大小分": {"zh-TW": "大小分", "en": "Over/Under", "vi": "Tài/Xỉu"}, "让分/让球": {"zh-TW": "讓分/讓球", "en": "Handicap", "vi": "Chấp"}, "胜负/独赢": {"zh-TW": "勝負/獨贏", "en": "Moneyline / 1X2", "vi": "Thắng thua / 1X2"}, "<s>胜</s>": {"zh-TW": "<s>勝</s>", "en": "<s>Home</s>", "vi": "<s>Chủ</s>"}, "<span>胜</span>": {"zh-TW": "<span>勝</span>", "en": "<span>Home</span>", "vi": "<span>Chủ</span>"}, "<s>平</s>": {"zh-TW": "<s>和</s>", "en": "<s>Draw</s>", "vi": "<s>Hòa</s>"}, "<span>平</span>": {"zh-TW": "<span>和</span>", "en": "<span>Draw</span>", "vi": "<span>Hòa</span>"}, "<s>负</s>": {"zh-TW": "<s>負</s>", "en": "<s>Away</s>", "vi": "<s>Khách</s>"}, "<span>负</span>": {"zh-TW": "<span>負</span>", "en": "<span>Away</span>", "vi": "<span>Khách</span>"}, "<span>让胜</span>": {"zh-TW": "<span>讓勝</span>", "en": "<span>Home (HDP)</span>", "vi": "<span>Chủ (chấp)</span>"}, "<span>让平</span>": {"zh-TW": "<span>讓和</span>", "en": "<span>Draw (HDP)</span>", "vi": "<span>Hòa (chấp)</span>"}, "<span>让负</span>": {"zh-TW": "<span>讓負</span>", "en": "<span>Away (HDP)</span>", "vi": "<span>Khách (chấp)</span>"}, "<s>大</s>": {"zh-TW": "<s>大</s>", "en": "<s>Over</s>", "vi": "<s>Tài</s>"}, ">大<": {"zh-TW": ">大<", "en": ">Over<", "vi": ">Tài<"}, "<s>小</s>": {"zh-TW": "<s>小</s>", "en": "<s>Under</s>", "vi": "<s>Xỉu</s>"}, ">小<": {"zh-TW": ">小<", "en": ">Under<", "vi": ">Xỉu<"}, "大于": {"zh-TW": "大於", "en": "Over", "vi": "Tài"}, "小于": {"zh-TW": "小於", "en": "Under", "vi": "Xỉu"}, "主队胜比分": {"zh-TW": "主隊勝比分", "en": "Home Win", "vi": "Chủ thắng"}, "平比分": {"zh-TW": "和局比分", "en": "Draw", "vi": "Hòa"}, "主队负比分": {"zh-TW": "主隊負比分", "en": "Away Win", "vi": "Khách thắng"}, "半全场": {"zh-TW": "半全場", "en": "HT/FT", "vi": "H1/CT"}, "总进球": {"zh-TW": "總進球", "en": "Total Goals", "vi": "Tổng bàn"}, "主胜": {"zh-TW": "主勝", "en": "Home", "vi": "Chủ"}, "客胜": {"zh-TW": "客勝", "en": "Away", "vi": "Khách"}, "其它比分": {"zh-TW": "其它比分", "en": "Other Score", "vi": "Tỷ số khác"}, "胜/胜": {"zh-TW": "勝/勝", "en": "1/1", "vi": "1/1"}, "胜/平": {"zh-TW": "勝/和", "en": "1/X", "vi": "1/X"}, "胜/负": {"zh-TW": "勝/負", "en": "1/2", "vi": "1/2"}, "平/胜": {"zh-TW": "和/勝", "en": "X/1", "vi": "X/1"}, "平/平": {"zh-TW": "和/和", "en": "X/X", "vi": "X/X"}, "平/负": {"zh-TW": "和/負", "en": "X/2", "vi": "X/2"}, "负/胜": {"zh-TW": "負/勝", "en": "2/1", "vi": "2/1"}, "负/平": {"zh-TW": "負/和", "en": "2/X", "vi": "2/X"}, "负/负": {"zh-TW": "負/負", "en": "2/2", "vi": "2/2"}, "0-1球": {"zh-TW": "0-1球", "en": "0-1 goals", "vi": "0-1 bàn"}, "2-3球": {"zh-TW": "2-3球", "en": "2-3 goals", "vi": "2-3 bàn"}, "4-6球": {"zh-TW": "4-6球", "en": "4-6 goals", "vi": "4-6 bàn"}, "7球或以上": {"zh-TW": "7球或以上", "en": "7+ goals", "vi": "7+ bàn"}, "胜 1-5": {"zh-TW": "勝 1-5", "en": "Home by 1-5", "vi": "Chủ hơn 1-5"}, "胜 6-10": {"zh-TW": "勝 6-10", "en": "Home by 6-10", "vi": "Chủ hơn 6-10"}, "胜 11-15": {"zh-TW": "勝 11-15", "en": "Home by 11-15", "vi": "Chủ hơn 11-15"}, "胜 16-20": {"zh-TW": "勝 16-20", "en": "Home by 16-20", "vi": "Chủ hơn 16-20"}, "胜 21-25": {"zh-TW": "勝 21-25", "en": "Home by 21-25", "vi": "Chủ hơn 21-25"}, "胜 26+": {"zh-TW": "勝 26+", "en": "Home by 26+", "vi": "Chủ hơn 26+"}, "负 1-5": {"zh-TW": "負 1-5", "en": "Away by 1-5", "vi": "Khách hơn 1-5"}, "负 6-10": {"zh-TW": "負 6-10", "en": "Away by 6-10", "vi": "Khách hơn 6-10"}, "负 11-15": {"zh-TW": "負 11-15", "en": "Away by 11-15", "vi": "Khách hơn 11-15"}, "负 16-20": {"zh-TW": "負 16-20", "en": "Away by 16-20", "vi": "Khách hơn 16-20"}, "负 21-25": {"zh-TW": "負 21-25", "en": "Away by 21-25", "vi": "Khách hơn 21-25"}, "负 26+": {"zh-TW": "負 26+", "en": "Away by 26+", "vi": "Khách hơn 26+"}, "立即投注": {"zh-TW": "立即投注", "en": "Place Bet", "vi": "Đặt cược ngay"}, "余额CNY": {"zh-TW": "餘額CNY", "en": "Balance CNY", "vi": "Số dư CNY"}, "封盘，不可投注": {"zh-TW": "已封盤，無法投注", "en": "Closed – betting unavailable", "vi": "Đã đóng kèo – không thể cược"}, "单关": {"zh-TW": "單關", "en": "Single", "vi": "Cược đơn"}, "过关选择": {"zh-TW": "過關選擇", "en": "Parlay Options", "vi": "Chọn xâu"}, "（含复式）": {"zh-TW": "（含複式）", "en": " (multiple)", "vi": " (nhiều lựa chọn)"}, "基础金额设置：": {"zh-TW": "基礎金額設定：", "en": "Base stake:", "vi": "Mức cược cơ bản:"}, "预计最高奖金:": {"zh-TW": "預估最高獎金:", "en": "Max payout:", "vi": "Tiền thưởng tối đa:"}, "金额:": {"zh-TW": "金額:", "en": "Stake:", "vi": "Tiền cược:"}, "温馨提示": {"zh-TW": "溫馨提示", "en": "Confirm", "vi": "Xác nhận"}, "确认无误，是否立即下注？": {"zh-TW": "確認無誤，是否立即下注？", "en": "Details correct? Place this bet now?", "vi": "Thông tin đã đúng? Đặt cược ngay?"}, "切换球类": {"zh-TW": "切換球種", "en": "Switch Sport", "vi": "Đổi môn thể thao"}, "竞彩足球与竞彩篮球不可混合过关。": {"zh-TW": "競彩足球與競彩籃球不可混合過關。", "en": "Football and basketball cannot be combined in one parlay.", "vi": "Bóng đá và bóng rổ không thể ghép chung một xâu."}, "确认切换": {"zh-TW": "確認切換", "en": "Switch", "vi": "Đổi"}, "投注单": {"zh-TW": "投注單", "en": "Bet Slip", "vi": "Phiếu cược"}, "✓ 投注成功": {"zh-TW": "✓ 投注成功", "en": "✓ Bet placed", "vi": "✓ Đặt cược thành công"}, "最高可赢:": {"zh-TW": "最高可贏:", "en": "Max win:", "vi": "Thắng tối đa:"}, "投注金额:": {"zh-TW": "投注金額:", "en": "Stake:", "vi": "Tiền cược:"}, "保留选项": {"zh-TW": "保留選項", "en": "Keep selections", "vi": "Giữ lựa chọn"}, "竞彩足球与竞彩篮球不可混合过关": {"zh-TW": "競彩足球與競彩籃球不可混合過關", "en": "Football and basketball cannot be combined", "vi": "Không thể ghép bóng đá với bóng rổ"}, "最多添加 20 个选项": {"zh-TW": "最多加入 20 個選項", "en": "Up to 20 selections", "vi": "Tối đa 20 lựa chọn"}, "最多选择8场赛事": {"zh-TW": "最多選擇 8 場賽事", "en": "Up to 8 matches", "vi": "Tối đa 8 trận"}, "组合过关至少需要选择两场比赛": {"zh-TW": "組合過關至少需選擇兩場比賽", "en": "A parlay needs at least 2 matches", "vi": "Cược xâu cần ít nhất 2 trận"}, "倍数上限 999": {"zh-TW": "倍數上限 999", "en": "Maximum 999×", "vi": "Tối đa 999×"}, "请先选择投注项": {"zh-TW": "請先選擇投注項", "en": "Select a bet first", "vi": "Vui lòng chọn kèo trước"}, "MAX 取余额与单笔投注上限的较小值": {"zh-TW": "MAX 取餘額與單筆投注上限的較小值", "en": "MAX = lesser of balance and single-ticket limit", "vi": "MAX = giá trị nhỏ hơn giữa số dư và hạn mức mỗi phiếu"}, "余额不足，请充值。": {"zh-TW": "餘額不足，請儲值。", "en": "Insufficient balance. Please deposit.", "vi": "Số dư không đủ. Vui lòng nạp tiền."}, "组合过关每场限选 1 项，请调整后再下注": {"zh-TW": "組合過關每場限選 1 項，請調整後再下注", "en": "One selection per match in a parlay. Please adjust.", "vi": "Mỗi trận chỉ chọn 1 kèo khi cược xâu. Vui lòng điều chỉnh."}, "注单记录": {"zh-TW": "注單記錄", "en": "Bet History", "vi": "Lịch sử cược"}, "未结算": {"zh-TW": "未結算", "en": "Open", "vi": "Chưa kết toán"}, "已结算": {"zh-TW": "已結算", "en": "Settled", "vi": "Đã kết toán"}, "单关投注": {"zh-TW": "單關投注", "en": "Singles", "vi": "Cược đơn"}, "组合过关": {"zh-TW": "組合過關", "en": "Parlays", "vi": "Cược xâu"}, "今日": {"zh-TW": "今日", "en": "Today", "vi": "Hôm nay"}, "昨天": {"zh-TW": "昨天", "en": "Yesterday", "vi": "Hôm qua"}, "7天": {"zh-TW": "7天", "en": "7 days", "vi": "7 ngày"}, "30天": {"zh-TW": "30天", "en": "30 days", "vi": "30 ngày"}, "总计:": {"zh-TW": "總計:", "en": "Total:", "vi": "Tổng:"}, "输赢:": {"zh-TW": "輸贏:", "en": "P/L:", "vi": "Lãi/Lỗ:"}, "待结算": {"zh-TW": "待結算", "en": "Pending", "vi": "Chờ kết toán"}, ">赢<": {"zh-TW": ">贏<", "en": ">Win<", "vi": ">Thắng<"}, ">输<": {"zh-TW": ">輸<", "en": ">Loss<", "vi": ">Thua<"}, "已退款": {"zh-TW": "已退款", "en": "Refunded", "vi": "Đã hoàn tiền"}, "已作废": {"zh-TW": "已作廢", "en": "Voided", "vi": "Đã hủy"}, "作废": {"zh-TW": "作廢", "en": "Void", "vi": "Hủy"}, "注数:": {"zh-TW": "注數:", "en": "Bets:", "vi": "Số cược:"}, "中奖金额:": {"zh-TW": "中獎金額:", "en": "Payout:", "vi": "Tiền thắng:"}, "退款金额:": {"zh-TW": "退款金額:", "en": "Refund:", "vi": "Tiền hoàn:"}, "中奖注数:": {"zh-TW": "中獎注數:", "en": "Winning bets:", "vi": "Số cược thắng:"}, "结算时间:": {"zh-TW": "結算時間:", "en": "Settled at:", "vi": "Thời gian kết toán:"}, "下注时间:": {"zh-TW": "下注時間:", "en": "Bet time:", "vi": "Thời gian cược:"}, "(欧洲盘)": {"zh-TW": "(歐洲盤)", "en": " (EU odds)", "vi": " (kèo Châu Âu)"}, "注单号:": {"zh-TW": "注單號:", "en": "Ticket No.:", "vi": "Mã phiếu:"}, "半场 ": {"zh-TW": "半場 ", "en": "HT ", "vi": "H1 "}, " 全场 ": {"zh-TW": " 全場 ", "en": " FT ", "vi": " CT "}, "赛事取消": {"zh-TW": "賽事取消", "en": "Match cancelled", "vi": "Trận đấu bị hủy"}, "赛事取消：下单锁定赔率 ": {"zh-TW": "賽事取消：下單鎖定賠率 ", "en": "Match cancelled. Odds locked at ", "vi": "Trận bị hủy. Tỷ lệ đã khóa "}, "，串关按生效赔率 ": {"zh-TW": "，串關按生效賠率 ", "en": ", parlay settled at ", "vi": ", xâu tính theo tỷ lệ "}, " 计算": {"zh-TW": " 計算", "en": "", "vi": ""}, "单关全额退款": {"zh-TW": "單關全額退款", "en": "single bet fully refunded", "vi": "cược đơn hoàn tiền toàn bộ"}, "组合": {"zh-TW": "組合", "en": "Combo", "vi": "Tổ hợp"}, "赔率": {"zh-TW": "賠率", "en": "Odds", "vi": "Tỷ lệ"}, "可赢": {"zh-TW": "可贏", "en": "Max win", "vi": "Thắng tối đa"}, "派奖": {"zh-TW": "派獎", "en": "Payout", "vi": "Tiền trả"}, " · 胜": {"zh-TW": " · 勝", "en": " · Home", "vi": " · Chủ"}, " · 平": {"zh-TW": " · 和", "en": " · Draw", "vi": " · Hòa"}, " · 负": {"zh-TW": " · 負", "en": " · Away", "vi": " · Khách"}, " · 大": {"zh-TW": " · 大", "en": " · Over", "vi": " · Tài"}, " · 小": {"zh-TW": " · 小", "en": " · Under", "vi": " · Xỉu"}, " · 胜1-5": {"zh-TW": " · 勝1-5", "en": " · Home by 1-5", "vi": " · Chủ hơn 1-5"}};
+var I18N_ORDER=["ⓘ 尊敬的客户：当日总有效投注额满足活动要求，即可申…", "组合过关每场限选 1 项，请调整后再下注", "MAX 取余额与单笔投注上限的较小值", "竞彩足球与竞彩篮球不可混合过关。", "竞彩足球与竞彩篮球不可混合过关", "<span>让胜</span>", "<span>让负</span>", "<span>让平</span>", "<span>负</span>", "组合过关至少需要选择两场比赛", "<span>平</span>", "<span>胜</span>", "确认无误，是否立即下注？", "当前筛选下该赛事日无赛事", "赛事取消：下单锁定赔率 ", "最多添加 20 个选项", "，串关按生效赔率 ", "余额不足，请充值。", "最多选择8场赛事", "<s>胜</s>", "<s>小</s>", "倍数上限 999", "<s>负</s>", "<s>平</s>", "<s>大</s>", "请先选择投注项", " · 胜1-5", "胜 21-25", "没有更多数据了", "负 21-25", "胜 16-20", "负 16-20", "封盘，不可投注", "胜 11-15", "负 11-15", "SABA 体育", "基础金额设置：", "预计最高奖金:", "胜 6-10", "负 6-10", "最佳好友组局", "BTi 体育", "金刚体育彩票", "玩家自由买卖", "✓ 投注成功", "单关全额退款", "负 26+", "退款金额:", "投注金额:", "最高可赢:", "IM 体育", "让分/让球", "胜 26+", "胜负/独赢", "中奖金额:", "(欧洲盘)", "7球或以上", "负 1-5", "胜 1-5", "中奖注数:", "结算时间:", "KG 体育", "下注时间:", "主队负比分", "余额CNY", "让分胜负盘", "（含复式）", "主队胜比分", "保留选项", "充值优惠", "赛事取消", "游戏大厅", "2-3球", "分析 ⌄", "过关选择", "4-6球", "注单记录", "全场让球", "大小分盘", " 全场 ", "让分胜负", "每日签到", "切换球类", "进球数盘", "确认切换", "半全场盘", " · 小", "幸运转盘", "客服中心", "暂无数据", "单关投注", " · 胜", " · 负", "组合过关", "竞彩体育", " · 平", "注单号:", "0-1球", "金刚牌局", "立即投注", "活动中心", "竞彩篮球", "胜分差盘", "竞彩足球", "收起 ⌃", "体育赛事", "分析 ⌃", "温馨提示", "次日返利", " · 大", "展开 ⌄", "推广代理", "投注比例", "其它比分", "半场 ", "待结算", "胜/胜", "负/胜", "半全场", "比分盘", "已结算", "胜分差", "已作废", "胜/平", "大小分", "金额:", "老虎机", "负/平", "平/胜", "胜/负", "输赢:", "总进球", ">输<", ">赢<", "平/负", "注数:", ">大<", "未结算", "刮刮乐", ">小<", " 计算", "30天", "胜负盘", "投注单", "已退款", "平/平", "总计:", "平比分", "进球数", "负/负", "独赢盘", "周三", "确认", "复制", "大厅", "真人", "派奖", "小于", "捕鱼", "主胜", "周五", "组合", "牌局", "体育", "社区", "昨天", "赔率", "7天", "查看", "弹珠", "金刚", "今日", "独赢", "会话", "电竞", "棋牌", "彩票", "取消", "单关", "最爱", "我的", "周二", "作废", "周一", "可赢", "周四", "周六", "周日", "大于", "客胜", "趣投", "元", "是", "否"];
+var I18N_PAT=[["共 <b>(\\d+)</b> 场", {"zh-TW": "共 <b>$1</b> 場", "en": "<b>$1</b> matches", "vi": "<b>$1</b> trận"}], ["已选(\\d+)场", {"zh-TW": "已選$1場", "en": "$1 selected", "vi": "Đã chọn $1"}], ["购物车\\((\\d+)\\)", {"zh-TW": "購物車($1)", "en": "Bet Slip ($1)", "vi": "Phiếu cược ($1)"}], ["(\\d+)场:<b>(\\d+)</b>注", {"zh-TW": "$1場:<b>$2</b>注", "en": "$1 matches: <b>$2</b> bets", "vi": "$1 trận: <b>$2</b> cược"}], ["组合详情（([^，]+)，共 (\\d+) 注）", {"zh-TW": "組合詳情（$1，共 $2 注）", "en": "Combo details ($1, $2 bets)", "vi": "Chi tiết xâu ($1, $2 cược)"}], ["已含 (\\d+) 倍", {"zh-TW": "已含 $1 倍", "en": "incl. ×$1", "vi": "đã gồm ×$1"}], ["关数上限 <b>(\\d+)</b> 关，最多选择 <b>(\\d+)</b> 场；本球类当前可投 (\\d+) 场，最多只能组 (\\d+) 关。", {"zh-TW": "過關上限 <b>$1</b> 關，最多選擇 <b>$2</b> 場；本球種目前可投 $3 場，最多只能組 $4 關。", "en": "Up to <b>$1</b> folds and <b>$2</b> matches. $3 matches available now, so at most $4 folds.", "vi": "Tối đa <b>$1</b> xâu và <b>$2</b> trận. Hiện có $3 trận, nên tối đa $4 xâu."}], ["([^>]+) 单注最高派奖 ([\\d,.]+) 元，超过封顶 ([\\d,.]+) 元，超出部分不派奖", {"zh-TW": "$1 單注最高派獎 $2 元，超過封頂 $3 元，超出部分不派獎", "en": "$1: max payout per bet $2 exceeds the $3 cap; the excess is not paid", "vi": "$1: tiền trả tối đa mỗi cược $2 vượt trần $3; phần vượt không được trả"}], ["投注金额 ([\\d,.]+) 元，超过单张彩票上限 ([\\d,.]+) 元", {"zh-TW": "投注金額 $1 元，超過單張彩票上限 $2 元", "en": "Stake $1 exceeds the single-ticket limit of $2", "vi": "Tiền cược $1 vượt hạn mức mỗi phiếu $2"}], ["投注单内有 (\\d+) 个选项已封盘，不可投注，请删除后再下单", {"zh-TW": "投注單內有 $1 個選項已封盤，無法投注，請刪除後再下單", "en": "$1 selection(s) in the slip are closed. Remove them before betting.", "vi": "$1 lựa chọn trong phiếu đã đóng kèo. Vui lòng xóa trước khi đặt."}], ["当前单注金额 ([\\d,.]+) 元", {"zh-TW": "目前單注金額 $1 元", "en": "Current stake per bet: $1", "vi": "Tiền cược mỗi vé: $1"}], ["切换后将清空当前已选的 (\\d+) 个选项", {"zh-TW": "切換後將清空目前已選的 $1 個選項", "en": "Switching clears the $1 selection(s) you have made", "vi": "Chuyển đổi sẽ xóa $1 lựa chọn hiện tại"}], [" · 共 (\\d+) 注", {"zh-TW": " · 共 $1 注", "en": " · $1 bets", "vi": " · $1 cược"}], ["</b> 单", {"zh-TW": "</b> 單", "en": "</b> tickets", "vi": "</b> phiếu"}], ["逐注明细（(\\d+)注 · 单注 ([\\d,.]+) 元）", {"zh-TW": "逐注明細（$1注 · 單注 $2 元）", "en": "Bet breakdown ($1 bets · $2 each)", "vi": "Chi tiết từng cược ($1 cược · $2 mỗi cược)"}], ["（(\\d+)注）", {"zh-TW": "（$1注）", "en": " ($1 bets)", "vi": " ($1 cược)"}], ["最多支持 (\\d+) 关，已自动收窄", {"zh-TW": "最多支援 $1 關，已自動收窄", "en": "Up to $1 folds; narrowed automatically", "vi": "Tối đa $1 xâu; đã tự động thu hẹp"}], ["胜 (\\d+\\.\\d\\d)", {"zh-TW": "勝 $1", "en": "Home $1", "vi": "Chủ $1"}], ["平 (\\d+\\.\\d\\d)", {"zh-TW": "和 $1", "en": "Draw $1", "vi": "Hòa $1"}], ["负 (\\d+\\.\\d\\d)", {"zh-TW": "負 $1", "en": "Away $1", "vi": "Khách $1"}], ["当前玩法最多支持 (\\d+) 关", {"zh-TW": "目前玩法最多支援 $1 關", "en": "This market supports up to $1 folds", "vi": "Kèo này hỗ trợ tối đa $1 xâu"}], ["(\\d+)串(\\d+)", {"zh-TW": "$1串$2", "en": "$1×$2", "vi": "$1×$2"}], ["(\\d+)关(?![数，。])", {"zh-TW": "$1關", "en": "$1-fold", "vi": "Xâu $1"}], ["(\\d+)注(?!数|单)", {"zh-TW": "$1注", "en": "$1 bets", "vi": "$1 cược"}], ["(\\d+)倍", {"zh-TW": "$1倍", "en": "×$1", "vi": "×$1"}]];
+function i18nEsc(x){return x.replace(/([.*+?^${}()|\[\]\\])/g,'\\$1')}
+var I18N_RE=new RegExp(I18N_ORDER.map(i18nEsc).join('|'),'g');
+var I18N_PRE=I18N_PAT.map(function(p){return [new RegExp(p[0],'g'),p[1]]});
+function tr(h){
+  if(LANG==='zh-CN')return h;
+  for(var i=0;i<I18N_PRE.length;i++){h=h.replace(I18N_PRE[i][0],I18N_PRE[i][1][LANG])}
+  return h.replace(I18N_RE,function(m){var v=I18N_LIT[m];return (v&&v[LANG]!==undefined)?v[LANG]:m});
+}
 function toast(t){S.toast=t;render();setTimeout(function(){if(S.toast===t){S.toast='';render()}},2300)}
 function normalize(){
   var Mc=matchCount(),cap=foldCap();
@@ -731,7 +795,16 @@ function fmt(n){return n.toLocaleString('en-US',{minimumFractionDigits:2,maximum
 function li(a){return '<ul><li>'+a.join('</li><li>')+'</li></ul>'}
 var SPECS={
 A1:{n:'平台首页',node:'9354:19163',f:'ok',dl:[
- ['入口归属','<div class="callout"><b>已定：复用「体育赛事」大卡。</b>点大卡进游戏大厅，再从大厅里的竞彩厂商卡进入。九宫格的「彩票」<b>不承载竞彩入口，点击事件去掉</b>，避免与真彩票混淆。</div>']
+ ['入口归属','<div class="callout"><b>已定：复用「体育赛事」大卡。</b>点大卡进游戏大厅，再从大厅里的竞彩厂商卡进入。九宫格的「彩票」<b>不承载竞彩入口，点击事件去掉</b>，避免与真彩票混淆。</div>'],
+ ['国际化（全局）','<div class="callout"><b>四语：简体中文（源）／繁体中文／English／Tiếng Việt。</b>原型顶部有语言切换器，可实时对比。完整 key 与译文见配套《竞彩体育_国际化文案表》，共 216 条。</div>'+
+  li(['<b>范围只含手机内 UI 文案</b>。右侧需求说明是内部 PRD，不翻译。',
+  '<b>队名、联赛名不在文案表里</b>——属于赛事数据，由三方数据源按语言下发。联赛简写在任何语言下都<b>只用于展示，不得当匹配键</b>，筛选去重一律用联赛 ID（见 A4）。',
+  '<b>含变量的文案必须用占位符</b>，禁止字符串拼接。「已选 3 场」在英文是「3 selected」、越南文是「Đã chọn 3」，语序不同，拼接会把中文语序写死。文案表已标出 22 条含参数文案。',
+  '<b>M串N 的 N 是注数</b>：中文「3串4」，英文与越南文写「3×4」，不可译成场数。',
+  '<b>印章「赢」指本单有中奖注，不等于净盈利</b>：英文 Win / Loss，不要译成 Profit / Loss。部分中奖且净亏时印章仍是 Win（见 E1b）。',
+  '<b>半全场 9 项用国际通用写法</b> 1/1、1/X、1/2…，英文与越南文都不逐字直译。',
+  '<b>定宽控件要按最长译文校验</b>：玩法胶囊（Correct Score）、注单印章（Thắng）、联赛徽标三处已知会溢出，原型已按语言降字号处理。',
+  '<b>原型的实现方式不要照抄</b>：原型用的是「以简体源串整串映射」的展示层做法，只为评审演示；正式实现按文案表的 key 落资源文件。'])]
 ]},
 A2:{n:'游戏大厅',node:'9304:316047',f:'ok',dl:[
  ['分类归属','竞彩作为一个厂商卡出现，放「体育」还是「彩票」分类与 A1 的决策保持一致。'],
@@ -908,6 +981,9 @@ D2:{n:'投注结果·多票',node:'9343:152257',f:'ok',dl:[
 ]},
 D3:{n:'点击分析',node:'9353:336228',f:'ok',dl:[
  ['展开内容','<div class="callout"><b>已定：按竞品做官方投注比例。</b>卡内就地展开两行表格——第一行独赢／胜负盘的胜、平、负投注占比，第二行让球（让分）盘的让胜、让平、让负占比。设计稿这一屏是空缺的，按竞品补齐。</div>'],
+ ['统计口径','<div class="callout"><b>已定：按<b>笔数</b>统计，不按金额。</b>分母是该场该盘口的<b>投注腿数</b>，每条腿算一笔。</div>'+li(['<b>串关按腿拆开计入</b>：一注 3 串 1 覆盖三场，就给这三场各记一笔，分别归入各自选中的选项。','<b>不按金额的原因是串关无法摊分</b>：一注 10 元的 3 串 1，整 10 元记到每场会让总额虚增三倍，按 10/3 平摊又没有依据（三场赔率不同、权重不同）。按笔数没有这个问题。','<b>复式按选项各记一笔</b>：同一场比分盘选了 3 个比分，就给这 3 个选项各记一笔，不是记一笔到最高赔率那项。','<b>倍数不放大笔数</b>：10 倍的一注仍算一笔。倍数是金额概念，计入会让口径退化成金额口径。','金额口径的价值在<b>风控侧</b>（真实敞口），那是内部看的数，与这里展示给用户的比例是两套数，不要复用同一个接口字段。'])],
+ ['统计范围与阈值',li(['<b>最小样本阈值</b>：该场笔数低于阈值时，<b>分析入口整块不渲染</b>（不是渲染后置灰），因为前几笔会出现 100%/0%/0% 这种毫无信息量的比例，展示出去是误导。阈值由运营配置。','<b>统计窗口</b>：从该场开盘累计到当前，不做滚动窗口——滚动值抖动大，且用户无法判断统计区间。','<b>数据范围</b>：仅统计本平台自有注单。冷门场次单量小，靠上面的阈值兜住。','<b>剔除</b>：内部测试号、风控标记号不计入。','<b>封盘后冻结</b>：封盘即停止更新，保留最后一次结果（比赛已从列表移除，此值只在注单详情等场景可能被回看）。','<b>刷新</b>：展开时取一次，可走短缓存（建议 60 秒），不做实时推送——这个数对时效不敏感。'])],
+ ['展示规范',li(['三项四舍五入后可能加总为 99% 或 101%，规则固定为<b>最大项吸收误差</b>，保证界面上永远加到 100%。','某一项为 0% 时<b>照常显示 0%</b>，不隐藏、不显示「—」——隐藏会让三项看起来加不到 100%。','占比只保留<b>整数百分比</b>，不显示小数。','<b>不展示笔数绝对值</b>，只展示百分比。绝对值会暴露平台单量。'])],
  ['规则',li(['每行三项之和应为 100%；篮球没有平局，两行都改成两列（胜／负、让胜／让负）。',
   '<b>两行分别跟随对应盘口是否开出</b>：该场没有让球胜平负时，「让胜／让平／让负」整行不渲染，只剩第一行；反过来没有胜平负时只剩让球行。两个都没有则整块不渲染、分析入口不可点。原型 <b>006</b>（无让球盘）可验证。',
   '分析与玩法展开互不冲突，可同时展开。展开区<b>不标数据来源</b>。'])]
@@ -929,7 +1005,11 @@ E1:{n:'注单记录·未结算单关',node:'9343:153757',f:'ok',dl:[
 E1b:{n:'注单记录·未结算组合',node:'新增',f:'todo',dl:[
  ['现状','设计稿的「组合过关」tab 下没有画任何注单卡，竞品截图也只给了单关，这一屏按同一套结构推演补齐。'],
  ['盘口快照','<div class="callout"><b>让球/让分数与大小分盘口值必须随注单快照并展示</b>，否则赛后无法复核。例「全场让球 −1 · 胜 @1.86」「大小分 148.5 · 大于 @1.70」。</div>'],
- ['逐注明细','<b>已定：不做。</b>注单卡不提供逐注展开入口，中奖情况只给总中奖金额与中奖注数。'],
+ ['逐注明细','<div class="callout"><b>试行中：多注串关（注数 &gt; 1）的注单卡底部增加「逐注明细」折叠区，默认收起。</b>单注注单与 1 注串关<b>不出现</b>这个入口——只有一注时展开没有信息量。原型 <b>U7</b>（未结算）、<b>S9</b>（已结算）可展开。</div>'+li(['<b>折叠标题带上下文</b>：「逐注明细（3注 · 单注 10.00 元）」。单注金额必须放在标题上——它是用户理解「为什么 30 元变成 3 注」的关键，收起状态下也能看到。','<b>每行三列</b>：组合（赛事编号相加，如 001+002）／赔率算式／金额。已结算的金额列是<b>派奖</b>并跟赢输角标，未结算是<b>可赢</b>、不跟角标（还没有结果可标）。表头文案随之切换。','<b>组合用赛事编号，不用队名</b>。队名放不下，而编号在上方赛事行里已经出现过，用户能对上。','<b>未中的注派奖显示 0.00</b>，不显示「—」或留空——0.00 才能让用户把三行加起来对上中奖金额。','<b>各行可赢之和 = 卡上的最高可赢</b>，各行派奖之和 = 中奖金额。U7：55.24 + 32.55 + 51.98 = 139.77，与卡上一致。这是用户验算的唯一入口，必须严格对得上，不能有四舍五入误差。','<b>作废场次按赔率 1.00 进算式</b>，算式里直接显示 1.00（不是原赔率），与 E2「无效场次」口径一致。','<b>中奖但净亏是常态，必须能看懂</b>：3串4 里中 1 注的派奖往往小于整单投注额。原型 <b>S11</b>：4 注中 1 注、派奖 32.55、投注 40.00、<b>输赢 −7.45</b>，印章仍是「赢」。印章回答的是<b>中没中</b>，输赢回答的是<b>赚没赚</b>，两个维度不冲突，但用户第一次看到「赢 + 红色负数」一定会问，客服口径要提前准备。<b>不要</b>因此把印章改成按净额判定——那样「中奖注数 1注」配「输」印章更难解释，也与官方口径不符。','<b>混合关数按关数分组</b>：3串4 的明细分两组——「2串1（3注）」三行、「3串1（1注）」一行，组间用橙色小标题分隔。不分组的话四行混在一起，用户看不出为什么 001+002 和 001+002+003 都在，还以为重复计算了。U8 / S10 可验证。','<b>组合列宽按最长的那组定</b>：3串4 里最长是「001+002+003」，两串的行也按这个宽度对齐，不要每组各自对齐。','<b>复式时行数按「注」不按「场次组合」</b>：同一场选了 2 个选项、另一场 1 个，2串1 是 2 注两行，组合列要能区分是哪个选项——此时编号不够用，需补选项名。<b>这一条原型未覆盖，开发前需补设计。</b>'])],
+ ['逐注明细的取舍','<div class="callout">加上之后卡片变长，但收起态只多一行。<b>真正的成本在接口</b>：后端要么下发逐注数组，要么前端按场次组合自己算。</div>'+li(['<b>建议前端算，不由后端下发</b>：组合是 C(M,k) 的确定性展开，前端已有 combos 函数；后端多传一个数组只会带来两边算法不一致的风险。','<b>但结算结果必须以后端为准</b>：前端只负责把「哪几场组合成一注」画出来，「这注中没中」由后端的逐场结果推出，中奖金额、中奖注数一律用后端字段，前端算出来的派奖仅作展示对账，<b>不参与任何金额计算</b>。','场次多时行数增长快：5 场 2串1 = 10 行，8 场 2串1 = 28 行。<b>建议超过 20 行时列表内部滚动并置顶提示行数</b>，不要把卡片撑到几屏高。这条原型未做，量大时再补。'])],
+
+ ['多注串关（选 N 场只打 2 串 1）','<div class="callout"><b>已定：一张注单一张卡，不按注拆卡。</b>选 3 场、过关方式只勾 2 关，产生 C(3,2)=3 注，注单卡头行为 <b>「3场:3注 3串3」</b>。原型 <b>U7</b>（未结算）与 <b>S9</b>（已结算）即此形态。</div>'+li(['<b>不拆成三张卡</b>：这是一次下单、一个注单号、一次扣款、一次结算。拆开会让同一个注单号出现三次、金额被摊成三份，用户会以为自己下了三单。','<b>赛事行按「场」列，不按「注」列</b>——3 场就是 3 行，不是 3 注 × 2 腿 = 6 行。每场只出现一次。','<b>过关方式写 M串N，N 是注数</b>：3 场打 2 串 1 = <b>3串3</b>，不写「3场 2串1」。「2串1」是过关选择面板里的勾选项名称，M串N 是出单后的注单名称，两者是同一件事的两个视角，面板的「组合详情」行同时给出两种写法做桥接（见 C6）。','<b>投注金额 = 基础金额 × 注数 × 倍数</b>。U7：10 × 3 = 30.00。','<b>最高可赢 = 三注各自赔率乘积之和 × 基础金额</b>，不是取最大那注。U7：(1.86×2.97 + 1.86×1.75 + 2.97×1.75) × 10 = 139.77。','同时勾 2 关和 3 关时 N 累加：3 场勾「2关+3关」= 3+1 = 4 注，写作 <b>3串4</b>。原型 <b>U8</b>（未结算）、<b>S10</b>（已结算全中）即此形态。'])],
+ ['多注串关的结算展示','<div class="callout"><b>3 注里中几注，靠「中奖注数」字段 + 逐场赢／输标记表达，不列逐注明细。</b>原型 <b>S9</b>：三场中前两场赢、第三场输，中 1 注。</div>'+li(['头部印章按<b>整单</b>给：只要有一注中，印章就是<b>赢</b>；三注全不中才是输。S9 中 1 注、净额 +25.24，印章为赢。','「中奖注数 1注」与「注数 3注」分列两格，用户一眼能看出 3 注里中了 1 注。','<b>哪一注中了，由逐场标记倒推</b>：001 赢、002 赢、003 输 → 只有 001+002 这一注成立。两场标记就能定位，无需逐注明细。','<b>已补逐注明细</b>（见下一条）：场次一多，光靠逐场标记要用户自己心算 C(M,2) 个组合，5 场就是 10 个，成本不合理。明细区把这件事直接画出来。','<b>输赢（净额）按整单算</b>：中奖金额 − 投注总额，不是中的那注的盈亏。S9：55.24 − 30.00 = +25.24。'])],
  ['算例','2 场各 1 个选项、勾 2 关、基础金额 2 元、1 倍：注单显示「2场:1注 2串1」，投注金额 2.00，最高可赢 = 1.86 × 2.97 × 2 = 11.05。若改 2 倍则显示 2 注、金额 4.00、最高可赢 22.10。']
 ]},
 E2:{n:'注单记录·已结算单关',node:'9343:153007',f:'ok',dl:[
@@ -944,6 +1024,8 @@ E2:{n:'注单记录·已结算单关',node:'9343:153007',f:'ok',dl:[
 ]},
 E2b:{n:'注单记录·已结算组合',node:'新增',f:'todo',dl:[
  ['结算时机','<div class="callout"><b>已定：本期不做提前结算。</b>串关必须等<b>全部场次完赛</b>后统一结算，结算时间取最后一场的结算时刻。即使某场已判负、整注已不可能中奖，注单仍留在「未结算」里等剩余场次。<br><b>后果：</b>用户会看到「已经输了但还挂着待结算」的注单，这部分认知由未结算的逐场标记承担（见 E1b 部分结算）。后续版本若要补提前结算，只影响结算触发时机与结算时间取值，展示结构不用改。</div>'],
+ ['逐注明细','见 <b>E1b</b>「逐注明细」。已结算的明细比未结算多两样：金额列是<b>派奖</b>而非可赢，且每行跟<b>赢／输</b>角标。S9 展开后三行分别是 001+002 赢 55.24、001+003 输 0.00、002+003 输 0.00——和卡上的「中奖注数 1注」「中奖金额 55.24」完全对得上。'],
+ ['多注串关','见 <b>E1b</b>「多注串关」两条——未结算与已结算共用同一套卡结构与同一套 M串N 口径，已结算只多出中奖注数、输赢与结算时间三个字段。原型 <b>S9</b> 是 3 场 2串1 中 1 注的样例。'],
  ['过关方式一致性','四处必须统一为「M串N（· 共 X 注）」：组合详情、二次确认、结果弹窗、注单卡头行；投注面板第三格是固定文案「过关选择」，不参与这套口径。设计稿原先的「2关」「2注 2关」「2串1」三种写法作废。']
 ]},
 F1:{n:'竞彩篮球赛事列表',node:'篮球-列表',f:'ok',dl:[
@@ -1278,6 +1360,20 @@ var ORDERS=[
   legs:[{wk:'周三',no:'102',lg:'韩K联',t:'09/09 10:00',sp:1,h:'蔚山HD',a:'FC首尔',pick:'独赢 · 负',odds:'4.20',res:0,score:'半场 0:0 全场 1:0'},
         {wk:'周三',no:'010',lg:'英超',t:'09/09 22:00',sp:1,h:'阿森纳',a:'纽卡斯尔',pick:'全场让球 −1 · 胜',odds:'1.86'}]},
 
+ /* 3 场打 2 串 1 = 3 注：M串N 写作 3串3 */
+ {id:'U7',tab:'unsettled',sub:'parlay',wayName:'组合过关',way:'3串3',folds:[2],mult:1,notes:3,
+  stake:'30.00',winL:'最高可赢',win:'139.77',status:'待结算',
+  no:'JD20260909113005015',time:'2026-09-09 11:30:05',bd:'2026-09-09',
+  legs:[{wk:'周三',no:'010',lg:'英超',t:'09/09 22:00',sp:1,h:'阿森纳',a:'纽卡斯尔',pick:'独赢 · 胜',odds:'1.86'},
+        {wk:'周三',no:'002',lg:'西甲',t:'09/09 19:30',sp:1,h:'赫塔菲',a:'塞尔塔',pick:'独赢 · 平',odds:'2.97'},
+        {wk:'周三',no:'003',lg:'瑞典超',t:'09/09 20:00',sp:1,h:'马尔默',a:'索尔纳',pick:'独赢 · 胜',odds:'1.75'}]},
+ /* 3 场同时勾 2 关 + 3 关 = 3串4，共 4 注 */
+ {id:'U8',tab:'unsettled',sub:'parlay',wayName:'组合过关',way:'3串4',folds:[2,3],mult:1,notes:4,
+  stake:'40.00',winL:'最高可赢',win:'236.44',status:'待结算',
+  no:'JD20260909114220017',time:'2026-09-09 11:42:20',bd:'2026-09-09',
+  legs:[{wk:'周三',no:'010',lg:'英超',t:'09/09 22:00',sp:1,h:'阿森纳',a:'纽卡斯尔',pick:'独赢 · 胜',odds:'1.86'},
+        {wk:'周三',no:'002',lg:'西甲',t:'09/09 19:30',sp:1,h:'赫塔菲',a:'塞尔塔',pick:'独赢 · 平',odds:'2.97'},
+        {wk:'周三',no:'003',lg:'瑞典超',t:'09/09 20:00',sp:1,h:'马尔默',a:'索尔纳',pick:'独赢 · 胜',odds:'1.75'}]},
  /* 长队名 / 长联赛名样例：验证注单卡的截断与对齐 */
  {id:'U5',tab:'unsettled',sub:'parlay',wayName:'组合过关',way:'2串1',fold:2,mult:1,notes:1,
   stake:'10.00',winL:'最高可赢',win:'34.60',status:'待结算',
@@ -1320,6 +1416,27 @@ var ORDERS=[
   no:'JD20260908161530014',time:'2026-09-08 16:15:30',bd:'2026-09-08',settle:'2026-09-09 03:40:00',
   legs:[{wk:'周二',no:'302',lg:'BB Casino',t:'09/08 21:30',sp:2,h:'亚特兰大梦想',a:'Connecticut Sun CHS',pick:'大小分 165.5 · 大',odds:'1.90',res:0,score:'半场 78:71 全场 151:148'},
         {wk:'周二',no:'009',lg:'英格兰冠军联赛',t:'09/08 21:00',sp:1,h:'水晶宫',a:'谢菲尔德星期三足球俱乐部',pick:'独赢 · 胜',odds:'1.86',res:1,score:'半场 1:0 全场 3:1'}]},
+ /* 3 场 2 串 1 已结算：三注中一注，用逐场赢输倒推出是哪一注中了 */
+ {id:'S9',tab:'settled',sub:'parlay',wayName:'组合过关',way:'3串3',folds:[2],mult:1,notes:3,hit:'1注',
+  stake:'30.00',winL:'中奖金额',win:'55.24',pl:'+25.24',good:1,status:'赢',
+  no:'JD20260908150210016',time:'2026-09-08 15:02:10',bd:'2026-09-08',settle:'2026-09-09 03:12:40',
+  legs:[{wk:'周二',no:'001',lg:'英超',t:'09/08 19:00',sp:1,h:'阿森纳',a:'纽卡斯尔',pick:'独赢 · 胜',odds:'1.86',res:1,score:'半场 1:0 全场 2:0'},
+        {wk:'周二',no:'002',lg:'西甲',t:'09/08 19:30',sp:1,h:'赫塔菲',a:'塞尔塔',pick:'独赢 · 平',odds:'2.97',res:1,score:'半场 0:0 全场 1:1'},
+        {wk:'周二',no:'003',lg:'瑞典超',t:'09/08 20:00',sp:1,h:'马尔默',a:'索尔纳',pick:'独赢 · 胜',odds:'1.75',res:0,score:'半场 0:1 全场 1:2'}]},
+ /* 3串4 已结算：三场全中，4 注全中，含 3串1 那一注 */
+ {id:'S10',tab:'settled',sub:'parlay',wayName:'组合过关',way:'3串4',folds:[2,3],mult:1,notes:4,hit:'4注',
+  stake:'40.00',winL:'中奖金额',win:'236.44',pl:'+196.44',good:1,status:'赢',
+  no:'JD20260908152640018',time:'2026-09-08 15:26:40',bd:'2026-09-08',settle:'2026-09-09 03:12:40',
+  legs:[{wk:'周二',no:'001',lg:'英超',t:'09/08 19:00',sp:1,h:'阿森纳',a:'纽卡斯尔',pick:'独赢 · 胜',odds:'1.86',res:1,score:'半场 1:0 全场 2:0'},
+        {wk:'周二',no:'002',lg:'西甲',t:'09/08 19:30',sp:1,h:'赫塔菲',a:'塞尔塔',pick:'独赢 · 平',odds:'2.97',res:1,score:'半场 0:0 全场 1:1'},
+        {wk:'周二',no:'003',lg:'瑞典超',t:'09/08 20:00',sp:1,h:'马尔默',a:'索尔纳',pick:'独赢 · 胜',odds:'1.75',res:1,score:'半场 1:0 全场 2:1'}]},
+ /* 3串4 部分中奖：4 注中 1 注，且中奖金额 < 投注金额，整单净亏 */
+ {id:'S11',tab:'settled',sub:'parlay',wayName:'组合过关',way:'3串4',folds:[2,3],mult:1,notes:4,hit:'1注',
+  stake:'40.00',winL:'中奖金额',win:'32.55',pl:'−7.45',good:1,status:'赢',
+  no:'JD20260908154812019',time:'2026-09-08 15:48:12',bd:'2026-09-08',settle:'2026-09-09 02:58:20',
+  legs:[{wk:'周二',no:'001',lg:'英超',t:'09/08 19:00',sp:1,h:'阿森纳',a:'纽卡斯尔',pick:'独赢 · 胜',odds:'1.86',res:1,score:'半场 1:0 全场 2:0'},
+        {wk:'周二',no:'002',lg:'西甲',t:'09/08 19:30',sp:1,h:'赫塔菲',a:'塞尔塔',pick:'独赢 · 平',odds:'2.97',res:0,score:'半场 1:0 全场 2:1'},
+        {wk:'周二',no:'003',lg:'瑞典超',t:'09/08 20:00',sp:1,h:'马尔默',a:'索尔纳',pick:'独赢 · 胜',odds:'1.75',res:1,score:'半场 1:1 全场 3:1'}]},
  {id:'S6',tab:'settled',sub:'single',wayName:'单关投注',way:'单关',mult:1,notes:1,hit:'—',
   stake:'2.00',winL:'退款金额',win:'2.00',pl:'0.00',good:null,status:'已退款',
   no:'JD20260907180244009',time:'2026-09-07 18:02:44',bd:'2026-09-07',settle:'2026-09-08 05:10:00',
@@ -1334,6 +1451,48 @@ function inRange(o){return (RANGE[S.sRange]||RANGE.d30)(o)}
 function sealOf(o){
   var m={'待结算':'wait','赢':'win','输':'lose','已退款':'void','已作废':'void'};
   return '<span class="seal '+(m[o.status]||'wait')+(o.status.length<2?' s1':'')+'">'+o.status+'</span>';
+}
+function foldsOf(o){return o.folds||(o.fold?[o.fold]:[])}
+function noteRows(o){
+  var fs=foldsOf(o);if(!fs.length||o.notes<2)return [];
+  var unit=parseFloat(o.stake)/o.notes,out=[];
+  fs.forEach(function(k){out=out.concat(combos(o.legs,k).map(function(c){return rowOf(c,k,unit)}))});
+  return out;
+}
+function rowOf(c,k,unit){
+  return (function(){
+    var od=1,lose=false,pend=false,fs=[];
+    c.forEach(function(g){
+      var e=(g.res==='void')?1.00:parseFloat(g.odds);
+      od*=e;fs.push(e.toFixed(2));
+      if(g.res===0)lose=true;
+      if(g.res===undefined)pend=true;
+    });
+    return {k:c.map(function(g){return g.no}).join('+'),f:fs.join(' × '),way:k+'串1',
+      pay:Math.round(od*unit*100)/100,lose:lose,pend:pend};
+  })();
+}
+function noteDetail(o){
+  var rs=noteRows(o);if(!rs.length)return '';
+  var un=o.tab==='unsettled',open=S.oExpand===o.id;
+  var h='<div class="hr"></div><div class="nd"><div class="ndh" data-a="odet" data-id="'+o.id+'">'+
+    '<i>i</i>逐注明细（'+o.notes+'注 · 单注 '+(parseFloat(o.stake)/o.notes).toFixed(2)+' 元）'+
+    '<span class="cv">'+(open?'收起 ⌃':'展开 ⌄')+'</span></div>';
+  if(open){
+    h+='<div class="ndl"><div class="ndr hd"><span class="k">组合</span><span class="f">赔率</span>'+
+      '<span class="v">'+(un?'可赢':'派奖')+'</span>'+(un?'':'<span class="rmk" style="visibility:hidden">赢</span>')+'</div>';
+    var multi=foldsOf(o).length>1,last='';
+    rs.forEach(function(r){
+      var pay=r.lose?'0.00':r.pay.toFixed(2);
+      if(multi&&r.way!==last){last=r.way;
+        h+='<div class="ndr gp"><span>'+r.way+'（'+rs.filter(function(x){return x.way===r.way}).length+'注）</span></div>';}
+      h+='<div class="ndr"><span class="k">'+r.k+'</span><span class="f">'+r.f+'</span>'+
+        '<span class="v'+(r.lose?'':' green')+'">'+pay+'</span>'+
+        (un?'':'<span class="rmk '+(r.lose?'lose':'win')+'">'+(r.lose?'输':'赢')+'</span>')+'</div>';
+    });
+    h+='</div>';
+  }
+  return h+'</div>';
 }
 function plCls(v){var f=parseFloat(String(v).replace('−','-'));return f>0?'green':(f<0?'red':'')}
 function orderCard(o){
@@ -1359,7 +1518,7 @@ function orderCard(o){
     '<span>中奖注数: <b class="'+(o.good?'green':(o.good===0?'red':''))+'">'+o.hit+'</b></span>'+
     '<span>输赢: <b class="'+plCls(o.pl)+'">'+o.pl+'</b></span><span></span>'+
     '<span class="w2">结算时间: <b>'+o.settle+'</b></span>';
-  h+='</div><div class="hr"></div>'+
+  h+='</div>'+noteDetail(o)+'<div class="hr"></div>'+
     '<div class="ofoot">下注时间: '+o.time+'(欧洲盘)<br>注单号: '+o.no+'<span class="cp">复制</span></div>';
   return h+'</div>';
 }
@@ -1416,7 +1575,7 @@ function renderNav(){
     '<button class="rst" data-r="1">重置原型</button>';
 }
 function render(){
-  P.innerHTML = S.route==='entry'?viewEntry() : S.route==='lobby'?viewLobby() : S.route==='settle'?viewSettle() : viewHome();
+  P.innerHTML = tr(S.route==='entry'?viewEntry() : S.route==='lobby'?viewLobby() : S.route==='settle'?viewSettle() : viewHome());
   renderSpec();
 }
 /* ═════ 跳转 ═════ */
@@ -1556,6 +1715,16 @@ NV.addEventListener('click',function(e){
   if(b.getAttribute('data-r')){reset();return}
   jump(b.getAttribute('data-j'));
 });
+var LB=document.getElementById('langbar');
+LB.addEventListener('click',function(e){
+  var t=e.target.closest('span[data-lang]');if(!t)return;
+  LANG=t.getAttribute('data-lang');
+  document.documentElement.setAttribute('data-lang',LANG);
+  Array.prototype.forEach.call(LB.querySelectorAll('span[data-lang]'),function(x){
+    x.className=x.getAttribute('data-lang')===LANG?'on':''});
+  render();
+});
+document.documentElement.setAttribute('data-lang',LANG);
 renderNav();render();
 })();
 </script>
