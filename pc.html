@@ -435,7 +435,6 @@ table.res.betlist td{padding:16px 10px;vertical-align:middle}
 .sb-new{background:var(--grad);color:#fff;font-size:10px;border-radius:4px;padding:1px 6px}
 .chip.sm{height:24px;font-size:11px;background:transparent;border:1px solid var(--line-2)}
 .chip.sm.on{background:var(--grad-h);color:#fff;border-color:transparent}
-.cnt-r{margin-left:auto;font-size:12px;color:var(--ink-mute);align-self:center;white-space:nowrap}
 
 /* 统计卡 */
 .kpi{display:flex;gap:8px;background:var(--surface);border-radius:8px;padding:14px;box-shadow:var(--shadow)}
@@ -742,6 +741,60 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 .mk-r{display:flex;gap:6px;align-items:center;margin-top:6px}
 .mk-r .hd2{width:36px;font-size:11px;color:var(--ink-mute);text-align:center;font-variant-numeric:tabular-nums}
 .mk-r .bet{flex:1}
+
+/* ---------- 日期区间筛选控件 ---------- */
+.fbox.dr{cursor:pointer;gap:6px}
+.fbox.dr:hover{border-color:var(--accent);color:var(--accent)}
+.fbox.dr.on{border-color:var(--accent);color:var(--accent);background:rgba(255,140,0,.06)}
+.fbox.dr .x{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:10px;
+  background:var(--line-2);color:var(--surface)}
+.fbox.dr .x:hover{background:var(--accent)}
+.dr-body{padding:16px 18px}
+.dr-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.dr-row label{width:46px;font-size:13px;color:var(--ink-mute);flex:none}
+.dr-row input{flex:1;height:34px;border:1px solid var(--line-2);border-radius:6px;padding:0 10px;
+  font:inherit;font-size:13px;color:var(--ink);background:var(--surface)}
+.dr-row input:focus{outline:0;border-color:var(--accent)}
+
+/* ---------- 视频区：未开赛 / 赛事分析 ---------- */
+.pre-stage{position:relative;height:186px;overflow:hidden;color:#fff;
+  background:radial-gradient(130% 110% at 50% 120%,#2f6a2a 0%,#1d431c 52%,#0d1f0e 100%)}
+.pre-stage::before{content:"";position:absolute;inset:0;background:
+  repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 34px,transparent 34px 68px)}
+.pre-stage::after{content:"";position:absolute;left:50%;top:-54px;width:150px;height:150px;margin-left:-75px;
+  border:2px solid rgba(255,255,255,.18);border-radius:50%}
+.pre-box{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;
+  width:calc(100% - 36px);background:rgba(10,14,11,.72);border-radius:7px;padding:15px 12px;
+  display:flex;align-items:center;gap:10px;text-align:center}
+.pre-box .cr{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:15px;
+  background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26)}
+.pre-box .mid{flex:1;min-width:0;line-height:1.9}
+.pre-box .t1{font-size:12.5px;font-weight:600}
+.pre-box .t2{font-size:11.5px;color:rgba(255,255,255,.72)}
+
+.an-chips{display:flex;gap:7px;padding:10px 12px 4px}
+.an-empty{padding:40px 12px 46px;text-align:center}
+.an-ill{width:120px;height:78px;margin:0 auto 14px;position:relative;opacity:.9}
+.an-ill i{position:absolute;bottom:14px;border-radius:3px 3px 0 0;background:linear-gradient(180deg,#dfe6ef,#c3cdda)}
+.an-ill i:nth-child(1){left:14px;width:20px;height:30px}
+.an-ill i:nth-child(2){left:40px;width:22px;height:48px}
+.an-ill i:nth-child(3){left:68px;width:18px;height:22px}
+.an-ill i:nth-child(4){left:90px;width:16px;height:38px}
+.an-ill b{position:absolute;left:8px;right:8px;bottom:6px;height:8px;border-radius:50%;
+  background:radial-gradient(60% 100% at 50% 50%,rgba(140,155,175,.35),transparent 70%)}
+:root[data-theme="dark"] .an-ill i{background:linear-gradient(180deg,#3a4452,#2a323d)}
+.an-empty .tx{font-size:12.5px;color:var(--ink-mute)}
+
+.vmk{border-bottom:1px solid var(--line)}
+.vmk-h{display:flex;align-items:center;gap:7px;height:34px;padding:0 10px 0 9px;box-shadow:inset 3px 0 0 var(--accent)}
+.vmk-h .nm{font-size:12.5px;color:var(--ink-strong);font-weight:500}
+.vmk-h .sp{flex:1}
+.vmk-h .ic{width:20px;height:20px;display:grid;place-items:center;border-radius:4px;color:var(--ink-mute);font-size:11px}
+.vmk-h .ic:hover{background:var(--surface-2);color:var(--accent)}
+.vmk-h .ic.on{color:var(--accent)}
+.vmk-b{padding:4px 10px 9px}
+.vmk-row{display:flex;gap:7px;padding:3px 0}
+.vmk-row .bet{flex:1}
 
 /* ---------- 盘口详情页 ---------- */
 .hero{position:relative;height:186px;overflow:hidden;background:
@@ -1052,11 +1105,20 @@ const RESULTS=[
 const COMBOS=["2串1","3串1","3串4式","4串1","4串11式","5串1","5串26式","所有连串过关"];
 
 /* ===== 来自 H5「P2P 开盘坐庄」原型的数据与规则 ===== */
+/* 卖单按卖出时间归集；原始数据的 time 形如 "09-18 02:00"，统一补成 2026 年 */
+const sellDate=o=>"2026-"+String(o.time||"").slice(0,5).replace(" ","");
+/* 状态 + 时间两层筛选后的列表，统计卡与表尾合计都用它 */
+function sellList(){
+  return SELL_ORDERS
+    .filter(o=>S.sellStatus==="全部"||o.status===S.sellStatus)
+    .filter(o=>inActive(sellDate(o),"sell",S.sellTime));
+}
 function sellStats(){
-  const settled=SELL_ORDERS.filter(o=>o.status==="已结算");
-  return{total:SELL_ORDERS.length,
-    running:SELL_ORDERS.filter(o=>o.status==="卖出中").length,
-    used:SELL_ORDERS.reduce((a,o)=>a+o.sold,0),
+  const list=sellList();
+  const settled=list.filter(o=>o.status==="已结算");
+  return{total:list.length,
+    running:list.filter(o=>o.status==="卖出中").length,
+    used:list.reduce((a,o)=>a+o.sold,0),
     pnl:settled.reduce((a,o)=>a+(o.net||0),0)};
 }
 const SELL_ORDERS=[
@@ -1151,14 +1213,16 @@ const SPEC={
    "改动点：赛事卡片底部原本只有「+32 ›」（该场剩余盘口数），现在在它右侧追加一个 P2P 角标，形如「+32 ›　P2P 2」。",
    "角标数字 = 该场比赛中存在会员卖单的投注项个数（按盘口去重计数），为 0 时整个角标不展示。",
    "点击 +N 与点击 P2P 角标都进入同一个赛事详情页，不做区分。"]},
-  {t:"赛事列表右侧视频区",tag:"保留",d:[
-   "PC 现有形态不变，此处留档结构与交互，便于验收：",
-   "自上而下：TV 条（TV 标识 / 比分 / LIVE / 动画直播切换 / 刷新）→ 赛事条（角球数 · 主队 VS 客队）→ 直播播放器 → 球队比分板 → 投注 / 赛事分析 页签 → 所有投注 / 热门 / 赛局 筛选 → 盘口区。",
-   "播放器：左上角显示 直播时间 · 联赛 · 实时比分，右上角显示频道号；中心播放 / 暂停；底部进度条与静音、全屏按钮。",
-   "比分板：两侧球队各带队徽与角球 / 黄牌 / 红牌角标，中间是比分、当前半场与走时（含补时 +N）。",
-   "盘口区按玩法分块（全场独赢 / 全场大小 / 全场让球…），每块标题右侧有置顶与收起两个按钮：置顶把该玩法固定在盘口区最上方，收起只折叠该块内容、标题保留。",
-   "视频区里的赔率与列表页共用同一套投注逻辑：点击同样加入购物车，同样跟随顶部香港盘 / 欧洲盘切换，同样支持 P2P 卖单薄。",
-   "视频区仅在体育赛事相关页面（滚球 / 热门赛事 / 冠军 / 我的关注 / 今日早盘 / 赛事详情）展示，注单、报表、赛果、规则页不展示。"]},
+  {t:"赛事列表右侧视频区",tag:"调整",d:[
+   "自上而下：TV 条（TV 标识 / 比分 / LIVE / 动画直播 / 刷新）→ 赛事条（比分 · 主队 VS 客队）→ 直播区 → 投注 / 赛事分析 页签。",
+   "直播区分两种形态：滚球中显示播放器（左上 直播时间·联赛·实时比分，右上频道号，中心播放暂停，底部进度条与静音、全屏）加球队比分板（角球 / 黄牌 / 红牌角标、当前半场与走时）；未开赛改为球场底图 + 一块信息牌「开赛时间 MM-DD HH:mm (GMT+8) / 比赛即将开始」，两侧放主客队徽，不出播放器、不出 LIVE 标识与动画直播按钮。",
+   "投注页：筛选为 全部 / 让球 / 大小，切换即过滤下方盘口块；盘口块只有左侧橙条 + 名称 + 收起 ︿，不放置顶按钮（置顶属于盘口详情页的能力，侧栏空间窄不重复提供）。",
+   "投注格与盘口详情页同一套：选项与盘线在左、赔率加粗在右；大小盘沿用线上的「大大 2.5 / 小小 2.5」写法，让球盘用 主 / 客 加盘线。",
+   "赛事分析页：筛选为 重点数据 / 实时事件 / 精彩回放。重点数据给本场实时（射正 / 角球 / 黄牌 / 控球率 / 危险进攻）与近 5 场交锋；实时事件按分钟倒序列出进球、角球、黄牌、换人；精彩回放暂无数据源。",
+   "任一子页签取不到数据时统一走空态：居中插画 + 「暂无数据」，不显示空白面板。未开赛的赛事三个子页签都是空态。",
+   "视频区仅在体育赛事相关页面（滚球 / 热门赛事 / 冠军 / 我的关注 / 今日早盘 / 赛事详情）展示，注单、报表、赛果、规则页不展示。",
+   "视频区里的赔率与列表页共用同一套投注逻辑：点击同样加入购物车，同样跟随顶部香港盘 / 欧洲盘切换。"]},
+
   {t:"新用户引导",tag:"新增",d:[
    "改动点：PC 端新增首次进入的蒙层引导，共 4 步。",
    "触发条件：仅对新用户展示一次。判定为「该会员无任何投注记录且无 P2P 卖单记录」，满足则在首次进入体育赛事页时自动弹出。老用户升级后不补弹。",
@@ -1230,7 +1294,7 @@ const SPEC={
   {t:"「我的卖单」页面",tag:"新增",d:[
    "改动点：左栏原有「我的挂单」入口但没有对应页面，现补齐为完整的「我的卖单」，入口更名为「我的卖单」。",
    "顶部统计卡四项：总卖出 / 进行中 / 已消费 / 总结算盈亏。",
-   "两行筛选：状态（全部 / 卖出中 / 已售罄 / 已结算 / 已关闭）+ 时间（全部 / 今天 / 昨天 / 近7天 / 近30天，与买单页一致），右侧显示共 N 条。",
+   "两行筛选：状态（全部 / 卖出中 / 已售罄 / 已结算 / 已关闭）+ 时间（全部 / 今天 / 昨天 / 近7天 / 近30天，与买单页一致）+ 自定义时间段。筛选条右侧不放「共 N 条」—— 顶部统计卡的「总卖出」已经是筛选后的笔数，表尾右下角也有总单数，同一个数字在一屏里出现三次是噪音。",
    "左栏「我的卖单」入口带数字角标，数字为进行中（卖出中）的卖单笔数。"]},
   {t:"卖单列表用表格，与买单同构",tag:"调整",d:[
    "改动点：卖单列表采用与买单一致的表头 + 数据区表格，两个页签扫读节奏一致。",
@@ -1306,7 +1370,7 @@ const SPEC={
  ],
  history:[
   {t:"历史注单拆成 买单 / 卖单 两个列表",tag:"调整",d:[
-   "改动点：原「历史注单」只有一类单据（即买单），现在顶部先分「买单 / 卖单」两个列表，页签带数字角标（买单 = 未结算笔数，卖单 = 进行中笔数）。",
+   "改动点：原「历史注单」只有一类单据（即买单），现在顶部先分「买单 / 卖单」两个列表。两个页签只显示图标与文字，不带数量角标 —— 数量在左栏入口与各自页内的统计处已经给出，页签上再挂一次是重复，也容易被误读成筛选结果数。",
    "买单 = 会员自己下的注；卖单 = 会员挂出的庄单。两者字段、状态机、统计口径完全不同，必须分列表。",
    "买单进入后仍是 未结算注单 / 已结算注单 两个子页签 + 七列表格；卖单进入后是统计卡 + 状态/时间两行筛选 + 七列表格。",
    "左栏入口：「我的买单」直达 买单 · 未结算注单，「我的卖单」直达 卖单，两者落在同一页面的两侧，不再各自开页。",
@@ -1337,18 +1401,17 @@ const SPEC={
    "PC 宽度足够，两类单据都用表头 + 数据区的表格，不用卡片流，避免每张卡重复展示玩法、对阵、金额、注单号。"]},
   {t:"时间筛选项两侧统一",tag:"调整",d:[
    "已确认：买单页与卖单页统一为 全部 / 今天 / 昨天 / 近7天 / 近30天，五项的措辞与顺序完全一致。",
-   "买单页改动：新增「近30天」；原「7天内」改称「近7天」。",
-   "卖单页改动：原「全部时间」改称「全部」，原「今日」改称「今天」。",
-   "口径：今天 = 当天 00:00 起；昨天 = 昨日全天；近7天 / 近30天 = 含今天在内往前推 N 个自然日。买单按投注时间归集，卖单按卖出时间归集。",
-   "理由：两个列表并排在同一个页面里，措辞和项数不一致会显得是两个系统。"]}
- ],
- detail:[
-  {t:"盘口详情页整体结构",tag:"调整",d:[
-   "入口：赛事卡片底部「+N ›」或「P2P n」角标，两者进同一页。",
-   "自上而下：顶部条（返回 ↩ / 联赛名 ⌄ / 刷新 ⟳ / 赛事分析 📊）→ 赛事横幅 → 玩法分类页签 → 盘口块列表。右侧视频区与需求说明栏照常常驻。",
-   "赛事横幅：球场背景 + 居中的半透明信息面板 —— 左右两侧是球队队徽与队名，中间未开赛时显示 开赛日期 / 时间 /（GMT+8），滚球中改显示实时比分与当前半场走时。",
-   "横幅右上角有「隐藏」按钮，点击折叠横幅，原位留一条「展开赛事信息 ﹀」的细条可再次展开。默认展开，进入新的赛事时重置为展开。",
-   "玩法分类页签横向排布，超出宽度时横向滚动不换行，右端固定一个排序按钮 ⇅ —— 点亮后把有会员卖单的盘口排到前面，再点恢复默认顺序。置顶的盘口始终排在最前，不受排序影响。"]},
+   "口径：今天 = 当天 00:00 起；昨天 = 昨日全天；近7天 / 近30天 = 含今天在内往前推 N 个自然日。买单按投注时间归集，卖单按卖出时间归集，汇总报表按结算时间归集。",
+   "理由：两个列表并排在同一个页面里，措辞和项数不一致会显得是两个系统。"]},
+  {t:"自定义时间段筛选",tag:"新增",d:[
+   "改动点：买单 / 卖单 / 汇总报表三处共用同一个日期区间控件，不再是只能点预置项。原买单页那个写死日期的只读框，以及报表页点了只弹提示的「筛选 ▾」，都换成这个控件。",
+   "控件形态：筛选条右侧一个「📅 选择时间段 ▼」按钮，点击弹出区间弹窗；已选区间后按钮直接显示「2026/09/10 至 2026/09/16」并带一个 ✕，点 ✕ 就地清除。",
+   "弹窗内容只有开始、结束两个日期输入，加底部的清除与确定两个按钮 —— 快捷时间项在筛选条上已经有一排，弹窗里再放一遍是重复；校验规则也不写在弹窗里，违规时按下面的规则 toast 提示即可。",
+   "校验（不通过时 toast 拦截，不关闭弹窗）：开始与结束都必须填；开始不得晚于结束；结束不得晚于今天；跨度不得超过 1 年。",
+   "互斥关系：选中自定义区间后，预置时间项全部取消高亮，筛选以自定义区间为准；反过来点任一预置项，自定义区间自动清空。",
+   "三处的过滤都真实作用于数据：买单过滤注单列表，卖单过滤卖单列表且统计卡四项与表尾「总单数 / 总押金」跟随筛选结果重算，汇总报表过滤按日表格、总盈亏与买卖单分项。",
+   "汇总报表顶部「待结算注单 / 进行中庄单」那行是当前时点快照，不随时间筛选变化，这一点保持不变。"]},
+
   {t:"盘口块的块头与操作",tag:"调整",d:[
    "块头结构：左侧橙色竖条 + 半场类盘口的前缀标签（如「上半场」）+ 盘口名称；右侧依次是 P2P 橙标、置顶 📌、收起 ︿。",
    "P2P 橙标：该盘口下存在会员卖单时显示，点进具体投注项后在购物车里展开卖单薄。",
@@ -1395,9 +1458,10 @@ const S={
   deposit:"", upPoints:0,
   fav:new Set(), collapsed:new Set(), sideMode:"menu",
   rpTab:"投注", rpChip:"全部", detailChip:"所有投注", detailFrom:"live",
-  vpTab:"投注", vpChip:"所有投注", vpPlay:true, vpMute:true, vpAnim:false,
+  vpTab:"投注", vpChip:"全部", vpAna:"重点数据", vpPlay:true, vpMute:true, vpAnim:false,
   vpPin:new Set(), vpFold:new Set(),
   heroOpen:true, dPin:new Set(), dFold:new Set(), dSort:false,
+  dr:{hist:null,sell:null,report:null},
   leagueFilter:new Set(), histSide:"买单", histTab:"未结算注单", histRange:"全部", histFocus:null,
   balance:190.00, bets:[], betSeq:0
 };
@@ -2112,19 +2176,40 @@ function saveSpecPref(){try{localStorage.setItem("kk-spec-open",S.specOpen?"1":"
 const VP_MATCH={
   league:"西甲联赛第28轮", home:"巴塞罗那", away:"皇家马德里",
   hIcon:"🔵", aIcon:"⚪", hCorner:3, hYellow:3, aCorner:1,
-  hs:0, as:0, half:"上半场", clock:"42:03", plus:3, ch:"CCTV-5", feed:"01:56"
+  hs:0, as:0, half:"上半场", clock:"42:03", plus:3, ch:"CCTV-5", feed:"01:56",
+  pre:false, kickoff:"06-30 21:00"   /* pre=true 时视频区改为「开赛时间 + 比赛即将开始」 */
 };
 const VP_MKT=[
-  {id:"1x2", t:"全场独赢", kind:"three",
+  {id:"1x2", t:"独赢", cat:"全部", kind:"three",
    cells:[["主",{"香港盘":"1.85","欧洲盘":"2.85"}],["和",{"香港盘":"2.40","欧洲盘":"3.40"}],["客",{"香港盘":"1.05","欧洲盘":"2.05"}]]},
-  {id:"ou", t:"全场大小", kind:"grid", sub:["大","小"],
+  {id:"ou", t:"大小", cat:"大小", kind:"grid", sub:["大","小"], lab:["大大","小小"],
    rows:[["2.5",{"香港盘":"0.88","欧洲盘":"1.88"},{"香港盘":"1.00","欧洲盘":"2.00"}],
          ["3.0",{"香港盘":"0.72","欧洲盘":"1.72"},{"香港盘":"1.14","欧洲盘":"2.14"}]]},
-  {id:"ah", t:"全场让球", kind:"grid", sub:["主","客"],
+  {id:"ah", t:"让球", cat:"让球", kind:"grid", sub:["主","客"], lab:["主","客"],
    rows:[["-0/0.5",{"香港盘":"0.93","欧洲盘":"1.93"},{"香港盘":"0.95","欧洲盘":"1.95"}],
          ["-0.5/1",{"香港盘":"1.24","欧洲盘":"2.24"},{"香港盘":"0.66","欧洲盘":"1.66"}]]}
 ];
 const VP_PAGES=["live","hot","champion","fav","sport","detail"];
+/* 视频区投注页的分类与盘口（按线上截图：全部 / 让球 / 大小） */
+const VP_CATS=["全部","让球","大小"];
+/* 赛事分析三个子页签的数据；未开赛或接口无数据时走「暂无数据」空态 */
+const ANA_DATA={
+  重点数据:M=>`<div style="padding:12px;font-size:12px;color:var(--ink);line-height:2.1">
+     <div style="color:var(--ink-strong);font-size:12.5px;margin-bottom:6px">本场实时</div>
+     <div>射正　3 : 2　　角球　${M.hCorner} : ${M.aCorner}　　黄牌　${M.hYellow} : 0</div>
+     <div>控球率　58% : 42%　　危险进攻　21 : 14</div>
+     <div style="color:var(--ink-strong);font-size:12.5px;margin:12px 0 6px">近期交锋（近 5 场）</div>
+     <div>${esc(M.home)}　3 胜 1 平 1 负　进 9 失 5</div>
+     <div>主队近 5 场大球率 60%，角球均值 5.4</div>
+     <div>客队近 5 场客场 2 胜 2 平 1 负</div></div>`,
+  实时事件:M=>`<div style="padding:12px;font-size:12px;color:var(--ink);line-height:2.1">
+     <div><b style="color:var(--accent)">38'</b>　⚠️ ${esc(M.away)} 黄牌</div>
+     <div><b style="color:var(--accent)">31'</b>　🚩 ${esc(M.home)} 角球</div>
+     <div><b style="color:var(--accent)">22'</b>　🔁 ${esc(M.home)} 换人</div>
+     <div><b style="color:var(--accent)">09'</b>　🚩 ${esc(M.away)} 角球</div></div>`,
+  精彩回放:null
+};
+const VP_ANA_CHIPS=["重点数据","实时事件","精彩回放"];
 
 function vpOdds(o){return typeof o==="string"?o:(o[S.oddsType]||o["香港盘"])}
 
@@ -2133,7 +2218,7 @@ function renderVideo(){
   v.innerHTML="";
   v.style.display=VP_PAGES.includes(S.page)?"":"none";
   if(!VP_PAGES.includes(S.page))return;
-  const M=VP_MATCH;
+  const M=VP_MATCH, pre=!!M.pre;   /* pre = 未开赛 */
 
   const card=el("div","rp-card");
 
@@ -2141,50 +2226,61 @@ function renderVideo(){
   const tv=el("div","vp-tv");
   tv.innerHTML=`<span class="tvb">TV</span>
     <span class="sc">${M.hs}|${M.as}</span>
-    <span class="live-dot"><i></i>LIVE</span>
+    ${pre?"":`<span class="live-dot"><i></i>LIVE</span>`}
     <span class="sp"></span>`;
-  const anim=el("button","ic"+(S.vpAnim?" on":""),"🎞");anim.title="动画直播";
-  anim.onclick=()=>{S.vpAnim=!S.vpAnim;render()};
-  const rf=el("button","ic","⟳");rf.title="刷新视频源";
+  if(!pre){
+    const anim=el("button","ic"+(S.vpAnim?" on":""),"🎞");anim.title="动画直播";
+    anim.onclick=()=>{S.vpAnim=!S.vpAnim;render()};
+    tv.appendChild(anim);
+  }
+  const rf=el("button","ic","⟳");rf.title="刷新";
   rf.onclick=()=>toast("视频源已刷新");
-  tv.appendChild(anim);tv.appendChild(rf);
+  tv.appendChild(rf);
   card.appendChild(tv);
 
   /* 赛事条 */
   const ms=el("div","vp-ms");
-  ms.innerHTML=`<span>⚽</span><span class="n">${M.hCorner}</span>
+  ms.innerHTML=`<span>⚽</span><span class="n">${M.hs}</span>
     <span class="tm">${esc(M.home)} <b style="color:var(--ink-mute);font-weight:400">VS</b> ${esc(M.away)}</span>
-    <span class="n">${M.aCorner}</span>`;
+    <span class="n">${M.as}</span>`;
   card.appendChild(ms);
 
-  /* 播放器 */
-  const pl=el("div","player"+(S.vpPlay?"":" paused"));
-  pl.innerHTML=`<div class="pv-ball"></div>
-    <div class="pv-top"><span class="t">${M.feed}</span><span>直播</span>
-      <span class="nm">${esc(M.league)}　${esc(M.home)} ${M.hs}:${M.as} ${esc(M.away)}</span>
-      <span class="ch">${M.ch}</span></div>
-    <div class="pv-bot"><span style="font-size:10px;opacity:.85">直播中</span><span class="bar"><i></i></span></div>`;
-  const ctr=el("button","ctr",S.vpPlay?"❚❚":"▶");
-  ctr.onclick=()=>{S.vpPlay=!S.vpPlay;render()};
-  pl.appendChild(ctr);
-  const bot=$(".pv-bot",pl);
-  const mu=el("button",null,S.vpMute?"🔇":"🔊");mu.title=S.vpMute?"取消静音":"静音";
-  mu.onclick=()=>{S.vpMute=!S.vpMute;render()};
-  const fs=el("button",null,"⛶");fs.title="全屏";
-  fs.onclick=()=>toast("全屏播放（原型示意）");
-  bot.appendChild(mu);bot.appendChild(fs);
-  card.appendChild(pl);
+  /* 未开赛：球场 + 开赛时间；滚球中：播放器 + 比分板 */
+  if(pre){
+    const st=el("div","pre-stage");
+    st.innerHTML=`<div class="pre-box">
+      <div class="cr">${M.hIcon}</div>
+      <div class="mid"><div class="t1">开赛时间 ${esc(M.kickoff)} (GMT+8)</div><div class="t2">比赛即将开始</div></div>
+      <div class="cr">${M.aIcon}</div></div>`;
+    card.appendChild(st);
+  }else{
+    const pl=el("div","player"+(S.vpPlay?"":" paused"));
+    pl.innerHTML=`<div class="pv-ball"></div>
+      <div class="pv-top"><span class="t">${M.feed}</span><span>直播</span>
+        <span class="nm">${esc(M.league)}　${esc(M.home)} ${M.hs}:${M.as} ${esc(M.away)}</span>
+        <span class="ch">${M.ch}</span></div>
+      <div class="pv-bot"><span style="font-size:10px;opacity:.85">直播中</span><span class="bar"><i></i></span></div>`;
+    const ctr=el("button","ctr",S.vpPlay?"❚❚":"▶");
+    ctr.onclick=()=>{S.vpPlay=!S.vpPlay;render()};
+    pl.appendChild(ctr);
+    const bot=$(".pv-bot",pl);
+    const mu=el("button",null,S.vpMute?"🔇":"🔊");mu.title=S.vpMute?"取消静音":"静音";
+    mu.onclick=()=>{S.vpMute=!S.vpMute;render()};
+    const fs=el("button",null,"⛶");fs.title="全屏";
+    fs.onclick=()=>toast("全屏播放（原型示意）");
+    bot.appendChild(mu);bot.appendChild(fs);
+    card.appendChild(pl);
 
-  /* 比分板 */
-  const sb=el("div","sbd");
-  sb.innerHTML=`
-    <div class="side-t"><div class="crest">${M.hIcon}</div><div class="tn">${esc(M.home)}</div>
-      <div class="tags"><span class="tg">${M.hCorner}</span><span class="tg y">${M.hYellow}</span><span class="tg r">🚩</span></div></div>
-    <div class="mid"><div class="s">${M.hs}<span class="vs">VS</span>${M.as}</div>
-      <div class="ph">${M.half} <b id="vpClock">${M.clock}</b> <span class="plus">+${M.plus}</span></div></div>
-    <div class="side-t"><div class="crest">${M.aIcon}</div><div class="tn">${esc(M.away)}</div>
-      <div class="tags"><span class="tg">${M.aCorner}</span><span class="tg y">0</span><span class="tg r">🚩</span></div></div>`;
-  card.appendChild(sb);
+    const sb=el("div","sbd");
+    sb.innerHTML=`
+      <div class="side-t"><div class="crest">${M.hIcon}</div><div class="tn">${esc(M.home)}</div>
+        <div class="tags"><span class="tg">${M.hCorner}</span><span class="tg y">${M.hYellow}</span><span class="tg r">🚩</span></div></div>
+      <div class="mid"><div class="s">${M.hs}<span class="vs">VS</span>${M.as}</div>
+        <div class="ph">${M.half} <b id="vpClock">${M.clock}</b> <span class="plus">+${M.plus}</span></div></div>
+      <div class="side-t"><div class="crest">${M.aIcon}</div><div class="tn">${esc(M.away)}</div>
+        <div class="tags"><span class="tg">${M.aCorner}</span><span class="tg y">0</span><span class="tg r">🚩</span></div></div>`;
+    card.appendChild(sb);
+  }
 
   /* 投注 / 赛事分析 */
   const tabs=el("div","rp-tabs");
@@ -2195,73 +2291,66 @@ function renderVideo(){
   });
   card.appendChild(tabs);
 
+  /* ---------- 赛事分析 ---------- */
   if(S.vpTab==="赛事分析"){
-    const an=el("div",null,`<div style="padding:16px 12px;font-size:12px;color:var(--ink-mute);line-height:2">
-      <div style="color:var(--ink-strong);font-size:13px;margin-bottom:8px">近期交锋（近 5 场）</div>
-      <div>巴塞罗那 3 胜 1 平 1 负　进 9 失 5</div>
-      <div>主队近 5 场大球率 60%，角球均值 5.4</div>
-      <div>客队近 5 场客场 2 胜 2 平 1 负</div>
-      <div style="margin-top:12px;color:var(--ink-strong);font-size:13px;margin-bottom:8px">本场实时</div>
-      <div>射正 3 : 2　角球 ${M.hCorner} : ${M.aCorner}　黄牌 ${M.hYellow} : 0</div>
-      <div>控球率 58% : 42%</div>
-    </div>`);
-    card.appendChild(an);
+    const ac=el("div","an-chips");
+    VP_ANA_CHIPS.forEach(t=>{
+      const b=el("button","chip sm"+(S.vpAna===t?" on":""),t);
+      b.onclick=()=>{S.vpAna=t;render()};
+      ac.appendChild(b);
+    });
+    card.appendChild(ac);
+    const data=pre?null:ANA_DATA[S.vpAna];
+    if(!data){
+      card.appendChild(el("div","an-empty",
+        `<div class="an-ill"><i></i><i></i><i></i><i></i><b></b></div><div class="tx">暂无数据</div>`));
+    }else{
+      card.appendChild(el("div",null,data(M)));
+    }
     v.appendChild(card);
     return;
   }
 
-  /* 筛选 chips */
+  /* ---------- 投注 ---------- */
   const chips=el("div","vp-chips");
-  ["所有投注","热门","赛局"].forEach(t=>{
+  VP_CATS.forEach(t=>{
     const b=el("button","chip sm"+(S.vpChip===t?" on":""),t);
     b.onclick=()=>{S.vpChip=t;render()};
     chips.appendChild(b);
   });
   card.appendChild(chips);
 
-  /* 盘口 */
-  const wrap=el("div","vp-mkt");
-  let list=VP_MKT;
-  if(S.vpChip==="热门")list=VP_MKT.filter(x=>S.vpPin.has(x.id)||x.id==="1x2");
-  if(S.vpChip==="赛局")list=VP_MKT.filter(x=>x.id!=="1x2");
-  if(!list.length){
-    wrap.appendChild(el("div",null,`<div style="padding:24px 0;text-align:center;font-size:12px;color:var(--ink-mute)">该分类下暂无盘口</div>`));
-  }
+  const wrap=el("div");
+  const list=VP_MKT.filter(x=>S.vpChip==="全部"||x.cat===S.vpChip);
+  if(!list.length)
+    wrap.appendChild(el("div",null,`<div style="padding:26px 0;text-align:center;font-size:12px;color:var(--ink-mute)">该分类下暂无盘口</div>`));
   list.forEach(mk=>{
-    const box=el("div","mk");
-    const h=el("div","mk-h");
-    h.innerHTML=`<span>${mk.t}</span><span class="sp"></span>`;
-    const pin=el("button","ic"+(S.vpPin.has(mk.id)?" on":""),"📌");
-    pin.title=S.vpPin.has(mk.id)?"取消置顶":"置顶该盘口";
-    pin.onclick=()=>{S.vpPin.has(mk.id)?S.vpPin.delete(mk.id):S.vpPin.add(mk.id);render()};
+    const blk=el("div","vmk");
+    const h=el("div","vmk-h",`<span class="nm">${mk.t}</span><span class="sp"></span>`);
     const fold=el("button","ic",S.vpFold.has(mk.id)?"﹀":"︿");
     fold.title=S.vpFold.has(mk.id)?"展开":"收起";
     fold.onclick=()=>{S.vpFold.has(mk.id)?S.vpFold.delete(mk.id):S.vpFold.add(mk.id);render()};
-    h.appendChild(pin);h.appendChild(fold);
-    box.appendChild(h);
-
+    h.appendChild(fold);
+    blk.appendChild(h);
     if(!S.vpFold.has(mk.id)){
-      const base={sport:"足球",league:M.league,home:M.home,away:M.away,market:mk.t,live:true,p2p:false};
+      const bd=el("div","vmk-b");
+      const base={sport:"足球",league:M.league,home:M.home,away:M.away,market:mk.t,live:!pre,p2p:false};
       if(mk.kind==="three"){
-        const row=el("div","mk-b");
-        mk.cells.forEach(([lb,o])=>{
-          row.appendChild(betBtn([lb,vpOdds(o)],{...base,key:`vp:${mk.id}:${lb}`}));
-        });
-        box.appendChild(row);
+        const row=el("div","vmk-row");
+        mk.cells.forEach(([lb,o])=>row.appendChild(betBtn([lb,vpOdds(o)],{...base,key:`vp:${mk.id}:${lb}`})));
+        bd.appendChild(row);
       }else{
-        const sub=el("div","mk-sub");
-        sub.innerHTML=`<div style="width:36px;flex:none"></div>`+mk.sub.map(x=>`<div>${x}</div>`).join("");
-        box.appendChild(sub);
-        mk.rows.forEach(([line,a,b])=>{
-          const r=el("div","mk-r");
-          r.appendChild(el("div","hd2",line));
-          r.appendChild(betBtn([mk.sub[0]+" "+line,vpOdds(a)],{...base,key:`vp:${mk.id}:${line}:${mk.sub[0]}`}));
-          r.appendChild(betBtn([mk.sub[1]+" "+line,vpOdds(b)],{...base,key:`vp:${mk.id}:${line}:${mk.sub[1]}`}));
-          box.appendChild(r);
+        mk.rows.forEach(([line,a,b2])=>{
+          const r=el("div","vmk-row");
+          const lb=mk.lab||mk.sub;
+          r.appendChild(betBtn([lb[0]+" "+line,vpOdds(a)],{...base,key:`vp:${mk.id}:${line}:0`}));
+          r.appendChild(betBtn([lb[1]+" "+line,vpOdds(b2)],{...base,key:`vp:${mk.id}:${line}:1`}));
+          bd.appendChild(r);
         });
       }
+      blk.appendChild(bd);
     }
-    wrap.appendChild(box);
+    wrap.appendChild(blk);
   });
   card.appendChild(wrap);
   v.appendChild(card);
@@ -2320,11 +2409,12 @@ function sellBody(m){
   m.appendChild(f);
   const f2=el("div","chips");
   ["全部","今天","昨天","近7天","近30天"].forEach(t=>{
-    const c=el("button","chip sm"+(S.sellTime===t?" on":""),t);
-    c.onclick=()=>{S.sellTime=t;render()};f2.appendChild(c);
+    const c=el("button","chip sm"+((!S.dr.sell&&S.sellTime===t)?" on":""),t);
+    c.onclick=()=>{S.sellTime=t;S.dr.sell=null;render()};f2.appendChild(c);
   });
-  const list=SELL_ORDERS.filter(o=>S.sellStatus==="全部"||o.status===S.sellStatus);
-  f2.appendChild(el("span","cnt-r",`共 ${list.length} 条`));
+  const dbx=dateRangeBox("sell");dbx.style.cssText="height:26px;padding:0 10px;font-size:12px;margin-left:4px";
+  f2.appendChild(dbx);
+  const list=sellList();
   m.appendChild(f2);
 
   if(!list.length){m.appendChild(emptyBox("该筛选下暂无卖单"));return}
@@ -2575,6 +2665,66 @@ function openSellRules(){
 }
 
 /* 通用二次确认弹窗 */
+/* ============ 日期区间筛选（买单 / 卖单 / 汇总报表共用） ============ */
+const DR_TODAY="2026-09-22";
+const dAdd=(ds,n)=>{const t=new Date(ds+"T00:00:00");t.setDate(t.getDate()+n);return t.toISOString().slice(0,10)};
+/* 预置项 → 日期区间；返回 null 表示不限 */
+function presetRange(v){
+  if(v==="全部"||!v)return null;
+  if(v==="今天")return[DR_TODAY,DR_TODAY];
+  if(v==="昨天"){const y=dAdd(DR_TODAY,-1);return[y,y]}
+  if(v==="近7天")return[dAdd(DR_TODAY,-6),DR_TODAY];
+  if(v==="近30天")return[dAdd(DR_TODAY,-29),DR_TODAY];
+  if(v==="本周")return["2026-09-21",DR_TODAY];
+  if(v==="本月")return[DR_TODAY.slice(0,7)+"-01",DR_TODAY];
+  return null;
+}
+/* 自定义区间优先于预置项 */
+function activeRange(key,preset){
+  const c=S.dr[key];
+  return c?[c.from,c.to]:presetRange(preset);
+}
+const inActive=(d,key,preset)=>{const r=activeRange(key,preset);return !r||(d>=r[0]&&d<=r[1])};
+
+function dateRangeBox(key,onChange){
+  const c=S.dr[key];
+  const b=el("div","fbox dr"+(c?" on":""));
+  b.innerHTML=c
+    ? `📅 <span>${c.from.replace(/-/g,"/")}</span><span style="color:var(--ink-mute)">至</span><span>${c.to.replace(/-/g,"/")}</span><button class="x" title="清除">✕</button>`
+    : `📅 <span>选择时间段</span><span class="caret">▼</span>`;
+  b.onclick=e=>{
+    if(e.target.classList.contains("x")){e.stopPropagation();S.dr[key]=null;onChange&&onChange();render();return}
+    openDateRange(key,onChange);
+  };
+  return b;
+}
+function openDateRange(key,onChange){
+  const layer=$("#layer");
+  const mask=el("div","mask");
+  const mo=el("div","modal sm");
+  const c=S.dr[key]||{from:"",to:""};
+  mo.innerHTML=`<header>选择时间段<span class="tools"><button id="cls">✕</button></span></header>
+    <div class="dr-body">
+      <div class="dr-row"><label>开始</label><input type="date" id="drF" value="${c.from}" max="${DR_TODAY}"></div>
+      <div class="dr-row" style="margin-bottom:0"><label>结束</label><input type="date" id="drT" value="${c.to}" max="${DR_TODAY}"></div>
+    </div>
+    <footer><button id="clr">清除</button><button class="ok" id="ok">确定</button></footer>`;
+  mask.appendChild(mo);layer.appendChild(mask);
+  const close=()=>layer.innerHTML="";
+  $("#cls",mo).onclick=close;
+  mask.onclick=e=>{if(e.target===mask)close()};
+  $("#clr",mo).onclick=()=>{S.dr[key]=null;close();onChange&&onChange();render()};
+  $("#ok",mo).onclick=()=>{
+    const f=$("#drF",mo).value, t=$("#drT",mo).value;
+    if(!f||!t)return toast("请选择完整的开始与结束日期");
+    if(f>t)return toast("开始日期不得晚于结束日期");
+    if(t>DR_TODAY)return toast("结束日期不得晚于今天");
+    if(dAdd(f,365)<t)return toast("时间跨度不得超过 1 年");
+    S.dr[key]={from:f,to:t};close();onChange&&onChange();render();
+    toast(`已筛选 ${f} 至 ${t}`);
+  };
+}
+
 function confirmDialog({title,body,rows,okText,onOk}){
   const layer=$("#layer");
   const mask=el("div","mask");
@@ -2654,22 +2804,19 @@ function reportDays(){
     const r=row(o.settleTime.slice(0,10));
     r.sell+=(o.net||0);r.sells.push(o);
   });
-  const inRange=d=>S.reportRange==="今天"?d===RP_TODAY
-    :S.reportRange==="昨天"?d==="2026-09-21"
-    :S.reportRange==="本周"?(d>=RP_WEEK_START&&d<=RP_TODAY)
-    :d.startsWith(RP_MONTH);
-  return [...map.values()].filter(r=>inRange(r.date)).sort((a,b)=>a.date<b.date?1:-1);
+  /* 自定义区间优先，其次预置项；报表按结算时间归集 */
+  return [...map.values()].filter(r=>inActive(r.date,"report",S.reportRange)).sort((a,b)=>a.date<b.date?1:-1);
 }
 function renderReport(m){
   m.appendChild(bar(`<span>📈</span>汇总报表`,{plain:1}));
   const f=el("div","chips");
   ["今天","昨天","本周","本月"].forEach(t=>{
-    const c=el("button","chip"+(S.reportRange===t?" on":""),t);
-    c.onclick=()=>{S.reportRange=t;S.reportOpen=null;render()};f.appendChild(c);
+    const c=el("button","chip"+((!S.dr.report&&S.reportRange===t)?" on":""),t);
+    c.onclick=()=>{S.reportRange=t;S.dr.report=null;S.reportOpen=null;render()};f.appendChild(c);
   });
-  const cu=el("button","chip spacer","筛选 ▾");
-  cu.onclick=()=>toast("日期弹窗：YYYY-MM-DD，开始不得晚于结束，结束不得晚于今天，跨度上限 1 年");
-  f.appendChild(cu);
+  const dbx=dateRangeBox("report",()=>{S.reportOpen=null});
+  dbx.style.cssText="height:26px;padding:0 11px;font-size:12px;margin-left:auto";
+  f.appendChild(dbx);
   m.appendChild(f);
 
   const days=reportDays();
@@ -2781,9 +2928,8 @@ function renderResults(m){
 }
 function renderHistory(m){
   const side=el("div","side-seg");
-  const running=SELL_ORDERS.filter(o=>o.status==="卖出中").length;
-  [["买单","🧾",S.bets.filter(b=>b.status==="未结算").length],["卖单","🏷",running]].forEach(([t,ic,n])=>{
-    const b=el("button",S.histSide===t?"on":"",`${ic} ${t}${n?`<i class="dot2">${n}</i>`:""}`);
+  [["买单","🧾"],["卖单","🏷"]].forEach(([t,ic])=>{
+    const b=el("button",S.histSide===t?"on":"",`${ic} ${t}`);
     b.onclick=()=>{S.histSide=t;S.histFocus=null;render()};side.appendChild(b);
   });
   m.appendChild(side);
@@ -2797,26 +2943,23 @@ function renderHistory(m){
   const box=el("div","simple");
   const f=el("div","filters");
   ["全部","今天","昨天","近7天","近30天"].forEach(t=>{
-    const c=el("button","chip"+(S.histRange===t?" on":""),t);
-    c.onclick=()=>{S.histRange=t;S.histFocus=null;render()};f.appendChild(c);
+    /* 选中自定义区间后，预置项全部取消高亮 */
+    const c=el("button","chip"+((!S.dr.hist&&S.histRange===t)?" on":""),t);
+    c.onclick=()=>{S.histRange=t;S.dr.hist=null;S.histFocus=null;render()};f.appendChild(c);
   });
   const right=el("div");right.style.cssText="margin-left:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap";
   right.innerHTML=`<div class="fbox">☰ <select id="sortSel" style="border:0;background:none;color:inherit;font:inherit;outline:0">
-      <option>默认排序</option><option>投注时间</option><option>开赛时间</option></select></div>
-    <div class="fbox">📅 2026/09/15 <span style="color:var(--ink-mute)">至</span> 2026/09/22</div>`;
-  const q=el("button","btn-q","查询");q.onclick=()=>{S.histFocus=null;render();toast(`查询：${S.histTab} · ${S.histRange}`)};
+      <option>默认排序</option><option>投注时间</option><option>开赛时间</option></select></div>`;
+  right.appendChild(dateRangeBox("hist",()=>{S.histFocus=null}));
+  const q=el("button","btn-q","查询");
+  q.onclick=()=>{S.histFocus=null;render();
+    const r=activeRange("hist",S.histRange);
+    toast(`查询：${S.histTab} · ${r?r[0]+" 至 "+r[1]:"全部时间"}`)};
   right.appendChild(q);f.appendChild(right);box.appendChild(f);
 
   const settled=S.histTab==="已结算注单";
-  const TODAY="2026-09-22";
-  const inRange=b=>{
-    const d=b.time.slice(0,10);
-    if(S.histRange==="全部")return true;
-    if(S.histRange==="今天")return d===TODAY;
-    if(S.histRange==="昨天")return d==="2026-09-21";
-    if(S.histRange==="近7天")return d>="2026-09-16";
-    return d>="2026-08-24";
-  };
+  /* 自定义区间优先，其次预置项；买单按投注时间归集 */
+  const inRange=b=>inActive(b.time.slice(0,10),"hist",S.histRange);
   let list=S.bets.filter(b=>settled===(b.status!=="未结算")).filter(inRange);
   if(S.histFocus){
     list=list.filter(b=>b.no===S.histFocus);
