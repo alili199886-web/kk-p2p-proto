@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v9.7(注单记录整合)</title>
+<title>P2P 开盘坐庄 · 交互原型 v10.3(注单记录整合)</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -187,7 +187,7 @@ input:focus{border-color:#FF8C00}
     </div>
   <div style="display:flex;gap:8px;padding:8px 12px;overflow-x:auto" id="home-tabs"></div>
   <div style="display:flex;gap:10px;padding:4px 14px 6px;overflow-x:auto" id="home-sports"></div>
-  <div style="display:flex;gap:8px;padding:6px 12px;overflow-x:auto">
+  <div style="display:flex;gap:8px;padding:6px 12px;overflow-x:auto" id="home-fbar">
     <span class="fpill on">联赛</span><span class="fpill">时间</span><span class="fpill">筛选 ▽</span><span class="fpill" id="fp-p2p" onclick="toggleP2POnly()" style="position:relative">P2P<span class="reddot" id="fp-p2p-dot" style="top:-1px;right:-1px"></span></span><span class="fpill" id="fp-clone" onclick="toggleCloneOnly()">私盘</span><span class="fpill" id="fp-collapse" onclick="toggleAll()" style="display:flex;align-items:center;gap:4px">收起 <span id="fp-arrow" style="color:#FF8C00;font-size:13px;font-weight:800;display:inline-block;transform:rotate(-90deg)">≫</span></span>
   </div>
   <div class="scroll" style="padding:6px 10px 66px" id="home-list"></div>
@@ -418,6 +418,57 @@ input:focus{border-color:#FF8C00}
 
 </div>
 
+<!-- ═════════ 右侧标注:冠军玩法 ═════════ -->
+<div class="spec" id="spec-champ" style="display:none">
+  <h3>冠军玩法 · 需求标注</h3>
+  <p class="sub">入口：赛事页顶部「冠军」页签，位于早盘与串关之间。以下规则部分为初稿提案，文末列出待确认项。</p>
+
+  <h4>玩法定义</h4>
+  <ul>
+    <li>投注对象是整个赛事或联赛的最终结果，不是单场比赛。典型玩法为联赛冠军、小组头名、降级、最佳射手。</li>
+    <li>一个赛事对应一个冠军盘口，盘口下为多个候选项（球队或球员），各候选项赔率独立。</li>
+    <li>结算周期长，从开盘到结算可能跨越整个赛季。</li>
+  </ul>
+
+  <h4>列表与展示</h4>
+  <ul>
+    <li>三级结构：状态组（未开赛）→ 地区 → 联赛盘口 → 候选项，<b>每级独立折叠</b>。</li>
+    <li>状态组与地区行右侧显示该层级下的<b>盘口数量</b>，不是球队数量。</li>
+    <li>盘口命名格式：联赛名 + 赛季 + 空格连字符 + 玩法名，如「英格兰超级联赛2026/2027 - 冠军」。</li>
+    <li>展开盘口后，首行为灰底的「截止日期/时间：DD/MM/YYYY HH:mm」。</li>
+    <li>候选项<b>按赔率从低到高</b>排列，左侧队徽加名称，右侧灰底圆角赔率块，一次性展示全部，不做条数截断。</li>
+    <li>赔率统一使用欧洲盘，保留两位小数。</li>
+    <li>候选项已无夺冠可能时<b>从列表移除</b>，不再展示，也不可投注。会员已投注的注单仍可在买单中查看。</li>
+    <li>地区默认全部展开，盘口默认仅展开第一个，其余收起。地区行<b>不提供置顶功能</b>。</li>
+  </ul>
+
+  <h4>投注规则</h4>
+  <ul>
+    <li>冠军注单<b>只能单注，不支持串关</b>，不可与任何其他投注项组合。</li>
+    <li>冠军盘口<b>不支持坐庄</b>，不进入 P2P 卖单簿，赔率格不显示红点。冠军页签下隐藏「P2P」与「私盘」两个筛选，联赛、时间、筛选、收起保留。</li>
+    <li>冠军注单<b>不可作为订单抵押物</b>挂出庄单。</li>
+    <li>同一赛事下可同时投注多个候选项，各自独立成单。</li>
+    <li>投注成功后赔率锁定为下注时赔率，后续盘口赔率变动不影响已成交注单。</li>
+  </ul>
+
+  <h4>赔率与封盘</h4>
+  <ul>
+    <li>冠军赔率随赛程进展由操盘系统实时调整。</li>
+    <li>封盘时点为该赛事<b>最后一轮首场比赛开赛前</b>，具体提前量由操盘配置，不做固定写死。</li>
+    <li>封盘后不再接受新投注，盘口<b>保留在列表中并标注「已封盘」</b>，赔率置灰不可点，不从列表移除。</li>
+    <li>已成交注单不受封盘与赔率变动影响。</li>
+  </ul>
+
+  <h4>结算与异常</h4>
+  <ul>
+    <li>赛季结束、冠军产生后统一结算，命中候选项按锁定赔率派彩，未命中注单全额输。</li>
+    <li>赛事取消或未完赛：全部注单按原金额退款。</li>
+    <li>候选项中途退赛：该候选项的注单退款，同一赛事其余注单不受影响。</li>
+    <li>赛事延期：注单保留等待实际结果，不自动退款。</li>
+  </ul>
+
+</div>
+
 <!-- ═════════ 右侧标注:汇总报表 ═════════ -->
 <div class="spec" id="spec-report" style="display:none">
   <h3>汇总报表 · 需求标注</h3>
@@ -479,7 +530,7 @@ input:focus{border-color:#FF8C00}
 
 <script>
 /* ═════════ 赛事页顶部:页签不显示场次,场次下沉到球类 ═════════ */
-const HOME_TABS=[['live','滚球'],['today','今日'],['early','早盘'],['parlay','串关'],['fav','关注']];
+const HOME_TABS=[['live','滚球'],['today','今日'],['early','早盘'],['champ','冠军'],['parlay','串关'],['fav','关注']];
 const SPORTS=[['fb','⚽','足球'],['bb','🏀','篮球'],['tn','🎾','网球'],['bd','🏸','羽毛球'],
               ['tt','🏓','乒乓球'],['vb','🏐','排球'],['bl','🎱','台球']];
 /* 各页签下分球类的场次数,合计与原页签总数一致 */
@@ -492,16 +543,127 @@ const SPORT_CNT={
 };
 let homeTab='today',homeSport='fb';
 function renderHomeTop(){
+  syncSpec();
   $('home-tabs').innerHTML=HOME_TABS.map(([k,t])=>
-    `<span class="pill ${homeTab===k?'on':''}" onclick="homeTab='${k}';renderHomeTop()">${t}</span>`).join('');
-  const C=SPORT_CNT[homeTab]||{};
+    `<span class="pill ${homeTab===k?'on':''}" onclick="homeTab='${k}';champInit();renderHomeTop();renderHome()">${t}</span>`).join('');
+  const C=(homeTab==='champ')
+    ? SPORTS.reduce((a,[k])=>{a[k]=CHAMP.filter(c=>c.sport===k).reduce((n,g)=>n+g.markets.length,0);return a},{})
+    : (SPORT_CNT[homeTab]||{});
   $('home-sports').innerHTML=SPORTS.map(([k,ico,nm])=>{
     const on=homeSport===k,n=C[k]||0;
-    return `<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="homeSport='${k}';renderHomeTop()" title="${nm}">
+    return `<div style="flex-shrink:0;text-align:center;cursor:pointer" onclick="homeSport='${k}';champInit();renderHomeTop();renderHome()" title="${nm}">
       <div style="background:${on?'#FFE9CF':'transparent'};border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:22px">${ico}</div>
       <div style="font-size:11px;margin-top:1px;color:${on?'#FF8C00':'#9aa0a6'};font-weight:${on?700:400}">${n}</div>
     </div>`;
   }).join('');
+}
+
+/* ═════════ 冠军玩法样例数据 ═════════ */
+/* 冠军盘口:状态组 → 地区 → 联赛盘口 → 候选项 */
+const CHAMP=[
+ {sport:'fb',region:'欧洲',markets:[
+   {name:'*欧洲冠军联赛2026/2027 - 冠军',deadline:'05/06/2027 12:00',
+    items:[['巴塞罗那',4.36,'#A50044'],['拜仁慕尼黑',6.28,'#DC052D'],['阿森纳',6.50,'#EF0107'],
+           ['巴黎圣日耳曼',7.00,'#004170'],['皇家马德里',7.32,'#C9A227'],['曼城',10.00,'#6CABDD'],
+           ['利物浦',21.00,'#C8102E'],['国际米兰',26.00,'#0068A8'],['多特蒙德',34.00,'#FDE100'],
+           ['马德里竞技',41.00,'#CB3524']]},
+   {name:'欧洲联盟联赛2026/2027 - 冠军',deadline:'20/05/2027 12:00',
+    items:[['罗马',6.00,'#8E1F2F'],['维拉里尔',7.50,'#FFE667'],['波尔图',9.00,'#003A70'],
+           ['贝蒂斯',11.00,'#00954C'],['费耶诺德',15.00,'#CC0000'],['格拉斯哥流浪者',21.00,'#1B458F']]}]},
+ {sport:'fb',region:'英格兰',markets:[
+   {name:'英格兰超级联赛2026/2027 - 冠军',deadline:'23/05/2027 22:00',
+    items:[['曼城',2.10,'#6CABDD'],['阿森纳',3.40,'#EF0107'],['利物浦',5.50,'#C8102E'],
+           ['切尔西',9.00,'#034694'],['曼联',15.00,'#DA291C'],['热刺',26.00,'#132257'],
+           ['纽卡斯尔联',34.00,'#241F20'],['阿斯顿维拉',41.00,'#670E36']]},
+   {name:'英格兰超级联赛2026/2027 - 最佳射手',deadline:'23/05/2027 22:00',
+    items:[['哈兰德',1.80,'#6CABDD'],['萨拉赫',6.00,'#C8102E'],['沃特金斯',11.00,'#670E36'],
+           ['伊萨克',13.00,'#241F20'],['索兰克',17.00,'#132257'],['若日尼奥',101.00,'#034694']]}]},
+ {sport:'fb',region:'西班牙',markets:[
+   {name:'西班牙甲级联赛2026/2027 - 冠军',deadline:'25/05/2027 23:00',
+    items:[['皇家马德里',1.95,'#C9A227'],['巴塞罗那',2.30,'#A50044'],['马德里竞技',7.50,'#CB3524'],
+           ['毕尔巴鄂竞技',29.00,'#EE2523'],['皇家社会',51.00,'#0067B1'],['塞维利亚',101.00,'#D9042B']]}]},
+ {sport:'fb',region:'澳大利亚',markets:[
+   {name:'澳大利亚职业联赛2026/2027 - 冠军',deadline:'17/05/2027 16:00',
+    items:[['墨尔本城',3.75,'#9FC5E8'],['悉尼FC',4.20,'#87CEEB'],['中央海岸水手',5.50,'#FFD700'],
+           ['墨尔本胜利',6.80,'#002F6C'],['西悉尼流浪者',9.50,'#E4002B'],['阿德莱德联',12.00,'#DA291C']]}]},
+ {sport:'bb',region:'北美',markets:[
+   {name:'NBA 2026/2027 - 总冠军',deadline:'10/06/2027 09:00',
+    items:[['波士顿凯尔特人',3.20,'#007A33'],['丹佛掘金',5.00,'#0E2240'],['俄克拉荷马雷霆',6.50,'#007AC1'],
+           ['明尼苏达森林狼',9.00,'#236192'],['密尔沃基雄鹿',12.00,'#00471B'],['洛杉矶湖人',21.00,'#552583'],
+           ['金州勇士',26.00,'#1D428A']]},
+   {name:'NBA 2026/2027 - 常规赛最有价值球员',deadline:'12/04/2027 09:00',
+    items:[['约基奇',2.40,'#0E2240'],['东契奇',4.00,'#00538C'],['阿德托昆博',6.00,'#00471B'],
+           ['亚历山大',8.00,'#007AC1'],['塔图姆',15.00,'#007A33']]}]},
+ {sport:'tn',region:'国际',markets:[
+   {name:'温布尔登2027 - 男子单打冠军',deadline:'28/06/2027 18:00',
+    items:[['阿尔卡拉斯',2.75,'#E4002B'],['辛纳',3.50,'#0C4DA2'],['德约科维奇',5.00,'#15317E'],
+           ['梅德韦杰夫',11.00,'#1C3F94'],['兹维列夫',15.00,'#000000']]}]}
+];
+let champRegOpen={},champMkOpen={},champAllOpen=true;
+/* 进入或切换球类时,默认展开第一个盘口 */
+function champInit(){
+  champMkOpen={};champRegOpen={};champAllOpen=true;
+  const g=CHAMP.filter(c=>c.sport===homeSport)[0];
+  if(g&&g.markets.length)champMkOpen[g.region+'|0']=true;
+}
+function champGroups(){return CHAMP.filter(c=>c.sport===homeSport)}
+function champToggleAll(){champAllOpen=!champAllOpen;renderHome()}
+function champToggleReg(r){champRegOpen[r]=!(champRegOpen[r]!==false);renderHome()}
+function champToggleMk(k){champMkOpen[k]=!champMkOpen[k];renderHome()}
+function crest(nm,color){
+  return `<span style="width:20px;height:20px;border-radius:50%;background:${color};color:#fff;font-size:10px;
+    display:inline-flex;align-items:center;justify-content:center;flex:none;font-weight:700">${nm.slice(0,1)}</span>`;
+}
+function renderChamp(){
+  const gs=champGroups();
+  if(!gs.length){
+    $('home-list').innerHTML='<div class="muted" style="text-align:center;padding:40px 0;font-size:12px">该球类暂无冠军盘口</div>';
+    return;
+  }
+  const total=gs.reduce((a,g)=>a+g.markets.length,0);
+  /* 状态组头:未开赛 */
+  let h=`<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:8px">
+    <div class="row" style="padding:11px 12px;border-left:3px solid #E24B4A;cursor:pointer" onclick="champToggleAll()">
+      <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#E24B4A;fill:none;stroke-width:2"><circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/></svg>
+      <span style="font-size:14px;font-weight:700;color:#222" class="grow">未开赛</span>
+      <span style="background:#F2F3F5;color:#555;font-size:12px;font-weight:700;border-radius:4px;padding:1px 8px">${total}</span>
+      <span style="color:#9aa0a6;font-size:12px">${champAllOpen?'⌃':'⌄'}</span>
+    </div>
+  </div>`;
+  if(!champAllOpen){$('home-list').innerHTML=h;return}
+
+  h+=gs.map(g=>{
+    const rOpen=champRegOpen[g.region]!==false;
+    let b=`<div style="background:#fff;border-radius:10px;overflow:hidden;margin-bottom:8px">
+      <div class="row" style="padding:11px 12px;cursor:pointer" onclick="champToggleReg('${g.region}')">
+        <span style="font-size:14px;font-weight:700;color:#222" class="grow">${g.region}</span>
+        <span style="background:#F2F3F5;color:#555;font-size:12px;font-weight:700;border-radius:4px;padding:1px 8px">${g.markets.length}</span>
+        <span style="color:#9aa0a6;font-size:12px">${rOpen?'⌃':'⌄'}</span>
+      </div>`;
+    if(rOpen)b+=g.markets.map((m,mi)=>{
+      const key=g.region+'|'+mi, mOpen=!!champMkOpen[key];
+      let c=`<div class="row" style="padding:10px 12px;border-top:1px solid #f4f5f7;cursor:pointer" onclick="champToggleMk('${key}')">
+          <span style="width:20px;height:20px;border-radius:4px;background:#F2F3F5;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex:none">🏆</span>
+          <span style="font-size:13px;color:#222" class="grow">${m.name}</span>
+          <span style="color:#9aa0a6;font-size:12px">${mOpen?'⌃':'⌄'}</span>
+        </div>`;
+      if(mOpen){
+        c+=`<div style="background:#F5F6F8;padding:8px 12px;font-size:12px;color:#8a8f96">截止日期/时间：${m.deadline}</div>`;
+        /* 已出局候选项不展示 */
+        c+=m.items.filter(it=>!it[3]).map(([nm,od,col])=>`
+          <div class="row" style="padding:8px 12px;border-top:1px solid #f4f5f7">
+            ${crest(nm,col)}
+            <span style="font-size:13px;color:#333" class="grow">${nm}</span>
+            <span class="nowrap" style="min-width:66px;text-align:center;background:#F2F3F5;border-radius:6px;
+              padding:7px 10px;font-size:14px;font-weight:700;color:#222;cursor:pointer"
+              onclick="toast('冠军玩法投注流程未接入原型')">${od.toFixed(2)}</span>
+          </div>`).join('');
+      }
+      return c;
+    }).join('');
+    return b+'</div>';
+  }).join('');
+  $('home-list').innerHTML=h;
 }
 
 /* ═════════ 数据模型(参照真实首页截图) ═════════ */
@@ -683,9 +845,14 @@ function go(p){
   const bar=$('cartbar');
   if(bar&&p!=='pg-home')bar.style.display='none';
   if(p==='pg-home')updBadge();
-  /* 需求标注栏仅在汇总报表页展示 */
-  const sp=$('spec-report');
-  if(sp)sp.style.display=(p==='pg-report')?'block':'none';
+  syncSpec(p);
+}
+/* 需求标注栏:报表页显示报表标注,赛事页冠军页签显示冠军标注,其余隐藏 */
+function syncSpec(p){
+  const cur=p||(document.querySelector('.page.active')||{}).id;
+  const r=$('spec-report'),c=$('spec-champ');
+  if(r)r.style.display=(cur==='pg-report')?'block':'none';
+  if(c)c.style.display=(cur==='pg-home'&&homeTab==='champ')?'block':'none';
 }
 function show(id){$(id).classList.add('show');if(id==='ov-slip')syncListPad()}
 function hide(id){$(id).classList.remove('show');if(id==='ov-slip')syncListPad()}
@@ -817,6 +984,12 @@ function swE(e,mid){
   else if(d>0&&curP===1)setPage(mid,0); /* 右滑 → 全场 */
 }
 function renderHome(){
+  const fb=$('home-fbar');
+  if(fb)fb.style.display='flex';
+  /* 冠军盘口不参与 P2P 撮合与私盘,隐藏这两个筛选,其余保留 */
+  const champ=(homeTab==='champ');
+  ['fp-p2p','fp-clone'].forEach(id=>{const e=$(id);if(e)e.style.display=champ?'none':''});
+  if(homeTab==='champ'){renderChamp();return}
   $('home-list').innerHTML=LEAGUES.map((lg,li)=>{
     const lgMids=p2pOnly?lg.mids.filter(x=>p2pCountOf(x)>0):lg.mids;
     if(!lgMids.length)return '';
@@ -2770,6 +2943,7 @@ function stopAll(){cur.status='closed';closeCfm();toast('已停止收单,盘已�
 Object.keys(MATCHES).forEach(mid=>mtRegister(mid));   /* 启动即注册全部盘口,使投注项数量口径稳定 */
 if(!OPEN_MARKET_ENABLED){const _fc=$('fp-clone');if(_fc)_fc.style.display='none';}
 seedSampleDates();
+champInit();
 renderHomeTop();
 go('pg-home');renderHome();updBadge();syncBal();
 
