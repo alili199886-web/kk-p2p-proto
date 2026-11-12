@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.6</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.7</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.6 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.7 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -1002,11 +1002,12 @@ staticLanes.m1_big=[{odds:1.06,amt:660,seller:'1人'},{odds:1.02,amt:1200,seller
 
 let SELL_COMM=0.03;  /* 平台抽水 3% */
 let legacySells=[
-  {id:'S20260731001',league:'爱尔兰超级联赛',home:'瓦特福',away:'圣巴特里克竞技',play:'全场 · 让球',item:'主 +0.5/1',
-   itemKey:'m2_hh',odds:1.05,pt:0.06,ptPct:6.0,dep:1000,cap:952.38,sold:0,subsList:[],
+  /* 本人进行中的卖单集中放在冰岛场,腾出爱尔兰瓦特福场演示「他人已有 P2P 挂单,本人仍可开盘」 */
+  {id:'S20260731001',league:'冰岛女子超级联赛',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',play:'全场 · 让球',item:'主 +0.5/1',
+   itemKey:'m3_hh',odds:0.90,pt:0.06,ptPct:7.1,dep:1000,cap:1111.11,sold:0,subsList:[],
    state:'卖出中',time:'2026-07-31 02:00',bucket:'today'},
-  {id:'S20260729014',league:'Club Friendly CHS',home:'Celta Vigo',away:'Academico Viseu',play:'全场 · 让球',item:'主 -0.5/1',
-   itemKey:'m1_hh',odds:0.84,pt:0.01,ptPct:1.0,dep:85,cap:101.15,sold:5,
+  {id:'S20260729014',league:'冰岛女子超级联赛',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',play:'全场 · 独赢',item:'主胜',
+   itemKey:'m3_mw',odds:3.10,pt:0.23,ptPct:8.0,dep:85,cap:27.41,sold:5,
    subsList:[{u:'al***12',amt:5,time:'2026-07-29 15:24',settle:0}],
    state:'部分成交',time:'2026-07-29 15:23',bucket:'7d'},
   {id:'S20260730022',league:'MockOBT2026 CHS',home:'HomeTeamCodeA842 CHS',away:'AwayTeamCodeB3122 CHS',play:'全场 · 独赢',item:'主',
