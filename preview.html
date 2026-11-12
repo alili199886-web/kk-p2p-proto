@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v10.8</title>
+<title>P2P 开盘坐庄 · 交互原型 v10.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,'PingFang SC',sans-serif">预览版 v10.8 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v10.9 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -1532,7 +1532,7 @@ function openBetConfirm(legs,tot,win){
       <span class="muted nowrap" style="font-size:11px" id="bc-oid">—</span></div>
     <div class="row" style="margin-top:5px"><span class="muted grow">投注状态:</span>
       <span class="muted nowrap" id="bc-st">—</span></div>
-    <button class="btn btn-o" style="width:100%;margin-top:14px" onclick="closeCfm()">保留注单,继续投注</button>
+    <button class="btn btn-o" style="width:100%;margin-top:14px" onclick="closeCfm();continueBet()">保留注单,继续投注</button>
     <button class="btn btn-p" style="width:100%;margin-top:8px" onclick="betBack()">返回赛事</button>`);
   setTimeout(()=>{
     window._betConfirmed=true;
@@ -1553,6 +1553,12 @@ function acceptInfo(){
     <div style="font-size:13px;color:#222;font-weight:700;margin-bottom:6px">未开启</div>
     <div style="font-size:12px;color:#666;line-height:1.8;margin-bottom:14px">① 投注时,只接受不低于当前所见赔率的所有 P2P 档位。<br>② 投注时,不会购买低于当前所见赔率的 P2P 档位。<br>③ 如果购买了多个档位,会加权计算平均赔率,作为注单显示赔率。</div>
     <button class="btn btn-p" style="width:100%" onclick="closeCfm()">我明白了</button>`);
+}
+/* 继续投注:回赛事列表,有未投注的选中项才重新打开购物车 */
+function continueBet(){
+  go('pg-home');renderHome();setNav('match');
+  if(Object.keys(sel).some(k=>sel[k])){renderSlip();show('ov-slip')}
+  updBadge();
 }
 function betBack(){
   closeCfm();hide('ov-slip');
@@ -1800,6 +1806,11 @@ function doPara(){
   if(!p||p.tot<=0)return;
   if(p.tot>balance)return toast('余额不足');
   balance=+(balance-p.tot).toFixed(2);syncBal();
+  /* 投注成功:清空选中并收起购物车 */
+  Object.keys(sel).forEach(x=>{if(sel[x]&&!x.startsWith('C|')){sel[x]=false;const c=$('cell-'+x);if(c)c.classList.remove('sel');buyAmt[x]=''}});
+  paraAmt={};batchAmt='';kpKey=null;slipIdx=0;
+  hide('ov-slip');updBadge();renderHome();
+  
   const legs=p.rows.map(r=>({name:`${r.label} × ${r.c} 注(每注 ¥${money(r.a)})`,odds:f2(r.avg),amt:r.a*r.c}));
   const _pk=keysOfPara();
   p.rows.forEach(r=>buyOrders.unshift({type:'parlay',title:`${r.label} × ${r.c} 注`,confirmed:false,
@@ -1880,8 +1891,11 @@ function doBuy(){
     });
     buyAmt[k]='';
   });
-  balance=+(balance-tot).toFixed(2);syncBal();updBadge();renderHome();
-  kpKey=null;renderSlip();
+  balance=+(balance-tot).toFixed(2);syncBal();
+  /* 投注成功:清空已投注的选中项并收起购物车,回到赛事列表 */
+  keys.forEach(k=>{sel[k]=false;const c=$('cell-'+k);if(c)c.classList.remove('sel');buyAmt[k]=''});
+  kpKey=null;slipIdx=0;
+  hide('ov-slip');updBadge();renderHome();
   openBetConfirm(legs,tot,win);
 }
 function sellStep(k,d){sellForm[k].pt=+f2((parseFloat(sellForm[k].pt)||0)+0.01*d);renderSlip()}
