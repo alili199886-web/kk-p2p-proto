@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v10.6(需求标注补全)</title>
+<title>P2P 开盘坐庄 · 交互原型 v10.7</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -439,6 +439,7 @@ input:focus{border-color:#FF8C00}
     <li>仅展示庄家开放的盘口：开放项显示庄单赔率（独赢为欧洲盘 = 港盘 + 1，让球/大小为港盘），未开放项显示 <code>--</code> 置灰，单项封盘显示锁定态。</li>
     <li>可见性：盘为卖出中时展示；<b>整盘售罄 / 已关闭 / 已结算后私盘从列表消失</b>。</li>
     <li>多位庄家可各自对同一场比赛开盘，各生成独立私盘，按开盘时间排列；<b>同一庄家同一比赛限 1 个进行中的盘</b>。</li>
+    <li><b>开盘与投注项卖出互斥</b>：同一会员对同一场比赛，开盘坐庄与投注项卖出<b>二选一</b>。已有进行中的盘时，该场全部投注项的「卖出」入口置灰并提示「该场已开盘，不可再单独卖出」；已有该场进行中的投注项卖出时，该场「开盘」入口置灰并提示「该场已有投注项卖出，不可再开盘」。两者的「进行中」判定一致：卖出中、已封盘计入，已售罄 / 已关闭 / 已结算不计入。</li>
     <li>「进行中」的判定范围：<b>卖出中、已封盘</b>计入（私盘仍在列表或可恢复）；<b>已售罄、已关闭、已结算不计入</b>，庄家可对同一比赛再开新盘——售罄盘已从列表消失，不会造成重复占位。</li>
     <li>单场私盘<b>展示上限 N 个（默认 5）</b>，超出折叠为「查看全部私盘」，折叠不影响卖单簿成交。</li>
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
@@ -456,7 +457,8 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>原比赛有庄家档位的盘口展示红点，变化实时刷新；私盘赔率格为橙色数值。</li>
     <li>卖单簿多档混排：开盘庄家档位、投注项卖出档位、官方无限档位，按赔率降序 → 同赔率卖出时间优先 → 官方最后。</li>
-    <li><b>失效规则取消</b>：庄家赔率 ≤ 官方赔率的档位不置灰失效，正常展示可成交。</li>
+    <li><b>展示范围</b>：赔率<b>低于官方赔率的档位不展示</b>（视为已下架，不可成交）；赔率不低于官方的档位<b>全部展示</b>，不做数量截断。</li>
+    <li><b>可见高度</b>：卖家档位最多可见 5 档，超过 5 档时区域内出现滚动条，滚动查看其余档位；官方档位固定在最后一行，不参与滚动。</li>
   </ul>
 </div>
 
@@ -1582,8 +1584,8 @@ function bookHtml(k,defOpen){
       <span class="c3" style="width:76px;color:${r.off?'#FF8C00':'#222'}">${r.off?'无限':money(r.amt)}</span>
       <span class="plan" style="color:${pv>0?'#FF8C00':'#bbb'};font-weight:${pv>0?'700':'400'}">${pv>0?money(pv):'0'}</span></div>`;
   };
-  const scroll=p2pRows.length>3;
-  const body=`<div style="${scroll?'max-height:104px;overflow-y:auto':''}">${p2pRows.map(rowHtml).join('')}</div>`;
+  const scroll=p2pRows.length>5;   /* 卖单簿最多可见 5 档,超出区域内滚动 */
+  const body=`<div style="${scroll?'max-height:172px;overflow-y:auto':''}">${p2pRows.map(rowHtml).join('')}</div>`;
   const fixedOff=offRow.length?`<div style="border-top:1px dashed #eee">${offRow.map(rowHtml).join('')}</div>`:'';
   return top+head+body+fixedOff;
 }
@@ -1609,7 +1611,12 @@ function removeSel(k){sel[k]=false;const c=$('cell-'+k);if(c)c.classList.remove(
 function openBetslip(){const _b=$('cartbar');if(_b)_b.style.display='none';
   if(!Object.values(sel).some(Boolean))return toast('请先在赛事列表选择投注项');
   slipIdx=0;renderSlip();show('ov-slip')}
-function slipTab(i){slipIdx=i;renderSlip()}
+function slipTab(i){
+  if(i===2){
+    const mids=[...new Set(Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|')).map(k=>ITEMS[k].mid))];
+    const blocked=mids.filter(myLiveMarket);
+    if(blocked.length)return toast('该场已开盘,不可再单独卖出');
+  }slipIdx=i;renderSlip()}
 function cloneBuyCard(k){
   const r=cloneRefOf(k);if(!r)return '';
   const it=ITEMS[r.ik],m=MATCHES[r.mid];
@@ -1916,9 +1923,20 @@ function doSell(){
 }
 
 /* ═════════ 开盘 ═════════ */
+/* ═════ 同一会员对同一比赛:开盘坐庄 与 投注项卖出 互斥 ═════
+   「进行中」= 卖出中 / 已封盘;已售罄、已关闭、已结算不计入 */
+function myLiveMarket(mid){
+  return markets.some(m=>m.mid===mid&&(m.status==='open'||m.status==='sealed'));
+}
+function myLiveLegacy(mid){
+  return legacySells.some(l=>(l.itemKey||'').split('_')[0]===mid
+    &&(l.state==='卖出中'||l.state==='部分成交'||l.state==='已封盘'));
+}
 function openSheet(mid){
-  if(markets.some(m=>m.mid===mid&&m.status==='open'))
+  if(myLiveMarket(mid))
     return toast('你对该比赛已有进行中的盘,请先在开盘详情中管理');
+  if(myLiveLegacy(mid))
+    return toast('该场已有投注项卖出,不可再开盘');
   setupMid=mid;
   const m=MATCHES[mid];
   $('op-title').textContent='开盘 · '+m.home+' vs '+m.away;
