@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.7</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.7 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.8</div>
 
 <div class="phone" id="app">
 
@@ -448,7 +448,8 @@ input:focus{border-color:#FF8C00}
     <li>「进行中」的判定范围：<b>卖出中、已封盘</b>计入（私盘仍在列表或可恢复）；<b>已售罄、已关闭、已结算不计入</b>，庄家可对同一比赛再开新盘——售罄盘已从列表消失，不会造成重复占位。</li>
     <li>单场私盘<b>展示上限 N 个（默认 5）</b>，超出折叠为「查看全部私盘」，折叠不影响卖单簿成交。</li>
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
-    <li><b>私盘的「全部 N▸」入口</b>：赛事列表的私盘行只展示六类主玩法（全场 / 上半场 的 独赢、让球、大/小）。当私盘开了这六类之外的盘口（如进球、波胆、特殊玩法）时，私盘行右侧展示「全部 N▸」（N = 该私盘开放的盘口总数）；点击进入盘口详情页，页面<b>仅展示该私盘开放的盘口</b>、按该私盘的庄单赔率显示，点击任一盘口即加入购物车并按私盘规则投注。私盘开放的盘口全部落在六类主玩法内时不展示该入口。</li>
+    <li><b>私盘行版式与官方盘一致</b>：标题行为私盘名称 + 右侧「私盘」标识；<b>开赛时间展示在队名上方</b>（与官方盘同位置）；<b>「全部 N▸」入口展示在队名下方</b>（与官方盘的「所有盘口 N▸」同位置）。</li>
+    <li><b>私盘的「全部 N▸」入口</b>：赛事列表的私盘行只展示六类主玩法（全场 / 上半场 的 独赢、让球、大/小）。当私盘开了这六类之外的盘口（如进球、波胆、特殊玩法）时，展示「全部 N▸」（N = 该私盘开放的盘口总数）；点击进入盘口详情页，页面<b>仅展示该私盘开放的盘口</b>、按该私盘的庄单赔率显示，点击任一盘口即加入购物车并按私盘规则投注。私盘开放的盘口全部落在六类主玩法内时不展示该入口。</li>
   </ul>
 
   <h4>购物车（投注面板）</h4>
@@ -1255,24 +1256,29 @@ function cloneRowsHtml(mid){
     return `<div style="padding:10px 12px;background:#FFFDF6;border-top:1px dashed #f2e6cf">
       <div class="row" style="margin-bottom:6px">
         <span style="font-size:12px;color:#222;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home} vs ${m.away} · ${c.nick}</span>
-        <span class="muted nowrap" style="font-size:11px">${m.time}</span>
         <span class="grow"></span>
-        ${(()=>{
-          /* 赛事列表仅展示六大玩法(全场/上半场 的 独赢·让球·大小);
-             私盘若开了这六类之外的盘口,展示「全部 N▸」入口,点击进盘口详情投注 */
-          const MAIN=['mw','ma','md','hh','ah','big','small','h_mw','h_ma','h_md','h_hh','h_ah','h_big','h_small'];
-          const extra=items.filter(it=>it.status==='on'&&!MAIN.includes((it.key||'').replace(mid+'_','')));
-          const total=items.filter(it=>it.status==='on').length;
-          return extra.length
-            ? `<span class="muted nowrap" style="font-size:11px;cursor:pointer;margin-right:6px" onclick="event.stopPropagation();openCloneMarket('${ref}','${mid}')">全部 ${total}▸</span>`
-            : '';
-        })()}
         <span class="tag tag-p2p">私盘</span>
       </div>
+      <div class="row" style="margin-bottom:6px">
+        <span style="color:#ccc">☆</span><span class="muted nowrap" style="font-size:12px">${m.time}</span>
+        <span class="grow"></span>
+      </div>
       <div class="row" style="align-items:stretch">
-        <div class="grow" style="display:flex;flex-direction:column;justify-content:space-around;gap:8px;min-width:0">
+        <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
           <div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span></div>
           <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
+          <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+            ${(()=>{
+              /* 赛事列表仅展示六大玩法(全场/上半场 的 独赢·让球·大小);
+                 私盘若开了这六类之外的盘口,展示「全部 N▸」入口,位置与官方盘的「所有盘口」一致 */
+              const MAIN=['mw','ma','md','hh','ah','big','small','h_mw','h_ma','h_md','h_hh','h_ah','h_big','h_small'];
+              const extra=items.filter(it=>it.status==='on'&&!MAIN.includes((it.key||'').replace(mid+'_','')));
+              const total=items.filter(it=>it.status==='on').length;
+              return extra.length
+                ? `<span class="muted nowrap" style="font-size:11px;cursor:pointer;flex-shrink:0" onclick="event.stopPropagation();openCloneMarket('${ref}','${mid}')">全部 ${total}▸</span>`
+                : '';
+            })()}
+          </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:5px">${cc('mw','主')}${cc('ma','客')}${cc('md','和')}</div>
         <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px">${cc('hh',o.hhL)}${cc('ah',o.ahL)}</div>
