@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.3</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.5</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.3 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.5 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -448,6 +448,7 @@ input:focus{border-color:#FF8C00}
     <li>「进行中」的判定范围：<b>卖出中、已封盘</b>计入（私盘仍在列表或可恢复）；<b>已售罄、已关闭、已结算不计入</b>，庄家可对同一比赛再开新盘——售罄盘已从列表消失，不会造成重复占位。</li>
     <li>单场私盘<b>展示上限 N 个（默认 5）</b>，超出折叠为「查看全部私盘」，折叠不影响卖单簿成交。</li>
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
+    <li><b>私盘的「全部 N▸」入口</b>：赛事列表的私盘行只展示六类主玩法（全场 / 上半场 的 独赢、让球、大/小）。当私盘开了这六类之外的盘口（如进球、波胆、特殊玩法）时，私盘行右侧展示「全部 N▸」（N = 该私盘开放的盘口总数）；点击进入盘口详情页，页面<b>仅展示该私盘开放的盘口</b>、按该私盘的庄单赔率显示，点击任一盘口即加入购物车并按私盘规则投注。私盘开放的盘口全部落在六类主玩法内时不展示该入口。</li>
   </ul>
 
   <h4>购物车（投注面板）</h4>
@@ -1039,10 +1040,15 @@ let markets=[
   /* 演示数据:卖出中 / 已售罄 / 已结算 / 已关闭 四种状态各一条,bucket 均为 today,时间筛选默认「今天」时全部可见 */
   {id:'M20260710001',mid:'m1',status:'open',nick:'金刚庄',auto:10,created:'07-10 14:02',bucket:'today',dep:1000,
    items:[
-     {key:'m1_big',name:'全场 大/小 · 大 3',pt:0.13,odds:1.15,sold:180,status:'on',lastAdj:0,
-      subs:[{u:'user***23',amt:100,odds:1.15,time:'07-10 15:10'},{u:'user***88',amt:80,odds:1.15,time:'07-10 16:42'}]},
-     {key:'m1_small',name:'全场 大/小 · 小 3',pt:0.03,odds:0.89,sold:0,status:'on',lastAdj:0,subs:[]},
-     {key:'m1_mw',name:'全场 独赢 · 主胜',pt:0.04,odds:0.70,sold:0,status:'on',lastAdj:0,subs:[]}
+     /* 「全场 独赢」整列开满:赛事列表该列主/客/和三格均有赔率 */
+     {key:'m1_mw',name:'全场 独赢 · 主胜',pt:0.04,odds:0.70,sold:180,status:'on',lastAdj:0,
+      subs:[{u:'user***23',amt:100,odds:0.70,time:'07-10 15:10'},{u:'user***88',amt:80,odds:0.70,time:'07-10 16:42'}]},
+     {key:'m1_ma',name:'全场 独赢 · 客胜',pt:0.05,odds:3.39,sold:0,status:'on',lastAdj:0,subs:[]},
+     {key:'m1_md',name:'全场 独赢 · 和局',pt:0.04,odds:2.96,sold:0,status:'on',lastAdj:0,subs:[]},
+     /* 「全场 大/小」开一项,该列另一格显示 -- */
+     {key:'m1_big',name:'全场 大/小 · 大 3',pt:0.13,odds:1.15,sold:0,status:'on',lastAdj:0,subs:[]},
+     /* 非六大玩法:不在赛事列表三列中,触发「全部 N▸」入口 */
+     {key:'m1_g_odd',name:'全场 进球 · 单',pt:0.05,odds:1.00,sold:0,status:'on',lastAdj:0,subs:[]}
    ]},
   /* 已售罄:押金全部被消耗,剩余额度归零,等待赛事结算 */
   {id:'M20260711002',mid:'m2',status:'soldout',nick:'老王盘',auto:15,created:'07-11 09:30',bucket:'today',dep:800,
@@ -1075,7 +1081,10 @@ const OPEN_MARKET_ENABLED=true;
 /* ═════ 私盘(复制比赛)模型 ═════ */
 let BANKER_NICK='金刚庄';
 let OTHER_MK=[{id:'OM77',nick:'财神爷',mid:'m2',dep:2000,items:[
-  {key:'m2_mw',odds:2.86,sold:0},{key:'m2_ma',odds:1.06,sold:0},{key:'m2_md',odds:2.80,sold:0}]}];
+  /* 独赢整列 + 让球一项 + 大小一项:赛事列表三列均有赔率 */
+  {key:'m2_mw',odds:2.86,sold:0},{key:'m2_ma',odds:1.06,sold:0},{key:'m2_md',odds:2.80,sold:0},
+  {key:'m2_hh',odds:1.12,sold:0},{key:'m2_ah',odds:0.86,sold:0},
+  {key:'m2_big',odds:1.02,sold:0},{key:'m2_small',odds:0.88,sold:0}]}];
 function omkRemainDep(o){return Math.max(0,+(o.dep-o.items.reduce((s,i)=>s+i.sold*i.odds,0)).toFixed(2))}
 function omkItemRemain(o,it){return Math.floor(omkRemainDep(o)/it.odds*100)/100}
 function clonesOf(mid){
@@ -1248,6 +1257,16 @@ function cloneRowsHtml(mid){
         <span style="font-size:12px;color:#222;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home} vs ${m.away} · ${c.nick}</span>
         <span class="muted nowrap" style="font-size:11px">${m.time}</span>
         <span class="grow"></span>
+        ${(()=>{
+          /* 赛事列表仅展示六大玩法(全场/上半场 的 独赢·让球·大小);
+             私盘若开了这六类之外的盘口,展示「全部 N▸」入口,点击进盘口详情投注 */
+          const MAIN=['mw','ma','md','hh','ah','big','small','h_mw','h_ma','h_md','h_hh','h_ah','h_big','h_small'];
+          const extra=items.filter(it=>it.status==='on'&&!MAIN.includes((it.key||'').replace(mid+'_','')));
+          const total=items.filter(it=>it.status==='on').length;
+          return extra.length
+            ? `<span class="muted nowrap" style="font-size:11px;cursor:pointer;margin-right:6px" onclick="event.stopPropagation();openCloneMarket('${ref}','${mid}')">全部 ${total}▸</span>`
+            : '';
+        })()}
         <span class="tag tag-p2p">私盘</span>
       </div>
       <div class="row" style="align-items:stretch">
@@ -1377,7 +1396,15 @@ function mtRegister(mid){
   }
   m._mtDone=true;
 }
+/* 私盘「全部 N▸」:进入盘口详情,仅展示该私盘开放的盘口 */
+let mtCloneRef=null;
+function openCloneMarket(ref,mid){
+  mtCloneRef=ref;
+  mtMid=mid;mtTab=0;mtFold={};
+  mtRegister(mid);renderMatch();go('pg-match');
+}
 function openMatch(mid){
+  mtCloneRef=null;
   mtMid=mid;mtTab=0;mtFold={};
   mtRegister(mid);renderMatch();go('pg-match');
 }
@@ -1400,6 +1427,18 @@ function mtTabOk(group){
   return group.startsWith('特殊');
 }
 function mtCell(it){
+  /* 来自私盘入口:展示该私盘的庄单赔率,点击加入购物车的是私盘投注项 */
+  if(mtCloneRef){
+    const ck='C|'+mtCloneRef+'|'+it.key;
+    const r=cloneRefOf(ck);
+    if(!r)return '';
+    const isMw=['mw','ma','md'].includes(it.key.replace(it.mid+'_',''));
+    const v=isMw?r.odds+1:r.odds;
+    return `<div class="row" id="mcell-${ck}" style="position:relative;background:${sel[ck]?'linear-gradient(180deg,#FFA33A,#FF8C00)':'#F7F8FA'};border-radius:8px;padding:11px 12px;cursor:pointer;margin-bottom:8px" onclick="cloneToggle('${ck}')">
+      <span style="font-size:12px;color:${sel[ck]?'rgba(255,255,255,.9)':'#9aa0a6'}" class="grow nowrap">${it.label}</span>
+      <span style="font-size:15px;font-weight:700;color:${sel[ck]?'#fff':'#222'}" class="nowrap">${f2(v)}</span>
+    </div>`;
+  }
   const k=it.key,hk=officialHk[k];
   const lanes=lanesFor(k).filter(l=>l.odds>=hk);
   const mx=lanes.length?Math.max(hk,...lanes.map(l=>l.odds)):hk;
@@ -1413,7 +1452,8 @@ function mtCell(it){
 }
 function renderMatch(){
   const m=MATCHES[mtMid];if(!m)return;
-  $('mt-title').innerHTML=m.league+' <span style="font-size:11px;color:#999">▾</span>';
+  const _mk=mtCloneRef?(markets.find(x=>('me|'+x.id)===mtCloneRef)||OTHER_MK.find(o=>('ot|'+o.id)===mtCloneRef)):null;
+  $('mt-title').innerHTML=(_mk?('私盘 · '+(_mk.nick||BANKER_NICK)):m.league)+' <span style="font-size:11px;color:#999">▾</span>';
   const live=m.tagTxt==='滚球';
   $('mt-banner').innerHTML=`<div style="background:linear-gradient(160deg,#0E2A18,#1B4D2B 55%,#14351F);padding:16px 14px 14px;color:#fff;position:relative;overflow:hidden">
       <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% -10%,rgba(255,255,255,.18),transparent 60%)"></div>
@@ -1439,7 +1479,13 @@ function renderMatch(){
   const names=Object.keys(gs).filter(mtTabOk);
   let html='';
   names.forEach(gname=>{
-    const items=gs[gname];
+    let items=gs[gname];
+    if(mtCloneRef){
+      const r0=cloneRefOf('C|'+mtCloneRef+'|__probe__');
+      const mk=markets.find(m=>('me|'+m.id)===mtCloneRef)||OTHER_MK.find(o=>('ot|'+o.id)===mtCloneRef);
+      const opened=mk?mk.items.filter(x=>x.status==='on').map(x=>x.key):[];
+      items=items.filter(it=>opened.includes(it.key));
+    }
     if(!items.length)return;
     /* 主客两列:含"主/客"或"大/小"按左右分列,其余单列铺满 */
     const left=items.filter(it=>/^主|^大|^是|^单/.test(it.label));
