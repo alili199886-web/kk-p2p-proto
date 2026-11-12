@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.3</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.4</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.3 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.4 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -481,7 +481,7 @@ input:focus{border-color:#FF8C00}
     <li>页签下方为筛选区，<b>一排展示两个下拉</b>：
       <br>· <b>时间筛选</b>（默认「今天」）：今天 / 昨天 / 近7天 / 近30天 / 自定义；选择「自定义」弹出自定义时间弹窗（与买单已结算的筛选弹窗一致），应用后下拉文案显示所选区间；
       <br>· <b>状态筛选</b>（默认「全部」）：全部 / 卖出中 / 已售罄 / 已结算 / 已关闭。
-      <br>右侧展示共 N 条。</li>
+      </li>
     <li>筛选区下方为四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏（赢绿输红，符号与数值同行不换行）。</li>
   </ul>
 
@@ -2619,7 +2619,7 @@ function renderOrders(){
   const mkList=_mks.filter(m=>(stFilter==='all'||m.status===stFilter)&&sellTimeOk(m));
   const list=segIdx===0?mkList:lgList;
   /* 一排两个下拉:时间 / 状态 */
-  const selStyle='flex:1;min-width:0;height:34px;border:1px solid #e3e5e8;border-radius:8px;background:#fff url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'><path d=\'M0 0h10L5 6z\' fill=\'%23999\'/></svg>") no-repeat right 10px center;padding:0 26px 0 10px;font-size:13px;color:#222;-webkit-appearance:none;appearance:none;cursor:pointer';
+  const selStyle='flex:1 1 0;min-width:0;height:34px;border:1px solid #e3e5e8;border-radius:8px;background:#fff url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'><path d=\'M0 0h10L5 6z\' fill=\'%23999\'/></svg>") no-repeat right 10px center;padding:0 26px 0 10px;font-size:13px;color:#222;-webkit-appearance:none;appearance:none;cursor:pointer';
   const tLabel=(tFilter==='day'&&sellS&&sellE)?`${sellS.slice(5)} ~ ${sellE.slice(5)}`:'';
   $('orders-filters').innerHTML=
     `<select style="${selStyle}" onchange="sellTimeChange(this.value)">`
@@ -2627,8 +2627,7 @@ function renderOrders(){
     +`</select>`
     +`<select style="${selStyle}" onchange="stFilter=this.value;renderOrders()">`
       +sts.map(([v,t])=>`<option value="${v}" ${stFilter===v?'selected':''}>${t}</option>`).join('')
-    +`</select>`
-    +`<span class="muted nowrap" style="font-size:12px">共${list.length}条</span>`;
+    +`</select>`;
   if(segIdx===0){
     /* 开盘分段:盘卡片 */
     $('orders-list').innerHTML=list.length?list.map(m=>{
