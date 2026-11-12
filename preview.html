@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.4</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.5</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.4 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.5 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -499,15 +499,36 @@ input:focus{border-color:#FF8C00}
 </div>
 
 <!-- ═════════ 右侧标注:开盘详情与控盘 ═════════ -->
-<div class="spec" id="spec-selldetail" data-page="pg-selldetail" style="display:none">
+<div class="spec" id="spec-detail" data-page="pg-detail" style="display:none">
   <h3>开盘详情与控盘 · 需求标注</h3>
   <p class="sub">庄家对自己私盘拥有完整控盘能力：动态增减盘口、调水、单项封盘、补充额度、停止收单。</p>
 
-  <h4>页面结构</h4>
+  <p class="sub">入口：我的卖出 → 私盘页签 → 点击盘卡片「查看详情」。庄家对自己私盘的全部控盘操作都在本页完成。</p>
+
+  <h4>页面结构（自上而下）</h4>
   <ul>
-    <li>状态横幅（已关闭/已结算场景）+ 赛事信息（含开盘时间、自动封盘设置）+ 四列汇总（总押金/已收单/子单数/状态）+ 投注项庄单卡片列表 + 底部盘级操作区。</li>
-    <li>庄单卡片：投注项名、状态标签、庄单赔率（标注「固定」）、官方当前赔率（仅参考，低于官方时红字提示）、押金/已收/剩余额度、开盘时间、子单列表。</li>
-    <li>子单两行展示：第一行 会员标签 + 买家ID + 成交金额 + 成交赔率；第二行 成交时间 + 结算金额（已结算，赢绿输红）。</li>
+    <li><b>顶栏</b>：返回（回我的卖出）、标题「开盘详情」、右侧盘状态标签（卖出中 / 已售罄 / 已结算 / 已关闭）。本页不提供分享入口。</li>
+    <li><b>状态横幅</b>：仅在已关闭、已结算时展示。已关闭提示「已停止收单，卖出单已从卖单簿下架，等待赛事结算，未消费押金结算后退回」；已结算展示盘净盈亏（赢绿输红）与「剩余押金已解冻退回」。</li>
+    <li><b>赛事信息卡</b>：主队 vs 客队、联赛 · 开赛时间、开盘时间、自动封盘设置（开赛前 N 分钟）。</li>
+    <li><b>四列汇总</b>：总押金 / 已收单 / 子单数 / 状态。</li>
+    <li><b>投注项庄单列表</b>：标题「投注项庄单(N)」，逐项展示卡片。</li>
+    <li><b>底部操作区</b>：盘级操作按钮，按状态变化（见下）。</li>
+  </ul>
+
+  <h4>庄单卡片字段</h4>
+  <ul>
+    <li>投注项名 + 单项状态标签（收单中 / 已封盘 / 已售罄）。</li>
+    <li><b>庄单赔率</b>：绿色显示并标注「固定」——确认开盘后不随官方赔率联动。</li>
+    <li><b>官方当前赔率</b>：仅作参考不参与计算；当庄单赔率低于官方赔率时追加红字「低于官方」提示（此时该档位已从卖单簿下架，不可成交）。</li>
+    <li>已收金额、剩余可卖额度（标注「共享盘押金」，提示额度来自整盘共享池）。</li>
+    <li>单项操作：调水、封盘 / 恢复。</li>
+    <li><b>子单列表</b>：标题「子单数据(N)」，无成交时显示「暂无成交」。每笔两行——第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算，赢绿输红；未结算显示「未结算」）。</li>
+  </ul>
+
+  <h4>底部操作区（按盘状态）</h4>
+  <ul>
+    <li><b>卖出中 / 已售罄</b>：展示「新增盘口」「补充额度」「停止收单」。</li>
+    <li><b>已结算 / 已关闭</b>：仅展示「返回列表」，不再提供任何控盘操作。</li>
   </ul>
 
   <h4>调水</h4>
@@ -555,6 +576,31 @@ input:focus{border-color:#FF8C00}
     <li>抽佣费率由 <b>APISYS 下发</b>，不在本系统配置；庄家按单净盈利抽佣，买家侧抽佣基数 = 购买 P2P 盈利 − 购买官方盈利，由结算系统扣除。</li>
     <li><b>费率异常兜底</b>：APISYS 未返回费率或返回非法值（小于 0 或大于 100%）时不采用该值，按平台兜底费率（配置项）结算，并记录异常日志告警，不阻断结算。</li>
     <li>押金占用提示：开盘前常驻灰字「押金自开盘起冻结，至赛事结算后解冻退回」，早盘额外提示预计冻结时长。</li>
+  </ul>
+</div>
+
+<!-- ═════════ 右侧标注:投注项卖出详情 ═════════ -->
+<div class="spec" id="spec-selldetail" data-page="pg-selldetail" style="display:none">
+  <h3>投注项卖出详情 · 需求标注</h3>
+  <p class="sub">入口：我的卖出 → 投注项卖单页签 → 点击卖单卡片。对应既有的「单投注项卖出」形态，与开盘坐庄的私盘详情是两个独立页面。</p>
+
+  <h4>页面结构</h4>
+  <ul>
+    <li><b>顶栏</b>：返回、标题「庄家卖出详情」、右上角分享入口（仅卖出中 / 部分成交时展示；已售罄、已封盘、已关闭、已结算时隐藏）。</li>
+    <li><b>赛事卡</b>：联赛 + 状态标签；主队 VS 客队（队名完整展示，不截断）；玩法标签 + 投注项。</li>
+    <li><b>最终输赢</b>：仅已结算展示，大字号居中，赢绿输红。</li>
+    <li><b>三列指标</b>：剩余额度 / 已收单 / 上浮点位。</li>
+    <li><b>消费进度</b>：已收单 ÷ 总额度，进行中蓝、已结算绿、已关闭灰。</li>
+    <li><b>基础信息</b>：抵押类型、抵押金额（旁有感叹号图标，点击查看押金变动记录）、卖出赔率（港盘）、总额度、子单数、卖出时间。</li>
+    <li><b>会员买单列表</b>：逐笔展示买家、成交金额、成交时间；已结算时追加每笔结算金额、平台抽水与卖出返回。</li>
+    <li><b>底部操作</b>：卖出中 / 部分成交 / 已售罄时展示「补充押金」「停止收单」；已结算、已关闭时无操作按钮。</li>
+  </ul>
+
+  <h4>与开盘详情的区别</h4>
+  <ul>
+    <li>本页是<b>单个投注项</b>的卖出挂单，押金独立、只对应一个盘口；开盘详情是<b>整盘</b>，押金共享、含多个投注项庄单。</li>
+    <li>本页支持分享挂单；<b>私盘暂不支持分享</b>，开盘详情无分享入口。</li>
+    <li>本页无调水与新增 / 移除盘口能力，只能补充押金或停止收单。</li>
   </ul>
 </div>
 
