@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.0</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -38,6 +38,8 @@ body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-sta
 .tag-sealed{background:#FFF3E5;color:#FF8C00}
 .tag-closed{background:#f0f0f0;color:#888}
 .tag-soldout{background:#FCEBEB;color:#E24B4A}
+.tag-win{background:#E8F7EF;color:#1D9E75}
+.tag-lose{background:#FDECEC;color:#E24B4A}
 .tag-settled{background:#E8F7EF;color:#1D9E75}
 .muted{color:#999;font-size:11px}
 .odds-g{color:#1D9E75;font-weight:600}
@@ -78,6 +80,8 @@ input:focus{border-color:#FF8C00}
 .stat4>div:last-child{border:none}
 .stat4 .l{font-size:11px;color:#666;white-space:nowrap}
 .stat4 .v{font-size:13px;font-weight:700;color:#222;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stat4 .v.win{color:#1D9E75}
+.stat4 .v.lose{color:#E24B4A}
 .ptab{flex:1;text-align:center;padding:12px 0;font-size:15px;color:#444;cursor:pointer;position:relative}
 .ptab.on{color:#222;font-weight:700}
 .ptab.dis{opacity:.35;pointer-events:none}
@@ -174,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.0 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.2 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -482,14 +486,14 @@ input:focus{border-color:#FF8C00}
       <br>· <b>时间筛选</b>（默认「今天」）：今天 / 昨天 / 近7天 / 近30天 / 自定义；选择「自定义」弹出自定义时间弹窗（与买单已结算的筛选弹窗一致），应用后下拉文案显示所选区间；
       <br>· <b>状态筛选</b>（默认「全部」）：全部 / 卖出中 / 已售罄 / 已结算 / 已关闭。
       </li>
-    <li>筛选区下方为四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏（赢绿输红，符号与数值同行不换行）。</li>
+    <li>筛选区下方为四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏（<b>盈利绿色、亏损红色、不输不赢黑色</b>，符号与数值同行不换行）。</li>
   </ul>
 
   <h4>私盘卡片字段</h4>
   <ul>
     <li>联赛、「私盘」标识、状态标签、<b>私盘名称</b>（与赛事列表中该私盘的名称一致，即「原比赛名 · 庄家昵称」，不使用原比赛名）、盘号、开放项数、总押金、收单进度条、已收 / 押金、查看详情。</li>
     <li><b>私盘不展示分享按钮</b>，暂不支持分享；投注项卖单的分享入口不受影响。</li>
-    <li><b>已结算盘在进度条左侧展示盘净盈亏</b>，赢绿输红，带正负号，符号与数值同行不换行。</li>
+    <li><b>卡片不展示「私盘」标识</b>（私盘列表本身已表明来源）；已结算盘在该位置（联赛名右侧、状态标签左侧）展示盘净盈亏，赢绿输红、不输不赢黑色，带正负号且同行不换行。</li>
   </ul>
 
   <h4>历史数据</h4>
@@ -508,7 +512,7 @@ input:focus{border-color:#FF8C00}
   <h4>页面结构（自上而下）</h4>
   <ul>
     <li><b>顶栏</b>：返回（回我的卖出）、标题「开盘详情」、右侧盘状态标签（卖出中 / 已售罄 / 已结算 / 已关闭）。本页不提供分享入口。</li>
-    <li><b>状态横幅</b>：仅在已关闭、已结算时展示。已关闭提示「已停止收单，卖出单已从卖单簿下架，等待赛事结算，未消费押金结算后退回」；已结算展示盘净盈亏（赢绿输红）与「剩余押金已解冻退回」。</li>
+    <li><b>状态横幅</b>：仅在已关闭时展示，提示「已停止收单，卖出单已从卖单簿下架，等待赛事结算，未消费押金结算后退回」。<b>已结算不展示顶部横幅</b>，盈亏在列表汇总与各投注项庄单的输赢标签上体现。</li>
     <li><b>赛事信息卡</b>：主队 vs 客队、联赛 · 开赛时间、开盘时间、自动封盘设置（开赛前 N 分钟）。</li>
     <li><b>四列汇总</b>：总押金 / 已收单 / 子单数 / 状态。</li>
     <li><b>投注项庄单列表</b>：标题「投注项庄单(N)」，逐项展示卡片。</li>
@@ -517,12 +521,12 @@ input:focus{border-color:#FF8C00}
 
   <h4>庄单卡片字段</h4>
   <ul>
-    <li>投注项名 + 单项状态标签（收单中 / 已封盘 / 已售罄）。</li>
-    <li><b>庄单赔率</b>：绿色显示并标注「固定」——确认开盘后不随官方赔率联动。</li>
+    <li>投注项名 + 单项状态标签：进行中为收单中 / 部分成交 / 已封盘 / 已售罄；<b>盘已结算时标签改为该投注项的输赢结果</b>（赢绿 / 输红 / 走水灰），不再显示「已结算」。</li>
+    <li><b>庄单赔率</b>：绿色显示。确认开盘后固定，不随官方赔率联动。</li>
     <li><b>官方当前赔率</b>：仅作参考不参与计算；当庄单赔率低于官方赔率时追加红字「低于官方」提示（此时该档位已从卖单簿下架，不可成交）。</li>
     <li>已收金额、剩余可卖额度（标注「共享盘押金」，提示额度来自整盘共享池）。</li>
     <li>单项操作：调水、封盘 / 恢复。</li>
-    <li><b>子单列表</b>：标题「子单数据(N)」，无成交时显示「暂无成交」。每笔两行——第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算，赢绿输红；未结算显示「未结算」）。</li>
+    <li><b>子单列表</b>：标题「子单数据(N)」，<b>默认收起</b>，点击标题行展开 / 收起（右侧显示「展开 ⌄ / 收起 ⌃」）；每次进入详情页默认全部收起。无成交时显示「子单数据(0)：暂无成交」，不可展开。每笔两行——第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算，赢绿输红；未结算显示「未结算」）。</li>
   </ul>
 
   <h4>底部操作区（按盘状态）</h4>
@@ -2676,7 +2680,7 @@ function renderOrders(){
     <div><div class="l">总卖出</div><div class="v">${totalCnt}</div></div>
     <div><div class="l">进行中</div><div class="v">${running}</div></div>
     <div><div class="l">已消费</div><div class="v nowrap">¥${money(consumed)}</div></div>
-    <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>=0?'win':'lose'}">${profit>=0?'+':'-'}¥${money(Math.abs(profit))}</div></div></div>`;
+    <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>0?'win':(profit<0?'lose':'')}">${profit>0?'+':(profit<0?'-':'')}¥${money(Math.abs(profit))}</div></div></div>`;
   const sts=[['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
   const ts=[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天'],['day','自定义']];
   const lgList=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&sellTimeOk(l));
@@ -2704,12 +2708,12 @@ function renderOrders(){
       /* 已结算盘展示净盈亏:赢绿输红,符号与数值同行不换行 */
       const pf=m.profit||0;
       const pfHtml=m.status==='settled'
-        ?`<span class="nowrap ${pf>=0?'win':'lose'}" style="font-size:15px;font-weight:800">${pf>0?'+':(pf<0?'-':'')}¥${money(Math.abs(pf))}</span>`:'';
+        ?`<span class="nowrap ${pf>0?'win':(pf<0?'lose':'')}" style="font-size:14px;font-weight:800">${pf>0?'+':(pf<0?'-':'')}¥${money(Math.abs(pf))}</span>`:'';
       return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openDetail('${m.id}')">
         <div class="row">
           <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${mt.league||''}</span>
-          <span class="tag tag-p2p" style="margin-right:8px">私盘</span>
-          <span class="tag ${st[1]}">${st[0]}</span></div>
+          ${pfHtml}
+          <span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span></div>
         <div class="muted" style="margin:6px 0 4px">${mt.home||''} vs ${mt.away||''} · ${m.nick||BANKER_NICK}</div>
         <div class="row" style="font-size:12px;color:#666;gap:6px">
           <span class="nowrap">盘号 ${m.id}</span>
@@ -2719,8 +2723,7 @@ function renderOrders(){
           <span class="grow"></span>
           <span class="muted nowrap">${m.created||''}</span></div>
         <div class="row" style="margin-top:8px">
-          ${pfHtml}
-          <div class="prog grow" style="margin:0 8px"><i style="width:${pct}%;background:${barColor}"></i></div>
+          <div class="prog grow" style="margin:0 8px 0 0"><i style="width:${pct}%;background:${barColor}"></i></div>
           <span class="muted nowrap">已收 ¥${money(sold)} / 押金 ¥${money(m.dep)}</span>
           <span style="font-size:12px;color:#666;margin-left:8px" class="nowrap">查看详情 ›</span></div>
       </div>`;
@@ -2885,9 +2888,23 @@ function doStopSell(){
 }
 
 /* ═════════ 盘详情 & 控盘 ═════════ */
-function openDetail(id){cur=markets.find(m=>m.id===id);renderDetail();go('pg-detail')}
+function openDetail(id){subOpen={};cur=markets.find(m=>m.id===id);renderDetail();go('pg-detail')}
+/* 子单展开状态:key = 盘ID#投注项下标 */
+let subOpen={};
+function toggleSub(mid,i){
+  const k=mid+'#'+i;
+  subOpen[k]=!subOpen[k];
+  renderDetail();
+}
 function itemTag(m,it){
-  if(m.status==='settled')return '<span class="tag tag-settled">已结算</span>';
+  if(m.status==='settled'){
+    /* 已结算:展示该投注项的输赢结果,而非「已结算」 */
+    const v=it.settle;
+    if(v===undefined)return '<span class="tag tag-settled">已结算</span>';
+    if(v>0)return '<span class="tag tag-win">赢</span>';
+    if(v<0)return '<span class="tag tag-lose">输</span>';
+    return '<span class="tag tag-closed">走水</span>';
+  }
   if(m.status==='closed')return '<span class="tag tag-closed">已关闭</span>';
   if(it.status==='sealed')return '<span class="tag tag-sealed">已封盘</span>';
   const remain=itemRemain(cur,it);
@@ -2901,7 +2918,7 @@ function renderDetail(){
   const dep=m.dep,sold=m.items.reduce((s,i)=>s+i.sold,0),subs=m.items.reduce((s,i)=>s+i.subs.length,0);
   let banner='';
   if(m.status==='closed')banner='<div class="hint" style="background:#FCEBEB;color:#C0392B;margin-bottom:8px">已停止收单,卖出单已从卖单簿下架,等待赛事结算。未消费押金结算后退回。</div>';
-  if(m.status==='settled')banner=`<div class="hint" style="background:#E8F7EF;color:#1D6E4E;margin-bottom:8px">赛事已结算。盘净盈亏 <b class="${(m.profit||0)>=0?'win':'lose'} nowrap">${(m.profit||0)>=0?'+':''}¥${money(m.profit||0)}</b>,剩余押金已解冻退回。</div>`;
+  /* 已结算盘不展示顶部横幅,盈亏在汇总区与各庄单项上体现 */
   $('dt-body').innerHTML=banner+`
     <div class="card">
       <div style="font-size:14px;font-weight:600;color:#222">${mt.home} vs ${mt.away}</div>
@@ -2919,7 +2936,12 @@ function renderDetail(){
     ${m.items.map((it,i)=>{
       const remain=itemRemain(m,it);
       const canOp=m.status==='open'||m.status==='soldout';
-      const subsHtml=it.subs.length?`<div class="muted" style="margin-top:8px">子单数据(${it.subs.length})</div>`+
+      /* 子单默认收起,点击标题行展开/收起 */
+      const sOpen=!!subOpen[m.id+'#'+i];
+      const subsHtml=it.subs.length?`<div class="row muted" style="margin-top:8px;cursor:pointer" onclick="toggleSub('${m.id}',${i})">
+          <span>子单数据(${it.subs.length})</span><span class="grow"></span>
+          <span style="color:#FF8C00;font-size:11px">${sOpen?'收起 ⌃':'展开 ⌄'}</span></div>`+
+        `<div style="${sOpen?'':'display:none'}">`+
         it.subs.map(s=>`<div class="sub">
           <div class="r1">
             <span style="background:#EAF2FD;color:#2E7BD6;font-size:10px;padding:0 4px;border-radius:3px">会员</span>
@@ -2932,12 +2954,12 @@ function renderDetail(){
             <span>${s.time}</span>
             <span class="grow"></span>
             ${s.settle!==undefined?`<span class="${s.settle>=0?'win':'lose'}">结算 ${s.settle>=0?'+':''}¥${money(s.settle)}</span>`:'<span>未结算</span>'}
-          </div></div>`).join('')
+          </div></div>`).join('')+`</div>`
         :'<div class="muted" style="margin-top:8px">子单数据(0):暂无成交</div>';
       return `<div class="card">
         <div class="row"><span style="font-size:13px;font-weight:600;color:#222" class="grow nowrap">${it.name}</span>${itemTag(m,it)}</div>
         <div class="row" style="margin-top:6px;font-size:11px;color:#666;gap:14px">
-          <span class="nowrap">庄单 <b class="odds-g">@${f2(it.odds)}</b> <span style="color:#bbb">固定</span></span>
+          <span class="nowrap">庄单 <b class="odds-g">@${f2(it.odds)}</b></span>
           <span class="nowrap">官方当前 @${f2(officialHk[it.key])} ${it.odds<officialHk[it.key]?'<span class="low">低于官方</span>':''}</span></div>
         <div class="row" style="margin-top:3px;font-size:11px;color:#666;gap:14px">
           <span class="nowrap">已收 ¥${money(it.sold)}</span><span class="nowrap">剩余可卖 ¥${money(remain)} <span style="color:#bbb">(共享盘押金)</span></span></div>
@@ -2976,7 +2998,7 @@ function adjSheet(i){
       <span class="stepper"><button onclick="adjStep(-1)">−</button><input id="adj-pt" value="0.00" oninput="adjPrev()"><button onclick="adjStep(1)">＋</button></span>
       <span class="muted nowrap">可为负,两位小数</span></div>
     <div class="row" style="margin:8px 0"><span style="font-size:12px;color:#666;width:82px" class="nowrap">新庄单赔率</span><span class="odds-g nowrap" style="font-size:15px" id="adj-odds">@${f2(it.odds)}</span><span class="low" id="adj-low" style="display:none">低于官方</span></div>
-    <div class="muted" style="margin:4px 0 12px">新庄单赔率 = 当前庄单赔率 + 调整点位 · 已成交子单按原赔率结算不受影响 · 生效后卖单簿实时重排</div>
+    <div class="muted" style="margin:4px 0 12px">已成交子单按原赔率结算不受影响。</div>
     <div class="row" style="gap:8px">
       <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
       <button class="btn btn-p grow" onclick="adjConfirm()">确认调水</button></div>`);
@@ -3057,7 +3079,7 @@ function removeItemSheet(i){
   if(cur.items.length<=1)return toast('至少保留 1 个盘口,如需关闭请使用停止收单');
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">移除盘口</h3>
     <div style="font-size:13px;color:#666;text-align:center;line-height:1.7;margin-bottom:14px">
-      确认移除「${it.name}」?<br>该盘口回到未开放状态,全平台不可投。盘押金为共享押金,不因移除变动。</div>
+      确认移除「${it.name}」?<br>该盘口将从本私盘中移除,该私盘内不再展示、不可投注;原比赛的官方盘与其他会员的挂单不受影响。盘押金为共享押金,不因移除变动。</div>
     <div class="row" style="gap:8px">
       <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
       <button class="btn btn-r grow" onclick="removeItem(${i})">确认移除</button></div>`);
