@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.2</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.2 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.3 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -313,12 +313,13 @@ input:focus{border-color:#FF8C00}
 <!-- ═════════ 投注面板 ═════════ -->
 <div class="ovl" id="ov-slip">
   <div class="sheet">
-    <div class="row" style="padding:4px 14px 0;background:#fff;border-radius:14px 14px 0 0">
-      <div style="display:flex;width:100%">
+    <div class="row" style="padding:4px 10px 0 14px;background:#fff;border-radius:14px 14px 0 0">
+      <div style="display:flex;flex:1;min-width:0">
         <div class="ptab" id="st-0" onclick="slipTab(0)" style="flex:1;text-align:center;padding:12px 4px">买入</div>
         <div class="ptab" id="st-2" onclick="slipTab(2)" style="flex:1;text-align:center;padding:12px 4px">卖出</div>
         <div class="ptab" id="st-1" onclick="slipTab(1)" style="flex:1;text-align:center;padding:12px 4px;display:none">串关</div>
       </div>
+      <span id="slip-close" style="width:26px;height:26px;border-radius:50%;background:#F2F3F5;color:#8a8f96;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;margin-left:6px" onclick="closeSlip()">×</span>
     </div>
     <div class="sheet-body" style="padding:10px 12px" id="slip-body"></div>
     <div style="background:#fff;border-top:1px solid #f0f0f0;padding:10px 14px;flex-shrink:0" id="slip-footer"></div>
@@ -447,6 +448,17 @@ input:focus{border-color:#FF8C00}
     <li>「进行中」的判定范围：<b>卖出中、已封盘</b>计入（私盘仍在列表或可恢复）；<b>已售罄、已关闭、已结算不计入</b>，庄家可对同一比赛再开新盘——售罄盘已从列表消失，不会造成重复占位。</li>
     <li>单场私盘<b>展示上限 N 个（默认 5）</b>，超出折叠为「查看全部私盘」，折叠不影响卖单簿成交。</li>
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
+  </ul>
+
+  <h4>购物车（投注面板）</h4>
+  <ul>
+    <li><b>形态</b>：底部固定面板（约占屏高 58%），不使用弹窗、不对赛事列表加蒙层；面板打开时赛事列表仍可滚动、赔率格仍可点击，选中新投注项实时加入购物车。</li>
+    <li><b>顶部</b>：买入 / 卖出两个页签等分居中；<b>右上角常驻关闭按钮（×）</b>，点击仅收起面板，已选投注项保留，可再次点击赔率格或购物车入口重新打开。不展示注单计数与清空图标。</li>
+    <li><b>选中私盘投注项时隐藏「卖出」页签</b>：私盘只承载开盘庄家本人的档位，其他会员不能往该私盘挂单，因此私盘投注项不支持卖出；若已停留在卖出页再选中私盘项，自动切回买入页；强行调用卖出页提示「私盘投注项不支持卖出」。<b>关闭按钮在此场景仍保留</b>。</li>
+    <li><b>投注卡片</b>：标题为「盘口 + 队名」（如 +0.5/1 瓦特福）；第二行「玩法 · [盘口类型]」；第三行「主队 VS 客队」；第四行「足球 · 联赛」。右上角为赔率与删除图标。</li>
+    <li><b>档位表</b>：该投注项存在不低于官方赔率的 P2P 档位时展示（档位 / 卖出赔率 / 可购额度 / 购买计划四列）；<b>无此类档位时整块隐藏</b>，输入框下方直接接数字键盘，按官方赔率投注。</li>
+    <li><b>底部</b>：自动接受任何赔率开关与说明入口、余额；按钮行为「串关 / 单关」与「投注 CNY 合计」（附最高可赢），不设「返回」按钮，收起面板走右上角关闭按钮。</li>
+    <li><b>投注成功后</b>：已投注的投注项自动取消选中、金额清空，购物车收起并回到赛事列表，再弹出注单确认；若仍有未投注的选中项，点「保留注单，继续投注」会重新打开购物车。</li>
   </ul>
 
   <h4>串关限制</h4>
@@ -1697,6 +1709,8 @@ function removeSel(k){sel[k]=false;const c=$('cell-'+k);if(c)c.classList.remove(
 function openBetslip(){const _b=$('cartbar');if(_b)_b.style.display='none';
   if(!Object.values(sel).some(Boolean))return toast('请先在赛事列表选择投注项');
   slipIdx=0;renderSlip();show('ov-slip')}
+/* 关闭购物车:仅收起面板,已选投注项保留,可再次点击赔率格或购物车入口重新打开 */
+function closeSlip(){hide('ov-slip');updBadge()}
 function slipTab(i){
   if(i===1&&paraMatchCount()<2)
     return toast('串关需选择 ≥2 场不同比赛的官方盘投注项');
