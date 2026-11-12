@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.6</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.9</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.6 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.9 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -489,7 +489,7 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>联赛、「私盘」标识、状态标签、<b>私盘名称</b>（与赛事列表中该私盘的名称一致，即「原比赛名 · 庄家昵称」，不使用原比赛名）、盘号、开放项数、总押金、收单进度条、已收 / 押金、查看详情。</li>
     <li><b>私盘不展示分享按钮</b>，暂不支持分享；投注项卖单的分享入口不受影响。</li>
-    <li>已结算盘展示盈亏（赢绿输红）。</li>
+    <li><b>已结算盘在进度条左侧展示盘净盈亏</b>，赢绿输红，带正负号，符号与数值同行不换行。</li>
   </ul>
 
   <h4>历史数据</h4>
@@ -1041,6 +1041,10 @@ let markets=[
   {id:'M20260628007',mid:'m3',status:'settled',nick:'阿强庄',auto:0,created:'07-12 09:00',bucket:'today',profit:1590,dep:2000,
    items:[{key:'m3_ma',name:'全场 独赢 · 客胜',pt:0.02,odds:0.70,sold:1500,status:'on',lastAdj:0,settle:1590,
      subs:[{u:'user***23',amt:1000,odds:0.70,time:'07-12 10:11',settle:-700},{u:'user***66',amt:500,odds:0.70,time:'07-12 11:05',settle:-350}]}]},
+  /* 已结算(亏损):验证红色负号展示 */
+  {id:'M20260630011',mid:'m2',status:'settled',nick:'老王盘',auto:0,created:'07-12 15:40',bucket:'today',profit:-420.50,dep:1500,
+   items:[{key:'m2_big',name:'全场 大/小 · 大 2.5/3',pt:0.05,odds:1.09,sold:1100,status:'on',lastAdj:0,settle:-420.50,
+     subs:[{u:'user***45',amt:700,odds:1.09,time:'07-12 16:20',settle:763},{u:'user***12',amt:400,odds:1.09,time:'07-12 17:02',settle:436}]}]},
   /* 已关闭:庄家主动停止收单,未消费押金结算后退回 */
   {id:'M20260625003',mid:'m1',status:'closed',nick:'金刚庄',auto:0,created:'07-12 20:15',bucket:'today',dep:300,
    items:[{key:'m1_mw',name:'全场 独赢 · 主胜',pt:0.04,odds:0.70,sold:0,status:'sealed',lastAdj:0,subs:[]}]}
@@ -2665,7 +2669,9 @@ function renderOrders(){
               +legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交').length;
   const consumed=_mks.reduce((s,m)=>s+m.items.reduce((a,i)=>a+i.sold,0),0)
               +legacySells.reduce((s,l)=>s+l.sold,0);
-  const profit=legacySells.filter(l=>l.state==='已结算').reduce((s,l)=>s+lsProfit(l),0);
+  /* 总结算盈亏 = 已结算私盘盈亏 + 已结算投注项卖单盈亏 */
+  const profit=_mks.filter(m=>m.status==='settled').reduce((s,m)=>s+(m.profit||0),0)
+              +legacySells.filter(l=>l.state==='已结算').reduce((s,l)=>s+lsProfit(l),0);
   $('orders-stats').innerHTML=`<div class="stat4">
     <div><div class="l">总卖出</div><div class="v">${totalCnt}</div></div>
     <div><div class="l">进行中</div><div class="v">${running}</div></div>
@@ -2695,6 +2701,10 @@ function renderOrders(){
       const st=M_ST[m.status]||M_ST.open;
       const mt=MATCHES[m.mid]||{};
       const barColor=m.status==='settled'?'#1D9E75':(m.status==='closed'?'#9aa0a6':'#2E7BD6');
+      /* 已结算盘展示净盈亏:赢绿输红,符号与数值同行不换行 */
+      const pf=m.profit||0;
+      const pfHtml=m.status==='settled'
+        ?`<span class="nowrap ${pf>=0?'win':'lose'}" style="font-size:15px;font-weight:800">${pf>0?'+':(pf<0?'-':'')}¥${money(Math.abs(pf))}</span>`:'';
       return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openDetail('${m.id}')">
         <div class="row">
           <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${mt.league||''}</span>
@@ -2707,8 +2717,9 @@ function renderOrders(){
           <span style="background:#FFF3E5;color:#FF8C00;font-size:10px;padding:0 4px;border-radius:3px" class="nowrap">押</span>
           <span class="nowrap">¥${money(m.dep)}</span>
           <span class="grow"></span>
-          <span class="muted nowrap">${(m.time||'').slice(5,16)}</span></div>
+          <span class="muted nowrap">${m.created||''}</span></div>
         <div class="row" style="margin-top:8px">
+          ${pfHtml}
           <div class="prog grow" style="margin:0 8px"><i style="width:${pct}%;background:${barColor}"></i></div>
           <span class="muted nowrap">已收 ¥${money(sold)} / 押金 ¥${money(m.dep)}</span>
           <span style="font-size:12px;color:#666;margin-left:8px" class="nowrap">查看详情 ›</span></div>
