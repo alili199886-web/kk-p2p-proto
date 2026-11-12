@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.1</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.1 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.2 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -209,7 +209,7 @@ input:focus{border-color:#FF8C00}
     <div style="padding:10px 12px 0" id="orders-stats"></div>
     <div style="display:flex;gap:8px;padding:10px 12px 0;overflow-x:auto" id="orders-sfilter"></div>
     <div style="display:flex;gap:8px;padding:8px 12px;overflow-x:auto;align-items:center" id="orders-tfilter"></div>
-    <div class="seg" style="margin:0 12px 8px;display:none" id="orders-seg">
+    <div class="seg" style="margin:0 12px 8px" id="orders-seg">
       <span class="on" id="seg-0" onclick="segTab(0)">开盘</span>
       <span id="seg-1" onclick="segTab(1)">投注项卖单</span>
     </div>
@@ -463,8 +463,8 @@ input:focus{border-color:#FF8C00}
 
   <h4>赔率格与卖单簿</h4>
   <ul>
-    <li>原比赛有庄家档位的盘口展示红点，变化实时刷新；私盘赔率格为橙色数值。</li>
-    <li>卖单簿多档混排：开盘庄家档位、投注项卖出档位、官方无限档位，按赔率降序 → 同赔率卖出时间优先 → 官方最后。</li>
+    <li>原比赛有庄家档位的盘口展示红点，变化实时刷新；<b>私盘赔率格样式与官方盘一致</b>，不做颜色区分。</li>
+    <li><b>卖单簿按来源隔离</b>：私盘的卖单簿只有「该开盘庄家的档位 + 官方无限档位」；官方盘的卖单簿只有「投注项卖出档位 + 官方无限档位」。三类档位不会同时出现在同一个卖单簿中。各自内部按赔率降序 → 同赔率卖出时间优先 → 官方固定最后。</li>
     <li><b>「私盘」与「P2P」标识互斥</b>：私盘表示私人开盘，仅标注在私盘行；P2P 表示有会员对该场玩法项坐庄，仅标注在官方盘（原比赛与联赛头）。<b>官方盘不展示私盘标识</b>，两者不同时出现在同一对象上。</li>
     <li><b>展示范围</b>：赔率<b>低于官方赔率的档位不展示</b>（视为已下架，不可成交）；赔率不低于官方的档位<b>全部展示</b>，不做数量截断。</li>
     <li><b>可见高度</b>：卖家档位最多可见 5 档，超过 5 档时区域内出现滚动条，滚动查看其余档位；官方档位固定在最后一行，不参与滚动。</li>
@@ -1159,7 +1159,7 @@ function cloneRowsHtml(mid){
       const isMw=['mw','ma','md'].includes(s);
       const v=isMw?it.odds+1:it.odds;
       const k='C|'+ref+'|'+mid+'_'+s;
-      return `<div class="oddcell ${sel[k]?'sel':''}" id="cell-${k}" onclick="cloneToggle('${k}')"><span class="lb">${lb}</span><span class="v" style="color:#FF8C00">${f2(v)}</span></div>`;
+      return `<div class="oddcell ${sel[k]?'sel':''}" id="cell-${k}" onclick="cloneToggle('${k}')"><span class="lb">${lb}</span><span class="v">${f2(v)}</span></div>`;
     };
     const o=m.odds;
     return `<div style="padding:10px 12px;background:#FFFDF6;border-top:1px dashed #f2e6cf">
@@ -1394,21 +1394,8 @@ function lanesFor(k){
     const rm=lsRemain(s);
     if(rm>0.001)arr.push({odds:s.odds,amt:rm,seller:'我',mine:true,bought:s.sold||0,legacy:s});
   });
-  if(OPEN_MARKET_ENABLED){
-    markets.forEach(m=>{
-      if(m.status!=='open'&&m.status!=='soldout')return;
-      m.items.forEach(it=>{
-        if(it.key!==k||it.status!=='on')return;
-        const remain=itemRemain(m,it);
-        if(remain>0.001)arr.push({odds:it.odds,amt:remain,seller:'我',mine:true,mitem:it,market:m});
-      });
-    });
-    OTHER_MK.forEach(o=>{o.items.forEach(it=>{
-      if(it.key!==k)return;
-      const remain=omkItemRemain(o,it);
-      if(remain>0.001)arr.push({odds:it.odds,amt:remain,seller:o.nick,omk:o,oit:it});
-    })});
-  }
+  /* 卖单簿来源隔离:开盘庄家档位只在其私盘内成交,不并入官方盘卖单簿;
+     官方盘卖单簿 = 投注项卖出档位 + 官方无限档位 */
   return arr;
 }
 /* 购买计划:按当前模式把输入金额分配到各档位 */
@@ -2597,7 +2584,9 @@ function renderMe(){
 }
 function renderOrders(){
   const _mks=OPEN_MARKET_ENABLED?markets:[];
-  if(!OPEN_MARKET_ENABLED){const sg=$('orders-seg');if(sg)sg.style.display='none';segIdx=1;}
+  const _sg=$('orders-seg');
+  if(_sg)_sg.style.display=OPEN_MARKET_ENABLED?'flex':'none';
+  if(!OPEN_MARKET_ENABLED)segIdx=1;
   const totalCnt=_mks.length+legacySells.length;
   const running=_mks.filter(m=>m.status==='open'||m.status==='soldout').length
               +legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交').length;
@@ -2611,11 +2600,43 @@ function renderOrders(){
     <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>=0?'win':'lose'}">${profit>=0?'+':'-'}¥${money(Math.abs(profit))}</div></div></div>`;
   const sts=[['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
   const ts=[['all','全部时间'],['today','今日'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
-  const list=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&sellTimeOk(l));
+  const lgList=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&sellTimeOk(l));
+  const mkList=_mks.filter(m=>(stFilter==='all'||m.status===stFilter));
+  const list=segIdx===0?mkList:lgList;
   $('orders-sfilter').innerHTML=sts.map(([v,t])=>`<span class="pill ${stFilter===v?'on':''}" style="flex:0 0 auto;font-size:13px;padding:6px 15px" onclick="stFilter='${v}';renderOrders()">${t}</span>`).join('');
   $('orders-tfilter').innerHTML=ts.map(([v,t])=>`<span class="pill ${tFilter===v?'on':''}" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='${v}';renderOrders()">${t}</span>`).join('')
     +(tFilter==='day'&&tDay?`<span class="pill on nowrap" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='all';tDay='';renderOrders()">${tDay.slice(5)} ✕</span>`:'')
     +`<span class="grow"></span><span class="muted nowrap">共${list.length}条</span>`;
+  if(segIdx===0){
+    /* 开盘分段:盘卡片 */
+    $('orders-list').innerHTML=list.length?list.map(m=>{
+      const openItems=m.items.filter(it=>it.status==='on').length;
+      const sold=m.items.reduce((s,it)=>s+it.sold,0);
+      const pct=m.dep?Math.min(100,sold/m.dep*100):0;
+      const st=M_ST[m.status]||M_ST.open;
+      const mt=MATCHES[m.mid]||{};
+      const barColor=m.status==='settled'?'#1D9E75':(m.status==='closed'?'#9aa0a6':'#2E7BD6');
+      return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openDetail('${m.id}')">
+        <div class="row">
+          <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${mt.league||''}</span>
+          <span class="tag tag-p2p" style="margin-right:8px">私盘</span>
+          <span class="tag ${st[1]}">${st[0]}</span></div>
+        <div class="muted" style="margin:6px 0 4px">${mt.home||''} VS ${mt.away||''}</div>
+        <div class="row" style="font-size:12px;color:#666;gap:6px">
+          <span class="nowrap">盘号 ${m.id}</span>
+          <span class="nowrap">开放 ${openItems} 项</span>
+          <span style="background:#FFF3E5;color:#FF8C00;font-size:10px;padding:0 4px;border-radius:3px" class="nowrap">押</span>
+          <span class="nowrap">¥${money(m.dep)}</span>
+          <span class="grow"></span>
+          <span class="muted nowrap">${(m.time||'').slice(5,16)}</span></div>
+        <div class="row" style="margin-top:8px">
+          <div class="prog grow" style="margin:0 8px"><i style="width:${pct}%;background:${barColor}"></i></div>
+          <span class="muted nowrap">已收 ¥${money(sold)} / 押金 ¥${money(m.dep)}</span>
+          <span style="font-size:12px;color:#666;margin-left:8px" class="nowrap">查看详情 ›</span></div>
+      </div>`;
+    }).join(''):'<div class="muted" style="text-align:center;padding:40px">暂无开盘记录</div>';
+    return;
+  }
   $('orders-list').innerHTML=list.length?list.map(l=>{
     const idx=legacySells.indexOf(l),pct=lsPct(l);
     const barColor=l.state==='已结算'?'#1D9E75':(l.state==='已关闭'?'#9aa0a6':'#2E7BD6');
