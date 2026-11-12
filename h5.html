@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v10.7</title>
+<title>P2P 开盘坐庄 · 交互原型 v10.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -309,14 +309,11 @@ input:focus{border-color:#FF8C00}
 <div class="ovl" id="ov-slip">
   <div class="sheet">
     <div class="row" style="padding:4px 14px 0;background:#fff;border-radius:14px 14px 0 0">
-      <div style="display:flex" class="grow">
-        <div class="ptab" id="st-0" onclick="slipTab(0)" style="padding:12px 4px;margin-right:20px">买入</div>
-        <div class="ptab" id="st-2" onclick="slipTab(2)" style="padding:12px 4px;margin-right:20px">卖出</div>
-        <div class="ptab" id="st-1" onclick="slipTab(1)" style="padding:12px 4px;display:none">串关</div>
+      <div style="display:flex;width:100%">
+        <div class="ptab" id="st-0" onclick="slipTab(0)" style="flex:1;text-align:center;padding:12px 4px">买入</div>
+        <div class="ptab" id="st-2" onclick="slipTab(2)" style="flex:1;text-align:center;padding:12px 4px">卖出</div>
+        <div class="ptab" id="st-1" onclick="slipTab(1)" style="flex:1;text-align:center;padding:12px 4px;display:none">串关</div>
       </div>
-      <span style="font-size:13px;color:#666" class="nowrap">注单</span>
-      <span style="width:20px;height:20px;background:#FF8C00;border-radius:50%;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin:0 10px 0 5px" id="slip-cnt">0</span>
-      <svg viewBox="0 0 24 24" style="width:19px;height:19px;stroke:#8a8f96;fill:none;stroke-width:1.7;cursor:pointer" onclick="clearAll()"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10.5 11v5M13.5 11v5"/></svg>
     </div>
     <div class="sheet-body" style="padding:10px 12px" id="slip-body"></div>
     <div style="background:#fff;border-top:1px solid #f0f0f0;padding:10px 14px;flex-shrink:0" id="slip-footer"></div>
@@ -1565,6 +1562,7 @@ function bookHtml(k,defOpen){
   const rows=bookRows(k).filter(r=>r.off||r.odds>=hk);
   const p2pRows=rows.filter(r=>!r.off);
   const offRow=rows.filter(r=>r.off);
+  if(!p2pRows.length)return '';   /* 无不低于官方的 P2P 档位时整块隐藏,只按官方赔率投注 */
   const betterTotal=p2pRows.filter(r=>r.odds>=hk).reduce((s,r)=>s+r.amt,0);
   const plan=buyPlan(k,parseFloat(buyAmt[k])||0);
   const top=`<div class="row" style="padding:4px 2px 7px;font-size:12px">
@@ -1613,6 +1611,8 @@ function openBetslip(){const _b=$('cartbar');if(_b)_b.style.display='none';
   slipIdx=0;renderSlip();show('ov-slip')}
 function slipTab(i){
   if(i===2){
+    if(Object.keys(sel).some(x=>sel[x]&&x.startsWith('C|')))
+      return toast('私盘投注项不支持卖出');
     const mids=[...new Set(Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|')).map(k=>ITEMS[k].mid))];
     const blocked=mids.filter(myLiveMarket);
     if(blocked.length)return toast('该场已开盘,不可再单独卖出');
@@ -1654,22 +1654,29 @@ function cardHead(k){
   }else{
     oddsTxt=`<span style="font-size:14px;color:#222;font-weight:600" class="nowrap">@${f2(hk)}</span>`;
   }
+  /* 标题 = 盘口 + 队名(让球/大小取盘口数值在前),无盘口数值时取投注项名 */
+  const sideName=/客|away/i.test(it.label)?m.away:m.home;
+  const hcp=(it.label.match(/[-+][\d./]+/)||[''])[0];
+  const title=hcp?`${hcp} ${sideName}`:it.label;
+  const mkType=/独赢|让球|大\/小|大小/.test(it.group)&&it.hk0!==undefined?'香港盘':'欧洲盘';
   return `<div class="row">
-      <span style="font-size:15px;font-weight:700;color:#222" class="nowrap">${it.label}</span>
-      <span class="grow"></span>
+      <span style="font-size:15px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${title}</span>
       ${oddsTxt}
-      <span style="font-size:15px;color:#bbb;cursor:pointer" onclick="removeSel('${k}')">🗑</span>
+      <span style="font-size:15px;color:#bbb;cursor:pointer;margin-left:8px" onclick="removeSel('${k}')">🗑</span>
     </div>
-    <div class="row" style="margin-top:6px"><span class="tag tag-live">${m.tagTxt}</span><span class="muted" style="font-size:12px">${it.group} [欧洲盘]</span></div>
-    <div style="font-size:13px;color:#222;margin-top:4px">${m.home} vs ${m.away}</div>
-    <div style="font-size:12px;color:#FF8C00;margin-top:2px">${m.league}</div>`;
+    <div class="muted" style="font-size:12px;margin-top:5px">${it.group} · [${mkType}]</div>
+    <div style="font-size:13px;color:#222;margin-top:4px">${m.home} VS ${m.away}</div>
+    <div style="font-size:12px;color:#FF8C00;margin-top:2px">足球 · ${m.league}</div>`;
 }
 function renderSlip(){
   const _pk=Object.keys(sel).filter(x=>sel[x]&&!x.startsWith('C|'));
   const _canPara=_pk.length>=2;                       /* 注单数大于 1 即可串关 */
   const _para=slipIdx===1;
+  /* 私盘投注项不支持被其他会员卖出,选中私盘项时隐藏卖出页签 */
+  const _hasClone=Object.keys(sel).some(x=>sel[x]&&x.startsWith('C|'));
+  if(_hasClone&&slipIdx===2)slipIdx=0;
   $('st-0').style.display=_para?'none':'block';       /* 串关模式仅保留串关 Tab */
-  $('st-2').style.display=_para?'none':'block';
+  $('st-2').style.display=(_para||_hasClone)?'none':'block';
   $('st-1').style.display=_para?'block':'none';
   if(_para&&!_canPara)slipIdx=0;
   ['st-0','st-1','st-2'].forEach((id,i)=>$(id).classList.toggle('on',i===slipIdx));
@@ -1760,7 +1767,6 @@ function renderBuyFooter(){
       <span style="color:#FF8C00;font-size:12px" class="nowrap">⟳</span>
       <span class="muted nowrap" style="margin-left:4px">余额 CNY <b style="color:#222">${money(balance)}</b></span></div>
     <div class="row" style="gap:10px">
-      <span class="cbtn" onclick="hide('ov-slip');updBadge()">返回</span>
       <span class="cbtn ${canPara?'on':'dis'}" onclick="slipTab(1)">串关</span>
       <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doBuy()">投注 CNY ${money(tot)}<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(win)}</span></button></div>`;
 }
@@ -1784,7 +1790,6 @@ function renderParaFooter(){
       <span style="font-size:12px;color:#666" class="nowrap">按官方欧洲盘结算 · 合计 = 每注 × 组合数</span>
       <span class="grow"></span><span class="muted nowrap">余额 CNY <b style="color:#222">${money(balance)}</b></span></div>
     <div class="row" style="gap:10px">
-      <span class="cbtn" onclick="hide('ov-slip');updBadge()">返回</span>
       <span class="cbtn on" onclick="slipTab(0)">单关</span>
       <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doPara()">投注 CNY ${money(tot)}<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(win)}</span></button></div>`;
 }
