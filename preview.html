@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.9</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.9 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.0 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -528,7 +528,7 @@ input:focus{border-color:#FF8C00}
   <h4>底部操作区（按盘状态）</h4>
   <ul>
     <li><b>卖出中 / 已售罄</b>：展示「新增盘口」「补充额度」「停止收单」。</li>
-    <li><b>已结算 / 已关闭</b>：仅展示「返回列表」，不再提供任何控盘操作。</li>
+    <li><b>已结算 / 已关闭</b>：无任何控盘操作，底部操作区整条隐藏；返回统一走左上角返回按钮。</li>
   </ul>
 
   <h4>调水</h4>
@@ -2961,8 +2961,9 @@ function renderDetail(){
     <button class="btn btn-o grow" onclick="addItemSheet()">新增盘口</button>
     <button class="btn btn-o grow" onclick="topupSheet()">补充额度</button>
     <button class="btn btn-r grow" onclick="stopSheet()">停止收单</button></div>`;
-  else fh='<button class="btn btn-g" style="width:100%" onclick="renderOrders();go(\'pg-orders\')">返回列表</button>';
+  /* 已结算 / 已关闭无控盘操作:底部操作区整条隐藏,返回走左上角返回按钮 */
   $('dt-footer').innerHTML=fh;
+  $('dt-footer').style.display=fh?'block':'none';
 }
 function adjSheet(i){
   const it=cur.items[i];
