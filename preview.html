@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.2</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.2 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.3 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -206,13 +206,12 @@ input:focus{border-color:#FF8C00}
 <div class="page" id="pg-orders">
   <div style="background:#fff;padding:12px 14px" class="row"><div class="kklogo"><span class="mk"><i></i></span><span class="tx"><b>King</b><s>Kong</s></span></div></div>
   <div class="scroll" id="orders-wrap" style="background:#F2F3F5;padding-bottom:76px">
-    <div style="padding:10px 12px 0" id="orders-stats"></div>
-    <div style="display:flex;gap:8px;padding:10px 12px 0;overflow-x:auto" id="orders-sfilter"></div>
-    <div style="display:flex;gap:8px;padding:8px 12px;overflow-x:auto;align-items:center" id="orders-tfilter"></div>
-    <div class="seg" style="margin:0 12px 8px" id="orders-seg">
-      <span class="on" id="seg-0" onclick="segTab(0)">开盘</span>
-      <span id="seg-1" onclick="segTab(1)">投注项卖单</span>
+    <div style="background:#fff;border-radius:12px;margin:10px 12px 0;display:flex" id="orders-seg">
+      <div class="ptab on" id="seg-1" onclick="segTab(1)" style="font-size:15px">投注项卖单</div>
+      <div class="ptab" id="seg-0" onclick="segTab(0)" style="font-size:15px">私盘</div>
     </div>
+    <div class="row" style="gap:8px;padding:10px 12px 0" id="orders-filters"></div>
+    <div style="padding:10px 12px 0" id="orders-stats"></div>
     <div style="padding:0 12px 12px" id="orders-list"></div>
   </div>
 </div>
@@ -474,18 +473,22 @@ input:focus{border-color:#FF8C00}
 <!-- ═════════ 右侧标注:我的卖出 ═════════ -->
 <div class="spec" id="spec-orders" data-page="pg-orders" style="display:none">
   <h3>我的卖出 · 需求标注</h3>
-  <p class="sub">开盘坐庄与既有投注项卖出并存，分段展示，筛选对两个分段同时生效。</p>
+  <p class="sub">私盘与既有投注项卖出并存，分页签展示，筛选对两个页签同时生效。</p>
 
   <h4>结构</h4>
   <ul>
-    <li>内部分为「<b>开盘</b>」与「<b>投注项卖单</b>」两个分段：前者展示开盘的盘卡片，后者展示既有投注项卖出记录。</li>
-    <li>顶部四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏（赢绿输红，符号与数值同行不换行）。</li>
-    <li>状态筛选：全部 / 卖出中 / 已售罄 / 已结算 / 已关闭；时间筛选：全部时间 / 今天 / 昨天 / 近7天 / 近30天，右侧展示共 N 条。</li>
+    <li>顶部为两个页签（样式同买单列表）：<b>投注项卖单</b>（默认选中，展示官方盘的投注项坐庄数据）与<b>私盘</b>（展示开盘坐庄的盘卡片）。</li>
+    <li>页签下方为筛选区，<b>一排展示两个下拉</b>：
+      <br>· <b>时间筛选</b>（默认「今天」）：今天 / 昨天 / 近7天 / 近30天 / 自定义；选择「自定义」弹出自定义时间弹窗（与买单已结算的筛选弹窗一致），应用后下拉文案显示所选区间；
+      <br>· <b>状态筛选</b>（默认「全部」）：全部 / 卖出中 / 已售罄 / 已结算 / 已关闭。
+      <br>右侧展示共 N 条。</li>
+    <li>筛选区下方为四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏（赢绿输红，符号与数值同行不换行）。</li>
   </ul>
 
-  <h4>盘卡片字段</h4>
+  <h4>私盘卡片字段</h4>
   <ul>
-    <li>赛事、联赛、盘号、状态标签、开放项数、总押金、已收单、收单进度条、卖出时间、查看详情。</li>
+    <li>联赛、「私盘」标识、状态标签、<b>私盘名称</b>（与赛事列表中该私盘的名称一致，即「原比赛名 · 庄家昵称」，不使用原比赛名）、盘号、开放项数、总押金、收单进度条、已收 / 押金、查看详情。</li>
+    <li><b>私盘不展示分享按钮</b>，暂不支持分享；投注项卖单的分享入口不受影响。</li>
     <li>已结算盘展示盈亏（赢绿输红）。</li>
   </ul>
 
@@ -1034,8 +1037,8 @@ function imMap(mid){
 }
 let sel={},buyAmt={},sellForm={};
 Object.keys(ITEMS).forEach(k=>{sel[k]=false;buyAmt[k]='';sellForm[k]={dep:'',pt:0.01}});
-let acceptAny=true,setupItems=[],setupMid=null,cur=null,segIdx=0,slipIdx=0;
-let stFilter='all',tFilter='all',tDay='';
+let acceptAny=true,setupItems=[],setupMid=null,cur=null,segIdx=1,slipIdx=0;   /* 卖单页默认停在投注项卖单 */
+let stFilter='all',tFilter='today',tDay='';   /* 状态默认全部,时间默认今天 */
 
 /* ═════════ 工具 ═════════ */
 const $=id=>document.getElementById(id);
@@ -2068,7 +2071,17 @@ function confirmOpen(){
 
 /* ═════════ 注单记录 / 我的卖出 ═════════ */
 function openOrders(seg){setNav('sell');segIdx=Math.min(seg||0,1);renderOrders();go('pg-orders')}
-function segTab(i){segIdx=i;renderOrders()}
+function segTab(i){
+  segIdx=i;
+  ['seg-0','seg-1'].forEach(id=>$(id).classList.toggle('on',id==='seg-'+i));
+  renderOrders();
+}
+/* 卖单列表的自定义时间区间 */
+let sellS='',sellE='';
+function sellTimeChange(v){
+  if(v==='day'){btrOpen('sell');show('ov-btr');return}
+  tFilter=v;renderOrders();
+}
 const M_ST={open:['卖出中','tag-open'],soldout:['已售罄','tag-soldout'],settled:['已结算','tag-settled'],closed:['已关闭','tag-closed']};
 const L_ST={'卖出中':'open','部分成交':'open','已售罄':'soldout','已结算':'settled','已关闭':'closed'};
 const L_TAG={'卖出中':'tag-open','部分成交':'tag-open','已售罄':'tag-soldout','已结算':'tag-settled','已关闭':'tag-closed'};
@@ -2176,8 +2189,9 @@ function buyTimeOk(o){
 /* 卖单列表时间过滤:已结算按结算时间,其余按挂单时间 */
 function sellTimeOk(l){
   if(tFilter==='day'){
-    if(!tDay)return true;
-    return ((l.settleTime||l.time)||'').slice(0,10)===tDay;
+    if(!sellS||!sellE)return true;
+    const d=((l.settleTime||l.time)||'').slice(0,10);
+    return d>=sellS&&d<=sellE;
   }
   return bucketOk(l.bucket);
 }
@@ -2350,6 +2364,7 @@ function btrApply(){
   if((new Date(b)-new Date(a))/86400000>364){toast('查询跨度最长 1 年');return}
   hide('ov-btr');
   if(btrTarget==='report'){rpS=a;rpE=b;rpFilter='custom';renderReport()}
+  else if(btrTarget==='sell'){sellS=a;sellE=b;tFilter='day';renderOrders()}
   else{btrS=a;btrE=b;btFilter='custom';renderBuys()}
 }
 function btrReset(){
@@ -2599,14 +2614,21 @@ function renderOrders(){
     <div><div class="l">已消费</div><div class="v nowrap">¥${money(consumed)}</div></div>
     <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>=0?'win':'lose'}">${profit>=0?'+':'-'}¥${money(Math.abs(profit))}</div></div></div>`;
   const sts=[['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
-  const ts=[['all','全部时间'],['today','今日'],['yesterday','昨天'],['7d','近7天'],['30d','近30天']];
+  const ts=[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天'],['day','自定义']];
   const lgList=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&sellTimeOk(l));
-  const mkList=_mks.filter(m=>(stFilter==='all'||m.status===stFilter));
+  const mkList=_mks.filter(m=>(stFilter==='all'||m.status===stFilter)&&sellTimeOk(m));
   const list=segIdx===0?mkList:lgList;
-  $('orders-sfilter').innerHTML=sts.map(([v,t])=>`<span class="pill ${stFilter===v?'on':''}" style="flex:0 0 auto;font-size:13px;padding:6px 15px" onclick="stFilter='${v}';renderOrders()">${t}</span>`).join('');
-  $('orders-tfilter').innerHTML=ts.map(([v,t])=>`<span class="pill ${tFilter===v?'on':''}" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='${v}';renderOrders()">${t}</span>`).join('')
-    +(tFilter==='day'&&tDay?`<span class="pill on nowrap" style="flex:0 0 auto;font-size:12px;padding:5px 12px" onclick="tFilter='all';tDay='';renderOrders()">${tDay.slice(5)} ✕</span>`:'')
-    +`<span class="grow"></span><span class="muted nowrap">共${list.length}条</span>`;
+  /* 一排两个下拉:时间 / 状态 */
+  const selStyle='flex:1;min-width:0;height:34px;border:1px solid #e3e5e8;border-radius:8px;background:#fff url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'6\'><path d=\'M0 0h10L5 6z\' fill=\'%23999\'/></svg>") no-repeat right 10px center;padding:0 26px 0 10px;font-size:13px;color:#222;-webkit-appearance:none;appearance:none;cursor:pointer';
+  const tLabel=(tFilter==='day'&&sellS&&sellE)?`${sellS.slice(5)} ~ ${sellE.slice(5)}`:'';
+  $('orders-filters').innerHTML=
+    `<select style="${selStyle}" onchange="sellTimeChange(this.value)">`
+      +ts.map(([v,t])=>`<option value="${v}" ${tFilter===v?'selected':''}>${v==='day'&&tLabel?tLabel:t}</option>`).join('')
+    +`</select>`
+    +`<select style="${selStyle}" onchange="stFilter=this.value;renderOrders()">`
+      +sts.map(([v,t])=>`<option value="${v}" ${stFilter===v?'selected':''}>${t}</option>`).join('')
+    +`</select>`
+    +`<span class="muted nowrap" style="font-size:12px">共${list.length}条</span>`;
   if(segIdx===0){
     /* 开盘分段:盘卡片 */
     $('orders-list').innerHTML=list.length?list.map(m=>{
@@ -2621,7 +2643,7 @@ function renderOrders(){
           <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${mt.league||''}</span>
           <span class="tag tag-p2p" style="margin-right:8px">私盘</span>
           <span class="tag ${st[1]}">${st[0]}</span></div>
-        <div class="muted" style="margin:6px 0 4px">${mt.home||''} VS ${mt.away||''}</div>
+        <div class="muted" style="margin:6px 0 4px">${mt.home||''} vs ${mt.away||''} · ${m.nick||BANKER_NICK}</div>
         <div class="row" style="font-size:12px;color:#666;gap:6px">
           <span class="nowrap">盘号 ${m.id}</span>
           <span class="nowrap">开放 ${openItems} 项</span>
