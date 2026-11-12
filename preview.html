@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v11.5</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.5 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.6 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -1020,6 +1020,7 @@ function lsComm(l){const g=lsGross(l);return g>0?+(g*SELL_COMM).toFixed(2):0}
 function lsProfit(l){return +(lsGross(l)-lsComm(l)).toFixed(2)}
 function lsRefund(l){return +(l.dep+lsProfit(l)).toFixed(2)}
 let markets=[
+  /* 演示数据:卖出中 / 已售罄 / 已结算 / 已关闭 四种状态各一条,bucket 均为 today,时间筛选默认「今天」时全部可见 */
   {id:'M20260710001',mid:'m1',status:'open',nick:'金刚庄',auto:10,created:'07-10 14:02',bucket:'today',dep:1000,
    items:[
      {key:'m1_big',name:'全场 大/小 · 大 3',pt:0.13,odds:1.15,sold:180,status:'on',lastAdj:0,
@@ -1027,10 +1028,21 @@ let markets=[
      {key:'m1_small',name:'全场 大/小 · 小 3',pt:0.03,odds:0.89,sold:0,status:'on',lastAdj:0,subs:[]},
      {key:'m1_mw',name:'全场 独赢 · 主胜',pt:0.04,odds:0.70,sold:0,status:'on',lastAdj:0,subs:[]}
    ]},
-  {id:'M20260628007',mid:'m3',status:'settled',auto:0,created:'06-28 09:00',bucket:'30d',profit:1590,dep:2000,
+  /* 已售罄:押金全部被消耗,剩余额度归零,等待赛事结算 */
+  {id:'M20260711002',mid:'m2',status:'soldout',nick:'老王盘',auto:15,created:'07-11 09:30',bucket:'today',dep:800,
+   items:[
+     {key:'m2_hh',name:'全场 让球 · 主 +0.5/1',pt:0.06,odds:1.11,sold:540.54,status:'on',lastAdj:0,
+      subs:[{u:'user***31',amt:300,odds:1.11,time:'07-11 10:05'},{u:'user***77',amt:240.54,odds:1.11,time:'07-11 11:28'}]},
+     {key:'m2_mw',name:'全场 独赢 · 主胜',pt:0.05,odds:3.46,sold:52.60,status:'on',lastAdj:0,
+      subs:[{u:'user***19',amt:52.60,odds:3.46,time:'07-11 10:47'}]},
+     {key:'m2_big',name:'全场 大/小 · 大 2.5/3',pt:0.04,odds:1.08,sold:0,status:'on',lastAdj:0,subs:[]}
+   ]},
+  /* 已结算:赛事已出结果,盈亏入账,押金解冻退回 */
+  {id:'M20260628007',mid:'m3',status:'settled',nick:'阿强庄',auto:0,created:'07-12 09:00',bucket:'today',profit:1590,dep:2000,
    items:[{key:'m3_ma',name:'全场 独赢 · 客胜',pt:0.02,odds:0.70,sold:1500,status:'on',lastAdj:0,settle:1590,
-     subs:[{u:'user***23',amt:1000,odds:0.70,time:'06-28 10:11',settle:-700},{u:'user***66',amt:500,odds:0.70,time:'06-28 11:05',settle:-350}]}]},
-  {id:'M20260625003',mid:'m1',status:'closed',auto:0,created:'06-25 20:15',bucket:'30d',dep:300,
+     subs:[{u:'user***23',amt:1000,odds:0.70,time:'07-12 10:11',settle:-700},{u:'user***66',amt:500,odds:0.70,time:'07-12 11:05',settle:-350}]}]},
+  /* 已关闭:庄家主动停止收单,未消费押金结算后退回 */
+  {id:'M20260625003',mid:'m1',status:'closed',nick:'金刚庄',auto:0,created:'07-12 20:15',bucket:'today',dep:300,
    items:[{key:'m1_mw',name:'全场 独赢 · 主胜',pt:0.04,odds:0.70,sold:0,status:'sealed',lastAdj:0,subs:[]}]}
 ];
 /* ═════ 盘级共享押金池 ═════ */
