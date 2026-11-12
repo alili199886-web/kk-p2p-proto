@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.5</title>
+<title>P2P 开盘坐庄 · 交互原型 v12.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.5 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.6 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -431,8 +431,8 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>入口位于 P2P 已生效联赛下，每场比赛行时间/场次信息旁的「开盘」按钮，不与赔率列重叠。</li>
     <li>开盘范围 = IM <b>在售且未开赛</b>的赛事，含今日盘与早盘；<b>滚球（已开赛）不展示开盘入口</b>，切换到滚球页签时该页全部赛事均无开盘入口。</li>
-    <li><b>整场互斥</b>：该场官方盘<b>已有任何会员的 P2P 挂单（投注项卖出）时，对所有会员隐藏开盘入口</b>——一场比赛要么走投注项卖出，要么走开盘坐庄，不并存。反之该场已有私盘时，该场不再接受新的投注项卖出。</li>
-    <li><b>提交时二次校验</b>：开盘弹窗打开后至点击「确认开盘」期间，若该场出现了投注项卖出挂单，提交时拦截并提示「该场已有投注项卖出，不可再开盘」，弹窗关闭。</li>
+    <li><b>互斥仅限同一会员</b>：同一会员对同一场比赛，开盘坐庄与投注项卖出二选一——本人已有进行中的私盘时该场「卖出」入口置灰，本人已有该场投注项卖出时「开盘」入口置灰。<b>不同会员互不影响</b>：该场官方盘已有其他会员的 P2P 挂单时，仍可正常开盘；私盘档位只在私盘内成交、官方盘卖单簿只含投注项卖出档位，两者押金池、撮合与结算彼此独立，新开私盘不影响官方盘上已有 P2P 挂单的购买。</li>
+    <li><b>提交时二次校验</b>：开盘弹窗打开后至点击「确认开盘」期间，若<b>本人</b>在该场挂出了投注项卖出，提交时拦截并提示「你对该场已有投注项卖出，不可再开盘」，弹窗关闭。</li>
     <li>赛事所属联赛需在<b>可坐庄联赛白名单</b>内，不在名单内不展示入口。</li>
     <li>庄家<b>坐庄权限</b>被运营关闭时不展示入口，存量盘不受影响。</li>
   </ul>
@@ -938,9 +938,8 @@ function renderChamp(){
 
 /* ═════════ 数据模型(参照真实首页截图) ═════════ */
 const LEAGUES=[
-  /* 演示排序:无 P2P 挂单(可开盘)的场次排在最前,方便直接演示开盘 */
-  {name:'冰岛女子超级联赛',flag:'🔵',mids:['m3']},
   {name:'爱尔兰超级联赛',flag:'🔴',mids:['m2','m1']},
+  {name:'冰岛女子超级联赛',flag:'🔵',mids:['m3']},
   {name:'TEST测试联赛-接口验收专用',flag:'🔴',mids:['t1']}
 ];
 let collapsed={};
@@ -1721,12 +1720,14 @@ function bookHtml(k,defOpen){
 }
 
 /* ═════════ 选格 & 投注面板 ═════════ */
-/* ═════ 开盘资格:滚球不可开盘;该场已有任何会员的 P2P 挂单则整场不可开盘 ═════
-   「私盘」与「P2P」整场互斥:一场比赛要么走投注项卖出(P2P),要么走开盘坐庄(私盘) */
+/* ═════ 开盘资格 ═════
+   互斥仅限「同一会员」:同一人对同一场比赛,开盘坐庄与投注项卖出二选一。
+   不同会员互不影响——私盘档位只在私盘内成交,官方盘卖单簿只含投注项卖出档位,
+   两者押金池、撮合与结算彼此独立,新开私盘不影响官方盘上已有 P2P 挂单的购买。 */
 function canOpenMarket(mid){
   if(homeTab==='live')return {ok:false,why:'滚球赛事已开赛,不支持开盘'};
-  if(p2pCountOf(mid)>0)return {ok:false,why:'该场已有投注项卖出,不可再开盘'};
   if(myLiveMarket(mid))return {ok:false,why:'你对该比赛已有进行中的盘,请先在开盘详情中管理'};
+  if(myLiveLegacy(mid))return {ok:false,why:'你对该场已有投注项卖出,不可再开盘'};
   return {ok:true};
 }
 function midOf(k){
@@ -1764,9 +1765,9 @@ function slipTab(i){
     if(Object.keys(sel).some(x=>sel[x]&&x.startsWith('C|')))
       return toast('私盘投注项不支持卖出');
     const mids=[...new Set(Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|')).map(k=>ITEMS[k].mid))];
-    /* 整场互斥:该场已有任何会员的私盘时,不再接受新的投注项卖出 */
-    const blocked=mids.filter(m=>clonesOf(m).length||myLiveMarket(m));
-    if(blocked.length)return toast('该场已开盘,不可再单独卖出');
+    /* 互斥仅限本人:本人对该场已有进行中的私盘时,不可再做投注项卖出;其他会员的私盘不影响 */
+    const blocked=mids.filter(myLiveMarket);
+    if(blocked.length)return toast('你对该场已开盘,不可再单独卖出');
   }slipIdx=i;renderSlip()}
 function cloneBuyCard(k){
   const r=cloneRefOf(k);if(!r)return '';
