@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v10.9</title>
+<title>P2P 开盘坐庄 · 交互原型 v11.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -174,7 +174,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v10.9 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v11.0 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -444,6 +444,13 @@ input:focus{border-color:#FF8C00}
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
   </ul>
 
+  <h4>串关限制</h4>
+  <ul>
+    <li><b>私盘投注项不参与串关</b>：私盘项仍在串关页展示，置灰并标注「私盘投注项不支持串关，仅官方盘投注项可参与」，不计入组合、不计入串关资格判定。</li>
+    <li><b>同场不可互串</b>：同一场比赛的多个投注项不允许串关，包括「一个官方盘 + 一个私盘」这种组合（私盘复制自原比赛，视为同一场）。串关组合按原比赛去重，每场只取先选中的一项参与，其余置灰并标注「与已选投注项属同一场比赛，同场不可互串」。</li>
+    <li><b>串关按钮激活条件</b>：可参与串关的投注项需来自 ≥2 场不同比赛。购物车内只有同一场赛事时（无论官方盘或私盘），串关按钮置灰；已进入串关页但可串项不足 2 场时不生成组合行，提示「可串关的投注项不足 2 场，无法生成串关组合」。</li>
+  </ul>
+
   <h4>开盘门槛（确认时逐条校验，任一不满足即拦截）</h4>
   <ul>
     <li>开放盘口数 ≥ 3（<code>min_items</code>）</li>
@@ -456,6 +463,7 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>原比赛有庄家档位的盘口展示红点，变化实时刷新；私盘赔率格为橙色数值。</li>
     <li>卖单簿多档混排：开盘庄家档位、投注项卖出档位、官方无限档位，按赔率降序 → 同赔率卖出时间优先 → 官方最后。</li>
+    <li><b>「私盘」与「P2P」标识互斥</b>：私盘表示私人开盘，仅标注在私盘行；P2P 表示有会员对该场玩法项坐庄，仅标注在官方盘（原比赛与联赛头）。<b>官方盘不展示私盘标识</b>，两者不同时出现在同一对象上。</li>
     <li><b>展示范围</b>：赔率<b>低于官方赔率的档位不展示</b>（视为已下架，不可成交）；赔率不低于官方的档位<b>全部展示</b>，不做数量截断。</li>
     <li><b>可见高度</b>：卖家档位最多可见 5 档，超过 5 档时区域内出现滚动条，滚动查看其余档位；官方档位固定在最后一行，不参与滚动。</li>
   </ul>
@@ -1198,7 +1206,6 @@ function renderHome(){
       <div class="row" style="padding:10px 12px;background:#FFF7ED;border-left:3px solid #FF8C00">
         <span style="font-size:13px">${lg.flag}</span>
         <span style="font-size:13px;font-weight:600;color:#222" class="grow">${lg.name}(${lgMids.length})</span>
-        ${OPEN_MARKET_ENABLED&&lgMids.some(x=>clonesOf(x).length)?'<span class="tag tag-p2p" style="margin-right:5px">私盘</span>':''}
         ${lgMids.some(x=>p2pCountOf(x)>0)?'<span class="tag tag-p2p">P2P</span>':''}
         <span style="color:#FF8C00;cursor:pointer;padding:2px 4px;font-size:14px" onclick="toggleLeague(${li})">${collapsed[li]?'⌄':'⌃'}</span>
       </div>
@@ -1597,6 +1604,12 @@ function bookHtml(k,defOpen){
 }
 
 /* ═════════ 选格 & 投注面板 ═════════ */
+function midOf(k){
+  if(k.startsWith('C|')){const ik=k.split('|')[3]||'';return ik.split('_')[0]}
+  return (ITEMS[k]||{}).mid;
+}
+function paraKeys(){return Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|'))}
+function paraMatchCount(){return new Set(paraKeys().map(midOf)).size}
 function distinctMatches(){return new Set(Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|')).map(k=>ITEMS[k].mid)).size}
 function toggleSel(k){
   sel[k]=!sel[k];
@@ -1618,6 +1631,8 @@ function openBetslip(){const _b=$('cartbar');if(_b)_b.style.display='none';
   if(!Object.values(sel).some(Boolean))return toast('请先在赛事列表选择投注项');
   slipIdx=0;renderSlip();show('ov-slip')}
 function slipTab(i){
+  if(i===1&&paraMatchCount()<2)
+    return toast('串关需选择 ≥2 场不同比赛的官方盘投注项');
   if(i===2){
     if(Object.keys(sel).some(x=>sel[x]&&x.startsWith('C|')))
       return toast('私盘投注项不支持卖出');
@@ -1677,8 +1692,9 @@ function cardHead(k){
     <div style="font-size:12px;color:#FF8C00;margin-top:2px">足球 · ${m.league}</div>`;
 }
 function renderSlip(){
-  const _pk=Object.keys(sel).filter(x=>sel[x]&&!x.startsWith('C|'));
-  const _canPara=_pk.length>=2;                       /* 注单数大于 1 即可串关 */
+  const _pk=paraKeys();
+  /* 串关资格:私盘项不参与;同场不可互串,需来自 ≥2 场不同比赛 */
+  const _canPara=paraMatchCount()>=2;
   const _para=slipIdx===1;
   /* 私盘投注项不支持被其他会员卖出,选中私盘项时隐藏卖出页签 */
   const _hasClone=Object.keys(sel).some(x=>sel[x]&&x.startsWith('C|'));
@@ -1714,15 +1730,35 @@ function renderSlip(){
     renderBuyFooter();
   }
   else if(slipIdx===1){
-    const pkeys=keys.filter(k=>!k.startsWith('C|'));
-    const eus=pkeys.map(k=>ITEMS[k].eu);
-    $('slip-body').innerHTML=`<div class="hint" style="margin-bottom:8px">串关不支持庄家单赔率,所有投注项均按官方欧洲盘赔率计算;私盘投注项不参与串关</div>`+
+    const allKeys=Object.keys(sel).filter(k=>sel[k]);
+    const seenMid={};const usable=[];
+    allKeys.forEach(k=>{
+      if(k.startsWith('C|'))return;
+      const m=midOf(k);
+      if(seenMid[m])return;
+      seenMid[m]=k;usable.push(k);
+    });
+    const eus=usable.map(k=>ITEMS[k].eu);
+    $('slip-body').innerHTML=`<div class="hint" style="margin-bottom:8px">串关不支持庄家单赔率,所有投注项均按官方欧洲盘赔率计算</div>`+
       `<div class="card">`+
-      pkeys.map(k=>{const it=ITEMS[k],m=MATCHES[it.mid];
-        return `<div style="border-bottom:1px dashed #f2f2f2;padding:7px 0">
-          <div class="row"><span style="font-size:13px;font-weight:600;color:#222" class="nowrap">${it.label}</span><span class="grow"></span><span style="font-size:12px;color:#222" class="nowrap">@${f2(it.eu)}</span></div>
-          <div class="muted" style="margin-top:2px">${it.group} · ${m.home} vs ${m.away}</div></div>`}).join('')+
-      comboRows(eus)+`</div>`;
+      allKeys.map(k=>{
+        const isClone=k.startsWith('C|');
+        const ik=isClone?(k.split('|')[3]||''):k;
+        const it=ITEMS[ik]||ITEMS[k];if(!it)return '';
+        const m=MATCHES[it.mid];
+        const ref=isClone?cloneRefOf(k):null;
+        const reason=isClone?'私盘投注项不支持串关,仅官方盘投注项可参与'
+                   :(!usable.includes(k)?'与已选投注项属同一场比赛,同场不可互串':'');
+        return `<div style="border-bottom:1px dashed #f2f2f2;padding:7px 0;${reason?'opacity:.55':''}">
+          <div class="row">
+            <span style="font-size:13px;font-weight:600;color:#222" class="nowrap">${it.label}</span>
+            ${isClone?'<span class="tag tag-p2p" style="margin-left:6px;font-size:10px;padding:1px 6px">私盘</span>':''}
+            <span class="grow"></span>
+            <span style="font-size:12px;color:#222" class="nowrap">@${f2(isClone&&ref?ref.odds:it.eu)}</span></div>
+          <div class="muted" style="margin-top:2px">${it.group} · ${m.home} vs ${m.away}</div>
+          ${reason?`<div style="margin-top:4px;font-size:11px;color:#E24B4A">${reason}</div>`:''}
+        </div>`}).join('')+
+      (eus.length>=2?comboRows(eus):'<div class="hint" style="margin:8px 0 0">可串关的投注项不足 2 场,无法生成串关组合</div>')+`</div>`;
     renderParaFooter();
   }
   else{
@@ -1767,7 +1803,7 @@ function renderBuyFooter(){
   keys.forEach(k=>{const a=parseFloat(buyAmt[k])||0;tot+=a;
     if(k.startsWith('C|')){const r=cloneRefOf(k);if(r)win+=Math.min(a,r.remain)*r.odds}
     else win+=planBuy(k,a).win});
-  const canPara=keys.filter(k=>!k.startsWith('C|')).length>=2;
+  const canPara=paraMatchCount()>=2;   /* 私盘不参与;同场不可互串,需 ≥2 场不同比赛 */
   $('slip-footer').innerHTML=`<div class="row" style="margin-bottom:9px">
       <span class="sw ${acceptAny?'on':''}" style="width:32px;height:18px" onclick="acceptAny=!acceptAny;renderSlip()"><i style="width:14px;height:14px;${acceptAny?'left:16px':''}"></i></span>
       <span style="font-size:12px;color:#666;margin-left:7px" class="nowrap">自动接受任何赔率 <span style="cursor:pointer;color:#FF8C00" onclick="acceptInfo()">ⓘ</span></span>
@@ -1779,7 +1815,8 @@ function renderBuyFooter(){
       <button class="btn btn-p grow" ${tot>0?'':'disabled'} onclick="doBuy()">投注 CNY ${money(tot)}<br><span style="font-size:10px;font-weight:400" class="nowrap">最高可赢 ¥ ${money(win)}</span></button></div>`;
 }
 function renderParaFooter(){
-  const keys=Object.keys(sel).filter(k=>sel[k]&&!k.startsWith('C|'));
+  const seen={};
+  const keys=paraKeys().filter(k=>{const m=midOf(k);if(seen[m])return false;seen[m]=1;return true});
   const eus=keys.map(k=>ITEMS[k].eu),n=eus.length;
   let tot=0,win=0;const rows=[];
   for(let m=2;m<=n;m++){
@@ -3249,7 +3286,7 @@ function guideRender(){
     $('g-next').textContent=guideIdx>=GUIDE.length-1?'知道了':'下一步';
   },260);
 }
-setTimeout(guideStart,600);   /* 首次进入自动展示 */
+/* 新手引导默认不自动弹出;如需查看,走「我的 → 重看新手引导」 */
 </script>
 </body>
 </html>
