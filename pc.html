@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=1280">
-<meta name="color-scheme" content="light dark">
-<meta name="description" content="金刚体育 PC 版交互原型 —— 按线上环境还原，右侧常驻需求说明栏，逐条给出本次改版的改动点与完整规则。">
 <title>金刚体育 PC 原型</title>
-</head>
-<body>
 <style>
 :root{
   --grad:linear-gradient(180deg,#FFC838 0%,#FF6D24 100%);
@@ -170,7 +166,20 @@ input{font:inherit}
   padding:6px 0 0;border-top:1px solid var(--line);margin-top:8px}
 .star{color:var(--ink-mute);font-size:13px}
 .star.on{color:var(--accent)}
-.more{color:var(--ink);font-size:12px}
+/* 「全部 +N ›」与「P2P n ›」同一套胶囊样式，只有配色不同 */
+.row-go{position:sticky;right:0;flex:none;align-self:center;margin-left:auto;width:24px;height:46px;
+  display:grid;place-items:center;font-size:15px;color:var(--ink-mute);background:var(--surface);
+  border-left:1px solid var(--line);z-index:3}
+.row-go:hover{color:var(--accent);background:var(--surface-2)}
+.mchip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 9px;border-radius:11px;
+  border:1px solid var(--line-2);color:var(--ink);font-size:11.5px;background:var(--surface)}
+.mchip b{font-weight:600;font-variant-numeric:tabular-nums}
+.mchip .ar{color:var(--ink-mute);font-size:11px}
+.mchip:hover{border-color:var(--accent);color:var(--accent)}
+.mchip:hover .ar{color:var(--accent)}
+.mchip.is-p2p{border-color:var(--accent);color:var(--accent)}
+.mchip.is-p2p .ar{color:var(--accent)}
+.mchip.is-p2p:hover{background:rgba(255,140,0,.08)}
 .tc{width:176px;flex:none;padding:0 4px;display:flex;flex-direction:column;gap:6px}
 .bet{height:30px;border-radius:3px;background:var(--surface-2);display:flex;align-items:center;gap:6px;padding:0 8px;
   font-size:12px;color:var(--ink);transition:background .12s,color .12s;width:100%}
@@ -184,7 +193,7 @@ input{font:inherit}
 .bet.lock{justify-content:center;color:var(--ink-mute);cursor:not-allowed}
 .bet.up .bo{color:#17a25a}
 .bet.down .bo{color:#e5484d}
-.nextbtn{position:absolute;right:0;top:50%;transform:translateY(-50%);width:20px;height:44px;border-radius:4px 0 0 4px;
+.nextbtn{position:absolute;right:30px;top:50%;transform:translateY(-50%);width:20px;height:44px;border-radius:4px;
   background:var(--grad);color:#fff;display:grid;place-items:center;font-size:11px;z-index:3;box-shadow:-1px 0 4px rgba(0,0,0,.12)}
 .loaded{text-align:center;font-size:12px;color:var(--ink-mute);padding:14px 0}
 
@@ -391,8 +400,6 @@ table.res.betlist td{padding:16px 10px;vertical-align:middle}
 .sbox.lose b,.sbox.lose i{color:#e5484d}
 .sbox.void b{color:var(--ink-mute)}
 .bt-ok{color:var(--green);font-size:13px}
-.sim{margin-top:8px;height:24px;padding:0 12px;border-radius:12px;border:1px solid var(--accent);color:var(--accent);font-size:11px;background:var(--surface)}
-.sim:hover{background:rgba(255,140,0,.1)}
 .bt-sum{display:flex;justify-content:flex-end;gap:24px;padding:14px 18px;font-size:12px;color:var(--ink-mute)}
 .bt-sum b{color:var(--ink-strong);font-weight:600;margin-left:6px}
 
@@ -450,8 +457,10 @@ table.res.betlist td{padding:16px 10px;vertical-align:middle}
 .book-h .ar{color:var(--accent)}
 .book-h:hover{background:rgba(255,140,0,.08)}
 .book-t{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+.book-sc{max-height:132px;overflow-y:auto}
 .book-t th{color:var(--ink-mute);font-weight:400;padding:5px 4px;text-align:right;background:var(--surface-3);line-height:1.35}
 .book-t th:first-child{text-align:left}
+.bk-me{font-style:normal;font-size:9px;color:#fff;background:var(--accent);border-radius:6px;padding:0 4px;margin-left:4px}
 .book-t td{padding:6px 4px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-strong)}
 .book-t td:first-child{text-align:left}
 .book-t th:nth-child(1),.book-t td:nth-child(1){width:36px}
@@ -493,6 +502,9 @@ table.res.betlist td{padding:16px 10px;vertical-align:middle}
 .so-up{color:var(--green);font-weight:600}
 .so-t{color:var(--ink-mute);font-size:11px}
 .so-f{display:flex;align-items:center;gap:10px;margin-top:10px;font-size:12px;color:var(--ink-mute)}
+.det{margin-top:8px;height:24px;padding:0 12px;border-radius:12px;border:1px solid var(--accent);
+  color:var(--accent);font-size:11px;background:var(--surface)}
+.det:hover{background:rgba(255,140,0,.1)}
 .so-bar{flex:1;height:4px;border-radius:2px;background:var(--surface-2);overflow:hidden;min-width:60px}
 .so-bar i{display:block;height:100%;background:var(--grad-h)}
 .so-q{color:var(--ink-mute)}
@@ -548,7 +560,6 @@ table.res.selllist{min-width:1180px}
 .selllist .dim{color:var(--ink-mute)}
 .selllist .kv{grid-template-columns:auto 1fr}
 .selllist td.l{max-width:360px}
-.sim.det{margin-top:8px}
 /* 补充押金弹窗 */
 .cf-body{font-size:13px;line-height:1.8;color:var(--ink);margin-top:14px}
 /* 卖出结算规则弹窗 */
@@ -659,15 +670,20 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 .rp-fold{margin-left:auto;width:26px;height:26px;border-radius:6px;color:var(--ink-mute);font-size:15px}
 .rp-fold:hover{background:var(--surface-2);color:var(--accent)}
 .rp-card.spec{padding:14px;max-height:calc(100vh - var(--hd) - 70px);overflow:auto}
-.spec-intro{font-size:11.5px;line-height:1.75;color:var(--ink-mute);background:var(--surface-3);border-radius:6px;padding:10px}
-.spec-h{font-size:13px;font-weight:600;color:var(--ink-strong);margin:16px 0 8px;box-shadow:inset 3px 0 0 var(--accent);padding-left:9px}
-.spec-i{border-top:1px solid var(--line);padding:10px 0}
-.spec-t{display:flex;align-items:flex-start;gap:8px}
-.spec-t b{flex:1;font-size:12.5px;color:var(--ink-strong);font-weight:600;line-height:1.5}
-.spec-tag{flex:none;font-size:10px;border:1px solid;border-radius:9px;padding:1px 7px;line-height:1.5;white-space:nowrap}
-.spec-i ul{margin:7px 0 0;padding-left:16px}
-.spec-i li{font-size:11.5px;line-height:1.75;color:var(--ink);margin-bottom:3px}
-.spec-foot{margin-top:16px;padding-top:12px;border-top:1px solid var(--line);font-size:10.5px;color:var(--ink-mute);line-height:1.6}
+.spec-tabs{display:flex;gap:6px;padding:8px 0 2px}
+.spec-tab{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:7px 10px;
+  border:1px solid var(--line-2);border-radius:7px;background:var(--surface);text-align:left}
+.spec-tab b{font-size:12.5px;color:var(--ink-strong);font-weight:600}
+.spec-tab i{font-style:normal;font-size:10.5px;color:var(--ink-mute);line-height:1.4}
+.spec-tab:hover{border-color:var(--accent)}
+.spec-tab.on{border-color:transparent;background:var(--grad-h)}
+.spec-tab.on b,.spec-tab.on i{color:#fff}
+.sp-h{font-size:12.5px;font-weight:600;color:var(--ink-strong);margin:14px 0 6px;
+  box-shadow:inset 3px 0 0 var(--accent);padding-left:9px;line-height:1.5}
+.sp-h:first-child{margin-top:6px}
+.sp-ul{margin:0;padding-left:17px}
+.sp-ul li{font-size:11.5px;line-height:1.8;color:var(--ink);margin-bottom:5px}
+.sp-none{padding:22px 4px;text-align:center;font-size:12px;color:var(--ink-mute)}
 
 /* ---------- 视频区（体育赛事页右侧） ---------- */
 .vp{width:334px;flex:none;display:flex;flex-direction:column;gap:8px;position:sticky;top:calc(var(--hd) + 8px);
@@ -687,6 +703,7 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 .vp-ms .tm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .vp-ms .n{background:var(--surface-3);border-radius:3px;padding:0 5px;font-size:11px;color:var(--ink-mute)}
 
+.player.full{height:420px}
 .player{position:relative;height:186px;background:radial-gradient(120% 90% at 50% 20%,#2f5d2a 0%,#1d3d1a 55%,#122611 100%);overflow:hidden;color:#fff}
 .player::before{content:"";position:absolute;inset:0;background:
   repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 26px,transparent 26px 52px)}
@@ -741,6 +758,117 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 .mk-r{display:flex;gap:6px;align-items:center;margin-top:6px}
 .mk-r .hd2{width:36px;font-size:11px;color:var(--ink-mute);text-align:center;font-variant-numeric:tabular-nums}
 .mk-r .bet{flex:1}
+.combo-n{font-size:11.5px;color:var(--ink-mute);padding:2px 2px 8px;line-height:1.7}
+.combo-n b{color:var(--accent);font-weight:600}
+
+/* ---------- 开盘坐庄 / 私盘 ---------- */
+.om-btn{margin-top:4px;font-size:11px;color:#fff;background:var(--grad);border-radius:10px;padding:2px 10px;line-height:1.6}
+.om-btn:hover{filter:brightness(1.07)}
+.privbtn.on{background:var(--grad-h);color:#fff;border-color:transparent}
+.card.priv{box-shadow:var(--shadow),inset 3px 0 0 var(--accent)}
+.p2p.priv{background:var(--grad);color:#fff}
+.lg-nick{font-style:normal;font-size:12px;color:var(--ink-mute);font-weight:400}
+.priv-mks{padding:4px 12px 12px}
+.priv-mk{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.priv-mk:last-child{border-bottom:none}
+.priv-mk .pm-n{flex:1;font-size:13px;color:var(--ink-strong)}
+.priv-mk .bet{width:190px;flex:none}
+.priv-mk .pm-q{width:150px;text-align:right;font-size:12px;color:var(--ink-mute);font-variant-numeric:tabular-nums}
+
+.om-dlg{width:min(880px,calc(100vw - 48px))}
+.om-top{display:flex;gap:26px;padding:14px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.om-f{display:flex;align-items:center;gap:8px;font-size:13px}
+.om-f label{color:var(--ink-mute);flex:none}
+.om-f input{height:32px;border:1px solid var(--line-2);border-radius:6px;padding:0 10px;font:inherit;font-size:13px;
+  color:var(--ink);background:var(--surface);width:168px}
+.om-f input:focus{outline:0;border-color:var(--accent)}
+.om-seal{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink)}
+.om-seal input{width:70px;text-align:right}
+.om-tip{font-style:normal;font-size:11px;color:var(--ink-mute)}
+.om-body{max-height:40vh;overflow:auto;padding:4px 18px}
+.om-i{border-bottom:1px solid var(--line)}
+.om-ih{display:flex;align-items:center;gap:9px;padding:10px 2px;cursor:pointer;font-size:13px}
+.om-i.dis .om-ih{cursor:not-allowed;opacity:.55}
+.om-i.on{background:rgba(255,140,0,.05)}
+.om-ck{color:var(--ink-mute);font-size:14px}
+.om-i.on .om-ck{color:var(--accent)}
+.om-nm{flex:1;color:var(--ink-strong)}
+.om-off{font-size:12px;color:var(--ink-mute);font-variant-numeric:tabular-nums}
+.om-dis{font-size:11.5px;color:var(--ink-mute)}
+.om-set{display:flex;align-items:center;gap:18px;padding:0 2px 11px 32px;flex-wrap:wrap}
+.om-pt{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--ink-mute)}
+.om-pt input{width:66px;height:26px;text-align:center;border:1px solid var(--line-2);border-radius:5px;
+  font:inherit;font-size:12px;color:var(--ink);background:var(--surface)}
+.om-pt input:focus{outline:0;border-color:var(--accent)}
+.om-pt .stp{width:22px;height:26px;border:1px solid var(--line-2);border-radius:5px;font-size:9px;
+  color:var(--ink-mute);background:var(--surface)}
+.om-pt .stp:hover{border-color:var(--accent);color:var(--accent)}
+.om-od{font-size:12px;color:var(--ink-mute)}
+.om-od b{font-size:13.5px;color:var(--accent);font-variant-numeric:tabular-nums}
+.om-low{font-style:normal;font-size:11px;color:#e8402a;margin-left:6px}
+.om-dep{padding:12px 18px;border-top:1px solid var(--line);background:var(--surface-3)}
+.om-dep .om-f input{width:220px}
+.om-quick{display:flex;gap:6px}
+.om-quick button{font-size:12px;height:26px;padding:0 10px;border-radius:13px;border:1px solid var(--line-2);
+  color:var(--ink);background:var(--surface)}
+.om-quick button:hover{border-color:var(--accent);color:var(--accent)}
+.om-note{margin-top:8px;font-size:11.5px;color:var(--ink-mute)}
+.om-foot{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.om-sum{flex:1;font-size:12.5px;color:var(--ink)}
+.om-sum b{color:var(--accent);font-variant-numeric:tabular-nums}
+.om-sum i{font-style:normal;font-size:11px;color:var(--ink-mute);margin-left:6px}
+
+/* ---------- 我的卖出 · 私盘页签与开盘详情 ---------- */
+.sell-seg{display:flex;gap:22px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.sell-seg button{height:44px;font-size:14px;position:relative;color:var(--ink);background:none;border:none}
+.sell-seg button.on{color:var(--accent);font-weight:500}
+.sell-seg button.on::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent)}
+.pk-pnl.g{color:var(--green)}.tagx{flex:none;font-size:10.5px;border:1px solid;border-radius:9px;padding:1px 8px;white-space:nowrap}
+
+.om-banner{background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.3);border-radius:8px;
+  padding:10px 14px;font-size:12px;color:var(--ink);margin-bottom:8px}
+.om-info{padding:14px}
+.oi-mt{font-size:15px;color:var(--ink-strong);font-weight:600}
+.oi-mt .vs{font-size:12px;color:var(--ink-mute);margin:0 8px;font-weight:400}
+.oi-sub{font-size:12px;color:var(--ink-mute);margin-top:5px}
+.om-sec{font-size:13px;font-weight:600;color:var(--ink-strong);margin:14px 0 8px;
+  box-shadow:inset 3px 0 0 var(--accent);padding-left:9px}
+.om-items{padding:2px 14px}
+.oit{padding:11px 0}
+.oit.sep{border-top:1px solid var(--line)}
+.oit-h{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.oit-nm{width:190px;flex:none;font-size:13px;color:var(--ink-strong);font-weight:500}
+.oit-od{font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums}
+.oit-od.g{color:var(--green)}
+.oit-off,.oit-amt{font-size:11.5px;color:var(--ink-mute)}
+.oit-amt b{color:var(--ink-strong);font-weight:600;font-variant-numeric:tabular-nums}
+.oit-low{font-style:normal;font-size:10.5px;color:#e8402a;margin-left:6px}
+.oit-ops{display:flex;gap:6px;margin-left:auto}
+.oit-b{font-size:12px;color:var(--ink-mute);border:1px solid transparent;border-radius:13px;
+  padding:3px 11px;background:var(--surface-2)}
+.oit-b:hover{background:rgba(255,140,0,.1);color:var(--accent)}
+.oit-subh{display:flex;align-items:center;justify-content:space-between;margin-top:9px;
+  font-size:11.5px;color:var(--ink-mute);cursor:pointer}
+.oit-subh:hover{color:var(--accent)}
+.oit-subh .ar{color:var(--ink-mute);font-size:11px}
+.oit-subs{margin-top:6px}
+.sub-i{padding:7px 0;border-top:1px dashed var(--line)}
+.sub-r1{display:flex;align-items:center;gap:9px;font-size:12px;color:var(--ink-strong)}
+.sub-m{font-size:10px;color:#fff;background:var(--accent);border-radius:3px;padding:0 5px}
+.sub-r1 .num{margin-left:auto;font-variant-numeric:tabular-nums}
+.sub-r1 .num+.num{margin-left:12px;color:var(--ink-mute)}
+.sub-r2{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-mute);margin-top:3px}
+.sub-r2 b{font-variant-numeric:tabular-nums}
+.sub-r2 b.g{color:var(--green)}.sub-r2 b.r{color:#e8402a}
+.om-ops{display:flex;align-items:center;gap:10px;margin-top:14px}
+.om-sp{flex:1}
+.om-op{height:36px;padding:0 20px;border-radius:8px;border:1px solid var(--line-2);font-size:13px;
+  color:var(--ink);background:var(--surface)}
+.om-op:hover{border-color:var(--accent);color:var(--accent)}
+.om-op.primary{background:var(--grad-h);color:#fff;border-color:transparent;font-weight:500}
+.om-op.primary:hover{filter:brightness(1.06)}
+.om-op.danger{border-color:#e8402a;color:#e8402a;background:none}
+.om-op.danger:hover{background:rgba(232,64,42,.08)}
 
 /* ---------- 日期区间筛选控件 ---------- */
 .fbox.dr{cursor:pointer;gap:6px}
@@ -877,7 +1005,13 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 @media (max-width:1680px){ .rp{width:320px} }
 @media (max-width:1500px){ .vp{width:300px} }
 @media (max-width:1360px){ .vp{display:none} }
-@media (max-width:1180px){ .rp{display:none} }
+/* 窄屏：需求说明不整条消失，收成右侧竖排标签，点开浮在内容上 */
+@media (max-width:1180px){
+  .rp{position:fixed;right:0;top:calc(var(--hd) + 8px);z-index:40}
+  .rp:not(.mini){width:340px;padding:0 0 10px;background:var(--surface);
+    box-shadow:-4px 0 18px rgba(0,0,0,.14);border-radius:8px 0 0 8px;
+    max-height:calc(100vh - var(--hd) - 16px);overflow:auto}
+}
 @media (max-width:900px){
   .side{display:none}
   .nav{margin-left:8px}
@@ -892,6 +1026,9 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
   .hd-right .ctrl.lang{display:none}
 }
 </style>
+</head>
+<body>
+
 
 <div class="hd">
   <div class="logo">金</div>
@@ -929,19 +1066,19 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 /* ============ 数据：取自 kingkongsports-pc.789fin.com 线上环境 ============ */
 const SPORT_ICON={足球:"⚽",篮球:"🏀",网络足球:"🎮",羽毛球:"🏸",网络篮球:"🎮",斯诺克:"🎱",冰球:"🏒",排球:"🏐",网球:"🎾",乒乓球:"🏓"};
 
-const SPORTS_TODAY=[["足球",1],["篮球",2],["网络足球",164],["羽毛球",2],["网络篮球",1],["斯诺克",0],["冰球",0],["排球",3],["网球",1],["乒乓球",14]];
+const SPORTS_TODAY=[["足球",4],["篮球",2],["网络足球",164],["羽毛球",2],["网络篮球",1],["斯诺克",0],["冰球",0],["排球",3],["网球",1],["乒乓球",14]];
 const SPORTS_EARLY=[["足球",5],["篮球",2],["网络足球",0],["羽毛球",1],["网络篮球",17],["斯诺克",0],["冰球",0],["排球",2],["网球",3],["乒乓球",0]];
 
 const LIVE_CHIPS=[["全部",null],["足球",0],["篮球",1],["网络足球",3],["羽毛球",1],["网络篮球",0],["斯诺克",0],["冰球",0],["排球",3],["网球",0],["乒乓球",3]];
 
 /* 一场比赛：cols 与 markets 对齐，每列自上而下对应 rows */
 const LIVE=[
- {sport:"篮球",league:"BB Cashout 4x10 CHS",flag:"🏀",p2p:true,
+ {sport:"篮球",league:"BB Cashout 4x10 CHS",flag:"🏀",p2p:false,
   markets:["独赢","让分","总分 - 大小"],
   matches:[{id:"m1",phase:"第一节",clock:"03:30",live:true,home:"HomeTeam52556 CHS",away:"AwayTeam52557 CHS",hs:0,as:0,more:32,
     rows:[[["主","3.32"],["-6.5","0.80"],["大 146.5","0.90"]],
           [["客","4.56"],["+6.5","1.11"],["小 146.5","1.00"]]]}]},
- {sport:"羽毛球",league:"AllSport_2024 CHS",flag:"🏸",p2p:true,
+ {sport:"羽毛球",league:"AllSport_2024 CHS",flag:"🏸",p2p:false,
   markets:["独赢","让分","总分 - 大小"],
   matches:[{id:"m2",phase:"滚球中",clock:"",live:true,home:"HomeTeamCodeA58189 CHS",away:"AwayTeamCodeA143555 CHS",hs:0,as:0,more:8,
     rows:[[["主","1.60"],null,null],[["客","2.10"],null,null]]}]},
@@ -960,7 +1097,7 @@ const LIVE=[
     rows:[[["主","1.75"],["-1.5","4.00"],["-0.5","1.75"],["大 70.5","1.85"]],
           [["客","1.90"],["+1.5","0.42"],["-1.5","1.85"],["大 71.5","1.80"]],
           [null,["+2.5","0.55"],["-2.5","1.75"],["大 72.5","1.85"]]]}]},
- {sport:"排球",league:"BRVolleyballMock CHS",flag:"🏐",p2p:true,
+ {sport:"排球",league:"BRVolleyballMock CHS",flag:"🏐",p2p:false,
   markets:["获胜者","让分盘","总分 - 大小","总分单/双"],
   matches:[1,2,3].map((n,i)=>({id:"v"+n,phase:"滚球中",clock:"",live:true,
     home:["TeamA28600171","TeamA9099735","TeamA84030276"][i],away:["TeamB28600172","TeamB9099736","TeamB84030277"][i],
@@ -999,8 +1136,34 @@ const EARLY_FOOTBALL=[
  {sport:"足球",league:"*England Premier League ENG CHS",flag:"🏴",p2p:false,collapsed:true,markets:[],matches:[]}
 ];
 
+/* 今日盘 —— 与 H5 的赛事、联赛、赔率一致 */
+const TODAY_FOOTBALL=[
+ {sport:"足球",league:"冰岛女子超级联赛",flag:"🇮🇸",p2p:true,
+  markets:["全场独赢 - 全场1*2","全场 - 让球","全场 - 大小"],
+  matches:[{id:"m3",date:"07-11",clock2:"02:00",home:"瓦鲁尔(女)",away:"斯塔尔南(女)",hs:0,as:0,more:152,
+    rows:[[["主","3.87"],["主 +0.5/1","0.84"],["大 2.5/3","0.74"]],
+          [["客","1.68"],["客 -0.5/1","0.90"],["小 2.5/3","1.12"]],
+          [["和","3.67"],null,null]]}]},
+ {sport:"足球",league:"爱尔兰超级联赛",flag:"🇮🇪",p2p:true,
+  markets:["全场独赢 - 全场1*2","全场 - 让球","全场 - 大小"],
+  matches:[
+   {id:"m2",date:"07-11",clock2:"03:00",home:"瓦特福",away:"圣巴特里克竞技",hs:0,as:0,more:182,
+    rows:[[["主","4.41"],["主 +0.5/1","0.99"],["大 2.5/3","1.04"]],
+          [["客","1.68"],["客 -0.5/1","0.91"],["小 2.5/3","0.84"]],
+          [["和","3.73"],null,null]]},
+   {id:"m1",date:"07-11",clock2:"02:45",home:"登克尔克",away:"德罗赫达联",hs:0,as:0,more:184,
+    rows:[[["主","1.66"],["主 -0.5/1","0.88"],["大 3","1.02"]],
+          [["客","4.34"],["客 +0.5/1","1.02"],["小 3","0.86"]],
+          [["和","3.92"],null,null]]}]},
+ {sport:"足球",league:"TEST测试联赛-接口验收专用",flag:"🧪",p2p:true,
+  markets:["全场 - 大小"],
+  matches:[{id:"t1",date:"06-30",clock2:"21:00",home:"TEST测试主队A",away:"TEST测试客队B",hs:0,as:0,more:2,
+    meta:"上半场 1-0　🟨 6-4",
+    rows:[[["大 2.5","1.85"]],[["小 2.5","1.95"]]]}]}
+];
+
 const TODAY_CYBER=[
- {sport:"网络足球",league:"TEST测试联赛-接口验收专用",flag:"🧪",p2p:true,
+ {sport:"网络足球",league:"TEST测试联赛-接口验收专用",flag:"🧪",p2p:false,
   markets:["全场独赢 - 全场1*2","全场 - 让球","全场 - 大小","上半场独赢 - 上半场...","上半场 - 让球"],
   matches:[{id:"t1",date:"06-30",clock2:"21:00",home:"TEST测试主队A",away:"TEST测试客队B",hs:0,as:0,more:2,meta:"上半场 1-0　🟨 6-4",
     rows:[[null,"lock",["大大 2.5","1.85"],null,null],
@@ -1008,7 +1171,7 @@ const TODAY_CYBER=[
 ];
 
 const HOT=[
- {sport:"篮球",league:"Euroleague Basketball CHS",flag:"🏀",p2p:true,
+ {sport:"篮球",league:"Euroleague Basketball CHS",flag:"🏀",p2p:false,
   markets:["独赢","让分","总分 - 大小"],
   matches:[{id:"h1",date:"09-25",clock2:"01:00",home:"EuroTeam A CHS",away:"拜仁慕尼黑",hs:0,as:0,more:22,
     rows:[[["主","1.25"],["9.5","0.91"],["大 171","0.95"]],
@@ -1087,6 +1250,87 @@ const BASKET_MARKETS=[
 ];
 const MARKETS_OF=sp=>(sp==="足球"||sp==="网络足球")?FOOTBALL_MARKETS:BASKET_MARKETS;
 
+/* ============ 私盘开盘坐庄（PRD V2.2 私盘模型 · 盘级押金） ============ */
+const OM_CFG={minItems:3,minDeposit:1000,freezeMinutes:10,depositMax:100000,adjustThrottle:10,displayLimit:5,commission:0.02};
+/* 一场比赛可开的投注项，与 IM 取交集：ok=可开，lock=IM 锁盘中，none=IM 无数据 */
+const OM_ITEMS=[
+ {k:"1x2-h",name:"全场独赢 · 主",off:"0.85",st:"ok"},
+ {k:"1x2-a",name:"全场独赢 · 客",off:"0.92",st:"ok"},
+ {k:"ah-h", name:"全场让球 · 主 -0/0.5",off:"0.93",st:"ok"},
+ {k:"ah-a", name:"全场让球 · 客 +0/0.5",off:"0.95",st:"ok"},
+ {k:"ou-o", name:"全场大小 · 大 2.5",off:"0.88",st:"ok"},
+ {k:"ou-u", name:"全场大小 · 小 2.5",off:"1.00",st:"ok"},
+ {k:"hou-o",name:"上半场大小 · 大 1/1.5",off:"0.90",st:"lock"},
+ {k:"cs",   name:"波胆 · 1-0",off:"5.50",st:"none"}
+];
+const omOdds=(off,pt)=>(parseFloat(off)+parseFloat(pt||0)).toFixed(2);
+/* 盘：一场比赛一个庄家一个盘，押金共享。字段与 H5 的 markets 一致 */
+let OM_SEQ=0;
+function makeMarket(mt,league,sport,nick,dep,auto,picks){
+  return{id:"M"+"2026"+String(++OM_SEQ).padStart(6,"0"),mid:mt.id,
+    status:"open",            /* open / soldout / settled / closed */
+    nick,auto,created:nowStamp(),bucket:"today",dep,topup:0,profit:null,
+    league,sport,home:mt.home,away:mt.away,kick:(mt.date?mt.date+" "+mt.clock2:"滚球中"),
+    items:picks.map(x=>({key:x.k,name:x.name,off:x.off,pt:x.pt,odds:omOdds(x.off,x.pt),
+      status:"on",            /* on / sealed */
+      sold:0,lastAdj:0,subs:[]}))};
+}
+/* 剩余押金 = 盘押金 + 补仓 − Σ(成交金额 × 对应庄单赔率) */
+const omRemain=m=>m.dep+m.topup-m.items.reduce((a,it)=>a+it.subs.reduce((q,f)=>q+f.amt*parseFloat(f.odds),0),0);
+/* 某盘口实时剩余可卖额度 = 剩余押金 ÷ 该盘口庄单赔率，向下取整到分 */
+const omItemQuota=(m,it)=>Math.floor(omRemain(m)/parseFloat(it.odds)*100)/100;
+/* 预计可卖额度 = 押金 ÷ 最高卖出赔率（最保守口径） */
+const omEst=(dep,picks)=>{
+  const mx=Math.max(...picks.map(x=>parseFloat(omOdds(x.off,x.pt))));
+  return picks.length&&dep>0?Math.floor(dep/mx*100)/100:0;
+};
+const omSold=m=>m.items.reduce((a,it)=>a+it.sold,0);
+const omSubCount=m=>m.items.reduce((a,it)=>a+it.subs.length,0);
+const omOpenItems=m=>m.items.filter(it=>it.status!=="removed").length;
+const omMine=mid=>markets.filter(m=>m.mid===mid&&["open","sealed"].includes(m.status));
+/* 私盘样本 —— 与 H5 的 markets 一致，四种状态各有数据 */
+let markets=[
+ {id:"M20260710001",mid:"m1",status:"open",nick:"金刚庄",auto:10,created:"07-10 14:02",bucket:"today",
+  dep:1000,topup:0,profit:null,league:"爱尔兰超级联赛",sport:"足球",home:"登克尔克",away:"德罗赫达联",kick:"07-11 02:45",
+  items:[
+   {key:"m1_big",name:"全场 大/小 · 大 3",off:"1.02",pt:0.13,odds:"1.15",status:"on",sold:180,lastAdj:0,
+    subs:[{u:"user***23",amt:100,odds:"1.15",time:"07-10 15:10"},{u:"user***88",amt:80,odds:"1.15",time:"07-10 16:42"}]},
+   {key:"m1_small",name:"全场 大/小 · 小 3",off:"0.86",pt:0.03,odds:"0.89",status:"on",sold:0,lastAdj:0,subs:[]},
+   {key:"m1_mw",name:"全场 独赢 · 主胜",off:"0.66",pt:0.04,odds:"0.70",status:"on",sold:0,lastAdj:0,subs:[]},
+   {key:"m1_cs",name:"全场 波胆 · 1:0",off:"8.50",pt:0.50,odds:"9.00",status:"on",sold:0,lastAdj:0,subs:[]},
+   {key:"m1_ck",name:"全场 角球大小 · 大 9.5",off:"0.92",pt:0.08,odds:"1.00",status:"on",sold:0,lastAdj:0,subs:[]}]},
+
+ {id:"M20260711002",mid:"m2",status:"soldout",nick:"老王盘",auto:15,created:"07-11 09:30",bucket:"today",
+  dep:800,topup:0,profit:null,league:"爱尔兰超级联赛",sport:"足球",home:"瓦特福",away:"圣巴特里克竞技",kick:"07-11 03:00",
+  items:[
+   {key:"m2_hh",name:"全场 让球 · 主 +0.5/1",off:"0.99",pt:0.06,odds:"1.11",status:"on",sold:540.54,lastAdj:0,
+    subs:[{u:"user***31",amt:300,odds:"1.11",time:"07-11 10:05"},{u:"user***77",amt:240.54,odds:"1.11",time:"07-11 11:28"}]},
+   {key:"m2_mw",name:"全场 独赢 · 主胜",off:"3.41",pt:0.05,odds:"3.46",status:"on",sold:52.6,lastAdj:0,
+    subs:[{u:"user***19",amt:52.6,odds:"3.46",time:"07-11 10:47"}]},
+   {key:"m2_big",name:"全场 大/小 · 大 2.5/3",off:"1.04",pt:0.04,odds:"1.08",status:"on",sold:0,lastAdj:0,subs:[]}]},
+
+ {id:"M20260628007",mid:"m3",status:"settled",nick:"阿强庄",auto:0,created:"07-12 09:00",bucket:"today",
+  dep:2000,topup:0,profit:1590,league:"冰岛女子超级联赛",sport:"足球",home:"瓦鲁尔(女)",away:"斯塔尔南(女)",kick:"07-11 02:00",
+  items:[
+   {key:"m3_ma",name:"全场 独赢 · 客胜",off:"0.68",pt:0.02,odds:"0.70",status:"on",sold:1500,lastAdj:0,res:"赢",
+    subs:[{u:"user***44",amt:900,odds:"0.70",time:"07-12 10:20",settle:-900},
+          {u:"user***61",amt:600,odds:"0.70",time:"07-12 11:05",settle:-600}]}]},
+
+ {id:"M20260630011",mid:"m2",status:"settled",nick:"老王盘",auto:0,created:"07-12 15:40",bucket:"today",
+  dep:1500,topup:0,profit:-420.5,league:"爱尔兰超级联赛",sport:"足球",home:"瓦特福",away:"圣巴特里克竞技",kick:"07-11 03:00",
+  items:[
+   {key:"m2_big",name:"全场 大/小 · 大 2.5/3",off:"1.04",pt:0.05,odds:"1.09",status:"on",sold:1100,lastAdj:0,res:"输",
+    subs:[{u:"user***05",amt:700,odds:"1.09",time:"07-12 16:02",settle:763},
+          {u:"user***52",amt:400,odds:"1.09",time:"07-12 17:30",settle:436}]}]},
+
+ {id:"M20260625003",mid:"m1",status:"closed",nick:"金刚庄",auto:0,created:"07-12 20:15",bucket:"today",
+  dep:300,topup:0,profit:null,league:"爱尔兰超级联赛",sport:"足球",home:"登克尔克",away:"德罗赫达联",kick:"07-11 02:45",
+  items:[
+   {key:"m1_mw",name:"全场 独赢 · 主胜",off:"0.66",pt:0.04,odds:"0.70",status:"sealed",sold:0,lastAdj:0,subs:[]}]}
+];
+function nowStamp(){const n=new Date(),p2=v=>String(v).padStart(2,"0");
+  return `2026-09-18 ${p2(n.getHours())}:${p2(n.getMinutes())}`}
+
 const LEAGUE_POOL=["Russia Premier League CHS 华语","China Super League CHS","Greece Cup CHS 华语","Slovakia Super League 华语","Czech Republic First League CHS 华语","Sweden Allsvenskan CHS","Germany Bundesliga 2 CHS","USA Major League Soccer 华语","Poland 1st Division 华语","Romania Cup CHS","Sweden Superettan CHS 华语","*Spain La Liga CHS","Finland Veikkausliiga 华语","Turkey Super League 华语","Germany 3rd Liga CHS 华语","Romania Liga 1 CHS - 附赛","Switzerland Super League CHS 华语","*England Premier League ENG CHS","*Copa Libertadores CHS","Denmark Super League CHS - 附赛","France Ligue 2 CHS 华语","Spain La Liga 2 CHS","*Germany Bundesliga 1 CHS","Ireland First Division 华语"];
 
 const RESULTS=[
@@ -1102,86 +1346,115 @@ const RESULTS=[
  ["09-18 14:40","Kindl, Tomas","Sedlacek, Radek","11 - 6","2 - 11","11 - 13","11 - 7","2 - 3"]
 ];
 
-const COMBOS=["2串1","3串1","3串4式","4串1","4串11式","5串1","5串26式","所有连串过关"];
+/* 串关类型由所选「场次数」K 推导，不写死清单：
+   m串N —— 从 K 场里任取 m 场组成一注，共 N = C(K,m) 注；
+   混合过关 —— K 场的全部 2 场及以上组合，共 2^K − K − 1 注。 */
+const nCr=(n,r)=>{let v=1;for(let i=1;i<=r;i++)v=v*(n-i+1)/i;return Math.round(v)};
+function comboTypes(k){
+  if(k<2)return[];
+  const out=[];
+  for(let m=2;m<=k;m++)out.push({v:`${m}串${nCr(k,m)}`,m,bets:nCr(k,m),mix:false});
+  if(k>=3)out.push({v:`${k}串${Math.pow(2,k)-k-1}`,m:k,bets:Math.pow(2,k)-k-1,mix:true});
+  return out;
+}
+/* 枚举 m 元组合 */
+function subsetsOf(arr,m){
+  const out=[];
+  (function rec(start,cur){
+    if(cur.length===m){out.push(cur.slice());return}
+    for(let i=start;i<arr.length;i++){cur.push(arr[i]);rec(i+1,cur);cur.pop()}
+  })(0,[]);
+  return out;
+}
 
 /* ===== 来自 H5「P2P 开盘坐庄」原型的数据与规则 ===== */
 /* 卖单按卖出时间归集；原始数据的 time 形如 "09-18 02:00"，统一补成 2026 年 */
 const sellDate=o=>"2026-"+String(o.time||"").slice(0,5).replace(" ","");
+/* 与 H5 一致：预置时间项按 bucket 归集，自定义区间按日期过滤 */
+const BUCKET={"今天":"today","昨天":"yesterday","近7天":"7d","近30天":"30d"};
+const BUCKET_IN={today:["today"],yesterday:["today","yesterday"],
+  "7d":["today","yesterday","7d"],"30d":["today","yesterday","7d","30d"]};
+function inBucket(bk,sel){
+  if(S.dr.sell)return null;                 /* 有自定义区间时交给日期过滤 */
+  const b=BUCKET[sel];if(!b)return true;
+  return (BUCKET_IN[b]||[]).includes(bk||"today");
+}
 /* 状态 + 时间两层筛选后的列表，统计卡与表尾合计都用它 */
 function sellList(){
-  return SELL_ORDERS
-    .filter(o=>S.sellStatus==="全部"||o.status===S.sellStatus)
-    .filter(o=>inActive(sellDate(o),"sell",S.sellTime));
+  return legacySells
+    .filter(o=>S.sellStatus==="全部"||o.state===S.sellStatus)
+    .filter(o=>{const b=inBucket(o.bucket,S.sellTime);return b===null?inActive(sellDate(o),"sell",S.sellTime):b});
 }
 function sellStats(){
   const list=sellList();
-  const settled=list.filter(o=>o.status==="已结算");
+  const settled=list.filter(o=>o.state==="已结算");
   return{total:list.length,
-    running:list.filter(o=>o.status==="卖出中").length,
+    running:list.filter(o=>o.state==="卖出中").length,
     used:list.reduce((a,o)=>a+o.sold,0),
     pnl:settled.reduce((a,o)=>a+(o.net||0),0)};
 }
-const SELL_ORDERS=[
- {no:"P0110000226091802001-1",league:"爱尔兰超级联赛",sport:"足球",status:"卖出中",
-  home:"瓦特福",away:"圣巴特里克竞技",pick:"全场让球 主 +0.5/1",odds:"1.05",deposit:1000,up:"+6.0%",
-  time:"09-18 02:00",kick:"09-19 02:45",sold:0,total:952,pnl:null,fills:[]},
+const legacySells=[
+ /* mid 绑定到早盘的 VfB Stuttgart 一场：该场已有投注项卖出，按整场互斥不展示开盘入口 */
+ {id:"P0110000226091802001-1",mid:"t1",league:"爱尔兰超级联赛",sport:"足球",state:"卖出中",
+  home:"瓦特福",away:"圣巴特里克竞技",play:"全场让球 主 +0.5/1",odds:"1.05",dep:1000,ptPct:6.0,
+  time:"09-18 02:00",kick:"09-19 02:45",sold:0,cap:952,pnl:null,subsList:[],bucket:"today"},
 
- {no:"P0110000226091615231-1",league:"Club Friendly CHS",sport:"足球",status:"卖出中",
-  home:"Celta Vigo",away:"Academico Viseu",pick:"全场让球 主 -0.5/1",odds:"0.84",deposit:85,up:"+1.0%",
-  time:"09-16 15:23",kick:"09-23 21:00",sold:5,total:101,pnl:null,
-  fills:[{time:"09-16 15:41",buyer:"jg***882",amount:3.00,odds:"0.84"},
-         {time:"09-16 16:07",buyer:"ali***11",amount:2.00,odds:"0.84"}]},
+ {id:"P0110000226091615231-1",league:"Club Friendly CHS",sport:"足球",state:"卖出中",
+  home:"Celta Vigo",away:"Academico Viseu",play:"全场让球 主 -0.5/1",odds:"0.84",dep:85,ptPct:1.0,
+  time:"09-16 15:23",kick:"09-23 21:00",sold:5,cap:101,pnl:null,
+  subsList:[{time:"09-16 15:41",buyer:"jg***882",amount:3.00,odds:"0.84"},
+         {time:"09-16 16:07",buyer:"ali***11",amount:2.00,odds:"0.84"}],bucket:"7d"},
 
- {no:"P0110000226091715201-1",league:"MockOBT2026 CHS",sport:"足球",status:"已结算",
-  home:"HomeTeamCodeA842 CHS",away:"AwayTeamCodeB3122 CHS",pick:"全场独赢 主",odds:"0.95",deposit:50,up:"+3.0%",
-  time:"09-17 15:20",kick:"09-17 18:00",sold:20,total:53,pnl:19.40,
+ {id:"P0110000226091715201-1",league:"MockOBT2026 CHS",sport:"足球",state:"已结算",
+  home:"HomeTeamCodeA842 CHS",away:"AwayTeamCodeB3122 CHS",play:"全场独赢 主",odds:"0.95",dep:50,ptPct:3.0,
+  time:"09-17 15:20",kick:"09-17 18:00",sold:20,cap:53,pnl:19.40,
   half:"0-1",final:"0-2",note:"主队未获胜，庄家收全部押注",settleTime:"2026-09-17 19:58:12",
   gross:20.00,fee:0.60,net:19.40,
-  fills:[{time:"09-17 15:33",buyer:"kk***301",amount:8.00,odds:"0.95",result:"输",pnl:-8.00},
+  subsList:[{time:"09-17 15:33",buyer:"kk***301",amount:8.00,odds:"0.95",result:"输",pnl:-8.00},
          {time:"09-17 16:12",buyer:"wz***77",amount:7.00,odds:"0.95",result:"输",pnl:-7.00},
-         {time:"09-17 17:40",buyer:"gary***02",amount:5.00,odds:"0.95",result:"输",pnl:-5.00}]},
+         {time:"09-17 17:40",buyer:"gary***02",amount:5.00,odds:"0.95",result:"输",pnl:-5.00}],bucket:"yesterday"},
 
- {no:"P0110000226091609121-1",league:"意大利甲级联赛",sport:"足球",status:"已结算",
-  home:"国际米兰",away:"罗马",pick:"全场让球 主 -0.5",odds:"0.92",deposit:60,up:"+2.0%",
-  time:"09-16 09:12",kick:"09-16 02:45",sold:40,total:65,pnl:38.80,
+ {id:"P0110000226091609121-1",league:"意大利甲级联赛",sport:"足球",state:"已结算",
+  home:"国际米兰",away:"罗马",play:"全场让球 主 -0.5",odds:"0.92",dep:60,ptPct:2.0,
+  time:"09-16 09:12",kick:"09-16 02:45",sold:40,cap:65,pnl:38.80,
   half:"1-0",final:"2-0",note:"主队 -0.5 让胜，庄家收全部押注",settleTime:"2026-09-16 04:52:30",
   gross:40.00,fee:1.20,net:38.80,
-  fills:[{time:"09-16 09:40",buyer:"hh***21",amount:18.00,odds:"0.92",result:"输",pnl:-18.00},
+  subsList:[{time:"09-16 09:40",buyer:"hh***21",amount:18.00,odds:"0.92",result:"输",pnl:-18.00},
          {time:"09-16 10:15",buyer:"ml***63",amount:12.00,odds:"0.92",result:"输",pnl:-12.00},
-         {time:"09-16 11:02",buyer:"cy***09",amount:10.00,odds:"0.92",result:"输",pnl:-10.00}]},
+         {time:"09-16 11:02",buyer:"cy***09",amount:10.00,odds:"0.92",result:"输",pnl:-10.00}],bucket:"yesterday"},
 
- {no:"P0110000226091613351-1",league:"ATP 成都公开赛",sport:"网球",status:"已结算",
-  home:"Zhang Zhizhen",away:"Bu Yunchaokete",pick:"全场独赢 主",odds:"1.15",deposit:30,up:"+1.5%",
-  time:"09-16 13:35",kick:"09-16 18:30",sold:26,total:26,pnl:-29.90,
+ {id:"P0110000226091613351-1",league:"ATP 成都公开赛",sport:"网球",state:"已结算",
+  home:"Zhang Zhizhen",away:"Bu Yunchaokete",play:"全场独赢 主",odds:"1.15",dep:30,ptPct:1.5,
+  time:"09-16 13:35",kick:"09-16 18:30",sold:26,cap:26,pnl:-29.90,
   half:null,final:"2-0",note:"主队取胜，买方赢，庄家赔付",settleTime:"2026-09-16 20:41:18",
   gross:-29.90,fee:0,net:-29.90,
-  fills:[{time:"09-16 14:02",buyer:"qq***55",amount:16.00,odds:"1.15",result:"赢",pnl:18.40},
-         {time:"09-16 15:48",buyer:"rt***31",amount:10.00,odds:"1.15",result:"赢",pnl:11.50}]},
+  subsList:[{time:"09-16 14:02",buyer:"qq***55",amount:16.00,odds:"1.15",result:"赢",pnl:18.40},
+         {time:"09-16 15:48",buyer:"rt***31",amount:10.00,odds:"1.15",result:"赢",pnl:11.50}],bucket:"7d"},
 
- {no:"P0110000226091716481-1",league:"Club Friendly CHS",sport:"足球",status:"已关闭",
-  home:"RCD Mallorca",away:"Ittihad FC",pick:"全场独赢 主",odds:"0.10",deposit:20,up:"+1.0%",
-  time:"09-17 16:48",kick:"09-18 03:00",sold:0,total:200,pnl:null,
-  closeTime:"2026-09-17 17:26:03",closeBy:"庄家主动关闭",refunded:20.00,fills:[]},
+ {id:"P0110000226091716481-1",league:"Club Friendly CHS",sport:"足球",state:"已关闭",
+  home:"RCD Mallorca",away:"Ittihad FC",play:"全场独赢 主",odds:"0.10",dep:20,ptPct:1.0,
+  time:"09-17 16:48",kick:"09-18 03:00",sold:0,cap:200,pnl:null,
+  closeTime:"2026-09-17 17:26:03",closeBy:"庄家主动关闭",refunded:20.00,subsList:[],bucket:"7d"},
 
- {no:"P0110000226091215031-1",league:"独立日足球锦标赛(在印度)",sport:"足球",status:"已关闭",
-  home:"参哥里",away:"丁塔尔FC",pick:"全场独赢 主",odds:"17.01",deposit:100,up:"+1.0%",
-  time:"09-12 15:03",kick:"09-13 20:30",sold:0,total:6,pnl:null,
-  closeTime:"2026-09-12 19:47:55",closeBy:"赛事临近自动封盘",refunded:100.00,fills:[]},
+ {id:"P0110000226091215031-1",league:"独立日足球锦标赛(在印度)",sport:"足球",state:"已关闭",
+  home:"参哥里",away:"丁塔尔FC",play:"全场独赢 主",odds:"17.01",dep:100,ptPct:1.0,
+  time:"09-12 15:03",kick:"09-13 20:30",sold:0,cap:6,pnl:null,
+  closeTime:"2026-09-12 19:47:55",closeBy:"赛事临近自动封盘",refunded:100.00,subsList:[],bucket:"30d"},
 
- {no:"P0110000226091218031-1",league:"俱乐部友谊赛",sport:"足球",status:"已结算",
-  home:"诺丁汉森林",away:"布莱克本",pick:"全场大/小 大 3",odds:"1.03",deposit:100,up:"+3.0%",
-  time:"09-12 18:03",kick:"09-12 21:45",sold:20,total:97,pnl:-20.60,
+ {id:"P0110000226091218031-1",league:"俱乐部友谊赛",sport:"足球",state:"已结算",
+  home:"诺丁汉森林",away:"布莱克本",play:"全场大/小 大 3",odds:"1.03",dep:100,ptPct:3.0,
+  time:"09-12 18:03",kick:"09-12 21:45",sold:20,cap:97,pnl:-20.60,
   half:"1-1",final:"3-2",note:"全场 5 球 > 3，买方赢，庄家赔付",settleTime:"2026-09-12 23:41:08",
   gross:-20.60,fee:0,net:-20.60,
-  fills:[{time:"09-12 18:20",buyer:"tt***19",amount:12.00,odds:"1.03",result:"赢",pnl:12.36},
-         {time:"09-12 19:02",buyer:"mm***45",amount:8.00,odds:"1.03",result:"赢",pnl:8.24}]},
+  subsList:[{time:"09-12 18:20",buyer:"tt***19",amount:12.00,odds:"1.03",result:"赢",pnl:12.36},
+         {time:"09-12 19:02",buyer:"mm***45",amount:8.00,odds:"1.03",result:"赢",pnl:8.24}],bucket:"today"},
 
- {no:"P0110000226082414351-1",league:"瑞典超甲级联赛",sport:"足球",status:"已结算",
-  home:"法尔肯贝里",away:"赫尔辛堡",pick:"全场独赢 主",odds:"1.05",deposit:6,up:"+1.0%",
-  time:"08-24 14:35",kick:"08-24 20:00",sold:6,total:6,pnl:5.54,
+ {id:"P0110000226082414351-1",league:"瑞典超甲级联赛",sport:"足球",state:"已结算",
+  home:"法尔肯贝里",away:"赫尔辛堡",play:"全场独赢 主",odds:"1.05",dep:6,ptPct:1.0,
+  time:"08-24 14:35",kick:"08-24 20:00",sold:6,cap:6,pnl:5.54,
   half:"0-0",final:"0-1",note:"主队未获胜，庄家收全部押注",settleTime:"2026-08-24 22:03:47",
   gross:6.00,fee:0.46,net:5.54,
-  fills:[{time:"08-24 14:52",buyer:"ff***08",amount:6.00,odds:"1.05",result:"输",pnl:-6.00}]}
+  subsList:[{time:"08-24 14:52",buyer:"ff***08",amount:6.00,odds:"1.05",result:"输",pnl:-6.00}],bucket:"7d"}
 ];
 const REPORT_DAYS=[
  {date:"2026-09-17",buy:0,sell:19.40},
@@ -1191,31 +1464,36 @@ const REPORT_DAYS=[
 
 /* 右栏需求说明：按页面组织，逐条给出改动点与完整规则 */
 const SPEC={
- _intro:"本栏是金刚体育 PC 版本次改版的需求说明，按页面组织，逐条给出改动点与完整规则，研发与测试可直接据此实现和验收，无需再对照其他端的原型。标签：新增 = PC 原来没有的功能；调整 = 改了 PC 已有的形态或规则；保留 = PC 现有做法不变，此处只作规则留档；待确认 = 需产研对齐后再定。原有 4 条待确认项已于 2026-09-23 确认，结论已写进对应条目。",
  live:[
   {t:"赔率格的 P2P 更优价红点",tag:"新增",d:[
-   "改动点：列表页与赛事详情页的赔率格右上角新增一个红点标识。",
+   "列表页与赛事详情页的赔率格右上角带红点标识。",
    "出现条件：该投注项当前存在至少一笔未售罄的会员卖单，且卖单赔率优于官方赔率。没有卖单、卖单已售罄、或卖单赔率不优于官方时都不出红点。",
    "红点只是提示，不改变赔率格上显示的数字（列表页仍显示官方赔率）；点击该赔率格加入购物车后，购物车里才展开卖单薄，显示每一档会员卖单的赔率与可购额度。",
    "红点状态跟随卖单变化实时刷新，最后一笔卖单被吃完或被庄家关闭后红点消失。"]},
   {t:"购物车内赔率显示为区间",tag:"新增",d:[
-   "改动点：购物车（买入 · 单关）的投注项在存在 P2P 卖单时，赔率由单一数值改为区间，形如 @0.75~0.80。",
+   "购物车（买入 · 单关）的投注项在存在 P2P 卖单时，赔率展示为区间，形如 @0.75~0.80。",
    "区间下界 = 官方赔率，上界 = 当前卖单薄里最优的一档会员赔率；只有一档卖单时上下界也照常显示，不做合并。",
    "区间下方紧接卖单薄，逐档列出档位 / 卖出赔率 / 可购额度 / 购买计划，用户能看到区间是由哪几档构成的。",
    "无卖单时仍显示单一官方赔率，不显示区间也不显示卖单薄。"]},
   {t:"筛选条增加「P2P」开关",tag:"新增",d:[
-   "改动点：赛事列表页筛选条新增 P2P 按钮（带红点），位于「筛选 全部联赛」与「盘口」之间。",
+   "赛事列表页筛选条含 P2P 按钮（带红点），位于「筛选 全部联赛」与「盘口」之间。",
    "点击即时过滤，不弹提示：开启后列表只保留存在会员卖单的赛事，整个联赛都没有卖单的直接整组隐藏；再点一次关闭，恢复全部赛事。",
    "开关状态在滚球 / 热门赛事 / 今日 / 早盘各列表页之间共享，切换页面时保持；刷新页面后回到关闭。",
    "与「筛选 全部联赛」「球类筛选条」是与的关系，多个条件同时生效。",
    "开启后若无任何赛事满足条件，列表区显示空态「暂无赛事」。"]},
-  {t:"「+N」后补充 P2P 盘口数",tag:"调整",d:[
-   "改动点：赛事卡片底部原本只有「+32 ›」（该场剩余盘口数），现在在它右侧追加一个 P2P 角标，形如「+32 ›　P2P 2」。",
-   "角标数字 = 该场比赛中存在会员卖单的投注项个数（按盘口去重计数），为 0 时整个角标不展示。",
-   "点击 +N 与点击 P2P 角标都进入同一个赛事详情页，不做区分。"]},
+  {t:"赛事行的进入方式与底部入口",tag:"调整",d:[
+   "每个赛事行的最右侧有一个 › 箭头，点击进入该场的盘口详情页。盘口区可以横向滚动，这个箭头吸附在可视区右缘，滚到哪儿都在，不会被滚走。",
+   "盘口的横向翻页按钮 » 在箭头 › 左侧：» 在当前行内翻看更多盘口，› 离开列表进入盘口详情页。",
+   "卡片底部依次是 收藏星 / 全部 +N › / P2P n ›。",
+   "收藏星点亮为 ★ 并计入左栏「我的关注」；点星不触发进入详情，事件就地截断。",
+   "「全部 +32 ›」与「P2P 2 ›」是同一套胶囊样式 —— 相同的高度、圆角、字号与内边距，只有配色不同：全部是中性描边，P2P 是橙色描边。",
+   "全部 +N：N 为该场除列表已展示之外的剩余盘口数。P2P n：n 为该场存在会员卖单的投注项个数（按盘口去重），为 0 时整个胶囊不展示。",
+   "三个入口（行尾箭头、全部 +N、P2P n）落的是同一个盘口详情页，不做区分。"]},
+
+
   {t:"赛事列表右侧视频区",tag:"调整",d:[
    "自上而下：TV 条（TV 标识 / 比分 / LIVE / 动画直播 / 刷新）→ 赛事条（比分 · 主队 VS 客队）→ 直播区 → 投注 / 赛事分析 页签。",
-   "直播区分两种形态：滚球中显示播放器（左上 直播时间·联赛·实时比分，右上频道号，中心播放暂停，底部进度条与静音、全屏）加球队比分板（角球 / 黄牌 / 红牌角标、当前半场与走时）；未开赛改为球场底图 + 一块信息牌「开赛时间 MM-DD HH:mm (GMT+8) / 比赛即将开始」，两侧放主客队徽，不出播放器、不出 LIVE 标识与动画直播按钮。",
+   "直播区分两种形态：滚球中显示播放器（左上 直播时间·联赛·实时比分，右上频道号，中心播放暂停，底部进度条与静音、全屏）加球队比分板（角球 / 黄牌 / 红牌角标、当前半场与走时）；未开赛显示球场底图 + 一块信息牌「开赛时间 MM-DD HH:mm (GMT+8) / 比赛即将开始」，两侧放主客队徽，不出播放器、不出 LIVE 标识与动画直播按钮。",
    "投注页：筛选为 全部 / 让球 / 大小，切换即过滤下方盘口块；盘口块只有左侧橙条 + 名称 + 收起 ︿，不放置顶按钮（置顶属于盘口详情页的能力，侧栏空间窄不重复提供）。",
    "投注格与盘口详情页同一套：选项与盘线在左、赔率加粗在右；大小盘沿用线上的「大大 2.5 / 小小 2.5」写法，让球盘用 主 / 客 加盘线。",
    "赛事分析页：筛选为 重点数据 / 实时事件 / 精彩回放。重点数据给本场实时（射正 / 角球 / 黄牌 / 控球率 / 危险进攻）与近 5 场交锋；实时事件按分钟倒序列出进球、角球、黄牌、换人；精彩回放暂无数据源。",
@@ -1224,63 +1502,68 @@ const SPEC={
    "视频区里的赔率与列表页共用同一套投注逻辑：点击同样加入购物车，同样跟随顶部香港盘 / 欧洲盘切换。"]},
 
   {t:"新用户引导",tag:"新增",d:[
-   "改动点：PC 端新增首次进入的蒙层引导，共 4 步。",
+   "首次进入展示蒙层引导，共 4 步。",
    "触发条件：仅对新用户展示一次。判定为「该会员无任何投注记录且无 P2P 卖单记录」，满足则在首次进入体育赛事页时自动弹出。老用户升级后不补弹。",
    "走完最后一步或点「跳过」即视为已看过，标记持久化到会员档案（不是浏览器本地缓存），换设备、换浏览器都不再展示。",
    "顶部「设置 › 新手引导」是常驻入口，任何时候可手动重看；重看不改变已看过标记。",
    "四步内容：① 看懂赔率格（高亮第一个带红点的赔率格）② 快速筛选 P2P（高亮筛选条 P2P 按钮）③ 进入更多盘口（高亮「+N › P2P n」）④ 买单与卖单（同时高亮左栏「我的买单」与「我的卖单」，高亮框取两项的并集外框）。",
    "表现：半透明蒙层挖出高亮孔（目标外扩 4px，橙色描边、圆角 10），外再套一圈白色虚线框（外扩 11px）；提示气泡为透明底 + 白色虚线边，标题前带橙色序号圆点；气泡与目标之间画一条曲线箭头；底部固定一条操作条，左侧步数 1/4，右侧「跳过」与「下一步」，最后一步按钮文案为「知道了」。",
-   "引导展示期间页面不可操作，只能通过跳过或走完关闭；窗口缩放时高亮孔与箭头重新定位。",
-   "注：本原型为方便查看，每次刷新都会展示引导，未做上述一次性判定。"]},
-  {t:"不做「串关」一级入口",tag:"保留",d:[
-   "已确认：左栏玩法组维持 滚球 / 热门赛事 / 冠军 / 我的关注，不新增「串关」入口。",
-   "串关仍只在购物车内作为买入页的模式切换：选满 2 注后「串关」按钮可点，切换后填串关类型 + 单一投注额。",
-   "理由：左栏玩法组列的是赛事的分类维度（按时间、按热度、按关注），串关是下注方式而不是一批赛事；做成一级入口会让用户以为里面是另一批比赛。"]}
+   "引导展示期间页面不可操作，只能通过跳过或走完关闭；窗口缩放时高亮孔与箭头重新定位。"]},
+  {t:"串关入口位置",tag:"保留",d:[
+   "左栏玩法组为 滚球 / 热门赛事 / 冠军 / 我的关注，不设「串关」入口。",
+   "串关仍只在购物车内作为买入页的模式切换：选满 2 注后「串关」按钮可点，切换后填串关类型 + 单一投注额。"]}
  ],
  slip:[
   {t:"投注单页签收敛为 买入 / 卖出",tag:"调整",d:[
-   "改动点：购物车顶部页签由「单关 / 串关 / 挂单」改为「买入 / 卖出」两个。",
+   "购物车顶部页签为 买入 / 卖出 两个。",
    "买入 = 用户花钱买赔率下注；卖出 = 用户交押金挂出赔率做庄（开盘坐庄），两者是对立的两种角色，因此并列成页签。",
-   "原「挂单」页签是空壳，功能由「卖出」承接；原「串关」不再单独成页签，收进买入页（见下一条）。",
    "页签上带数字角标，显示当前购物车内的投注项数量。"]},
   {t:"串关入口放在买入页底部",tag:"调整",d:[
-   "改动点：串关由独立页签改为买入页内的模式切换。",
-   "买入页底部按钮组为「返回 / 串关 / 确认」。购物车内只有 1 注时「串关」置灰不可点；选满 2 注及以上可点。",
-   "点亮串关后，买入页由「每注独立填投注额」切换为「选择串关类型（2串1 / 3串1…）+ 填单一投注额」，按钮文案变为「单关」，可点回切换。",
-   "从串关切回单关时，恢复每注独立金额，之前填过的金额不保留。",
-   "理由：串关本质仍是买入，与卖出才是对立关系；独立成页签会让用户误以为是第三种单据。"]},
+   "串关是买入页内的模式切换，不单独成页签。",
+   "买入页底部按钮组为「返回 / 串关 / 确认」。所选场次不足 2 场、或同一场比赛选了多个投注项时，「串关」置灰不可点。",
+   "点亮串关后，买入页由「每注独立填投注额」切换为「选择串关类型 + 填每注金额」，按钮文案变为「单关」，可点回切换。",
+   "从串关切回单关时，恢复每注独立金额，先前填过的金额不保留。"]},
+  {t:"串关类型按所选场次推导",tag:"调整",d:[
+   "串关类型按当前已选的「场次数 K」实时生成，不提供与所选赛事不匹配的组合。",
+   "规则一（固定过关）：m串N —— 从 K 场里任取 m 场组成一注，共 N = C(K,m) 注，m 取 2 到 K。",
+   "规则二（混合过关）：K串N —— K 场里 2 场及以上的全部组合各一注，共 N = 2^K − K − 1 注，K ≥ 3 时才有。",
+   "由此 2 场只有 2串1；3 场是 2串3 / 3串1 / 3串4；4 场是 2串6 / 3串4 / 4串1 / 4串11；5 场是 2串10 / 3串10 / 4串5 / 5串1 / 5串26；6 场是 2串15 / 3串20 / 4串15 / 5串6 / 6串1 / 6串57。",
+   "下拉框下方给一行说明：已选 K 场 · 共 N 注，并注明这 N 注是怎么组出来的。",
+   "增减投注项导致 K 变化时，若当前类型在新的 K 下不成立，自动回落到第一个合法类型，不会停留在非法组合上。",
+   "同一场比赛的多个投注项互斥，不能进同一张串关单 —— 它们是相关盘口，同时成立的概率不独立。此时串关按钮置灰，面板提示「同一场比赛的多个投注项不能串关，请每场只保留一个投注项」。",
+   "金额口径：输入框填的是每注金额，总投注额 = 每注金额 × 注数，底部「总投注额」旁标注「每注 × N」。最高可赢 = 各注全中时的回报之和 − 总投注额，多注类型逐注按其自身的赔率连乘计算。",
+   "注单生成：固定过关里只有一注的类型（m串1）记录总赔率；多注类型不记总赔率，列表里改显示「共 N 注」。"]},
+
   {t:"买入页展开卖单薄",tag:"新增",d:[
-   "改动点：买入 · 单关下，投注项赔率区间的下方新增卖单薄表格。",
+   "买入 · 单关下，投注项赔率区间的下方展示卖单薄表格。",
    "四列：档位 / 卖出赔率 / 可购额度 / 购买计划。会员卖单按赔率由优到劣排列，显示为卖一、卖二…；官方档位固定排在最后一行，可购额度显示为「无限」。",
    "「购买计划」列是系统按用户填入的投注额自动分配到各档的金额，用户填多少，就从最优档位往下逐档吃满，剩余部分落到官方档位。",
    "吃单规则：开启「自动接受任何赔率」后，按簿序自最优赔率档位向下依次吃单，多档成交时以加权平均赔率作为该注单的显示赔率与结算赔率。",
    "可购额度实时变化，若用户填写金额时某档被他人吃掉，按最新簿重新分配并提示赔率变化。",
    "表格不额外加说明性文案（如「官方赔率@x.xx」「已开启自动接受任何赔率」），表格本身已表达这些信息，说明文字放帮助入口。"]},
   {t:"卖单薄可展开收起",tag:"新增",d:[
-   "改动点：卖单薄加一条标题栏「卖单薄　收起 ︿ / 展开 ﹀」，点击折叠或展开表格。",
-   "默认展开时机：买入 · 单关下，每次新选中一个投注项时默认展开；从串关切回单关时也重新展开。理由：卖单薄是决定要不要吃会员单的依据，新选一注时不该让用户多点一次才看得到。",
+   "卖单薄带标题栏「卖单薄　收起 ︿ / 展开 ﹀」，点击折叠或展开表格。",
+   "默认展开时机：买入 · 单关下，每次新选中一个投注项时默认展开；从串关切回单关时也重新展开。",
    "用户手动收起的状态只在这一注的查看过程中保持，下一次选中投注项不继承。",
-   "命名统一为「卖单薄」——它列的就是会员挂出的卖单档位，与「我的卖单」同一套语言，界面上不再出现「盘口簿」这个叫法。",
    "四列表头在 240px 侧栏里固定列宽，并在两字处换行（卖出/赔率、可购/额度、购买/计划），避免在不该断的地方断行。"]},
   {t:"选项与赔率的两行排版",tag:"调整",d:[
-   "改动点：购物车内每个投注项由一行改为两行。",
+   "购物车内每个投注项占两行。",
    "第一行：[市场类型] 玩法 + 投注项，过长时省略号截断，hover 显示全文。",
    "第二行：赔率与盘口类型单独一行。240px 的侧栏放不下一行，挤在一起会把赔率这个最需要一眼看到的数字压小。",
    "有 P2P 卖单时第一行不变，第二行显示区间 @0.75~0.80，其下接卖单薄。"]},
   {t:"串关不吃 P2P 卖单",tag:"新增",d:[
    "规则：会员卖单是单场逐笔撮合的，庄家按单场风险定价并冻结押金；串关是一张注单跨多场联合结算，无法拆到各场去吃卖单额度。因此串关一律不消耗 P2P 额度。",
-   "改动点：切到串关后，所选投注项全部回落到官方赔率 —— 界面赔率由区间变为单一官方值，卖单薄隐藏，注单按官方赔率记录、计算与结算。",
+   "切到串关后，所选投注项全部回落到官方赔率 —— 界面赔率由区间变为单一官方值，卖单薄隐藏，注单按官方赔率记录、计算与结算。",
    "串关面板顶部给一行提示「串关不吃 P2P 卖单，已按官方赔率计算」，说明赔率为什么变了。",
    "切回单关时恢复 P2P 区间与卖单薄。"]},
   {t:"卖出（开盘坐庄）表单",tag:"新增",d:[
-   "改动点：购物车「卖出」页签下新增开盘坐庄表单。",
+   "购物车「卖出」页签下是开盘坐庄表单。",
    "字段：押金金额（限额 10~5000，受账户余额约束）、上浮点位（−/＋ 步进）、卖出赔率 @x.xx(港盘)、预计可卖额度。",
    "卖出赔率 = 官方赔率按上浮点位上调后的值，上浮越多对买家越有吸引力，庄家单笔风险也越大。",
    "预计可卖额度 = 押金 ÷ 卖出赔率(港盘)，押金或上浮点位变化时实时重算。",
-   "底部：卖出结算规则 ⓘ、合计 x.xx CNY、返回 / 确认卖出。确认后冻结押金，生成一张状态为「卖出中」的卖单。",
-   "卖出页不放「我的卖出 N　查看全部 ›」入口：左栏已常驻「我的卖单」，购物车里再挂一个同功能入口是重复。"]},
+   "底部：卖出结算规则 ⓘ、合计 x.xx CNY、返回 / 确认卖出。确认后冻结押金，生成一张状态为「卖出中」的卖单。"]},
   {t:"卖出结算规则弹窗",tag:"新增",d:[
-   "改动点：卖出面板底部「卖出结算规则 ⓘ」由 toast 提示改为 900px 宽的弹窗，分四段。",
+   "卖出面板底部「卖出结算规则 ⓘ」点开为 900px 宽的弹窗，分四段。",
    "1 基本原理：买家赢 ↔ 庄家输、买家输 ↔ 庄家赢，两组镜像卡片左右并排，下方给公式「庄单净盈亏 ＝ 子单结算之和 × (−1)」。",
    "2 押金模式：卖出 → 赛事中 → 结算 三步横向流程；结算下分庄家赢与庄家输两种押金走向 —— 庄家赢则解冻押金并收取买家本金，庄家输则按子单赔付后退回剩余押金。",
    "3 抽水规则：庄家赢与买家赢各自的抽水公式并排；庄家输、买家输均不抽水。",
@@ -1292,21 +1575,20 @@ const SPEC={
  ],
  sell:[
   {t:"「我的卖单」页面",tag:"新增",d:[
-   "改动点：左栏原有「我的挂单」入口但没有对应页面，现补齐为完整的「我的卖单」，入口更名为「我的卖单」。",
+   "左栏「我的卖单」入口对应完整的「我的卖单」页面。",
    "顶部统计卡四项：总卖出 / 进行中 / 已消费 / 总结算盈亏。",
-   "两行筛选：状态（全部 / 卖出中 / 已售罄 / 已结算 / 已关闭）+ 时间（全部 / 今天 / 昨天 / 近7天 / 近30天，与买单页一致）+ 自定义时间段。筛选条右侧不放「共 N 条」—— 顶部统计卡的「总卖出」已经是筛选后的笔数，表尾右下角也有总单数，同一个数字在一屏里出现三次是噪音。",
+   "两行筛选：状态（全部 / 卖出中 / 已售罄 / 已结算 / 已关闭）+ 时间（全部 / 今天 / 昨天 / 近7天 / 近30天，与买单页一致）+ 自定义时间段；筛选条右侧不放「共 N 条」。",
    "左栏「我的卖单」入口带数字角标，数字为进行中（卖出中）的卖单笔数。"]},
   {t:"卖单列表用表格，与买单同构",tag:"调整",d:[
-   "改动点：卖单列表采用与买单一致的表头 + 数据区表格，两个页签扫读节奏一致。",
+   "卖单列表采用与买单一致的表头 + 数据区表格。",
    "七列：编号 / 卖单详情 / 盘口 / 成交进度 / 押金金额 / 结算盈亏 / 卖单状态。",
    "卖单详情列与买单的投注详情同构：[运动] 联赛 / 对阵 / 玩法+选项，分隔线下是「卖出时间」与「卖单号」（可复制）。字段名统一叫「卖出时间」，不叫挂单时间。",
    "盘口列：卖出赔率 @1.05 (香港盘) / 上浮点位 / 开赛时间。",
-   "成交进度列：已售 ¥x / 可卖 ¥y、进度条与百分比、剩余额度 —— 比单一状态词信息量大。",
+   "成交进度列：已售 ¥x / 可卖 ¥y、进度条与百分比、剩余额度。",
    "结算盈亏列未结算时显示「—」；状态列下带「查看详情」按钮。表尾右下角是 总单数 / 总押金。",
    "卖单不做分享功能：分享盘口是移动端的社交分发场景，PC 不做。"]},
   {t:"卖单状态收敛为四种",tag:"调整",d:[
-   "改动点：卖单状态定为 卖出中 / 已售罄 / 已关闭 / 已结算 四种，不设「部分成交」。",
-   "理由：部分成交并不是独立环节 —— 它仍在继续卖，用户的操作与可见信息和卖出中完全一致，多一个状态只会让筛选条变长、让人误以为两者能做不同的事。成交了多少由成交进度列的进度条与「5/101」表达。",
+   "卖单状态为 卖出中 / 已售罄 / 已关闭 / 已结算 四种，不设「部分成交」；成交进度由成交进度列的进度条与「5/101」表达。",
    "状态流转：卖出中 →（额度售完）已售罄 →（赛事结算）已结算；卖出中 / 已售罄 →（庄家停止收单或赛事封盘）已关闭 →（赛事结算）已结算。"]},
   {t:"卖单详情页",tag:"新增",d:[
    "入口：列表点「查看详情 ›」。",
@@ -1319,8 +1601,7 @@ const SPEC={
    "结算信息里不放结算比分与判定依据 —— 庄单的输赢由成交明细逐笔子单和上方的盈亏数字说明，比分属于赛事侧信息，放在买单的已结算列表里即可。",
    "关闭信息（已关闭）同样用四个并排数据块：关闭时间 · 关闭方式（庄家主动停止收单 / 赛事临近自动封盘）· 退回押金 · 已售出部分，下方一行小字说明未售出原路退回、已售出照常结算。",
    "成交明细按子单展开：子单号 / 成交时间 / 买家（脱敏）/ 成交额度 / 成交赔率，进行中的再加一列「待结算」；未成交时显示「暂无成交，额度仍在挂出中」。",
-   "已结算的卖单，成交明细多两列「子单结果」与「子单盈亏」。这两列是买方视角：子单只写 赢 / 输，盈亏与本庄单方向相反 —— 子单输，庄家才赢。",
-   "合计行只给子单侧合计；它与上方结算信息里的盈亏符号相反、绝对值相等，界面上不再重复解释这层关系。"]},
+   "已结算的卖单，成交明细多两列「子单结果」与「子单盈亏」。这两列是买方视角：子单只写 赢 / 输，盈亏与本庄单方向相反 —— 子单输，庄家才赢。"]},
   {t:"补充押金与停止收单",tag:"新增",d:[
    "进行中的卖单（卖出中 / 已售罄）在详情页有这两个操作，已关闭与已结算的没有。",
    "补充押金：弹窗先列当前押金 / 当前可卖额度 / 剩余未售，输入补充金额（限额 10~5000，受账户余额约束），实时算出补充后的可卖额度；确认后押金与额度同步增加，公式仍是 可卖额度 = 押金 ÷ 卖出赔率(港盘)。已售罄的单补充押金后回到卖出中。",
@@ -1336,7 +1617,7 @@ const SPEC={
  ],
  report:[
   {t:"「汇总报表」页面",tag:"新增",d:[
-   "改动点：PC 端新增汇总报表，入口在左栏「我的卖单」下方。",
+   "汇总报表入口在左栏「我的卖单」下方。",
    "总盈亏 = 买单盈亏 + 卖单盈亏，两者量纲一致可相加。",
    "投注额与押金不可相加，不设「总投入」这类合并指标。",
    "底部细字为当前时点快照，展示待结算与进行中，不随时间筛选变化。"]},
@@ -1350,8 +1631,7 @@ const SPEC={
    "预置四项：今天 / 昨天 / 本周 / 本月，默认本周，周起始为周一。",
    "右侧「筛选」点击直接弹出日期弹窗，「筛选」二字不带选中态。",
    "弹窗约束：格式 YYYY-MM-DD；开始不得晚于结束；结束不得晚于今天；跨度上限 1 年，违反时 toast 拦截。",
-   "选中自定义后四个预置项全部取消高亮，互斥。",
-   "注：本原型为让样本数据可见默认落在「本月」，上线按上述默认回到本周。"]},
+   "选中自定义后四个预置项全部取消高亮，互斥。"]},
   {t:"按日表格",tag:"新增",d:[
    "四列：日期 / 买单输赢 / 卖单盈亏 / 合计，合计行固定在表头下方。",
    "只列出产生过结算的日期，无结算的日期不占行，按日期倒序。",
@@ -1365,16 +1645,14 @@ const SPEC={
    "条目可点：买单跳「我的买单 · 已结算注单」并按注单号锁定为单张 —— 列表顶部出现一条「仅显示单张注单 xxx ✕ 显示全部」的提示条，点叉或切换页签、时间筛选、查询都会解除锁定；卖单直接跳到对应的卖单详情页。",
    "展开层的金额口径与上方表格一致 —— 买单取注单输赢字段，卖单取扣除抽佣后的净额，两者相加等于该日合计。"]},
   {t:"数据来源",tag:"新增",d:[
-   "报表不是独立数据，按结算时间从买单与卖单两个列表实时汇总：买单取已结算注单，卖单取状态为已结算的庄单。",
-   "原型样本里的 2026-09-16 是同日既有买单又有卖单、且两侧都是多笔的情况（3 笔买单 + 2 笔卖单），用来验证左右分组、中间分隔线与两侧小计。"]}
+   "报表不是独立数据，按结算时间从买单与卖单两个列表实时汇总：买单取已结算注单，卖单取状态为已结算的庄单。"]}
  ],
  history:[
   {t:"历史注单拆成 买单 / 卖单 两个列表",tag:"调整",d:[
-   "改动点：原「历史注单」只有一类单据（即买单），现在顶部先分「买单 / 卖单」两个列表。两个页签只显示图标与文字，不带数量角标 —— 数量在左栏入口与各自页内的统计处已经给出，页签上再挂一次是重复，也容易被误读成筛选结果数。",
+   "顶部先分「买单 / 卖单」两个列表，两个页签只显示图标与文字，不带数量角标。",
    "买单 = 会员自己下的注；卖单 = 会员挂出的庄单。两者字段、状态机、统计口径完全不同，必须分列表。",
    "买单进入后仍是 未结算注单 / 已结算注单 两个子页签 + 七列表格；卖单进入后是统计卡 + 状态/时间两行筛选 + 七列表格。",
-   "左栏入口：「我的买单」直达 买单 · 未结算注单，「我的卖单」直达 卖单，两者落在同一页面的两侧，不再各自开页。",
-   "左栏去掉原来的「投注单」与「未结算注单」两个入口 —— 购物车由点击赔率唤起，不需要常驻菜单项；未结算数据在「我的买单」里就能看到，侧栏再放一个预览面板是重复。",
+   "左栏入口：「我的买单」直达 买单 · 未结算注单，「我的卖单」直达 卖单，两者落在同一页面的两侧。",
    "左栏顺序：玩法入口（滚球 / 热门赛事 / 冠军 / 我的关注）在上，单据入口（我的买单 / 我的卖单 / 汇总报表）成组在下，买单在卖单上方。"]},
   {t:"两侧状态机不通用",tag:"新增",d:[
    "买单状态：已确认（未结算）→ 赢 / 输 / 走水 / 取消（已结算）。",
@@ -1400,18 +1678,24 @@ const SPEC={
   {t:"列表用表格不用卡片",tag:"保留",d:[
    "PC 宽度足够，两类单据都用表头 + 数据区的表格，不用卡片流，避免每张卡重复展示玩法、对阵、金额、注单号。"]},
   {t:"时间筛选项两侧统一",tag:"调整",d:[
-   "已确认：买单页与卖单页统一为 全部 / 今天 / 昨天 / 近7天 / 近30天，五项的措辞与顺序完全一致。",
-   "口径：今天 = 当天 00:00 起；昨天 = 昨日全天；近7天 / 近30天 = 含今天在内往前推 N 个自然日。买单按投注时间归集，卖单按卖出时间归集，汇总报表按结算时间归集。",
-   "理由：两个列表并排在同一个页面里，措辞和项数不一致会显得是两个系统。"]},
+   "买单页与卖单页的时间筛选统一为 全部 / 今天 / 昨天 / 近7天 / 近30天，五项的措辞与顺序一致。",
+   "口径：今天 = 当天 00:00 起；昨天 = 昨日全天；近7天 / 近30天 = 含今天在内往前推 N 个自然日。买单按投注时间归集，卖单按卖出时间归集，汇总报表按结算时间归集。"]},
   {t:"自定义时间段筛选",tag:"新增",d:[
-   "改动点：买单 / 卖单 / 汇总报表三处共用同一个日期区间控件，不再是只能点预置项。原买单页那个写死日期的只读框，以及报表页点了只弹提示的「筛选 ▾」，都换成这个控件。",
+   "买单 / 卖单 / 汇总报表三处共用同一个日期区间控件，可点预置项，也可自定义起止日期。",
    "控件形态：筛选条右侧一个「📅 选择时间段 ▼」按钮，点击弹出区间弹窗；已选区间后按钮直接显示「2026/09/10 至 2026/09/16」并带一个 ✕，点 ✕ 就地清除。",
-   "弹窗内容只有开始、结束两个日期输入，加底部的清除与确定两个按钮 —— 快捷时间项在筛选条上已经有一排，弹窗里再放一遍是重复；校验规则也不写在弹窗里，违规时按下面的规则 toast 提示即可。",
+   "弹窗内容只有开始、结束两个日期输入，加底部的清除与确定两个按钮；校验规则不写在弹窗里，违规时 toast 提示。",
    "校验（不通过时 toast 拦截，不关闭弹窗）：开始与结束都必须填；开始不得晚于结束；结束不得晚于今天；跨度不得超过 1 年。",
    "互斥关系：选中自定义区间后，预置时间项全部取消高亮，筛选以自定义区间为准；反过来点任一预置项，自定义区间自动清空。",
    "三处的过滤都真实作用于数据：买单过滤注单列表，卖单过滤卖单列表且统计卡四项与表尾「总单数 / 总押金」跟随筛选结果重算，汇总报表过滤按日表格、总盈亏与买卖单分项。",
    "汇总报表顶部「待结算注单 / 进行中庄单」那行是当前时点快照，不随时间筛选变化，这一点保持不变。"]},
-
+ ],
+ detail:[
+  {t:"盘口详情页整体结构",tag:"调整",d:[
+   "入口：赛事行最右侧的 › 箭头，或卡片底部的「全部 +N ›」「P2P n ›」，三者进同一页。",
+   "自上而下：顶部条（返回 ↩ / 联赛名 ⌄ / 刷新 ⟳ / 赛事分析 📊）→ 赛事横幅 → 玩法分类页签 → 盘口块列表。右侧视频区与需求说明栏照常常驻。",
+   "赛事横幅：球场背景 + 居中的半透明信息面板 —— 左右两侧是球队队徽与队名，中间未开赛时显示 开赛日期 / 时间 /（GMT+8），滚球中改显示实时比分与当前半场走时。",
+   "横幅右上角有「隐藏」按钮，点击折叠横幅，原位留一条「展开赛事信息 ﹀」的细条可再次展开。默认展开，进入新的赛事时重置为展开。",
+   "玩法分类页签横向排布，超出宽度时横向滚动不换行，右端固定一个排序按钮 ⇅ —— 点亮后把有会员卖单的盘口排到前面，再点恢复默认顺序。置顶的盘口始终排在最前，不受排序影响。"]},
   {t:"盘口块的块头与操作",tag:"调整",d:[
    "块头结构：左侧橙色竖条 + 半场类盘口的前缀标签（如「上半场」）+ 盘口名称；右侧依次是 P2P 橙标、置顶 📌、收起 ︿。",
    "P2P 橙标：该盘口下存在会员卖单时显示，点进具体投注项后在购物车里展开卖单薄。",
@@ -1424,24 +1708,220 @@ const SPEC={
    "有会员卖单的投注格右上角打红点，与列表页同一套标识。",
    "波胆这类多选项盘口按三列网格铺开，行内不做盘线列。",
    "某分类下没有盘口时显示空态「该分类下暂无盘口」。"]},
-  {t:"盘口分类按运动动态出",tag:"调整",d:[
-   "已确认：修掉线上未翻译的 i18n key（{单节} / {特殊}），并改为按运动类型动态出分类，各运动不共用一套固定分类。",
-   "足球：全部 / 让球 / 大小 / 进球 / 半场 / 角球；网络足球去掉角球。",
-   "篮球：全部 / 让分 / 总分 / 单节 / 半场 / 球员；网络篮球去掉球员。",
-   "网球：全部 / 让局 / 总局 / 盘 / 抢七。乒乓球 · 羽毛球 · 排球：全部 / 让分 / 总分 / 单局。冰球：全部 / 让球 / 大小 / 单节。斯诺克：全部 / 独赢 / 让局 / 总局。",
-   "未在上表列出的运动按兜底分类展示：全部 / 独赢 / 让球 / 大小 / 半场。",
-   "分类清单由后端按运动下发，前端不写死；某分类下该场没有盘口时该页签不展示，避免空页签。",
+  {t:"盘口分类固定六项",tag:"调整",d:[
+   "玩法分类固定为 全部 / 让球 / 大小 / 进球 / 半场 / 特殊 六项，与 H5 保持一致，不按运动动态出。",
+   "修掉线上未翻译的 i18n key（{单节} / {特殊}）。",
+   "切换后仅展示对应分组；某分类下该场没有盘口时该页签不展示，避免空页签。",
    "进入新的赛事详情页时分类复位到「全部」，不沿用上一场的选中项。"]},
   {t:"让球类盘口的双列队名表头",tag:"保留",d:[
    "让球、让分类盘口上方用两列分别标主客队名，PC 现有处理不变。"]}
  ],
+ om:[
+  {t:"私盘模式",pg:"live",tag:"新增",d:[
+   "庄家选一场比赛开盘，即复制该比赛生成一个私盘（名称 = 原比赛名 + 庄家昵称），私盘紧随原比赛下方展示，仅展示庄家开放的盘口。",
+   "庄家获得完整控盘能力：动态增减盘口、调水、单项封盘与恢复、补充额度、整盘停止收单。",
+   "买家有两条路径：在原比赛卖单簿依序吃单，或在私盘赔率格直购该庄家档位。",
+   "赛事、投注项、赛果全部来自 IM，回避结果判定问题；原比赛的官方盘口与官方投注不受影响。",
+   "球类范围：P2P 投注项卖出与开盘坐庄本期仅对足球开放，其他球类不展示 P2P 标识、不出开盘入口、购物车也不出卖出表单。",
+   "同一会员互斥：同一个人对同一场比赛，开盘坐庄与投注项卖出二选一 —— 本人在该场有进行中的投注项卖出时不出开盘入口，本人在该场有进行中的私盘时购物车不出卖出表单。目的是防止一个人把敞口拆到两套机制上绕过「同一比赛限 1 个进行中的盘」，并压住对敲的操作面。",
+   "不同会员互不影响：A 在某场开盘坐庄，不妨碍 B 在同一场挂投注项卖出，两套机制在同一场比赛上并存，各自独立成交与结算。",
+   "滚球不可开盘：已开赛的赛事不出开盘入口，理由是赛果已在变动，与互斥规则无关。",
+   "提交二次校验：确认开盘时只再查一次「本人在弹窗打开期间是否挂出了该场的投注项卖出」，命中则关闭弹窗并拦截。",
+   "庄家开放的盘口若不在列表展示的几列里（波胆、角球、半场等），私盘行下方出「全部 N ›」入口，点击进入该庄家的私盘盘口详情，可对其余盘口下注；全部盘口都能在列表列位展示时不出该入口。"]},
+  {t:"开盘入口与门槛",pg:"live",tag:"新增",d:[
+   "入口：首页 P2P 已生效联赛下，每场比赛行的时间 / 场次信息旁展示「开盘」按钮，按钮所在行正下方是队伍名称区，不与赔率列重叠。",
+   "开盘范围 = IM 在售且未开赛的赛事，含今日盘与早盘；已开赛（滚球）不展示开盘入口，切换到滚球页签时该页全部赛事均无开盘入口。判断依据是赛事是否已开赛，与今日 / 早盘的展示分类无关。",
+   "确认开盘时逐条校验，任一不满足即拦截、整体不提交：开放盘口数 ≥ 3；盘押金 ≥ 1,000（整盘一笔，全部盘口共享）；开赛前 10 分钟内禁止新开盘。三项均为可配置参数。",
+   "前置与临界：IM 交集内可开盘口不足 min_items 时不展示开盘入口；账户余额需 ≥ 盘押金，等于时允许；封盘前置时间以服务端收到开盘请求的时间为准，不以客户端点击时间为准。",
+   "赛事所属联赛需在「可坐庄联赛白名单」内，不在白名单的不展示开盘入口；庄家的坐庄权限被运营关闭时同样不展示，已有存量盘不受影响。",
+   "同一庄家对同一比赛仅允许 1 个进行中的盘，重复开盘拦截并提示去开盘详情管理；不同庄家互不影响，可各自对同一场比赛开盘。",
+   "整场互斥：该场官方盘已有任何会员的投注项卖出挂单时，对所有会员隐藏开盘入口 —— 一场比赛要么走投注项卖出，要么走开盘坐庄，不并存；反之该场已有私盘时，该场不再接受新的投注项卖出。",
+   "同一会员对同一场比赛，开盘坐庄与投注项卖出二选一：已有进行中的盘时，该场全部投注项的「卖出」入口置灰并提示「该场已开盘，不可再单独卖出」；已有该场进行中的投注项卖出时，该场「开盘」入口置灰并提示「该场已有投注项卖出，不可再开盘」。",
+   "两者的「进行中」判定一致：卖出中、已封盘计入；已售罄 / 已关闭 / 已结算不计入。",
+   "提交时二次校验：开盘弹窗打开后至点击「确认开盘」期间，若该场出现了投注项卖出挂单，提交时拦截并提示「该场已有投注项卖出，不可再开盘」，弹窗关闭。",
+   "「进行中」的判定：卖出中、已封盘计入；已售罄、已关闭、已结算不计入，庄家可对同一比赛再开新盘 —— 售罄盘已从列表消失，不会在列表里重复出现。"]},
+  {t:"开盘设置弹窗",pg:"live",tag:"新增",d:[
+   "投注项列表与 IM 实时取交集：IM 无数据的玩法展示「IM 无数据，不可开」，锁盘玩法展示「IM 锁盘中，不可开」，两者均置灰不可勾选。",
+   "勾选某投注项后卡片内联展开该项设置：上浮点位居左，用紧凑的上下步进控件（▲/▼，步进 0.01，可为负，也可直接输入）；庄单赔率靠右只读展示 = 开盘时官方港盘赔率 + 上浮点位。",
+   "允许定价低于官方，低于时行内红字提示「低于官方」但不拦截。投注项不再单独配置押金。",
+   "押金为盘级：开盘时一次性输入一笔盘押金，快捷金额 +1000 / +2000 / +5000 / MAX（MAX 填入风控上限），全部开放盘口共享这一个押金池。",
+   "顶部是自动封盘与庄家昵称：自动封盘设置「开赛前 N 分钟」，到点整盘自动封盘；庄家昵称最长 12 字符，默认取上次设置值，用于拼接私盘名称。",
+   "自动封盘触发后该设置即失效，庄家恢复开盘后不会被再次自动封盘；如需重新生效，要在开盘详情中重设。",
+   "押金输入区下方常驻一行灰字「押金自开盘起冻结，至赛事结算后解冻退回」，早盘赛事额外追加预计冻结时长。",
+   "底部实时汇总已选项数、盘押金与预计可卖额度，并行内标注公式「= 押金 ÷ 最高卖出赔率」。",
+   "弹窗内不陈述规则文案：独占、门槛、押金冻结、额度公式等细则只在文档约定，由确认开盘时的校验拦截与 toast 传达。",
+   "庄单赔率确认后固定，不随官方赔率联动，仅可通过调水修改。"]},
+  {t:"私盘规则",pg:"live",tag:"新增",d:[
+   "开盘 = 复制该比赛生成私盘。私盘名称 = 原比赛名 + 庄家昵称，展示位置紧随原比赛下方，右侧展示「私盘」标识，样式与 P2P 标识一致并替代其位置。",
+   "私盘仅展示庄家开放的盘口：开放盘口的赔率格展示庄单赔率（独赢展示欧洲盘 = 港盘 + 1，让球 / 大小展示港盘），未开放的盘口展示 -- 置灰，单项封盘的展示锁定态。",
+   "可见性：盘处于卖出中时展示；整盘售罄、已关闭（停止收单 / 强制下架 / IM 全部关盘）、已结算后，私盘从比赛列表消失。",
+   "多位庄家可各自对同一场比赛开盘，各自生成独立私盘，按开盘时间依次排列。",
+   "单场比赛的私盘展示上限为 N 个（可配置，默认 5）：按开盘时间升序展示前 N 个，超出折叠为「查看全部私盘(M)」；折叠不影响原比赛卖单簿中各庄家档位的正常展示与成交。",
+   "原比赛的官方盘口与官方投注完全不受影响，私盘只是另挂一行，不改变原比赛的任何赔率与玩法。",
+   "「私盘」与「P2P」两个标识互斥：私盘标识只标注在私盘行；P2P 标识表示该场玩法项有会员坐庄，只标注在官方盘（原比赛行与联赛头）。官方盘不展示私盘标识，两者不同时出现在同一对象上。",
+   "首页筛选行新增「私盘」筛选，开启后列表仅展示私盘。"]},
+  {t:"卖单簿：按来源隔离",pg:"live",tag:"调整",d:[
+   "卖单簿按来源隔离，三类档位不会同时出现在同一个卖单簿中：私盘的卖单簿只有「该开盘庄家的档位 + 官方无限档位」；官方盘的卖单簿只有「投注项卖出档位 + 官方无限档位」。",
+   "各自内部排序：赔率降序 → 同赔率按卖出时间升序（先挂先排）→ 官方档位固定排最后。",
+   "买家严格按簿序自最高赔率档位起依次成交，不可跳档；官方档位额度无限，始终兜底。同一次投注命中多个档位时，各档位分别按其簿面赔率成交并生成对应子单。",
+   "展示范围：赔率低于官方赔率的档位不展示，视为已下架、不可成交；赔率不低于官方的档位全部展示，不做数量截断。",
+   "可见高度：卖家档位最多可见 5 档，超过 5 档时区域内出现滚动条滚动查看其余档位；官方档位固定在最后一行，不参与滚动。",
+   "开盘庄家档位的卖家展示其昵称；庄家自己的档位标注「我」。",
+   "私盘为庄家专属：买家点私盘赔率格直购该庄家档位，额度以庄家该盘口剩余可卖为限，售罄后由官方档位承接，超出庄家额度的部分按官方赔率成交。",
+   "调水同步：庄家调水后私盘赔率格与该庄家档位同步更新，卖单簿实时重排。",
+   "卖单簿内嵌在买入 / 卖出 Tab 的投注卡片内直接平铺展示，没有二级入口。",
+   "单项封盘期间庄家档位从卖单簿下架、私盘该格锁定，官方档位不受影响；盘口被移除则回到未开放，仅私盘不展示，原比赛不受影响。",
+   "赔率格：原比赛有庄家档位的盘口展示红点，红点常驻、不因点击消失，仅当无高于官方的档位时自动消失；私盘赔率格样式与官方盘一致，不做颜色区分。"]},
+  {t:"盘口详情页的私盘相关",pg:"detail",tag:"调整",d:[
+   "入口：比赛卡片底部的「全部」或「P2P」，两个入口进入同一页面，内容完全一致，不做筛选差异。",
+   "「全部 N」的 N 为该场投注项数量，与本页赔率格总数一致；「P2P N」的 N 为该场存在 P2P 庄单的投注项数量。",
+   "赔率格规则与赛事大厅一致：有更优 P2P 档位时展示最高 P2P 赔率并带红点；红点常驻、不因点击消失，仅当无高于官方的档位时自动消失。",
+   "私盘不单独进入盘口详情页：私盘只在赛事列表中以一行展示，点私盘赔率格直接加入购物车。"]},
+  {t:"买入与串关",pg:"slip",tag:"调整",d:[
+   "买入：输入金额后底部实时试算合计与最高可赢，按依序吃单逐档位赔率累计；投注成功后各档位额度、庄单已收 / 子单、账户余额同步更新。",
+   "私盘投注项不参与串关：私盘项仍在串关页展示，置灰并标注「私盘投注项不支持串关，仅官方盘投注项可参与」，不计入组合、也不计入串关资格判定。",
+   "同场不可互串：同一场比赛的多个投注项不允许串关，包括「一个官方盘 + 一个私盘」这种组合 —— 私盘复制自原比赛，视为同一场。",
+   "串关组合按原比赛去重：每场只取先选中的一项参与，其余置灰并标注「与已选投注项属同一场比赛，同场不可互串」。",
+   "串关按钮激活条件：可参与串关的投注项需来自 ≥2 场不同比赛。购物车内只有同一场赛事时（无论官方盘或私盘），串关按钮置灰。",
+   "已进入串关页但可串项不足 2 场时不生成组合行，提示「可串关的投注项不足 2 场，无法生成串关组合」。",
+   "串关不支持庄家单赔率，全部按官方欧洲盘计算，沿用既有约束。"]},
+  {t:"开盘详情与控盘",pg:"sell",tag:"新增",d:[
+   "入口：我的卖出 → 私盘页签 → 点击盘卡片「查看详情」。庄家对自己私盘的全部控盘操作都在本页完成。",
+   "顶栏：返回（回我的卖出）、标题「开盘详情」、右侧盘状态标签（卖出中 / 已售罄 / 已结算 / 已关闭）。本页不提供分享入口。",
+   "状态横幅仅在已关闭时展示：「已停止收单，卖出单已从卖单簿下架，等待赛事结算，未消费押金结算后退回」。已结算不展示顶部横幅，盈亏在汇总与各投注项庄单的输赢标签上体现。",
+   "赛事信息卡：主队 vs 客队、联赛 · 开赛时间、开盘时间、自动封盘设置（开赛前 N 分钟）。下接四列汇总：总押金 / 已收单 / 子单数 / 状态。",
+   "投注项庄单列表标题「投注项庄单(N)」，逐项展示卡片。",
+   "庄单卡片：投注项名 + 单项状态标签 —— 进行中为 收单中 / 部分成交 / 已封盘 / 已售罄；盘已结算时标签改为该投注项的输赢结果（赢绿 / 输红 / 走水灰），不再显示「已结算」。",
+   "庄单赔率绿色显示，确认开盘后固定、不随官方赔率联动；官方当前赔率仅作参考不参与计算，当庄单赔率低于官方赔率时追加红字「低于官方」，此时该档位已从卖单簿下架、不可成交。",
+   "卡片还展示已收金额与剩余可卖额度，额度旁标注「共享盘押金」说明来自整盘共享池。",
+   "子单列表标题「子单数据(N)」，默认收起、点击标题行展开 / 收起（右侧显示 展开 ⌄ / 收起 ⌃），每次进入详情页默认全部收起；无成交时显示「子单数据(0)：暂无成交」且不可展开。",
+   "每笔子单两行：第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算赢绿输红，未结算显示「未结算」）。",
+   "底部操作区按盘状态变化：卖出中 / 已售罄展示「新增盘口」「补充额度」「停止收单」；已结算 / 已关闭无任何控盘操作，底部操作区整条隐藏，返回统一走左上角返回按钮。",
+   "单项操作：调水、封盘 / 恢复。",
+   "调水：新庄单赔率 = 当前庄单赔率 + 调整点位，可为负、最多两位小数，新赔率必须大于 0；已成交子单按原成交赔率结算，调水只影响后续新成交。",
+   "调水实时生效、卖单簿实时重排；单项 10 秒内限调 1 次，限频为单投注项维度，同一盘内不同盘口各自独立。单次调整点位绝对值上限与调整后赔率的绝对上限由配置控制，超出即拦截。",
+   "调水不影响已占用押金：已成交子单的押金占用按成交时的庄单赔率锁定，不随后续调水重算；剩余押金仅因新成交、补充额度、结算三类事件变化。",
+   "封盘 / 恢复（单投注项级）：封盘后该项档位从卖单簿下架、暂停收单，卖出单保留，官方档位不受影响；开赛前可随时恢复，二次确认后执行。整盘自动封盘（到点或开赛）等价于全部投注项同时封盘。",
+   "自动封盘触发后该设置即失效，恢复开盘后不会被再次自动封盘，需重设才再次生效。",
+   "新增盘口：盘进行中可从 IM 交集内未开放的盘口勾选新增，按新增时官方港盘赔率 + 上浮点位定价，共享押金池、无需追加押金（剩余押金为 0 时提示先补充额度）。",
+   "移除盘口：仅该盘口无任何成交时可移除；盘押金为共享池，不因移除变动、不退款。移除后开放盘口数仍需 ≥ min_items，低于门槛拦截并提示「如需清空请使用停止收单」。",
+   "IM 侧被动下架：某盘口被 IM 下架时该投注项自动置为已封盘并从卖单簿移除，已成交子单按 IM 返回结果处理；若开放项因此低于 min_items，盘不自动关闭、可继续收单（门槛只约束开盘与主动移除，不回溯被动变化），但该盘口不可再新增。",
+   "补充额度：输入一笔追加金额，实时预览追加后押金与新增预计可卖额度；追加进入共享池，全部盘口剩余可卖同步扩大，赔率与状态不变；已售罄追加后回到卖出中。",
+   "停止收单：二次确认（明示不可逆）后全部档位立即下架、私盘从列表消失、盘置为已关闭；已成交子单正常结算，未消费押金结算后退回。"]},
+  {t:"开盘详情与投注项卖出详情的区别",pg:"sell",tag:"新增",d:[
+   "投注项卖出详情是单个投注项的卖出挂单：押金独立、只对应一个盘口，入口为 我的卖出 → 投注项卖单页签 → 点击卖单卡片。",
+   "开盘详情是整盘：押金共享、含多个投注项庄单，入口为 我的卖出 → 私盘页签 → 查看详情。两者是两个独立页面。",
+   "投注项卖出详情支持分享挂单；私盘暂不支持分享，开盘详情无分享入口。",
+   "投注项卖出详情无调水与新增 / 移除盘口能力，只能补充押金或停止收单；开盘详情具备完整控盘能力。"]},
+  {t:"我的卖出改造",pg:"sell",tag:"调整",d:[
+   "顶部两个页签（样式同买单列表）：投注项卖单（默认选中，展示官方盘的投注项坐庄数据）、私盘（展示开盘坐庄的盘卡片）。",
+   "页签下方筛选区一排两个下拉，对两个页签同时生效：时间筛选默认「今天」，选项为 今天 / 昨天 / 近7天 / 近30天 / 自定义，选「自定义」弹出与买单已结算一致的时间弹窗，应用后下拉文案显示所选区间；状态筛选默认「全部」，选项为 全部 / 卖出中 / 已售罄 / 已结算 / 已关闭。",
+   "筛选区下方四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏，盈利绿、亏损红、不输不赢黑，符号与数值同行不换行。",
+   "私盘卡片字段：联赛、状态标签、私盘名称、盘号、开放项数、总押金、收单进度条、已收 / 押金、查看详情。",
+   "私盘名称与赛事列表中该私盘的名称一致，即「原比赛名 · 庄家昵称」，不使用原比赛名。",
+   "卡片不展示「私盘」标识（私盘列表本身已表明来源）；已结算盘在联赛名右侧、状态标签左侧展示盘净盈亏，赢绿输红、不输不赢黑，带正负号且同行不换行。",
+   "私盘不展示分享按钮，暂不支持分享；投注项卖单的分享入口不受影响。",
+   "上线前既有的投注项卖出庄单不受影响，自动归入「投注项卖单」页签。"]},
+  {t:"异常与并发场景",pg:"live",tag:"新增",d:[
+   "IM 盘口关闭：对应开盘庄单强制关闭、私盘该盘口下架、已成交子单进入结算；盘内其余项不受影响；全部项关闭则盘置为已关闭、私盘从列表消失。",
+   "IM 跳水：开盘庄单赔率不联动、维持固定；仅卖单簿因官方档位赔率变化而实时重排。",
+   "赛事取消 / 腰斩：沿用现有特殊结算规则，子单退款、押金全额退回、净盈亏 ¥0、无抽佣，私盘从列表消失。",
+   "赛事改期：以 IM 返回为准 —— 仅变更开赛时间时盘顺延继续收单、自动封盘按新开赛时间重算；IM 取消赛事时按赛事取消处理。",
+   "开赛时刻：未封盘的盘自动封盘，整盘停止收单，等待结算。",
+   "余额不足：确认开盘 / 新增盘口 / 补充额度时余额小于冻结金额即拦截，不产生任何冻结。押金冻结部分失败时整体回滚、已冻结项解冻并提示重试。",
+   "开盘提交与 IM 关盘并发：逐项校验 IM 状态，已关闭项自动剔除并提示；剔除后不足 3 项则整体拦截。",
+   "私盘购买与售罄并发：拦截并提示剩余可卖金额，不产生部分成交。调水与吃单并发、私盘购买与调水并发，按买家「赔率变更接受类型」既有规则处理。",
+   "动态移除与买家下单并发：买家提交时盘口已被移除，按盘口不可投拦截退单。",
+   "自动封盘与手动操作竞争：以先到达服务端的操作为准，后到操作按当前盘状态校验拦截。恢复开盘仅限开赛前，开赛时刻后按钮隐藏。",
+   "重复提交：按钮置灰防重，服务端幂等。开关关闭为软关闭：存量盘继续执行至结算，禁止新开盘、开盘入口隐藏。"]},
+  {t:"配置项与开关",pg:"live",tag:"新增",d:[
+   "本期新增四个全局配置：p2p_open_market_enabled（开盘坐庄独立开关，默认 0，用于灰度）、p2p_open_min_deposit（押金下限，默认 1000）、p2p_open_min_items（最少开放盘口数，默认 3）、p2p_open_freeze_minutes（开赛前禁开分钟数，默认 10）。",
+   "三级开关关系：p2p_enabled > 商户开关 > 开盘开关，任一关闭则开盘不可用，均为软关闭。",
+   "三项门槛参数修改后对新开盘即时生效，不影响存量盘。",
+   "另新增两项运营配置：p2p_market_league_whitelist（可坐庄联赛白名单）、p2p_market_display_limit（单场私盘展示上限，默认 5）。",
+   "调水频控默认 10 秒；押金限额沿用既有卖出押金限额配置；抽佣费率由 APISYS 下发，本系统不配置。"]},
+  {t:"输入框约束",pg:"live",tag:"新增",d:[
+   "统一规则：数字输入与展示靠右对齐，文本靠左对齐；超限自动更正并 toast 提示。",
+   "自动封盘（开赛前 N 分钟）：非负整数，0 ~ 1440，0 = 不预设，默认 10。",
+   "庄家昵称：中英文 + 数字，1 ~ 12 字符，默认取上次设置值。",
+   "上浮点位（开盘 / 新增盘口）：数字、最多两位小数、可为负，−9.99 ~ 9.99，结果赔率须 > 0，默认 0.01。",
+   "盘押金（开盘）：正数、最多两位小数，≥ p2p_open_min_deposit，上限按风控配置（1,000 ~ 100,000），默认空。",
+   "调整点位（调水）：数字、最多两位小数、可为负，结果赔率须 > 0，默认 0.00。",
+   "追加金额（补充额度）：正数、最多两位小数，单次 > 0 且在余额内，默认空。"]},
+  {t:"本期范围之外",pg:"live",tag:"待确认",d:[
+   "自定义赛事 / 玩法 / 投注项（二期）；收单审核（二期，预定稿规则见 PRD 附录 A）。",
+   "订单抵押模式开盘（仅支持押金模式）；投注项级独立押金模式（本期为盘级共享押金池）。",
+   "滚球（已开赛赛事）开盘；串关购买庄家单（沿用既有约束）。",
+   "信用分 / 同时开盘场次上限 / 每日开盘次数上限 / 空盘自动关闭（二期视数据）。",
+   "抽佣口径调整；风控告警体系；开盘坐庄经营报表（一期先埋齐统计字段）。",
+   "关联账号图谱识别与自动拦截 —— 本期仅做同 IP / 同设备的运营提示；私盘曝光位运营；抽佣费率在本系统可配。",
+   "自买自卖：业务上允许买家买中自己挂出的庄单，本期不做系统拦截，改以运营可见性兜底。"]}
+ ],
+ omfund:[
+  {t:"四个阶段与主体",pg:"sell",tag:"新增",d:[
+   "全流程分冻结、占用、结算、返还四个阶段，均以「盘」为押金主体、以「投注项庄单」为结算主体。",
+   "盘维度不产生独立结算，仅作展示聚合；押金相关账变按盘产生，结算与子单退款逐投注项庄单产生。"]},
+  {t:"基础公式",pg:"sell",tag:"新增",d:[
+   "庄单赔率 = 开盘（或新增盘口）时官方港盘赔率 + 上浮点位，加法模型、可为负；确认后固定，仅可通过调水修改。调水公式：新庄单赔率 = 当前庄单赔率 + 调整点位。",
+   "预计可卖额度（开盘预估） = 盘押金 ÷ 最高卖出赔率（所选盘口中庄单赔率最高者），向下取整到分，是最保守口径的整体预估。",
+   "剩余押金 = 盘押金 + 补仓 − Σ(各子单成交金额 × 对应庄单赔率)。",
+   "各盘口实时剩余可卖额度 = 剩余押金 ÷ 该盘口庄单赔率，向下取整到分。任一盘口成交都会同步收缩其他盘口的剩余可卖额度。"]},
+  {t:"冻结与占用",pg:"sell",tag:"新增",d:[
+   "确认开盘时冻结盘押金一笔，账变「庄单押金扣款」，关联盘 ID；补充额度追加冻结一笔，账变「追加押金扣款」；新增 / 移除盘口不产生押金账变，因为共享同一个押金池。",
+   "每笔子单成交占用押金 = 成交金额 × 庄单赔率，即庄家对该子单的最大赔付责任。这条规则保证即使庄家全输，总赔付 Σ(金额 × 赔率) 也不超过押金，不存在穿仓。",
+   "剩余押金归零时整盘已售罄，私盘从列表消失；盘级补充额度后恢复收单。",
+   "额度死区：某盘口实时可卖额度低于该玩法最小投注额时，该项置为不可买（展示为额度不足的锁定态），避免「显示有额度但买不了」；全部开放项均不可买时整盘转为已售罄。",
+   "并发控制：可卖额度以服务端为准，同一盘的成交请求串行处理，额度校验与扣减在同一事务内完成，杜绝多盘口并发成交导致的超卖穿仓；校验失败提示「额度已被其他买家占用，请重新输入金额」。"]},
+  {t:"结算与抽佣",pg:"sell",tag:"新增",d:[
+   "子单按买家视角结算：买家赢 = +金额 × 赔率，买家输 = −金额。",
+   "各投注项庄单盈亏 = 该项子单结算总和 × (−1)，反向结算；盘净盈亏 = Σ 各投注项庄单盈亏。",
+   "抽佣费率由 APISYS 下发，不在本系统配置，结算时按下发费率扣除；庄家侧按单净盈利抽佣。",
+   "买家侧抽佣基数 = 购买 P2P 订单的盈利 − 购买官方订单的盈利，乘以该费率，由结算系统扣除后入账，本系统不重复计算。",
+   "费率异常兜底：APISYS 未返回费率或返回非法值（小于 0 或大于 100%）时不采用，按平台兜底费率结算，并记录异常日志告警，不阻断结算。",
+   "资金返还：结算时押金全额解冻，账变「庄单押金退回」一笔；各投注项庄单盈亏逐项入账，账变「庄单结算」，正入负扣。"]},
+  {t:"分段结算",pg:"sell",tag:"新增",d:[
+   "按投注项所属时段分别结算：上半场玩法在上半场结束并由 IM 返回结果后即结算，对应子单的押金占用同步释放、剩余押金回升、其余盘口可卖额度随之扩大。",
+   "全场玩法待全场结束结算；盘在全部开放项结算完成后整体转为已结算。"]},
+  {t:"特殊场景",pg:"sell",tag:"新增",d:[
+   "赛事取消 / 腰斩：子单退款、押金全额退回、净盈亏 ¥0、无抽佣。",
+   "停止收单 / 运营强制下架：已成交子单照常结算，未消费押金结算后退回；无成交盘停止收单时押金即时全退。",
+   "IM 单盘口关闭：对应庄单强制关闭，该项已成交子单进入结算，盘内其余项与押金池不受影响。"]},
+  {t:"数字举例",pg:"sell",tag:"新增",d:[
+   "开盘：庄家开 3 个盘口，庄单赔率 @1.15 / @0.89 / @0.70，盘押金 ¥1,000 冻结一笔。预计可卖额度 = floor(1000 ÷ 1.15, 2) = ¥869.56。",
+   "收单：买家在 @1.15 盘口成交 ¥180，占用 180 × 1.15 = 207，剩余押金 793；此时 @1.15 剩余可卖 ¥689.56，@0.89 为 ¥891.01，@0.70 为 ¥1,132.85。再有买家在 @0.70 成交 ¥500，占用 350，剩余押金 443。",
+   "结算：@1.15 项买家不中（子单 −180 → 庄单 +180），@0.70 项买家命中（子单 +350 → 庄单 −350）；盘净盈亏 = 180 − 350 = −170，净亏不涉及抽佣；押金 ¥1,000 全额解冻退回，盈亏 −170 入账，最终回款 ¥830。",
+   "若两项买家均不中：盘净盈亏 = +680，按 APISYS 下发费率（示例 2%）计 13.60，庄家实得 1,000 + 680 − 13.60 = ¥1,666.40。"]}
+ ],
+ omstate:[
+  {t:"盘状态机",pg:"sell",tag:"新增",d:[
+   "卖出中 ——(全部项额度耗尽)→ 已售罄 ——(补充额度)→ 卖出中。",
+   "卖出中 ——(自动封盘或全部项封盘)→ 已封盘 ——(恢复开盘)→ 卖出中。",
+   "卖出中 / 已售罄 ——(停止收单 / 强制下架 / IM 全部关盘)→ 已关闭。",
+   "卖出中 / 已售罄 / 已封盘 / 已关闭 ——(赛事结算)→ 已结算。"]},
+  {t:"盘状态的进入条件与可执行操作",pg:"sell",tag:"新增",d:[
+   "卖出中：确认开盘后 / 已售罄补充额度后 / 封盘恢复后进入。可增减盘口、调水、单项封盘、补充额度、停止收单；运营可强制下架。",
+   "已售罄：剩余押金归零（共享池耗尽，全部盘口不可再卖）。可补充额度、停止收单。",
+   "已封盘：预设自动封盘到点 / 全部项手动封盘。可恢复开盘（限开赛前）、停止收单。",
+   "已关闭：庄家停止收单 / 运营强制下架 / IM 全部盘口关闭。仅查看、等待结算，私盘已从列表消失。",
+   "已结算：IM 赛果结算完成。仅查看，私盘已从列表消失。"]},
+  {t:"投注项庄单状态",pg:"sell",tag:"新增",d:[
+   "卖出中：在卖单簿中正常收单，尚无成交。",
+   "部分成交：已有子单成交，仍有剩余额度。",
+   "已售罄：共享押金池耗尽；盘级补充额度后恢复。",
+   "已封盘：单项封盘，庄家档位从卖单簿下架，卖出单保留、可恢复；官方档位保留可投。",
+   "已移除：无成交时被庄家移除，盘口回到未开放状态。",
+   "已关闭：随盘关闭或 IM 该盘口关闭。已结算：随盘结算。"]},
+  {t:"状态联动",pg:"sell",tag:"新增",d:[
+   "盘级操作（自动封盘 / 停止收单 / 强制下架 / 结算）向下同步全部投注项庄单。",
+   "单项售罄或封盘不改变盘状态，除非全部项同态；共享押金池耗尽（剩余押金归零）时盘置为已售罄。",
+   "私盘可见性联动：盘处于卖出中时私盘展示于列表；进入已售罄 / 已关闭 / 已结算后私盘即时从列表消失；庄家可对该比赛重新开盘生成新私盘。"]}
+ ],
  me:[
-  {t:"设置项维持就近原则",tag:"保留",d:[
-   "已确认：不把设置项集中到一处，维持现有的就近布局。",
+  {t:"设置项的位置",tag:"保留",d:[
    "顶栏「设置」下拉：自动接收任何赔率、自定义快捷投注金额、主题（白天 / 黑夜）、新手引导 —— 这些是一次设定、长期不改的偏好。",
    "页面筛选条：盘口类型（香港盘 / 欧洲盘）、排序规则（联赛 / 时间）—— 这两项随时切换且改完要立刻看到列表变化，收进下拉会从 1 次点击变成 3 次。",
    "同一个设置只保留一个入口，不做两处都能改、状态互相同步的重复设计。",
-   "需要对齐的是选项集合本身：全端支持的偏好项要一致，不能出现某个选项只有一端有的情况；位置可以各自就近。"]}
+   "全端支持的偏好项保持一致，不出现某个选项只有一端有的情况；位置各自就近。"]}
  ]
 };
 
@@ -1451,19 +1931,23 @@ const S={
   page:"live", topnav:"体育赛事", period:"今日", sport:null,
   theme:"light", autoOdds:true, balanceHidden:false,
   oddsType:"香港盘", sortBy:"联赛", chip:"全部",
+  detailPriv:null,
   slip:[], slipTab:"买入", buyMode:"单关", combo:"2串1", stakes:{}, comboStake:"",
   specOpen:(()=>{try{return localStorage.getItem("kk-spec-open")!=="0"}catch(e){return true}})(),
   p2pOnly:false, bookOpen:true,
   sellStatus:"全部", sellTime:"全部", reportRange:"本月", reportOpen:null,
   deposit:"", upPoints:0,
   fav:new Set(), collapsed:new Set(), sideMode:"menu",
-  rpTab:"投注", rpChip:"全部", detailChip:"所有投注", detailFrom:"live",
+  lang:"简体中文", earlyDay:"全部", rpTab:"投注", rpChip:"全部", detailChip:"全部", detailFrom:"live",
   vpTab:"投注", vpChip:"全部", vpAna:"重点数据", vpPlay:true, vpMute:true, vpAnim:false,
   vpPin:new Set(), vpFold:new Set(),
-  heroOpen:true, dPin:new Set(), dFold:new Set(), dSort:false,
+  heroOpen:true, vpFull:false, dPin:new Set(), dFold:new Set(), dSort:false,
   dr:{hist:null,sell:null,report:null},
+  privOnly:false, omNick:"", omOpen:null,
+  sellSeg:"投注项卖单", omSubOpen:new Set(), omDetail:null,
+  specTab:"二期", specNarrowOpen:false,          /* 需求说明的两个入口：一期 / 二期·私盘坐庄 */
   leagueFilter:new Set(), histSide:"买单", histTab:"未结算注单", histRange:"全部", histFocus:null,
-  balance:190.00, bets:[], betSeq:0
+  balance:20000.00, bets:[], betSeq:0
 };
 /* 注单数据：未结算取自线上实投，已结算按线上「已结算注单」页截图还原 */
 S.bets=[
@@ -1531,7 +2015,8 @@ S.bets=[
    {sport:"足球",league:"中国超级联赛",home:"浙江队",away:"河南队",market:"上半场大/小",pick:"大 1.5",odds:"2.61",oddsType:"欧洲盘",live:false,
     half:"1-1",final:"3-1",finalNote:"上半场共 2 球 > 1.5，此关命中"}]}
 ];
-S.balance=185.00;
+/* 演示余额：开盘押金门槛为 1,000，余额需足够才能走通开盘流程 */
+S.balance=20000.00;
 
 const $=(s,r)=>(r||document).querySelector(s);
 const el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e};
@@ -1564,7 +2049,10 @@ $("#setBtn").onclick=e=>{e.stopPropagation();const p=$("#setPop");p.innerHTML=p.
   d.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.theme=b.dataset.t;document.documentElement.setAttribute("data-theme",S.theme);p.dataset.open="0";p.innerHTML="";render()});
 };
 document.addEventListener("click",()=>{const p=$("#setPop");if(p.dataset.open==="1"){p.dataset.open="0";p.innerHTML=""}});
-$("#langBtn").onclick=e=>{e.stopPropagation();toast("语言：简体中文 / English / ภาษาไทย（原型演示）")};
+const LANGS=["简体中文","English","ไทย"];
+$("#langBtn").onclick=e=>{e.stopPropagation();
+  S.lang=LANGS[(LANGS.indexOf(S.lang)+1)%LANGS.length];
+  $("#langBtn").innerHTML=`${S.lang} <span class="caret">▼</span>`;};
 
 /* ============ 侧栏 ============ */
 const PRIMARY=[["滚球","🎯","live"],["热门赛事","🏆","hot"],["冠军","🥇","champion"],["我的关注","⭐","fav"],["我的买单","🧾","mybuy"],["我的卖单","🏷","sell"],["汇总报表","📈","report"]];
@@ -1581,7 +2069,7 @@ function renderSide(){
   $("#refreshBal",br).onclick=()=>toast("余额已刷新");
   PRIMARY.forEach(([name,ic,key])=>{
     const unsettled=S.bets.filter(b=>b.status==="未结算").length;
-    const running=SELL_ORDERS.filter(o=>o.status==="卖出中").length;
+    const running=legacySells.filter(o=>o.state==="卖出中").length;
     const cnt=key==="mybuy"?unsettled:key==="live"?11:key==="hot"?1:key==="fav"?S.fav.size:key==="sell"?running:0;
     const on=["live","hot","champion","fav","report"].includes(key)&&S.page===key
       ||(key==="mybuy"&&S.page==="history"&&S.histSide==="买单")
@@ -1593,7 +2081,7 @@ function renderSide(){
       if(key==="mybuy"){S.page="history";S.histSide="买单";S.histTab="未结算注单";S.topnav="历史注单";render()}
       else if(key==="sell"){S.page="history";S.histSide="卖单";S.topnav="历史注单";render()}
       else if(["live","hot","champion","fav","report"].includes(key)){S.page=key;S.topnav="体育赛事";S.sport=null;render()}
-      else toast(name+"：原型未覆盖此页面");
+      else{S.page=key;S.topnav="体育赛事";render()}
     };
     s.appendChild(b);
   });
@@ -1625,7 +2113,10 @@ function renderSlip(s){
   top.style.cursor="pointer";top.onclick=()=>{S.sideMode="menu";renderSide()};
   s.appendChild(top);
   const tabs=el("div","slip-tabs");
-  [["买入",S.slip.length],["卖出",0]].forEach(([t,n])=>{
+  /* 整场互斥：购物车里有私盘投注项时，不出卖出入口 */
+  const noSell=S.slip.some(x=>x.priv);
+  if(noSell&&S.slipTab==="卖出")S.slipTab="买入";
+  [["买入",S.slip.length],["卖出",0]].filter(([t])=>!(noSell&&t==="卖出")).forEach(([t,n])=>{
     const b=el("button",S.slipTab===t?"on":"",t+(n?`<i class="dot">${n}</i>`:""));
     b.onclick=()=>{S.slipTab=t;renderSide()};tabs.appendChild(b);
   });
@@ -1643,14 +2134,21 @@ function renderSlip(s){
       <button class="x" title="移除">✕</button>
       <div class="slip-sel">
         <div class="mk-line" title="[${esc(it.tag)}] ${esc(it.market)} ${esc(it.pick)}">[${esc(it.tag)}] ${esc(it.market)} <b>${esc(it.pick)}</b></div>
-        <div class="od-line"><span class="od">${it.p2p&&S.buyMode!=="串关"?`@${off}~${it.odds}`:`@${effOdds(it)}`}</span><i>${S.oddsType==="香港盘"?"香港盘":"欧洲盘"}</i></div>
-        ${(it.p2p&&S.buyMode!=="串关")?book(off,it.odds):""}
+        <div class="od-line"><span class="od">${(it.p2p&&!it.priv&&S.buyMode!=="串关")?`@${off}~${it.odds}`:`@${effOdds(it)}`}</span><i>${S.oddsType==="香港盘"?"香港盘":"欧洲盘"}</i></div>
+        ${((it.p2p||it.priv)&&S.buyMode!=="串关")?book(off,it.odds,it):""}
         ${S.buyMode==="单关"?`<div class="stake"><span class="cur">CNY</span><input inputmode="decimal" placeholder="限额5 ~ 718.39" value="${S.stakes[it.key]||""}" data-k="${it.key}"></div>
         <div class="quick">${[100,500,1000,2000,5000].map(v=>`<button data-add="${v}" data-k="${it.key}">+${money(v)}</button>`).join("")}<button data-max="1" data-k="${it.key}">MAX</button></div>`:""}
       </div>`;
     $(".x",box).onclick=()=>{S.slip=S.slip.filter(x=>x.key!==it.key);delete S.stakes[it.key];if(!S.slip.length)S.sideMode="menu";render()};
     const inp=$("input",box);
-    if(inp)inp.oninput=e=>{S.stakes[it.key]=e.target.value.replace(/[^\d.]/g,"");updateSum()};
+    /* 金额变化时就地刷新「购买计划」列，避免整段重绘导致输入框失焦 */
+    const refreshPlan=()=>{
+      const tb=$(".book-t",box);if(!tb)return;
+      const off=offOdds(it), tiers=bookTiers(it,off,it.odds);
+      const plan=bookPlan(tiers,parseFloat(S.stakes[it.key]||0)||0);
+      [...tb.rows].slice(1).forEach((r,i)=>{r.cells[3].textContent=plan[i]?money(plan[i]):"0"});
+    };
+    if(inp)inp.oninput=e=>{S.stakes[it.key]=e.target.value.replace(/[^\d.]/g,"");updateSum();refreshPlan()};
     const bk=$(".book-h",box);if(bk)bk.onclick=()=>{S.bookOpen=!S.bookOpen;renderSide()};
     box.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{
       const k=b.dataset.k;S.stakes[k]=String((parseFloat(S.stakes[k]||0)+parseFloat(b.dataset.add)).toFixed(2));renderSide()});
@@ -1658,15 +2156,25 @@ function renderSlip(s){
     body.appendChild(box);
   });
   if(S.buyMode==="串关"){
-    if(S.slip.length<2){
+    const K=parlayLegCount();
+    if(parlayDupMatch()){
+      body.appendChild(el("div",null,`<div style="padding:16px 4px;text-align:center;color:var(--ink-mute);font-size:12px;line-height:1.9">同一场比赛的多个投注项不能串关<br>请每场只保留一个投注项</div>`));
+    }else if(K<2){
       body.appendChild(el("div",null,`<div style="padding:16px 4px;text-align:center;color:var(--ink-mute);font-size:12px">至少选择 2 场赛事才能串关</div>`));
     }else{
       if(S.slip.some(x=>x.p2p))
-        body.appendChild(el("div","parlay-note","串关不吃 P2P 挂单，已按官方赔率计算"));
-      const c=el("div","combo",`<span>串关类型</span><select id="cmb">${COMBOS.map(x=>`<option ${x===S.combo?"selected":""}>${x}</option>`).join("")}</select>`);
+        body.appendChild(el("div","parlay-note","串关不吃 P2P 卖单，已按官方赔率计算"));
+      const types=comboTypes(K);
+      const cur=currentCombo();
+      if(cur&&S.combo!==cur.v)S.combo=cur.v;
+      const c=el("div","combo",`<span>串关类型</span><select id="cmb">${
+        types.map(t=>`<option value="${t.v}" ${t.v===S.combo?"selected":""}>${t.v}${t.mix?"（混合过关）":""}</option>`).join("")
+      }</select>`);
       body.appendChild(c);
-      $("#cmb",c).onchange=e=>{S.combo=e.target.value;updateSum()};
-      const st=el("div","stake",`<span class="cur">CNY</span><input id="cst" inputmode="decimal" placeholder="限额5 ~ 5000.00" value="${S.comboStake}">`);
+      $("#cmb",c).onchange=e=>{S.combo=e.target.value;renderSide()};
+      body.appendChild(el("div","combo-n",
+        `已选 <b>${K}</b> 场 · 共 <b>${cur?cur.bets:0}</b> 注${cur&&cur.mix?`（${K} 场中任取 2 场及以上的全部组合）`:cur&&cur.bets>1?`（${K} 场中任取 ${cur.m} 场的全部组合）`:""}`));
+      const st=el("div","stake",`<span class="cur">CNY</span><input id="cst" inputmode="decimal" placeholder="每注限额 5 ~ 5000.00" value="${S.comboStake}">`);
       body.appendChild(st);
       $("#cst",st).oninput=e=>{S.comboStake=e.target.value.replace(/[^\d.]/g,"");updateSum()};
       const q=el("div","quick",[100,500,1000,2000,5000].map(v=>`<button data-c="${v}">+${money(v)}</button>`).join("")+`<button data-c="max">MAX</button>`);
@@ -1677,15 +2185,20 @@ function renderSlip(s){
   }
   s.appendChild(body);
   const foot=el("div","slip-foot");
-  foot.innerHTML=`<div class="sum"><span>总投注额</span><b id="sumA">0.00 CNY</b></div>
+  const _pk=S.buyMode==="串关"&&parlayLegCount()>=2&&!parlayDupMatch();
+  const _cb=_pk?currentCombo():null;
+  foot.innerHTML=`<div class="sum"><span>总投注额${_cb&&_cb.bets>1?` <i style="font-style:normal;color:var(--ink-mute)">每注 × ${_cb.bets}</i>`:""}</span><b id="sumA">0.00 CNY</b></div>
     <div class="sum"><span>最高可赢</span><b id="sumB">0.00 CNY</b></div>
     <div class="acts"><button class="del">删除</button>
-      <button class="parlay${S.buyMode==="串关"?" on":""}" id="parlay" ${S.slip.length<2&&S.buyMode==="单关"?"disabled":""}>${S.buyMode==="串关"?"单关":"串关"}</button>
+      <button class="parlay${S.buyMode==="串关"?" on":""}" id="parlay" ${(S.buyMode==="单关"&&(parlayLegCount()<2||parlayDupMatch()))?"disabled":""}>${S.buyMode==="串关"?"单关":"串关"}</button>
       <button class="go" id="go">确认</button></div>
     <label class="autox"><input type="checkbox" id="ax" ${S.autoOdds?"checked":""}>自动接收任何赔率 ⓘ ✎</label>`;
   s.appendChild(foot);
   $("#parlay",foot).onclick=()=>{
-    if(S.buyMode==="单关"&&S.slip.length<2){toast("至少选择 2 场赛事才能串关");return}
+    if(S.buyMode==="单关"){
+      if(parlayDupMatch()){toast("同一场比赛的多个投注项不能串关");return}
+      if(parlayLegCount()<2){toast("至少选择 2 场赛事才能串关");return}
+    }
     S.buyMode=S.buyMode==="单关"?"串关":"单关";
     if(S.buyMode==="单关")S.bookOpen=true;
     renderSide();
@@ -1699,12 +2212,15 @@ function renderSlip(s){
     const now=new Date(),p2=v=>String(v).padStart(2,"0");
     const ts=`2026-09-18 ${p2(now.getHours())}:${p2(now.getMinutes())}:${p2(now.getSeconds())} (GMT+8)`;
     const ticket=()=>`0110000226${p2(9)}${p2(18)}${p2(now.getHours())}${p2(now.getMinutes())}${p2(now.getSeconds())}${p2(++S.betSeq)}-1`;
-    if(S.buyMode==="串关"&&S.slip.length>=2){
-      const st=parseFloat(S.comboStake||0)||0;
-      const legs=S.slip.map(x=>({...x,odds:effOdds(x),p2p:false}));
-      S.bets.unshift({no:ticket(),time:ts,type:S.combo,legs,
-        totalOdds:legs.reduce((a,x)=>a*parseFloat(x.odds),1).toFixed(2),
-        stake:st,win:st*(legs.reduce((a,x)=>a*parseFloat(x.odds),1)-1),status:"未结算"});
+    if(S.buyMode==="串关"&&parlayLegCount()>=2&&!parlayDupMatch()){
+      const t=currentCombo();
+      const per=parseFloat(S.comboStake||0)||0;
+      const bets=comboBets(t);
+      const legs=[...slipMatches().values()].map(a=>({...a[0],odds:effOdds(a[0]),p2p:false}));
+      const ret=bets.reduce((a,c)=>a+per*c.reduce((q,x)=>q*parseFloat(effOdds(x)),1),0);
+      S.bets.unshift({no:ticket(),time:ts,type:t.v,legs,bets:bets.length,
+        totalOdds:bets.length===1?legs.reduce((a,x)=>a*parseFloat(x.odds),1).toFixed(2):null,
+        stake:per*bets.length,win:ret-per*bets.length,status:"未结算"});
     }else{
       S.slip.forEach(x=>{
         const st=parseFloat(S.stakes[x.key]||0)||0;if(st<=0)return;
@@ -1717,13 +2233,53 @@ function renderSlip(s){
   updateSum();
 }
 /* 卖单薄：档位 / 卖出赔率 / 可购额度 / 购买计划 */
-function book(off,best){
+/* 卖单簿按来源隔离：私盘 = 该庄家档位 + 官方无限档位；官方盘 = 投注项卖出档位 + 官方无限档位。
+   排序 = 赔率降序 → 同赔率卖出时间升序 → 官方固定最后；低于官方的档位视为已下架不展示 */
+function bookTiers(it,off,best){
+  const offv=parseFloat(off);
+  let tiers=[];
+  if(it&&it.priv){
+    /* 私盘：只有该开盘庄家的档位 + 官方无限档位 */
+    const m=it.pm, k=it.pitem;
+    if(m&&k&&k.status==="on")tiers.push({who:m.nick,odds:k.odds,quota:omItemQuota(m,k),t:m.created,mine:true});
+  }else{
+    /* 官方盘：只有投注项卖出档位 + 官方无限档位 */
+    tiers.push({who:"会员卖出",odds:best,quota:520.00,t:"09-18 02:00"});
+  }
+  /* 低于官方赔率的档位视为已下架，不展示 */
+  tiers=tiers.filter(x=>parseFloat(x.odds)>=offv)
+             .sort((a,b)=>parseFloat(b.odds)-parseFloat(a.odds)||(a.t<b.t?-1:1));
+  tiers.push({who:"官方",odds:off,quota:Infinity,t:"",kind:"官"});
+  return tiers;
+}
+/* 依簿序分配购买计划 */
+function bookPlan(tiers,amt){
+  let left=amt;
+  return tiers.map(x=>{
+    if(left<=0)return 0;
+    const take=x.quota===Infinity?left:Math.min(left,x.quota);
+    left-=take;return take;
+  });
+}
+function book(off,best,it){
+  const tiers=bookTiers(it||{},off,best);
+  const amt=parseFloat(S.stakes[(it&&it.key)||""]||0)||0;
+  const plan=bookPlan(tiers,amt);
+  const lbl=["卖一","卖二","卖三","卖四","卖五"];
+  let n=0;
   return `<div class="book">
     <div class="book-h"><span>卖单薄</span><span class="ar">${S.bookOpen?"收起 ︿":"展开 ﹀"}</span></div>
     ${S.bookOpen?`<table class="book-t">
       <tr><th>档位</th><th>卖出<br>赔率</th><th>可购<br>额度</th><th>购买<br>计划</th></tr>
-      <tr><td class="t1">卖一</td><td class="g">${best}</td><td>520.00</td><td>0</td></tr>
-      <tr><td class="t2">官方</td><td class="o">${off}</td><td class="o">无限</td><td>0</td></tr>
+      ${tiers.map((x,i)=>{
+        const isOff=x.kind==="官";
+        const tag=isOff?"官方":(lbl[n++]||"卖"+(n));
+        return `<tr>
+          <td class="${isOff?"t2":"t1"}" title="${esc(x.who)}">${tag}${x.mine?'<i class="bk-me">我</i>':""}</td>
+          <td class="${isOff?"o":"g"}">${x.odds}</td>
+          <td class="${isOff?"o":""}">${x.quota===Infinity?"无限":money(x.quota)}</td>
+          <td>${plan[i]?money(plan[i]):0}</td></tr>`;
+      }).join("")}
     </table>`:""}
   </div>`;
 }
@@ -1734,6 +2290,17 @@ const effOdds=it=>(S.buyMode==="串关"&&it.p2p)?offOdds(it):it.odds;
 /* 卖出（开盘坐庄）表单 */
 function renderSellForm(s,body){
   const it=S.slip[0];
+  /* 同一会员互斥：私盘投注项本身不可卖出；本人在该场已有进行中的私盘时也不可再单独卖出 */
+  if(it&&it.sport&&it.sport!==P2P_SPORT){
+    body.appendChild(el("div",null,`<div style="padding:18px 6px;text-align:center;font-size:12.5px;color:var(--ink-mute);line-height:1.95">本期卖出（P2P / 开盘坐庄）仅支持足球<br><span style="font-size:11.5px">其他球类暂不支持</span></div>`));
+    s.appendChild(body);
+    return;
+  }
+  if(it&&(it.priv||hasOpenMarket(it.mid))){
+    body.appendChild(el("div",null,`<div style="padding:18px 6px;text-align:center;font-size:12.5px;color:var(--ink-mute);line-height:1.95">${it.priv?"私盘投注项不可作为投注项卖出的对象":"你在该场已有进行中的私盘，不可再单独卖出"}<br><span style="font-size:11.5px">同一会员对同一场比赛，开盘坐庄与投注项卖出二选一</span></div>`));
+    s.appendChild(body);
+    return;
+  }
   const off=(parseFloat(it.odds)*0.94).toFixed(2);
   const hk=Math.max(0.01,parseFloat(it.odds)-1);
   const sellOdds=(hk*(1+S.upPoints/100)).toFixed(2);
@@ -1744,7 +2311,7 @@ function renderSellForm(s,body){
     <div class="slip-sel">
       <div class="mk-line" title="[${esc(it.tag)}] ${esc(it.market)} ${esc(it.pick)}">[${esc(it.tag)}] ${esc(it.market)} <b>${esc(it.pick)}</b></div>
       <div class="od-line"><span class="od">${it.p2p?`@${off}~${it.odds}`:`@${it.odds}`}</span><i>欧洲盘</i></div>
-      ${book(off,it.odds)}
+      ${book(off,it.odds,it)}
       <div class="sf-row"><span>押金金额</span>
         <span class="sf-in"><input id="dep" inputmode="decimal" placeholder="10~5000" value="${S.deposit}"><i>CNY</i></span></div>
       <div class="sf-row"><span>上浮点位</span>
@@ -1776,18 +2343,40 @@ function renderSellForm(s,body){
     if(d<10){toast("押金金额不得低于 10 CNY");return}
     if(d>S.balance){toast("余额不足");return}
     S.balance-=d;
-    SELL_ORDERS.unshift({league:it.league,status:"卖出中",home:it.home,away:it.away,
+    legacySells.unshift({league:it.league,status:"卖出中",home:it.home,away:it.away,
       pick:`${it.market} ${it.pick}`,odds:sellOdds,deposit:d,up:`+${S.upPoints}.0%`,
       time:"09-18 17:30",sold:0,total:Math.round(d/parseFloat(sellOdds)),pnl:null});
     S.slip=[];S.deposit="";S.upPoints=0;S.sideMode="menu";S.page="sell";render();
     toast(`开盘成功，押金 ${money(dep)} CNY 已冻结`);
   };
 }
+/* 串关以「场次」为单位：同一场比赛的多个投注项互斥，不能进同一张串关单 */
+function slipMatches(){
+  const m=new Map();
+  S.slip.forEach(x=>{const k=x.mid||x.key;if(!m.has(k))m.set(k,[]);m.get(k).push(x)});
+  return m;
+}
+const parlayLegCount=()=>slipMatches().size;
+const parlayDupMatch=()=>[...slipMatches().values()].some(a=>a.length>1);
+/* 当前选中的串关类型；所选场次变化后自动回落到第一个合法类型 */
+function currentCombo(){
+  const list=comboTypes(parlayLegCount());
+  return list.find(t=>t.v===S.combo)||list[0]||null;
+}
+/* 该类型会生成的每一注（每注是若干条腿的组合） */
+function comboBets(t){
+  const legs=[...slipMatches().values()].map(a=>a[0]);
+  if(!t)return[];
+  if(t.mix){let out=[];for(let m=2;m<=legs.length;m++)out=out.concat(subsetsOf(legs,m));return out}
+  return subsetsOf(legs,t.m);
+}
 function sums(){
-  if(S.buyMode==="串关"&&S.slip.length>=2){
-    const st=parseFloat(S.comboStake||0)||0;
-    const mult=S.slip.reduce((a,x)=>a*parseFloat(effOdds(x)),1);
-    return{total:st,win:st*(mult-1)};
+  if(S.buyMode==="串关"&&parlayLegCount()>=2&&!parlayDupMatch()){
+    const per=parseFloat(S.comboStake||0)||0;
+    const bets=comboBets(currentCombo());
+    const total=per*bets.length;
+    const ret=bets.reduce((a,c)=>a+per*c.reduce((q,x)=>q*parseFloat(effOdds(x)),1),0);
+    return{total,win:ret-total};
   }
   let total=0,win=0;
   S.slip.forEach(x=>{const st=parseFloat(S.stakes[x.key]||0)||0;total+=st;win+=st*(parseFloat(x.odds)-1)});
@@ -1813,11 +2402,15 @@ function bar(title,opts){
     const f=el("button","mini",`筛选 <span style="color:var(--accent)">${S.leagueFilter.size?S.leagueFilter.size+" 个联赛":"全部联赛"}</span> ▾`);
     f.style.cssText="font-size:13px;color:var(--ink)";f.onclick=openLeagueModal;r.appendChild(f);
   }
-  if(opts.filter){
+  if(opts.filter&&p2pScope()){
     const p=el("button","ctrl p2pbtn"+(S.p2pOnly?" on":""),`P2P <i class="p2pdot"></i>`);
     p.title="只看有会员挂单的赛事";
     p.onclick=()=>{S.p2pOnly=!S.p2pOnly;render()};
     r.appendChild(p);
+    const pv=el("button","ctrl p2pbtn privbtn"+(S.privOnly?" on":""),"私盘");
+    pv.title="只看庄家开盘生成的私盘";
+    pv.onclick=()=>{S.privOnly=!S.privOnly;render()};
+    r.appendChild(pv);
   }
   if(opts.odds){
     const o=el("button","ctrl",`${S.oddsType} <span class="caret">▼</span>`);
@@ -1843,6 +2436,7 @@ function collapsedAll(){return CURRENT.length&&CURRENT.every(g=>S.collapsed.has(
 
 function renderMain(){
   const m=$("#main");m.innerHTML="";CURRENT=[];
+  if(S.page==="omdetail")return renderOmDetail(m);
   if(S.page==="selldetail")return renderSellDetail(m);
   if(S.page==="report")return renderReport(m);
   if(S.page==="results")return renderResults(m);
@@ -1851,7 +2445,7 @@ function renderMain(){
   if(S.page==="detail")return renderDetail(m);
 
   if(S.page==="live"){
-    CURRENT=LIVE.filter(g=>(S.chip==="全部"||g.sport===S.chip)&&(!S.p2pOnly||g.p2p));
+    CURRENT=withPrivate(LIVE.filter(g=>(S.chip==="全部"||g.sport===S.chip)&&(!S.p2pOnly||g.matches.some(mt=>matchP2P(g,mt)))));
     m.appendChild(bar(`<span>🎯</span>滚球`,{filter:1,odds:1,sort:1}));
     const chips=el("div","chips");
     LIVE_CHIPS.forEach(([n,c])=>{
@@ -1869,7 +2463,7 @@ function renderMain(){
     return;
   }
   if(S.page==="hot"){
-    CURRENT=HOT.filter(g=>!S.p2pOnly||g.p2p);
+    CURRENT=withPrivate(HOT.filter(g=>!S.p2pOnly||g.matches.some(mt=>matchP2P(g,mt))));
     m.appendChild(bar(`<span>🏆</span>热门赛事`,{odds:1,sort:1}));
     const chips=el("div","chips");
     [["全部",1],["足球",0],["篮球",0],["网络足球",0],["羽毛球",0],["网络篮球",0],["斯诺克",0],["冰球",0],["排球",0],["网球",0],["乒乓球",0]].forEach(([n,c])=>{
@@ -1878,7 +2472,7 @@ function renderMain(){
     });
     m.appendChild(chips);
     m.appendChild(groupHead("未开赛 (1)","hot"));
-    if(!S.collapsed.has("G:hot"))HOT.forEach(g=>m.appendChild(leagueCard(g)));
+    if(!S.collapsed.has("G:hot"))CURRENT.forEach(g=>m.appendChild(leagueCard(g)));
     m.appendChild(el("div","loaded","已加载全部赛事"));
     return;
   }
@@ -1899,18 +2493,22 @@ function renderMain(){
     let data=[];
     if(early&&S.sport==="足球")data=EARLY_FOOTBALL;
     else if(!early&&S.sport==="网络足球")data=TODAY_CYBER;
-    else if(!early&&S.sport==="足球")data=TODAY_CYBER.map(g=>({...g,league:"TEST测试联赛-接口验收专用",sport:"足球"}));
-    data=data.filter(g=>!S.p2pOnly||g.p2p);
+    else if(!early&&S.sport==="足球")data=TODAY_FOOTBALL;
+    if(early&&S.earlyDay&&S.earlyDay!=="全部"){
+      const d=S.earlyDay.slice(0,5);
+      data=data.map(g=>({...g,matches:g.matches.filter(x=>x.date===d)})).filter(g=>g.matches.length);
+    }
+    data=withPrivate(data.filter(g=>!S.p2pOnly||g.matches.some(mt=>matchP2P(g,mt))));
     CURRENT=data;
     m.appendChild(bar(`<span>${early?"📅":"📆"}</span><span class="crumb">${S.period} › <b>${S.sport}</b></span>`,{filter:1,odds:1,sort:1}));
     if(early){
       const chips=el("div","chips");
-      ["全部","09-19 周六","09-20 周日","09-21 周一","09-22 周二","09-23 周三","09-24 周四","09-25 周五"].forEach((d,i)=>{
-        const b=el("button","chip"+(i===0?" on":""),d);
-        b.onclick=()=>{chips.querySelectorAll(".chip").forEach(x=>x.classList.remove("on"));b.classList.add("on");toast("按日期筛选："+d)};
+      ["全部","09-19 周六","09-20 周日","09-21 周一","09-22 周二","09-23 周三","09-24 周四","09-25 周五"].forEach(d=>{
+        const b=el("button","chip"+((S.earlyDay||"全部")===d?" on":""),d);
+        b.onclick=()=>{S.earlyDay=(S.earlyDay===d?"全部":d);render()};
         chips.appendChild(b);
       });
-      const sp=el("button","chip spacer","其他日期");sp.onclick=()=>toast("打开日期选择器");chips.appendChild(sp);
+      chips.appendChild(dateRangeBox("hist"));
       m.appendChild(chips);
     }
     if(!data.length){m.appendChild(emptyBox("暂无赛事"));return}
@@ -1920,6 +2518,24 @@ function renderMain(){
     m.appendChild(el("div","loaded","已加载全部赛事"));
     return;
   }
+}
+/* 把每场比赛的私盘插到原比赛分组下方；开启「私盘」筛选时只留私盘 */
+function withPrivate(groups){
+  const out=[];
+  groups.forEach(g=>{
+    const ms=g.matches||[];
+    if(!ms.some(mt=>privGroupsFor(mt.id,g).length)){ if(!S.privOnly)out.push(g); return }
+    /* 原联赛保持一张卡，只在出现私盘的场次处断开，私盘紧跟该场之后 */
+    let buf=[];
+    const flush=()=>{ if(buf.length&&!S.privOnly)out.push({...g,matches:buf}); buf=[] };
+    ms.forEach(mt=>{
+      buf.push(mt);
+      const privs=privGroupsFor(mt.id,g);
+      if(privs.length){ flush(); privs.forEach(pg=>out.push(pg)) }
+    });
+    flush();
+  });
+  return out;
 }
 function bySport(list){
   const map=new Map();
@@ -1936,10 +2552,68 @@ function groupHead(text,key){
   f.onclick=()=>{open?S.collapsed.add("G:"+key):S.collapsed.delete("G:"+key);render()};
   g.appendChild(f);g.dataset.gk=key;return g;
 }
+/* 私盘分组：开盘后复制原比赛生成，紧随原比赛下方展示，仅展示开放盘口 */
+/* 该场是否已有进行中的投注项卖出挂单（卖出中 / 已封盘计入） */
+const hasItemSell=mid=>legacySells.some(o=>o.mid===mid&&["卖出中","部分成交"].includes(o.state));
+/* 该场是否已有进行中的私盘 */
+const hasOpenMarket=mid=>markets.some(m=>m.mid===mid&&["open","soldout"].includes(m.status));
+/* P2P 与私盘本期仅对足球开放 */
+const P2P_SPORT="足球";
+/* 该场是否展示 P2P：足球 + 该场官方盘有会员投注项卖出。
+   不同会员互不影响，别人开了私盘不影响这场的 P2P 展示 */
+const matchP2P=(g,mt)=>!!(!g.priv&&g.sport===P2P_SPORT&&(mt.p2p!==undefined?mt.p2p:g.p2p));
+/* 开盘入口：未开赛（滚球不可开）+ 足球 + 本人在该场没有进行中的投注项卖出 */
+const canOpenMarket=(g,mt)=>!!(mt.date&&!g.priv&&g.sport===P2P_SPORT&&!hasItemSell(mt.id));
+/* 当前筛选范围内是否可能出现 P2P / 私盘 */
+function p2pScope(){
+  const sp=S.page==="live"?S.chip:(S.page==="hot"?"全部":S.sport);
+  return sp==="全部"||sp===P2P_SPORT;
+}
+function privGroupsFor(mid,g){
+  if(g.sport!==P2P_SPORT||g.priv)return[];      /* 私盘本期仅足球 */
+  const ms=markets.filter(m=>m.mid===mid&&m.status==="open"&&m.sport===P2P_SPORT
+    &&m.items.filter(it=>it.status==="on").length>=OM_CFG.minItems);
+  if(!ms.length)return[];
+  const shown=ms.slice(0,OM_CFG.displayLimit);
+  return shown.map(m=>({
+    league:g.league,sport:g.sport,flag:g.flag,p2p:false,priv:true,market:m,
+    parent:g,parentMatch:g.matches.find(x=>x.id===mid),
+    markets:g.markets,
+    matches:[{...g.matches.find(x=>x.id===mid),id:mid+"#"+m.id,privOf:m}]
+  }));
+}
+/* 私盘赔率格：把列表的盘口列 + 选项文案映射到庄家开放的投注项；
+   未开放的盘口显示 -- 置灰，单项封盘显示锁定态 */
+function privCell(m,mkName,label){
+  const half=/上半场|半场/.test(mkName);
+  const isO=/^大|大\s/.test(label), isU=/^小|小\s/.test(label);
+  const isA=/客/.test(label), isH=/主/.test(label), isD=/和|平/.test(label);
+  let k=null;
+  if(half)k=null;                                   /* 本期示例盘只开全场项 */
+  else if(/独赢|1\*2/.test(mkName))k=isH?"1x2-h":isA?"1x2-a":null;
+  else if(/让球|让分/.test(mkName))k=(isA||/^\+/.test(label))?"ah-a":"ah-h";
+  else if(/大小|总分/.test(mkName))k=isO?"ou-o":isU?"ou-u":null;
+  if(!k)return null;
+  return m.items.find(x=>x.status!=="removed"&&itemSlot(x.name)===k)||null;
+}
+/* 庄单投注项名（"全场 大/小 · 大 3"）→ 列表盘口槽位，用于把庄单映射到赔率格 */
+function itemSlot(name){
+  const parts=String(name).split("·");
+  const mk=parts[0]||"", label=(parts[1]||"").trim();
+  if(/半场/.test(mk))return null;
+  const isO=/^大/.test(label), isU=/^小/.test(label);
+  const isA=/客/.test(label), isH=/主/.test(label);
+  if(/独赢|1\*2/.test(mk))return isH?"1x2-h":isA?"1x2-a":null;
+  if(/让球|让分/.test(mk))return (isA||/^\+/.test(label))?"ah-a":"ah-h";
+  if(/大小|大\/小|总分/.test(mk))return isO?"ou-o":isU?"ou-u":null;
+  return null;
+}
+
 function leagueCard(g){
-  const c=el("div","card");
+  const c=el("div","card"+(g.priv?" priv":""));
   const open=!S.collapsed.has(g.league)&&!g.collapsed;
-  const h=el("div","lg",`<span class="flag">${g.flag||"🏳"}</span><span class="lg-name">${esc(g.league)}</span>${g.p2p?'<span class="p2p">P2P</span>':""}`);
+  const h=el("div","lg",`<span class="flag">${g.flag||"🏳"}</span><span class="lg-name">${esc(g.league)}${g.priv?` <i class="lg-nick">· ${esc(g.market.nick)}</i>`:""}</span>${
+      g.priv?'<span class="p2p priv">私盘</span>':(g.matches.some(mt=>matchP2P(g,mt))?'<span class="p2p">P2P</span>':"")}`);
   const cv=el("span","chev",open?"︿":"﹀");h.appendChild(cv);
   h.style.cursor="pointer";
   h.onclick=()=>{open?S.collapsed.add(g.league):S.collapsed.delete(g.league);render()};
@@ -1961,6 +2635,14 @@ function leagueCard(g){
     const time=el("div","m-time");
     if(mt.date)time.innerHTML=`<div>${mt.date}</div><div>${mt.clock2}</div>`;
     else time.innerHTML=`<div>${esc(mt.phase)}</div>${mt.clock?`<div class="clk" data-clock="${mt.id}">${mt.clock}</div>`:""}`;
+    /* 开盘入口：IM 在售且未开赛的赛事才有；已开赛（滚球）不展示；
+       整场互斥 —— 该场已有投注项卖出挂单时，对所有会员隐藏开盘入口 */
+    if(canOpenMarket(g,mt)){
+      const ob=el("button","om-btn","开盘");
+      ob.title="对这场比赛开盘坐庄";
+      ob.onclick=e=>{e.stopPropagation();openMarketDialog(mt,g)};
+      time.appendChild(ob);
+    }
     left.appendChild(time);
     const teams=el("div","m-teams");
     const sc2=v=>mt.green?`<span class="sc g">${v}</span>`:`<span class="sc">${v}</span>`;
@@ -1971,27 +2653,84 @@ function leagueCard(g){
     row.appendChild(left);
 
     const cols=el("div","t-cols");
+    const privUsed=new Set();          /* 该行已在赔率格展示的庄单 */
     g.markets.forEach((mk,ci)=>{
       const tc=el("div","tc");
       mt.rows.forEach((r,ri)=>{
-        const cell=r[ci];
+        let cell=r[ci];
+        if(g.priv){
+          /* 私盘只展示庄家开放的盘口，其余 -- 置灰 */
+          const it=cell&&cell[0]!=null?privCell(g.market,mk,cell[0]):null;
+          if(!it){tc.appendChild(el("div","bet dead","--"));return}
+          privUsed.add(it.key);
+          if(it.status==="sealed"){tc.appendChild(el("div","bet lock","🔒"));return}
+          cell=[cell[0],it.odds];
+          const bb=betBtn(cell,{mid:g.market.mid,home:mt.home,away:mt.away,league:g.league,market:mk,sport:g.sport,
+            priv:true,pm:g.market,pitem:it,tag:"私盘",key:`${mt.id}|${ci}|${ri}`});
+          bb.classList.add("privbet");
+          tc.appendChild(bb);return;
+        }
         if(cell==="lock"){tc.appendChild(el("div","bet lock","🔒"));return}
         if(!cell){tc.appendChild(el("div","bet dead","-"));return}
         tc.appendChild(betBtn(cell,{mid:mt.id,home:mt.home,away:mt.away,league:g.league,market:mk,sport:g.sport,
-          p2p:!!(g.p2p&&ri===0&&(ci===1||ci===2)),
+          p2p:!!(matchP2P(g,mt)&&ri===0&&(ci===1||ci===2)),
           tag:mt.date?(S.period==="早盘"?"早盘":"今日"):"滚球",key:`${mt.id}|${ci}|${ri}`}));
       });
       cols.appendChild(tc);
     });
     row.appendChild(cols);
+    /* 行尾箭头：横向滚动时吸附在可视区右缘，点击进入盘口详情 */
+    const go=el("button","row-go","›");
+    go.title="查看该场全部盘口";
+    go.onclick=e=>{e.stopPropagation();S.page="detail";S.detailMatch=mt;S.detailLeague=g.league;
+      S.detailSport=g.sport;S.detailChip="全部";S.detailPriv=null;S.heroOpen=true;render()};
+    row.appendChild(go);
 
+    if(g.priv){
+      const wrap0=el("div");wrap0.appendChild(row);
+      /* 庄家开的盘口若不在列表这几列里（如波胆、角球、半场等），
+         给出「全部 N ›」入口，进私盘盘口详情投注 */
+      const rest=g.market.items.filter(it=>it.status!=="removed"&&!privUsed.has(it.key));
+      if(rest.length){
+        const pf=el("div","m-foot priv-foot");
+        /* 用等宽占位保证「全部」与官方行的「全部」左右位置完全一致 */
+        const ph0=el("button","star","☆");ph0.style.visibility="hidden";pf.appendChild(ph0);
+        const more=el("button","mchip",`全部 <b>${g.market.items.filter(it=>it.status!=="removed").length}</b> <span class="ar">›</span>`);
+        more.title="查看该庄家开放的全部盘口";
+        more.onclick=()=>{S.detailFrom=S.page;S.page="detail";
+          S.detailMatch={...mt,id:g.market.mid};      /* 还原原比赛 id，私盘行用的是复合 id */
+          S.detailLeague=g.league;S.detailSport=g.sport;
+          S.detailChip="全部";S.detailPriv=g.market.id;S.heroOpen=true;render()};
+        pf.appendChild(more);
+        if(g.parent&&g.parentMatch&&matchP2P(g.parent,g.parentMatch)){
+          const n=(g.parentMatch.id.charCodeAt(1)%3)+1;
+          const ph1=el("button","mchip is-p2p",`P2P <b>${n}</b> <span class="ar">›</span>`);
+          ph1.style.visibility="hidden";pf.appendChild(ph1);
+        }
+        wrap0.appendChild(pf);
+      }
+      wrap0.style.cssText="border-top:1px solid var(--line);padding-bottom:6px";
+      sc.appendChild(wrap0);return;
+    }
     const foot=el("div","m-foot");
+    /* 收藏星放在「全部 +N」前面 */
     const st=el("button","star"+(S.fav.has(mt.id)?" on":""),S.fav.has(mt.id)?"★":"☆");
+    st.title=S.fav.has(mt.id)?"取消关注":"加入我的关注";
     st.onclick=e=>{e.stopPropagation();S.fav.has(mt.id)?S.fav.delete(mt.id):S.fav.add(mt.id);render()};
     foot.appendChild(st);
-    const more=el("button","more",`+${mt.more} ›${g.p2p?`<span class="p2pn">P2P <b>${(mt.id.charCodeAt(1)%3)+1}</b></span>`:""}`);
-    more.onclick=()=>{S.page="detail";S.detailMatch=mt;S.detailLeague=g.league;S.detailSport=g.sport;S.detailChip="所有投注";S.heroOpen=true;render()};
+    const openDetail=cat=>{S.page="detail";S.detailMatch=mt;S.detailLeague=g.league;S.detailSport=g.sport;
+      S.detailChip=cat||"全部";S.detailPriv=null;S.heroOpen=true;render()};
+    const more=el("button","mchip",`全部 <b>+${mt.more}</b> <span class="ar">›</span>`);
+    more.title="查看该场全部盘口";
+    more.onclick=()=>openDetail();
     foot.appendChild(more);
+    if(matchP2P(g,mt)){
+      const n=(mt.id.charCodeAt(1)%3)+1;
+      const pc=el("button","mchip is-p2p",`P2P <b>${n}</b> <span class="ar">›</span>`);
+      pc.title=`该场有 ${n} 个投注项存在会员卖单`;
+      pc.onclick=()=>openDetail();
+      foot.appendChild(pc);
+    }
     const wrap=el("div");wrap.appendChild(row);wrap.appendChild(foot);
     wrap.style.cssText="border-top:1px solid var(--line);padding-bottom:6px";
     sc.appendChild(wrap);
@@ -2025,19 +2764,9 @@ function betBtn([label,odds],ctx){
 
 /* ============ 赛事详情 ============ */
 /* 盘口分类按运动动态出，不共用一套固定分类；线上 {单节}{特殊} 为未翻译的 i18n key，已修正 */
-const DETAIL_TAB_MAP={
-  足球:["所有投注","让球&大小","半场","进球","波胆","特色组合","时间","角球","罚球","特殊投注","球员"],
-  网络足球:["所有投注","让球&大小","半场","进球","波胆","时间"],
-  篮球:["所有投注","让分&总分","半场","单节","球员","特殊投注"],
-  网络篮球:["所有投注","让分&总分","半场","单节"],
-  网球:["所有投注","让局","总局","盘","抢七"],
-  乒乓球:["所有投注","让分","总分","单局"],
-  羽毛球:["所有投注","让分","总分","单局"],
-  排球:["所有投注","让分","总分","单局"],
-  冰球:["所有投注","让球","大小","单节"],
-  斯诺克:["所有投注","独赢","让局","总局"]
-};
-const DETAIL_TABS=sp=>DETAIL_TAB_MAP[sp]||["所有投注","独赢","让球","大小","半场"];
+/* 玩法分类按 H5 固定六项，两端一致 */
+const MT_TABS=["全部","让球","大小","进球","半场","特殊"];
+const DETAIL_TABS=sp=>MT_TABS;
 function heroBanner(mt){
   const h=el("div","hero");
   h.innerHTML=`<div class="hero-goal l"></div><div class="hero-goal r"></div>`;
@@ -2066,10 +2795,37 @@ function renderDetail(m){
   b.innerHTML=`<button class="icon-btn" id="back">↩</button>
     <div class="bar-title" style="margin:0 auto">${esc(lg)} <span class="caret">▼</span></div>
     <div class="bar-right"><button class="icon-btn" id="dref" title="刷新盘口">⟳</button><button class="icon-btn" id="dana" title="赛事分析">📊</button></div>`;
-  $("#back",b).onclick=()=>{S.page=S.detailFrom||"live";render()};
+  $("#back",b).onclick=()=>{S.detailPriv=null;S.page=S.detailFrom||"live";render()};
   $("#dref",b).onclick=()=>{flashOdds(true);toast("盘口已刷新")};
-  $("#dana",b).onclick=()=>toast("赛事分析（原型示意）");
+  $("#dana",b).onclick=()=>{S.vpTab="赛事分析";render()};
   m.appendChild(b);
+
+  /* 私盘盘口详情：列出该庄家开放的全部投注项，包含列表没有列位的盘口 */
+  const pm=S.detailPriv?markets.find(x=>x.id===S.detailPriv&&x.status==="open"):null;
+  if(pm){
+    $(".bar-title",b).innerHTML=`${esc(lg)} <i class="lg-nick">· ${esc(pm.nick)}</i> <span class="p2p priv">私盘</span>`;
+    const pc=el("div","card");
+    const live=pm.items.filter(it=>it.status!=="removed");
+    pc.appendChild(el("div","om-sec",`私盘盘口（${live.length}）`));
+    const bd=el("div","priv-mks");
+    live.forEach(it=>{
+      const parts=it.name.split("·");
+      const mkn=(parts[0]||it.name).trim(), pick=(parts[1]||"").trim()||mkn;
+      const r=el("div","priv-mk");
+      r.appendChild(el("div","pm-n",esc(mkn)));
+      if(it.status==="sealed")r.appendChild(el("div","bet lock","🔒"));
+      else{
+        const bb=betBtn([pick,it.odds],{mid:pm.mid,home:mt.home,away:mt.away,sport,league:lg,
+          market:mkn,priv:true,pm,pitem:it,tag:"私盘",key:`p|${pm.id}|${it.key}`});
+        bb.classList.add("privbet");
+        r.appendChild(bb);
+      }
+      r.appendChild(el("div","pm-q",`剩余可卖 ¥${money(omItemQuota(pm,it))}`));
+      bd.appendChild(r);
+    });
+    pc.appendChild(bd);
+    m.appendChild(pc);
+  }
 
   const card=el("div","card");
 
@@ -2097,7 +2853,7 @@ function renderDetail(m){
   card.appendChild(tabs);
 
   /* 盘口块 */
-  let list=MARKETS_OF(sport).filter(mk=>S.detailChip==="所有投注"||mk.cat===S.detailChip);
+  let list=MARKETS_OF(sport).filter(mk=>S.detailChip==="全部"||mk.cat===S.detailChip);
   /* 置顶优先；开启排序时有 P2P 的排前 */
   list=[...list].sort((a,b2)=>{
     const pa=S.dPin.has(a.id)?0:1, pb=S.dPin.has(b2.id)?0:1;
@@ -2131,7 +2887,8 @@ function renderDetail(m){
         const r=el("div","mk2-row");
         row.slice(1).forEach((cell,ci)=>{
           r.appendChild(betBtn([nm(cell[0]),cell[1]],{mid:mt.id,home:mt.home,away:mt.away,sport,
-            league:lg,market:(mk.pre?mk.pre+" ":"")+mk.name,p2p:mk.p2p&&ci===0,
+            league:lg,market:(mk.pre?mk.pre+" ":"")+mk.name,
+            p2p:!!(mk.p2p&&ci===0&&sport===P2P_SPORT),
             key:`d|${mk.id}|${ri}|${ci}`}));
         });
         bd.appendChild(r);
@@ -2162,14 +2919,15 @@ function scoreboard(mt,full){
 /* ============ 右侧栏 ============ */
 function specKeys(){
   const map={live:"live",sport:"live",hot:"live",champion:"live",fav:"live",
-    history:"history",detail:"detail",sell:"sell",selldetail:"sell",report:"report",results:"me",rules:"me"};
+    history:"history",detail:"detail",sell:"sell",selldetail:"sell",omdetail:"sell",report:"report",results:"me",rules:"me"};
+  /* 二期入口：私盘坐庄集中展示，不随页面变化 */
+  if(S.specTab==="二期")return ["om","omfund","omstate"];
   const ks=[map[S.page]||"live"];
   if(S.page==="history")ks[0]=S.histSide==="卖单"?"sell":"history";
-  if(S.sideMode==="slip")ks.unshift("slip");
+  if(S.sideMode==="slip")return ["slip"];
   return [...new Set(ks)];
 }
-const SPEC_TITLE={live:"赛事列表 / 滚球页",slip:"投注单",sell:"我的卖单",report:"汇总报表",history:"注单记录",detail:"赛事详情",me:"设置与其他"};
-const TAG_COLOR={"新增":"var(--green)","调整":"#1b8cf0","保留":"var(--ink-mute)","待确认":"#e08700"};
+const SPEC_TITLE={om:"开盘与私盘 · C 端功能",omfund:"押金与结算逻辑",omstate:"状态变化",live:"赛事列表 / 滚球页",slip:"投注单",sell:"我的卖单",report:"汇总报表",history:"注单记录",detail:"赛事详情",me:"设置与其他"};
 
 function saveSpecPref(){try{localStorage.setItem("kk-spec-open",S.specOpen?"1":"0")}catch(e){}}
 /* ============ 视频区（体育赛事页右侧） ============ */
@@ -2254,7 +3012,7 @@ function renderVideo(){
       <div class="cr">${M.aIcon}</div></div>`;
     card.appendChild(st);
   }else{
-    const pl=el("div","player"+(S.vpPlay?"":" paused"));
+    const pl=el("div","player"+(S.vpPlay?"":" paused")+(S.vpFull?" full":""));
     pl.innerHTML=`<div class="pv-ball"></div>
       <div class="pv-top"><span class="t">${M.feed}</span><span>直播</span>
         <span class="nm">${esc(M.league)}　${esc(M.home)} ${M.hs}:${M.as} ${esc(M.away)}</span>
@@ -2266,8 +3024,8 @@ function renderVideo(){
     const bot=$(".pv-bot",pl);
     const mu=el("button",null,S.vpMute?"🔇":"🔊");mu.title=S.vpMute?"取消静音":"静音";
     mu.onclick=()=>{S.vpMute=!S.vpMute;render()};
-    const fs=el("button",null,"⛶");fs.title="全屏";
-    fs.onclick=()=>toast("全屏播放（原型示意）");
+    const fs=el("button",null,S.vpFull?"⛶":"⛶");fs.title=S.vpFull?"退出全屏":"全屏";
+    fs.onclick=()=>{S.vpFull=!S.vpFull;render()};
     bot.appendChild(mu);bot.appendChild(fs);
     card.appendChild(pl);
 
@@ -2334,7 +3092,7 @@ function renderVideo(){
     blk.appendChild(h);
     if(!S.vpFold.has(mk.id)){
       const bd=el("div","vmk-b");
-      const base={sport:"足球",league:M.league,home:M.home,away:M.away,market:mk.t,live:!pre,p2p:false};
+      const base={mid:"vp-"+M.home,sport:"足球",league:M.league,home:M.home,away:M.away,market:mk.t,live:!pre,p2p:false};
       if(mk.kind==="three"){
         const row=el("div","vmk-row");
         mk.cells.forEach(([lb,o])=>row.appendChild(betBtn([lb,vpOdds(o)],{...base,key:`vp:${mk.id}:${lb}`})));
@@ -2358,55 +3116,84 @@ function renderVideo(){
 
 function renderRight(){
   const r=$("#rp");r.innerHTML="";
-  r.className="rp"+(S.specOpen?"":" mini");
-  if(!S.specOpen){
-    const b=el("button","rp-mini",`<span class="ar">‹</span><span class="tx">需求说明</span>`);
+  /* 窄屏默认收成竖排标签，点开后浮在内容上；宽屏沿用常驻形态 */
+  const narrow=window.innerWidth<=1180;
+  const open=narrow?S.specNarrowOpen:S.specOpen;
+  r.className="rp"+(open?"":" mini");
+  if(!open){
+    const b=el("button","rp-mini",`<span class="ar">‹</span><span class="tx">需求说明 · ${S.specTab==="二期"?"私盘坐庄":"PC 改版"}</span>`);
     b.title="展开需求说明";
-    b.onclick=()=>{S.specOpen=true;saveSpecPref();renderRight()};
+    b.onclick=()=>{narrow?S.specNarrowOpen=true:S.specOpen=true;saveSpecPref();renderRight()};
     r.appendChild(b);return;
   }
-  const head=el("div","rp-head",`<b>需求说明</b><span class="rp-sub">PC 版改动点</span>`);
+  const head=el("div","rp-head",`<b>需求说明</b>`);
   const f=el("button","rp-fold","›");f.title="收起";
-  f.onclick=()=>{S.specOpen=false;saveSpecPref();renderRight()};
+  f.onclick=()=>{narrow?S.specNarrowOpen=false:S.specOpen=false;saveSpecPref();renderRight()};
   head.appendChild(f);r.appendChild(head);
+
+  const tabs=el("div","spec-tabs");
+  [["二期","私盘坐庄"],["一期","PC 改版"]].forEach(([k,sub])=>{
+    const b=el("button","spec-tab"+(S.specTab===k?" on":""),`<b>${k}</b><i>${sub}</i>`);
+    b.onclick=()=>{S.specTab=k;renderRight()};
+    tabs.appendChild(b);
+  });
+  r.appendChild(tabs);
   renderSpec(r);
 }
-
+/* 当前页面归属，用于只展示该页面的改动点 */
+function specPgKey(){
+  if(S.sideMode==="slip")return "slip";
+  if(S.page==="history")return S.histSide==="卖单"?"sell":"history";
+  const m={live:"live",sport:"live",hot:"live",champion:"live",fav:"live",
+    detail:"detail",report:"report",selldetail:"sell",omdetail:"sell",results:"me",rules:"me"};
+  return m[S.page]||"live";
+}
 function renderSpec(r){
   const card=el("div","rp-card spec");
-  card.appendChild(el("div","spec-intro",SPEC._intro));
-  specKeys().forEach(k=>{
-    const items=SPEC[k]||[];
-    if(!items.length)return;
-    card.appendChild(el("div","spec-h",SPEC_TITLE[k]||k));
-    items.forEach(it=>{
-      const n=el("div","spec-i");
-      n.innerHTML=`<div class="spec-t"><b>${esc(it.t)}</b>
-        <span class="spec-tag" style="color:${TAG_COLOR[it.tag]};border-color:${TAG_COLOR[it.tag]}">${it.tag}</span></div>
-        <ul>${it.d.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`;
-      card.appendChild(n);
-    });
+  const pg=specPgKey();
+  let items=[];
+  if(S.specTab==="二期"){
+    ["om","omfund","omstate"].forEach(k=>(SPEC[k]||[]).forEach(it=>{
+      if((it.pg||"live")===pg)items.push(it);
+    }));
+  }else{
+    specKeys().forEach(k=>(SPEC[k]||[]).forEach(it=>items.push(it)));
+  }
+  if(!items.length){
+    card.appendChild(el("div","sp-none",
+      S.specTab==="二期"?"该页面无私盘坐庄相关说明":"该页面无相关说明"));
+    r.appendChild(card);return;
+  }
+  items.forEach(it=>{
+    card.appendChild(el("div","sp-h",esc(it.t)));
+    card.appendChild(el("ul","sp-ul",it.d.map(x=>`<li>${esc(x)}</li>`).join("")));
   });
-  card.appendChild(el("div","spec-foot","金刚体育 PC 版 · P2P 开盘坐庄需求说明　随页面联动，展示当前页面的改动点与规则"));
   r.appendChild(card);
 }
 
 /* ============ 我的卖单（来自 H5 P2P 坐庄） ============ */
-const SELL_STATUS_COLOR={卖出中:"var(--accent)",已售罄:"#7b61ff",已结算:"var(--green)",已关闭:"var(--ink-mute)"};
+/* 与 H5 一致的状态映射 */
+const M_ST={open:["卖出中","tag-open"],soldout:["已售罄","tag-soldout"],settled:["已结算","tag-settled"],closed:["已关闭","tag-closed"]};
+const L_ST={"卖出中":"open","部分成交":"open","已售罄":"soldout","已结算":"settled","已关闭":"closed"};
+const CUR_SYM={CNY:"¥",USD:"$",VND:"₫"};
+const SYS_LIMIT={min:2,max:10100};
+const SELL_STATUS_COLOR={卖出中:"var(--accent)",部分成交:"var(--accent)",已售罄:"#7b61ff",已结算:"var(--green)",已关闭:"var(--ink-mute)"};
 function sellBody(m){
-  const st=el("div","kpi");
-  const S2=sellStats();
-  [["总卖出",S2.total,""],["进行中",S2.running,""],["已消费","¥"+money(S2.used),""],
-   ["总结算盈亏",(S2.pnl>=0?"+¥":"−¥")+money(Math.abs(S2.pnl)),S2.pnl>=0?"g":"r"]]
-   .forEach(([k,v,c])=>st.appendChild(el("div","kpi-i",`<span>${k}</span><b class="${c}">${v}</b>`)));
-  m.appendChild(st);
+  /* 两个页签：投注项卖单（默认）/ 私盘 */
+  const seg=el("div","sell-seg");
+  [["投注项卖单",legacySells.length],["私盘",markets.length]].forEach(([t])=>{
+    const b=el("button",S.sellSeg===t?"on":"",t);
+    b.onclick=()=>{S.sellSeg=t;render()};seg.appendChild(b);
+  });
+  m.appendChild(seg);
 
-  const f=el("div","chips");
+  /* 两行 chip 筛选，对两个页签同时生效 */
+  const f1=el("div","chips");
   ["全部","卖出中","已售罄","已结算","已关闭"].forEach(t=>{
     const c=el("button","chip"+(S.sellStatus===t?" on":""),t);
-    c.onclick=()=>{S.sellStatus=t;render()};f.appendChild(c);
+    c.onclick=()=>{S.sellStatus=t;render()};f1.appendChild(c);
   });
-  m.appendChild(f);
+  m.appendChild(f1);
   const f2=el("div","chips");
   ["全部","今天","昨天","近7天","近30天"].forEach(t=>{
     const c=el("button","chip sm"+((!S.dr.sell&&S.sellTime===t)?" on":""),t);
@@ -2414,8 +3201,19 @@ function sellBody(m){
   });
   const dbx=dateRangeBox("sell");dbx.style.cssText="height:26px;padding:0 10px;font-size:12px;margin-left:4px";
   f2.appendChild(dbx);
-  const list=sellList();
   m.appendChild(f2);
+
+  /* 四列汇总 */
+  const st=el("div","kpi");
+  const S2=S.sellSeg==="私盘"?omStats():sellStats();
+  [["总卖出",S2.total,""],["进行中",S2.running,""],["已消费","¥"+money(S2.used),""],
+   ["总结算盈亏",(S2.pnl>=0?"+¥":"−¥")+money(Math.abs(S2.pnl)),S2.pnl>0?"g":S2.pnl<0?"r":""]]
+   .forEach(([k,v,c])=>st.appendChild(el("div","kpi-i",`<span>${k}</span><b class="${c}">${v}</b>`)));
+  m.appendChild(st);
+
+  if(S.sellSeg==="私盘")return privCards(m);
+
+  const list=sellList();
 
   if(!list.length){m.appendChild(emptyBox("该筛选下暂无卖单"));return}
 
@@ -2425,41 +3223,41 @@ function sellBody(m){
   t.innerHTML=`<thead><tr>${
     ["编号","卖单详情","盘口","成交进度","押金金额","结算盈亏","卖单状态"].map(c=>`<th>${c}</th>`).join("")
   }</tr></thead><tbody>${list.map((o,i)=>{
-    const pct=o.total?Math.round(o.sold/o.total*100):0;
-    const c=SELL_STATUS_COLOR[o.status];
+    const pct=o.cap?Math.round(o.sold/o.cap*100):0;
+    const c=SELL_STATUS_COLOR[o.state];
     return `<tr data-i="${i}">
       <td>${i+1}</td>
       <td class="l">
         <div class="bd-leg">
           <div class="bt-l1"><span class="bt-sport">[${esc(o.sport||"足球")}]</span><span class="bt-lg">${esc(o.league)}</span></div>
           <div class="bd-mt">${esc(o.home)} <span class="vs">vs</span> ${esc(o.away)}</div>
-          <div class="bd-pick"><span class="bt-sel">${esc(o.pick)}</span></div>
+          <div class="bd-pick"><span class="bt-sel">${esc(o.play)}</span></div>
         </div>
         <div class="bd-foot">${kv([
           ["卖出时间",`<span class="num">${esc(o.time)}</span>`],
-          ["卖单号",`<span class="num">${esc(o.no)}</span> <span class="copy" title="复制卖单号">⧉</span>`]
+          ["卖单号",`<span class="num">${esc(o.id)}</span> <span class="copy" title="复制卖单号">⧉</span>`]
         ])}</div>
       </td>
       <td class="l">${kv([
         ["卖出赔率",`<b class="od-v num">@${o.odds}</b> <span class="ot-v">(香港盘)</span>`],
-        ["上浮点位",`<span class="so-up">${esc(o.up)}</span>`],
+        ["上浮点位",`<span class="so-up">${(o.ptPct>=0?"+":"")+o.ptPct}.0%</span>`],
         ["开赛时间",`<span class="num">${esc(o.kick||"—")}</span>`]
       ])}</td>
       <td class="l">
-        <div class="pg-n"><b class="num">¥${money(o.sold)}</b> <span class="num">/ ¥${money(o.total)}</span></div>
+        <div class="pg-n"><b class="num">¥${money(o.sold)}</b> <span class="num">/ ¥${money(o.cap)}</span></div>
         <div class="pg-bar"><span class="so-bar"><i style="width:${pct}%"></i></span><span class="num">${pct}%</span></div>
-        <div class="pg-left num">剩余 ¥${money(o.total-o.sold)}</div>
+        <div class="pg-left num">剩余 ¥${money(o.cap-o.sold)}</div>
       </td>
-      <td class="num">¥${money(o.deposit)}</td>
+      <td class="num">¥${money(o.dep)}</td>
       <td class="num">${o.pnl!=null?`<b class="${o.pnl>=0?"g":"r"}">${o.pnl>=0?"+":"−"}¥${money(Math.abs(o.pnl))}</b>`:'<span class="dim">—</span>'}</td>
       <td>
-        <div class="bt-status" style="color:${c}">${o.status}</div>
-        <button class="sim det">查看详情</button>
+        <div class="bt-status" style="color:${c}">${o.state}</div>
+        <button class="det">查看详情</button>
       </td>
     </tr>`;}).join("")}</tbody>`;
   wrap.appendChild(t);box.appendChild(wrap);
   box.appendChild(el("div","bt-sum",
-    `<span>总单数 <b>${list.length}</b></span><span>总押金 <b class="num">¥${money(list.reduce((a,o)=>a+o.deposit,0))}</b></span>`));
+    `<span>总单数 <b>${list.length}</b></span><span>总押金 <b class="num">¥${money(list.reduce((a,o)=>a+o.dep,0))}</b></span>`));
   m.appendChild(box);
   t.querySelectorAll(".copy").forEach(c=>c.onclick=e=>{e.stopPropagation();toast("卖单号已复制")});
   t.querySelectorAll(".det").forEach((btn,i)=>btn.onclick=()=>{
@@ -2468,12 +3266,12 @@ function sellBody(m){
 
 /* ============ 卖单详情 ============ */
 function renderSellDetail(m){
-  const o=S.sellOrder||SELL_ORDERS[0];
-  const c=SELL_STATUS_COLOR[o.status];
-  const pct=o.total?Math.round(o.sold/o.total*100):0;
+  const o=S.sellOrder||legacySells[0];
+  const c=SELL_STATUS_COLOR[o.state];
+  const pct=o.cap?Math.round(o.sold/o.cap*100):0;
   const bar=el("div","bar sticky");
   bar.innerHTML=`<button class="icon-btn" id="back">↩</button>
-    <div class="bar-title">卖单详情 <span class="so-st" style="color:${c};border-color:${c}">${o.status}</span></div>
+    <div class="bar-title">卖单详情 <span class="so-st" style="color:${c};border-color:${c}">${o.state}</span></div>
     <div class="bar-right"><button class="icon-btn" title="刷新">⟳</button></div>`;
   $("#back",bar).onclick=()=>{S.page="history";S.histSide="卖单";render()};
   m.appendChild(bar);
@@ -2485,9 +3283,9 @@ function renderSellDetail(m){
     <div class="sd-mt">${esc(o.home)} <span class="vs">VS</span> ${esc(o.away)}</div>
     ${kv([
       ["开赛时间",`<span class="num">${esc(o.kick||"—")}</span>`],
-      ["玩法 / 选项",`<b>${esc(o.pick)}</b>`],
+      ["玩法 / 选项",`<b>${esc(o.play)}</b>`],
       ["卖出赔率",`<b class="od-v num">@${o.odds}</b> <span class="ot-v">(香港盘)</span>`],
-      ["上浮点位",`<span class="so-up">${esc(o.up)}</span>`]
+      ["上浮点位",`<span class="so-up">${(o.ptPct>=0?"+":"")+o.ptPct}.0%</span>`]
     ])}`;
   const topRow=el("div","sd-row");
   topRow.appendChild(p1);
@@ -2497,16 +3295,16 @@ function renderSellDetail(m){
   const p2=el("div","sd-card");
   p2.innerHTML=`<h4>额度与资金</h4>
     <div class="sd-kpi">
-      <div><span>押金金额</span><b class="num">¥${money(o.deposit)}</b></div>
-      <div><span>可卖额度</span><b class="num">¥${money(o.total)}</b></div>
+      <div><span>押金金额</span><b class="num">¥${money(o.dep)}</b></div>
+      <div><span>可卖额度</span><b class="num">¥${money(o.cap)}</b></div>
       <div><span>已售出</span><b class="num">¥${money(o.sold)}</b></div>
-      <div><span>剩余额度</span><b class="num">¥${money(o.total-o.sold)}</b></div>
+      <div><span>剩余额度</span><b class="num">¥${money(o.cap-o.sold)}</b></div>
     </div>
-    <div class="sd-bar"><span class="so-bar"><i style="width:${pct}%"></i></span><span class="num">${o.sold}/${o.total}　${pct}%</span></div>`;
+    <div class="sd-bar"><span class="so-bar"><i style="width:${pct}%"></i></span><span class="num">${o.sold}/${o.cap}　${pct}%</span></div>`;
   m.appendChild(p2);
 
   /* 结算 / 关闭信息 */
-  if(o.status==="已结算"){
+  if(o.state==="已结算"){
     const p3=el("div","sd-card");
     p3.innerHTML=`<h4>结算信息
         <span class="stamp inline ${o.pnl>=0?"win":"lose"}">${o.pnl>=0?"赢":"输"}</span></h4>
@@ -2518,7 +3316,7 @@ function renderSellDetail(m){
       </div>`;
     m.appendChild(p3);
   }
-  if(o.status==="已关闭"){
+  if(o.state==="已关闭"){
     const p3=el("div","sd-card");
     p3.innerHTML=`<h4>关闭信息</h4>
       <div class="sd-kpi">
@@ -2533,18 +3331,18 @@ function renderSellDetail(m){
 
   /* 成交明细 */
   const p4=el("div","sd-card");
-  p4.innerHTML=`<h4>成交明细 <span class="sd-n">${o.fills.length} 笔</span></h4>`;
-  if(!o.fills.length){
+  p4.innerHTML=`<h4>成交明细 <span class="sd-n">${o.subsList.length} 笔</span></h4>`;
+  if(!o.subsList.length){
     p4.appendChild(el("div","sd-empty","暂无成交，额度仍在挂出中"));
   }else{
-    const done=o.status==="已结算";
+    const done=o.state==="已结算";
     const t=el("table","res fills");
-    const sumAmt=o.fills.reduce((a,f)=>a+f.amount,0);
-    const sumPnl=o.fills.reduce((a,f)=>a+(f.pnl||0),0);
+    const sumAmt=o.subsList.reduce((a,f)=>a+f.amount,0);
+    const sumPnl=o.subsList.reduce((a,f)=>a+(f.pnl||0),0);
     t.innerHTML=`<thead><tr><th>子单号</th><th>成交时间</th><th>买家</th><th>成交额度</th><th>成交赔率</th>
         ${done?"<th>子单结果</th><th>子单盈亏</th>":"<th>子单状态</th>"}</tr></thead>
-      <tbody>${o.fills.map((f,i)=>`<tr>
-        <td class="num dim">${esc(o.no.replace(/-\d+$/,"").slice(-6))}-${i+1}</td>
+      <tbody>${o.subsList.map((f,i)=>`<tr>
+        <td class="num dim">${esc(o.id.replace(/-\d+$/,"").slice(-6))}-${i+1}</td>
         <td class="num">${esc(f.time)}</td><td>${esc(f.buyer)}</td>
         <td class="num">¥${money(f.amount)}</td><td class="num od-v">@${f.odds}</td>
         ${done
@@ -2564,16 +3362,16 @@ function renderSellDetail(m){
   const p5=el("div","sd-card");
   p5.innerHTML=`<h4>单据信息</h4>
     ${kv([
-      ["卖单号",`<span class="num">${esc(o.no)}</span> <span class="copy">⧉</span>`],
+      ["卖单号",`<span class="num">${esc(o.id)}</span> <span class="copy">⧉</span>`],
       ["卖出时间",`<span class="num">${esc(o.time)}</span>`]
     ])}`;
-  if(o.status!=="已关闭"&&o.status!=="已结算"){
+  if(o.state!=="已关闭"&&o.state!=="已结算"){
     const act=el("div","sd-act");
     const add=el("button","btn-primary","补充押金");
     add.onclick=()=>openAddDeposit(o);
     const stop=el("button","btn-close","停止收单");
     stop.onclick=()=>{
-      const left=+(o.deposit*(1-o.sold/o.total)).toFixed(2);
+      const left=+(o.dep*(1-o.sold/o.cap)).toFixed(2);
       confirmDialog({
         title:"停止收单",
         rows:[["未售出押金（原路退回）",`<b class="num g">¥${money(left)}</b>`],
@@ -2581,7 +3379,7 @@ function renderSellDetail(m){
         body:"停止后该卖单不再接受新的买入，单据状态转为「已关闭」。已售出部分仍按赛果正常结算，此操作不可撤销。",
         okText:"确认停止",
         onOk:()=>{
-          o.status="已关闭";o.closeTime="2026-09-22 10:12:40";o.closeBy="庄家主动停止收单";
+          o.state="已关闭";o.closeTime="2026-09-22 10:12:40";o.closeBy="庄家主动停止收单";
           o.refunded=left;S.balance+=left;render();
           toast(`已停止收单，未售出部分押金 ¥${money(left)} 已原路退回`);
         }});
@@ -2751,14 +3549,14 @@ function openAddDeposit(o){
   mo.innerHTML=`<header>补充押金<span class="tools"><button id="cls">✕</button></span></header>
     <div class="ad-body">
       <div class="ad-cur">${kv([
-        ["当前押金",`<b class="num">¥${money(o.deposit)}</b>`],
-        ["当前可卖额度",`<b class="num">¥${money(o.total)}</b>`],
-        ["剩余未售",`<b class="num">¥${money(o.total-o.sold)}</b>`]
+        ["当前押金",`<b class="num">¥${money(o.dep)}</b>`],
+        ["当前可卖额度",`<b class="num">¥${money(o.cap)}</b>`],
+        ["剩余未售",`<b class="num">¥${money(o.cap-o.sold)}</b>`]
       ])}</div>
       <div class="sf-row" style="border:0"><span>补充金额</span>
         <span class="sf-in"><input id="addAmt" inputmode="decimal" placeholder="10~5000"><i>CNY</i></span></div>
       <div class="quick">${[100,500,1000,2000,5000].map(v=>`<button data-v="${v}">+${money(v)}</button>`).join("")}<button data-v="max">MAX</button></div>
-      <div class="ad-calc">补充后可卖额度 <b class="num" id="adQuota">¥${money(o.total)}</b>
+      <div class="ad-calc">补充后可卖额度 <b class="num" id="adQuota">¥${money(o.cap)}</b>
         <span class="ad-f">可卖额度 = 押金 ÷ 卖出赔率(港盘) @${o.odds}</span></div>
       <div class="ad-tip">余额 CNY <b class="num">${money(S.balance)}</b>　补充部分即时进入挂出额度，已成交部分不受影响。</div>
     </div>
@@ -2767,7 +3565,7 @@ function openAddDeposit(o){
   const inp=$("#addAmt",mo);
   const sync=()=>{
     const v=parseFloat(inp.value||0)||0;
-    $("#adQuota",mo).textContent="¥"+money(o.total+v/rate);
+    $("#adQuota",mo).textContent="¥"+money(o.cap+v/rate);
     $("#ok",mo).disabled=!(v>=10&&v<=S.balance);
   };
   inp.oninput=e=>{e.target.value=e.target.value.replace(/[^\d.]/g,"");sync()};
@@ -2782,11 +3580,11 @@ function openAddDeposit(o){
     const v=parseFloat(inp.value||0)||0;
     if(v<10){toast("补充金额不得低于 10 CNY");return}
     if(v>S.balance){toast("余额不足");return}
-    o.deposit=+(o.deposit+v).toFixed(2);
-    o.total=Math.round(o.total+v/rate);
-    if(o.status==="已售罄")o.status="卖出中";
+    o.dep=+(o.dep+v).toFixed(2);
+    o.cap=Math.round(o.cap+v/rate);
+    if(o.state==="已售罄")o.state="卖出中";
     S.balance-=v;close();render();
-    toast(`已补充押金 ¥${money(v)}，可卖额度增至 ¥${money(o.total)}`);
+    toast(`已补充押金 ¥${money(v)}，可卖额度增至 ¥${money(o.cap)}`);
   };
 }
 
@@ -2800,7 +3598,7 @@ function reportDays(){
     const pnl=b.status==="取消"?0:(b.stamp==="赢"?(b.refund||0):-b.stake);
     r.buy+=pnl;r.buys.push({bet:b,pnl});
   });
-  SELL_ORDERS.filter(o=>o.status==="已结算"&&o.settleTime).forEach(o=>{
+  legacySells.filter(o=>o.state==="已结算"&&o.settleTime).forEach(o=>{
     const r=row(o.settleTime.slice(0,10));
     r.sell+=(o.net||0);r.sells.push(o);
   });
@@ -2828,7 +3626,7 @@ function renderReport(m){
     <div class="ov-v num ${tot>=0?"g":"r"}">${sgn(tot)}</div>
     <div class="ov-sp"><span>买单盈亏 <b class="num ${buy>=0?"g":"r"}">${sgn(buy)}</b></span>
       <span>卖单盈亏 <b class="num ${sell>=0?"g":"r"}">${sgn(sell)}</b></span></div>
-    <div class="ov-n">当前时点快照：待结算注单 <b>${S.bets.filter(b=>b.status==="未结算").length}</b> 笔 · 进行中庄单 <b>${SELL_ORDERS.filter(o=>o.status==="卖出中").length}</b> 笔（不随时间筛选变化）</div>`;
+    <div class="ov-n">当前时点快照：待结算注单 <b>${S.bets.filter(b=>b.status==="未结算").length}</b> 笔 · 进行中庄单 <b>${legacySells.filter(o=>o.state==="卖出中").length}</b> 笔（不随时间筛选变化）</div>`;
   m.appendChild(ov);
 
   const box=el("div","simple");
@@ -2895,8 +3693,8 @@ function reportExpand(d){
       const it=el("div","rx-i");
       it.innerHTML=`<div class="rx-m"><span class="bt-sport">[${esc(o.sport)}]</span> ${esc(o.league)}
           <span class="rx-vs">${esc(o.home)} vs ${esc(o.away)}</span></div>
-        <div class="rx-p">${esc(o.pick)} <span class="od-v num">@${o.odds}</span> <span class="ot-v">(香港盘)</span></div>
-        <div class="rx-a"><span class="num">押金 ¥${money(o.deposit)} · 已售 ¥${money(o.sold)}</span>
+        <div class="rx-p">${esc(o.play)} <span class="od-v num">@${o.odds}</span> <span class="ot-v">(香港盘)</span></div>
+        <div class="rx-a"><span class="num">押金 ¥${money(o.dep)} · 已售 ¥${money(o.sold)}</span>
           <span class="num rx-fee">抽佣 −¥${money(o.fee||0)}</span>
           <b class="num ${o.net>=0?"g":"r"}">${o.net>=0?"+":"−"}¥${money(Math.abs(o.net))}</b>
           <span class="rx-go">查看 ›</span></div>`;
@@ -2971,9 +3769,6 @@ function renderHistory(m){
   if(!list.length){
     box.appendChild(emptyBox("暂无数据"));
     m.appendChild(box);
-    m.appendChild(el("div","loaded",settled
-      ?"提示：未结算注单行末点「模拟结算」即可生成已结算注单"
-      :"提示：在原型内点击赔率并「确认投注」，注单会出现在这里"));
     return;
   }
   const wrap=el("div");wrap.style.cssText="overflow-x:auto";
@@ -2986,7 +3781,7 @@ function renderHistory(m){
       <td class="l">${betDetailCell(b)}</td>
       <td>
         <div class="bt-type">${esc(b.type)}</div>
-        ${b.totalOdds?`<div class="bt-total num">总赔率 @${b.totalOdds}</div>`:""}
+        ${b.totalOdds?`<div class="bt-total num">总赔率 @${b.totalOdds}</div>`:b.bets>1?`<div class="bt-total num">共 ${b.bets} 注</div>`:""}
         ${b.stamp?`<div class="stamp ${b.stamp==="赢"?"win":b.stamp==="输"?"lose":"push"}">${esc(b.stamp)}</div>`:""}
       </td>
       <td class="l">${optionCell(b,settled)}</td>
@@ -3000,7 +3795,6 @@ function renderHistory(m){
   box.appendChild(sum);
   m.appendChild(box);
   t.querySelectorAll(".copy").forEach(c=>c.onclick=()=>toast("单号已复制"));
-  t.querySelectorAll(".sim").forEach((s,i)=>s.onclick=()=>settle(list[i]));
 }
 /* 选项列：四行定高排版 —— 联赛 / 玩法·选项·赔率 / 对阵 / 比分条 */
 function legCell(l,b,settled){
@@ -3066,10 +3860,10 @@ function optionCell(b,settled){
     <div class="bd-foot">${kv([["结算时间",`<span class="num">${esc(b.settle||"—")}</span>`]])}</div>`;
 }
 function statusCell(b){
-  if(b.status==="未结算")
-    return `<div class="bt-ok">✅ 已确认</div><button class="sim">模拟结算</button>`;
+  if(b.status==="未结算")return `<div class="bt-ok">已确认</div>`;
   return `<div class="bt-status ${b.status==="取消"?"r":"g"}">${esc(b.status)}</div>`;
 }
+/* 结算逻辑：线上由 IM 赛果驱动，原型内部保留以便生成样本 */
 function settle(b){
   const r=Math.random();
   const win=r<.5;
@@ -3103,12 +3897,424 @@ function renderRules(m){
   box.innerHTML=`<div style="padding:20px 24px;max-width:70ch">
     <h2 style="margin:0 0 14px;font-size:18px;color:var(--ink-strong)">体育规则</h2>
     ${sections.map(([h,p])=>`<h3 style="font-size:14px;margin:18px 0 6px;color:var(--ink-strong)">${h}</h3>
-      <p style="margin:0;font-size:13px;line-height:1.9;color:var(--ink)">${p}</p>`).join("")}
-    <p style="margin-top:24px;font-size:12px;color:var(--ink-mute)">以上为原型示意文案，正式内容以线上「体育规则」页为准。</p></div>`;
+      <p style="margin:0;font-size:13px;line-height:1.9;color:var(--ink)">${p}</p>`).join("")}</div>`;
   m.appendChild(box);
 }
 
 /* ============ 联赛筛选弹窗 ============ */
+/* ============ 私盘卡片列表（我的卖出 · 私盘页签） ============ */
+const omDate=m=>"2026-"+String(m.created||"").slice(0,5).replace(" ","");
+function omList(){
+  return markets
+    .filter(m=>S.sellStatus==="全部"||M_ST[m.status][0]===S.sellStatus)
+    .filter(m=>{const b=inBucket(m.bucket,S.sellTime);return b===null?inActive(omDate(m),"sell",S.sellTime):b});
+}
+function omStats(){
+  const l=omList();
+  return{total:l.length,running:l.filter(m=>m.status==="open").length,
+    used:l.reduce((a,m)=>a+omSold(m),0),
+    pnl:l.filter(m=>m.status==="settled").reduce((a,m)=>a+(m.profit||0),0)};
+}
+function privCards(m){
+  const list=omList();
+  if(!list.length){m.appendChild(emptyBox("该筛选下暂无私盘"));return}
+  const box=el("div","simple");
+  const wrap=el("div");wrap.style.cssText="overflow-x:auto";
+  const t=el("table","res betlist selllist");
+  t.innerHTML=`<thead><tr>${
+    ["编号","私盘详情","盘口与押金","成交进度","开放项","结算盈亏","盘状态"].map(c=>`<th>${c}</th>`).join("")
+  }</tr></thead><tbody>${list.map((k,i)=>{
+    const [stTxt]=M_ST[k.status];
+    const c=SELL_STATUS_COLOR[stTxt];
+    const sold=omSold(k), total=k.dep+k.topup, pct=total?Math.round(sold/total*100):0;
+    return `<tr data-i="${i}">
+      <td>${i+1}</td>
+      <td class="l">
+        <div class="bd-leg">
+          <div class="bt-l1"><span class="bt-sport">[${esc(k.sport||"足球")}]</span><span class="bt-lg">${esc(k.league)}</span></div>
+          <div class="bd-mt">${esc(k.home)} <span class="vs">vs</span> ${esc(k.away)}</div>
+          <div class="bd-pick"><span class="bt-sel">${esc(k.home)} vs ${esc(k.away)} · ${esc(k.nick)}</span></div>
+        </div>
+        <div class="bd-foot">${kv([["开盘时间",esc(k.created)],
+          ["盘号",`<span class="num">${k.id}</span> <i class="cp" data-c="${k.id}">⧉</i>`]])}</div>
+      </td>
+      <td class="l">${kv([["总押金",`<span class="num">¥${money(total)}</span>`],
+        ["自动封盘",k.auto?`开赛前 ${k.auto} 分钟`:"未设置"],["开赛时间",esc(k.kick)]])}</td>
+      <td class="l">
+        <div class="pg-n"><b class="num">¥${money(sold)}</b> <span class="num">/ ¥${money(total)}</span></div>
+        <div class="pg-bar"><span class="so-bar"><i style="width:${Math.min(pct,100)}%"></i></span><span class="num">${pct}%</span></div>
+        <div class="pg-left num">剩余可卖 ¥${money(Math.max(omRemain(k),0))}</div>
+      </td>
+      <td><b class="num">${omOpenItems(k)}</b></td>
+      <td>${k.status==="settled"
+        ?`<b class="num ${k.profit>0?"g":k.profit<0?"r":""}">${k.profit>0?"+":k.profit<0?"−":""}¥${money(Math.abs(k.profit||0))}</b>`
+        :`<span class="dim">—</span>`}</td>
+      <td><div class="bt-status" style="color:${c}">${stTxt}</div>
+        <button class="det" data-i="${i}">查看详情</button></td>
+    </tr>`;
+  }).join("")}</tbody>`;
+  wrap.appendChild(t);box.appendChild(wrap);
+  t.querySelectorAll(".det").forEach(b=>b.onclick=()=>{
+    S.omDetail=list[+b.dataset.i].id;S.page="omdetail";S.omSubOpen=new Set();render();window.scrollTo(0,0)});
+  t.querySelectorAll("[data-c]").forEach(b=>b.onclick=e=>{e.stopPropagation();toast("盘号已复制")});
+  box.appendChild(el("div","bt-sum",
+    `<span>总盘数 <b>${list.length}</b></span><span>总押金 <b class="num">¥${money(list.reduce((a,k)=>a+k.dep+k.topup,0))}</b></span>`));
+  m.appendChild(box);
+}
+
+/* ============ 开盘详情与控盘 ============ */
+function renderOmDetail(m){
+  const k=markets.find(x=>x.id===S.omDetail);
+  if(!k){S.page="history";return render()}
+  const [stTxt]=M_ST[k.status];
+  const live=["open","soldout"].includes(k.status);
+
+  const b=el("div","bar");
+  b.innerHTML=`<button class="icon-btn" id="back">↩</button>
+    <div class="bar-title" style="margin:0 auto">开盘详情</div>
+    <div class="bar-right"><span class="tagx" style="color:${SELL_STATUS_COLOR[stTxt]};border-color:${SELL_STATUS_COLOR[stTxt]}">${stTxt}</span></div>`;
+  $("#back",b).onclick=()=>{S.page="history";S.histSide="卖单";S.sellSeg="私盘";render()};
+  m.appendChild(b);
+
+  /* 状态横幅：仅已关闭时展示 */
+  if(k.status==="closed")
+    m.appendChild(el("div","om-banner","已停止收单，卖出单已从卖单簿下架，等待赛事结算，未消费押金结算后退回"));
+
+  /* 赛事信息卡 */
+  const info=el("div","card om-info");
+  info.innerHTML=`<div class="oi-mt">${esc(k.home)} <span class="vs">vs</span> ${esc(k.away)}</div>
+    <div class="oi-sub">${esc(k.league)} · 开赛 ${esc(k.kick)}</div>
+    <div class="oi-sub">开盘时间 ${esc(k.created)}　自动封盘 ${k.auto?`开赛前 ${k.auto} 分钟`:"未设置"}</div>`;
+  m.appendChild(info);
+
+  /* 四列汇总 */
+  const st=el("div","kpi");
+  const total=k.dep+k.topup;
+  [["总押金","¥"+money(total)],["已收单","¥"+money(omSold(k))],
+   ["子单数",omSubCount(k)],["状态",stTxt]]
+   .forEach(([a,v])=>st.appendChild(el("div","kpi-i",`<span>${a}</span><b>${v}</b>`)));
+  m.appendChild(st);
+
+  /* 投注项庄单 */
+  m.appendChild(el("div","om-sec",`投注项庄单(${k.items.length})`));
+  const wrap=el("div","card om-items");
+  k.items.forEach((it,idx)=>{
+    const c=el("div","oit"+(idx?" sep":""));
+    const low=parseFloat(it.odds)<parseFloat(it.off);
+    const q=Math.max(omItemQuota(k,it),0);
+    const tag=k.status==="settled"?(it.res||"走水"):(it.status==="sealed"?"已封盘"
+      :(q<=0?"已售罄":(it.subs.length?"部分成交":"收单中")));
+    const tagc=k.status==="settled"
+      ? (it.res==="赢"?"var(--green)":it.res==="输"?"#e8402a":"var(--ink-mute)")
+      : (it.status==="sealed"?"var(--ink-mute)":"var(--accent)");
+    c.innerHTML=`<div class="oit-h">
+        <span class="oit-nm">${esc(it.name)}</span>
+        <span class="oit-od g">@${it.odds}</span>
+        <span class="oit-off">官方 @${it.off}${low?`<i class="oit-low">低于官方</i>`:""}</span>
+        <span class="oit-amt">已收 <b class="num">¥${money(it.sold)}</b></span>
+        <span class="oit-amt">剩余可卖 <b class="num">¥${money(q)}</b></span>
+        <span class="tagx" style="color:${tagc};border-color:${tagc}">${tag}</span>
+      </div>`;
+    if(live){
+      const ops=el("div","oit-ops");
+      const adj=el("button","oit-b","调水");adj.onclick=()=>openAdjust(k,it);ops.appendChild(adj);
+      const sl=el("button","oit-b",it.status==="sealed"?"恢复开盘":"封盘");
+      sl.onclick=()=>toggleSeal(k,it);ops.appendChild(sl);
+      if(!it.subs.length){
+        const rm=el("button","oit-b",'移除');rm.onclick=()=>removeItem(k,it);ops.appendChild(rm);
+      }
+      $(".oit-h",c).appendChild(ops);
+    }
+    /* 有成交才出子单行，无成交不占位 */
+    if(it.subs.length){
+      const sid=k.id+":"+it.key, open=S.omSubOpen.has(sid);
+      const sh=el("div","oit-subh",
+        `<span>子单数据(${it.subs.length})</span><span class="ar">${open?"收起 ⌃":"展开 ⌄"}</span>`);
+      sh.onclick=()=>{open?S.omSubOpen.delete(sid):S.omSubOpen.add(sid);render()};
+      c.appendChild(sh);
+      if(open){
+        const sb=el("div","oit-subs");
+        it.subs.forEach(f=>sb.appendChild(el("div","sub-i",
+          `<div class="sub-r1"><span class="sub-m">会员</span><span>${esc(f.u)}</span>
+             <span class="num">¥${money(f.amt)}</span><span class="num">@${f.odds}</span></div>
+           <div class="sub-r2"><span>${esc(f.time)}</span><span>${f.settle!=null
+              ?`<b class="${f.settle>=0?"g":"r"}">${f.settle>=0?"+":"−"}¥${money(Math.abs(f.settle))}</b>`:"未结算"}</span></div>`)));
+        c.appendChild(sb);
+      }
+    }
+    wrap.appendChild(c);
+  });
+  m.appendChild(wrap);
+
+  /* 底部操作区：已结算 / 已关闭整条隐藏 */
+  if(live){
+    const ops=el("div","om-ops");
+    const a=el("button","om-op","新增盘口");a.onclick=()=>openAddItem(k);
+    const b2=el("button","om-op primary","补充额度");b2.onclick=()=>openTopup(k);
+    const c2=el("button","om-op danger","停止收单");c2.onclick=()=>stopMarket(k);
+    ops.appendChild(a);ops.appendChild(b2);ops.appendChild(el("span","om-sp"));ops.appendChild(c2);
+    m.appendChild(ops);
+  }
+}
+
+/* ============ 控盘操作 ============ */
+/* 调水：新庄单赔率 = 当前庄单赔率 + 调整点位；10 秒内单项限调 1 次 */
+function openAdjust(k,it){
+  const now=Date.now();
+  if(it.lastAdj&&now-it.lastAdj<OM_CFG.adjustThrottle*1000)
+    return toast(`调水过于频繁，${OM_CFG.adjustThrottle} 秒内限 1 次`);
+  const layer=$("#layer");const mask=el("div","mask");const mo=el("div","modal sm");
+  mo.innerHTML=`<header>调水 · ${esc(it.name)}<span class="tools"><button id="cls">✕</button></span></header>
+    <div class="dr-body">
+      <div class="ad-cur">${kv([["当前庄单赔率","@"+it.odds],["官方当前赔率","@"+it.off]])}</div>
+      <div class="dr-row" style="margin-top:12px"><label>调整点位</label>
+        <input id="adjPt" inputmode="decimal" placeholder="可为负，最多两位小数" value=""></div>
+      <div class="dr-row" style="margin-bottom:0"><label>调整后</label>
+        <input id="adjNew" value="@${it.odds}" readonly></div>
+    </div>
+    <footer><button id="cancel">取消</button><button class="ok" id="ok">确认调水</button></footer>`;
+  mask.appendChild(mo);layer.appendChild(mask);
+  const close=()=>layer.innerHTML="";
+  $("#cls",mo).onclick=close;$("#cancel",mo).onclick=close;
+  mask.onclick=e=>{if(e.target===mask)close()};
+  const pt=$("#adjPt",mo),nw=$("#adjNew",mo);
+  pt.oninput=()=>{const v=parseFloat(pt.value);
+    nw.value=isNaN(v)?"@"+it.odds:"@"+(parseFloat(it.odds)+v).toFixed(2)};
+  $("#ok",mo).onclick=()=>{
+    const v=parseFloat(pt.value);
+    if(isNaN(v))return toast("点位格式：数字，最多两位小数");
+    const nv=+(parseFloat(it.odds)+v).toFixed(2);
+    if(nv<=0)return toast("新赔率必须大于 0");
+    it.odds=nv.toFixed(2);it.lastAdj=Date.now();
+    close();render();toast(`调水成功，新赔率 @${it.odds}，卖单簿已重排`);
+  };
+}
+/* 单项封盘 / 恢复开盘，二次确认 */
+function toggleSeal(k,it){
+  if(it.status==="sealed"){
+    it.status="on";render();return toast("已恢复开盘，重新进入卖单簿");
+  }
+  confirmDialog({title:"封盘",okText:"确认封盘",
+    body:`确认封盘「${it.name}」？该项从卖单簿下架，暂停收单，卖出单保留。开赛前可随时恢复开盘。`,
+    onOk:()=>{it.status="sealed";render();toast("该投注项已封盘，已从卖单簿下架")}});
+}
+/* 移除盘口：仅无成交时可移除，且移除后开放项不得低于门槛 */
+function removeItem(k,it){
+  if(it.subs.length)return toast("该盘口已有成交，不可移除");
+  if(omOpenItems(k)-1<OM_CFG.minItems)
+    return toast(`开放盘口数不得低于 ${OM_CFG.minItems} 个，如需清空请使用停止收单`);
+  confirmDialog({title:"移除盘口",okText:"确认移除",
+    body:`确认移除「${it.name}」？该盘口回到未开放状态，全平台不可投。盘押金为共享押金，不因移除变动、不产生退款。`,
+    onOk:()=>{k.items=k.items.filter(x=>x!==it);render();toast("已移除，盘押金不变")}});
+}
+/* 新增盘口：从 IM 交集内未开放的盘口里选 */
+function openAddItem(k){
+  if(omRemain(k)<=0)return toast("剩余押金为 0，请先补充额度");
+  const used=new Set(k.items.map(x=>x.key));
+  const cand=OM_ITEMS.filter(x=>x.st==="ok"&&!used.has(x.k));
+  if(!cand.length)return toast("IM 交集内已无可新增的盘口");
+  const layer=$("#layer");const mask=el("div","mask");const mo=el("div","modal sm");
+  const pick={};
+  mo.innerHTML=`<header>新增盘口<span class="tools"><button id="cls">✕</button></span></header>
+    <div class="om-body" id="addL"></div>
+    <footer><button id="cancel">取消</button><button class="ok" id="ok">确认新增</button></footer>`;
+  mask.appendChild(mo);layer.appendChild(mask);
+  const close=()=>layer.innerHTML="";
+  $("#cls",mo).onclick=close;$("#cancel",mo).onclick=close;
+  mask.onclick=e=>{if(e.target===mask)close()};
+  const L=$("#addL",mo);
+  const draw=()=>{L.innerHTML="";cand.forEach(x=>{
+    const on=pick[x.k]!=null, pt=pick[x.k]||"0.01";
+    const row=el("div","om-i"+(on?" on":""));
+    row.innerHTML=`<div class="om-ih"><span class="om-ck">${on?"☑":"☐"}</span>
+        <span class="om-nm">${esc(x.name)}</span><span class="om-off">官方 @${x.off}</span></div>
+      ${on?`<div class="om-set"><span class="om-pt"><label>上浮点位</label>
+          <input class="ptv" value="${pt}"></span>
+        <span class="om-od">庄单赔率 <b>@${omOdds(x.off,pt)}</b></span></div>`:""}`;
+    $(".om-ih",row).onclick=()=>{on?delete pick[x.k]:pick[x.k]="0.01";draw()};
+    if(on){const i2=$(".ptv",row);
+      i2.oninput=e=>pick[x.k]=e.target.value.replace(/[^\d.\-]/g,"");
+      i2.onblur=()=>{let v=parseFloat(i2.value);if(isNaN(v))v=0;
+        if(parseFloat(x.off)+v<=0){toast("结果赔率须大于 0");v=0.01}
+        pick[x.k]=v.toFixed(2);draw()};}
+    L.appendChild(row);
+  })};
+  draw();
+  $("#ok",mo).onclick=()=>{
+    const ps=cand.filter(x=>pick[x.k]!=null);
+    if(!ps.length)return toast("请至少选择 1 个盘口");
+    ps.forEach(x=>{const pt=parseFloat(pick[x.k])||0;
+      k.items.push({key:x.k,name:x.name,off:x.off,pt,odds:omOdds(x.off,pt),
+        status:"on",sold:0,lastAdj:0,subs:[]})});
+    close();render();toast("新增成功，盘口已对买家开放");
+  };
+}
+/* 补充额度：追加进共享池 */
+function openTopup(k){
+  const layer=$("#layer");const mask=el("div","mask");const mo=el("div","modal sm");
+  let v="";
+  const mx=Math.max(...k.items.map(x=>parseFloat(x.odds)));
+  mo.innerHTML=`<header>补充额度<span class="tools"><button id="cls">✕</button></span></header>
+    <div class="dr-body">
+      <div class="ad-cur">${kv([["当前盘押金","¥"+money(k.dep+k.topup)],
+        ["剩余押金","¥"+money(Math.max(omRemain(k),0))],["最高卖出赔率","@"+mx.toFixed(2)]])}</div>
+      <div class="dr-row" style="margin-top:12px"><label>追加</label>
+        <input id="tpv" inputmode="decimal" placeholder="正数，最多两位小数"></div>
+      <div class="om-quick" style="margin-left:56px">${[500,1000,2000].map(x=>`<button data-t="${x}">+${money(x)}</button>`).join("")}</div>
+      <div class="dr-row" style="margin:12px 0 0"><label>追加后</label>
+        <input id="tpr" value="新增预计可卖额度 0.00" readonly></div>
+    </div>
+    <footer><button id="cancel">取消</button><button class="ok" id="ok">确认追加</button></footer>`;
+  mask.appendChild(mo);layer.appendChild(mask);
+  const close=()=>layer.innerHTML="";
+  $("#cls",mo).onclick=close;$("#cancel",mo).onclick=close;
+  mask.onclick=e=>{if(e.target===mask)close()};
+  const inp=$("#tpv",mo),res=$("#tpr",mo);
+  const sync=()=>{const n=parseFloat(v)||0;
+    res.value=`盘押金 ¥${money(k.dep+k.topup+n)}　新增预计可卖 ¥${money(Math.floor(n/mx*100)/100)}`};
+  inp.oninput=e=>{v=e.target.value.replace(/[^\d.]/g,"");sync()};
+  mo.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{
+    v=String(((parseFloat(v)||0)+parseFloat(b.dataset.t)).toFixed(2));inp.value=v;sync()});
+  $("#ok",mo).onclick=()=>{
+    const n=parseFloat(v)||0;
+    if(n<=0)return toast("请输入追加金额");
+    if(n>S.balance)return toast("账户余额不足");
+    k.topup+=n;S.balance-=n;
+    if(k.status==="soldout")k.status="open";
+    close();render();toast(`追加成功，押金已冻结 ¥${money(n)}`);
+  };
+}
+/* 停止收单：不可逆，二次确认 */
+function stopMarket(k){
+  const sold=omSold(k), left=Math.max(omRemain(k),0);
+  confirmDialog({title:"停止收单",okText:"确认停止收单",
+    rows:[["已售出额度（照常结算）","¥"+money(sold)],["未消费押金（结算后退回）","¥"+money(left)]],
+    body:"确认停止整盘收单？全部投注项立即从卖单簿下架，私盘从列表消失。已成交子单正常结算，未消费押金结算后退回。此操作不可逆。",
+    onOk:()=>{k.status="closed";render();toast("已停止收单，盘已关闭，私盘已从列表下架")}});
+}
+
+/* ============ 开盘设置弹窗 ============ */
+function openMarketDialog(mt,g){
+  /* 同一庄家对同一比赛仅允许 1 个进行中的盘 */
+  if(omMine(mt.id).length) return toast("你对该比赛已有进行中的盘，请先在开盘详情中管理");
+  if(g.sport!==P2P_SPORT) return toast("本期开盘坐庄仅支持足球");
+  if(hasItemSell(mt.id)) return toast("你在该场已有进行中的投注项卖出，同一场比赛二选一");
+  const layer=$("#layer");
+  const mask=el("div","mask");
+  const mo=el("div","modal wide om-dlg");
+  const st={seal:10,nick:S.omNick||"庄家"+(1000+Math.floor(Math.random()*9000)),dep:"",picks:{}};
+
+  mo.innerHTML=`<header>开盘 · ${esc(mt.home)} vs ${esc(mt.away)}<span class="tools"><button id="cls">✕</button></span></header>
+    <div class="om-top">
+      <div class="om-f"><label>自动封盘</label>
+        <span class="om-seal">开赛前 <input id="omSeal" type="number" min="0" max="1440" value="10"> 分钟</span></div>
+      <div class="om-f"><label>庄家昵称</label>
+        <input id="omNick" maxlength="12" value="${esc(st.nick)}" placeholder="最长 12 字符">
+        <i class="om-tip">私盘名称 = 原比赛名 + 昵称</i></div>
+    </div>
+    <div class="om-body"><div class="om-list" id="omList"></div></div>
+    <div class="om-dep">
+      <div class="om-f"><label>盘押金</label>
+        <input id="omDep" inputmode="decimal" placeholder="≥ ${money(OM_CFG.minDeposit)}，全部盘口共享">
+        <span class="om-quick">${[1000,2000,5000].map(v=>`<button data-d="${v}">+${money(v)}</button>`).join("")}<button data-d="max">MAX</button></span></div>
+      <div class="om-note">押金自开盘起冻结，至赛事结算后解冻退回<span id="omEarly"></span></div>
+    </div>
+    <footer class="om-foot">
+      <div class="om-sum">已选 <b id="omN">0</b> 项　押金 <b id="omD">0.00</b> CNY　预计可卖额度 <b id="omQ">0.00</b> CNY
+        <i>= 押金 ÷ 最高卖出赔率</i></div>
+      <div><button id="cancel">返回</button><button class="ok" id="ok">确认开盘</button></div>
+    </footer>`;
+  mask.appendChild(mo);layer.appendChild(mask);
+  const close=()=>layer.innerHTML="";
+  $("#cls",mo).onclick=close;$("#cancel",mo).onclick=close;
+  mask.onclick=e=>{if(e.target===mask)close()};
+  $("#omEarly",mo).textContent=S.period==="早盘"
+    ?"；该场为早盘，预计冻结至 "+(mt.date||"")+" "+(mt.clock2||"")+" 赛后":"";
+
+  const picked=()=>OM_ITEMS.filter(x=>st.picks[x.k]!=null)
+    .map(x=>({...x,pt:parseFloat(st.picks[x.k])||0}));
+
+  function sum(){
+    const ps=picked(), dep=parseFloat(st.dep)||0;
+    $("#omN",mo).textContent=ps.length;
+    $("#omD",mo).textContent=money(dep);
+    $("#omQ",mo).textContent=money(omEst(dep,ps));
+  }
+  function drawList(){
+    const L=$("#omList",mo);L.innerHTML="";
+    OM_ITEMS.forEach(x=>{
+      const on=st.picks[x.k]!=null, dis=x.st!=="ok";
+      const row=el("div","om-i"+(on?" on":"")+(dis?" dis":""));
+      const pt=st.picks[x.k]||"0.01";
+      row.innerHTML=`<div class="om-ih">
+          <span class="om-ck">${on?"☑":"☐"}</span>
+          <span class="om-nm">${esc(x.name)}</span>
+          ${dis?`<span class="om-dis">${x.st==="lock"?"IM 锁盘中，不可开":"IM 无数据，不可开"}</span>`
+               :`<span class="om-off">官方 @${x.off}</span>`}
+        </div>
+        ${on?`<div class="om-set">
+          <span class="om-pt"><label>上浮点位</label>
+            <button class="stp" data-m="-1">▼</button>
+            <input class="ptv" data-k="${x.k}" value="${pt}">
+            <button class="stp" data-m="1">▲</button></span>
+          <span class="om-od">庄单赔率 <b>@${omOdds(x.off,pt)}</b>
+            ${parseFloat(omOdds(x.off,pt))<parseFloat(x.off)?`<i class="om-low">低于官方</i>`:""}</span>
+        </div>`:""}`;
+      if(!dis)$(".om-ih",row).onclick=()=>{
+        if(on)delete st.picks[x.k]; else st.picks[x.k]="0.01";
+        drawList();sum();
+      };
+      if(on){
+        const inp=$(".ptv",row);
+        const setPt=v=>{st.picks[x.k]=v;drawList();sum()};
+        inp.oninput=e=>{st.picks[x.k]=e.target.value.replace(/[^\d.\-]/g,"")};
+        inp.onblur=()=>{
+          let v=parseFloat(inp.value);
+          if(isNaN(v))v=0;
+          v=Math.max(-9.99,Math.min(9.99,v));
+          if(parseFloat(x.off)+v<=0){toast("结果赔率须大于 0");v=parseFloat(st.picks[x.k])||0.01}
+          setPt(v.toFixed(2));
+        };
+        row.querySelectorAll(".stp").forEach(b=>b.onclick=()=>{
+          let v=(parseFloat(st.picks[x.k])||0)+(+b.dataset.m)*0.01;
+          v=Math.max(-9.99,Math.min(9.99,v));
+          if(parseFloat(x.off)+v<=0)return toast("结果赔率须大于 0");
+          setPt(v.toFixed(2));
+        });
+      }
+      L.appendChild(row);
+    });
+  }
+  drawList();sum();
+
+  $("#omDep",mo).oninput=e=>{st.dep=e.target.value.replace(/[^\d.]/g,"");sum()};
+  mo.querySelectorAll("[data-d]").forEach(b=>b.onclick=()=>{
+    st.dep=b.dataset.d==="max"?String(OM_CFG.depositMax.toFixed(2))
+      :String(((parseFloat(st.dep)||0)+parseFloat(b.dataset.d)).toFixed(2));
+    $("#omDep",mo).value=st.dep;sum();
+  });
+  $("#omSeal",mo).oninput=e=>{st.seal=Math.max(0,Math.min(1440,parseInt(e.target.value||0)))};
+  $("#omNick",mo).oninput=e=>{st.nick=e.target.value.slice(0,12)};
+
+  /* 确认开盘：逐条校验门槛，任一不过整体不提交 */
+  $("#ok",mo).onclick=()=>{
+    const ps=picked(), dep=parseFloat(st.dep)||0;
+    /* 提交时二次校验：弹窗打开期间该场若出现投注项卖出，拦截并关闭弹窗 */
+    if(hasItemSell(mt.id)){close();return toast("你在该场已有进行中的投注项卖出，同一场比赛二选一")}
+    if(ps.length<OM_CFG.minItems) return toast(`开盘门槛：至少开放 ${OM_CFG.minItems} 个盘口`);
+    if(dep<OM_CFG.minDeposit)     return toast(`开盘门槛：押金须 ≥ ${money(OM_CFG.minDeposit)}`);
+    if(dep>OM_CFG.depositMax)     return toast(`押金超出风控上限 ${money(OM_CFG.depositMax)}`);
+    if(dep>S.balance)             return toast("账户余额不足，不产生任何冻结");
+    if(!st.nick.trim())           return toast("请填写庄家昵称");
+    const m=makeMarket(mt,g.league,g.sport,st.nick.trim(),dep,st.seal,ps);
+    markets.unshift(m);
+    S.omNick=st.nick.trim();
+    S.balance-=dep;
+    close();render();
+    toast(`开盘成功，押金已冻结 ¥${money(dep)}`);
+  };
+}
+
 function openLeagueModal(){
   const layer=$("#layer");
   const mask=el("div","mask");
@@ -3248,13 +4454,13 @@ function guideRender(){
 }
 $("#g-skip").onclick=guideEnd;
 $("#g-next").onclick=guideNext;
-window.addEventListener("resize",()=>{if($("#guide").classList.contains("show"))guideRender()});
+window.addEventListener("resize",()=>{if($("#guide").classList.contains("show"))guideRender();renderRight()});
 
 
 document.documentElement.setAttribute("data-theme",S.theme);
 render();
-/* 原型默认展示引导（线上触发条件见需求说明） */
-setTimeout(guideStart,600);
+/* 原型默认不弹引导，避免每次进来都要跳过；需要演示时走「设置 › 新手引导」
+   线上的一次性触发条件见右侧需求说明 */
 </script>
 </body>
 </html>
