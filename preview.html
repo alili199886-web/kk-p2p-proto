@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v13.8</title>
+<title>P2P 开盘坐庄 · 交互原型 v14.0</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.8 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v14.0 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -426,6 +426,14 @@ input:focus{border-color:#FF8C00}
 <div class="spec" id="spec-home" data-page="pg-home" style="display:none">
   <h3>赛事大厅 · 开盘坐庄需求标注</h3>
   <p class="sub">本期在 IM 既有赛事与盘口范围内，升级为「私盘模式按赛事开盘坐庄」。原比赛与既有投注项卖出完全不受影响。</p>
+
+  <h4>商户开关</h4>
+  <ul>
+    <li><b>两级开关</b>：商户 <b>P2P 开关</b>为前置条件，商户 <b>私盘开关</b>独立配置。私盘可用 = P2P 开启 <b>且</b> 私盘开启；商户未开通 P2P 时，P2P 与私盘的前端入口全部隐藏。</li>
+    <li><b>关闭后的隐藏范围</b>：赛事行「开盘」按钮、赛事列表的私盘行、筛选行的「私盘」胶囊（P2P 关闭时另含「P2P」胶囊、赔率格红点与 P2P 入口）、购物车内私盘投注项的相关展示。</li>
+    <li><b>软关闭，存量盘继续执行</b>：关闭前已存在且<b>未结算</b>的私盘继续执行至赛事结算，已成交子单正常结算、未消费押金结算后退回。</li>
+    <li><b>存量盘的管理入口保留</b>：本人仍有未结算的盘时，「我的卖出」的<b>私盘页签保留可见</b>，可进入开盘详情查看；但<b>不可新开盘、不可新增盘口、不可补充额度</b>，底部仅保留「停止收单」，并提示「商户已关闭私盘，本盘不可新增盘口与补充额度，可停止收单或等待赛事结算」。本人全部盘结算完成后，私盘页签随之隐藏。</li>
+  </ul>
 
   <h4>开盘入口</h4>
   <ul>
@@ -1089,7 +1097,23 @@ function mOccupied(m){return m.items.reduce((s,i)=>s+i.sold*i.odds,0)}
 function mRemainDep(m){return Math.max(0,+(m.dep-mOccupied(m)).toFixed(2))}
 function itemRemain(m,it){return it.status!=='on'?0:Math.floor(mRemainDep(m)/it.odds*100)/100}
 function maxOdds(arr){return arr.length?Math.max(...arr):0}
-/* ═════ 开盘坐庄功能开关:本期隐藏,下一版本置 true 即恢复 ═════ */
+/* ═════ 开盘坐庄功能开关:产品是否建设该功能 ═════ */
+const OPEN_MARKET_BUILT=true;
+/* ═════ 商户级开关(后台配置) ═════
+   p2pOn    : 商户 P2P 开关,关闭时 P2P 与私盘全部隐藏
+   marketOn : 商户私盘开关,独立于 P2P;私盘可用 = p2pOn && marketOn
+   软关闭:关闭后不可新开 / 不可补充额度,存量未结算的盘继续执行至结算 */
+let MCH={p2pOn:true,marketOn:true};
+function p2pEnabled(){return MCH.p2pOn}
+function marketEnabled(){return OPEN_MARKET_BUILT&&MCH.p2pOn&&MCH.marketOn}
+function hasLiveMarkets(){return markets.some(m=>m.status!=='settled')}
+/* 私盘相关展示是否可见:开关开启,或关闭但本人仍有未结算的盘 */
+function marketVisible(){return OPEN_MARKET_BUILT&&(marketEnabled()||hasLiveMarkets())}
+/* 按商户开关同步全局入口 */
+function syncMerchantUI(){
+  const fp=$('fp-p2p'); if(fp)fp.style.display=p2pEnabled()?'':'none';
+  const fc=$('fp-clone'); if(fc)fc.style.display=marketEnabled()?'':'none';
+}
 const OPEN_MARKET_ENABLED=true;
 /* ═════ 私盘(复制比赛)模型 ═════ */
 let BANKER_NICK='金刚庄';
@@ -1252,7 +1276,7 @@ let cloneOnly=false;
 function toggleCloneOnly(){cloneOnly=!cloneOnly;const el=$('fp-clone');if(el)el.classList.toggle('on',cloneOnly);renderHome()}
 function cloneToggle(k){if(!(k in buyAmt))buyAmt[k]='';if(slipIdx===2)slipIdx=0;toggleSel(k)}
 function cloneRowsHtml(mid){
-  if(!OPEN_MARKET_ENABLED)return '';
+  if(!marketEnabled())return '';   /* 商户私盘开关关闭:赛事列表不再展示私盘行 */
   const m=MATCHES[mid];
   if(!m||m.special==='test')return '';
   return clonesOf(mid).map(c=>{
@@ -1344,11 +1368,14 @@ function swE(e,mid){
   else if(d>0&&curP===1)setPage(mid,0); /* 右滑 → 全场 */
 }
 function renderHome(){
+  syncMerchantUI();
   const fb=$('home-fbar');
   if(fb)fb.style.display='flex';
-  /* 冠军盘口不参与 P2P 撮合与私盘,隐藏这两个筛选,其余保留 */
+  /* 冠军盘口不参与 P2P 撮合与私盘,隐藏这两个筛选;
+     同时叠加商户开关:P2P 关闭隐藏 P2P 胶囊,私盘关闭隐藏私盘胶囊 */
   const champ=(homeTab==='champ');
-  ['fp-p2p','fp-clone'].forEach(id=>{const e=$(id);if(e)e.style.display=champ?'none':''});
+  {const e=$('fp-p2p');if(e)e.style.display=(champ||!p2pEnabled())?'none':''}
+  {const e=$('fp-clone');if(e)e.style.display=(champ||!marketEnabled())?'none':''}
   if(homeTab==='champ'){renderChamp();return}
   $('home-list').innerHTML=LEAGUES.map((lg,li)=>{
     const lgMids=p2pOnly?lg.mids.filter(x=>p2pCountOf(x)>0):lg.mids;
@@ -1788,6 +1815,7 @@ function bookHtml(k,defOpen){
    不同会员互不影响——私盘档位只在私盘内成交,官方盘卖单簿只含投注项卖出档位,
    两者押金池、撮合与结算彼此独立,新开私盘不影响官方盘上已有 P2P 挂单的购买。 */
 function canOpenMarket(mid){
+  if(!marketEnabled())return {ok:false,why:'商户未开通私盘,暂不支持开盘'};
   if(homeTab==='live')return {ok:false,why:'滚球赛事已开赛,不支持开盘'};
   if(myLiveMarket(mid))return {ok:false,why:'你对该比赛已有进行中的盘,请先在开盘详情中管理'};
   if(myLiveLegacy(mid))return {ok:false,why:'你对该场已有投注项卖出,不可再开盘'};
@@ -2747,6 +2775,15 @@ function renderMe(){
         <span style="color:#ccc">›</span></div>
     </div>
     <div class="grp">
+      <div class="gl">演示 · 商户开关（仅用于演示，不上线）</div>
+      <div class="gr">
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">商户 P2P 开关</span>
+        <span class="sw ${MCH.p2pOn?'on':''}" onclick="MCH.p2pOn=!MCH.p2pOn;syncMerchantUI();renderMe()"><i></i></span></div>
+      <div class="gr" style="border-top:1px dashed #f0f0f0">
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">商户私盘开关</span>
+        <span class="sw ${MCH.marketOn?'on':''}" onclick="MCH.marketOn=!MCH.marketOn;syncMerchantUI();renderMe()"><i></i></span></div>
+    </div>
+    <div class="grp">
       <div class="gl">主题风格</div>
       <div class="gr">
         <span class="radio ${theme==='day'?'on':''}" onclick="theme='day';renderMe()"><i></i></span>
@@ -2788,10 +2825,12 @@ function renderMe(){
     </div>`;
 }
 function renderOrders(){
-  const _mks=OPEN_MARKET_ENABLED?markets:[];
+  /* 私盘开关关闭后,本人仍有未结算的盘时保留私盘页签,仅能停止收单与等待结算 */
+  const _vis=marketVisible();
+  const _mks=_vis?markets:[];
   const _sg=$('orders-seg');
-  if(_sg)_sg.style.display=OPEN_MARKET_ENABLED?'flex':'none';
-  if(!OPEN_MARKET_ENABLED)segIdx=1;
+  if(_sg)_sg.style.display=_vis?'flex':'none';
+  if(!_vis)segIdx=1;
   const totalCnt=_mks.length+legacySells.length;
   const running=_mks.filter(m=>m.status==='open'||m.status==='soldout').length
               +legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交').length;
@@ -3115,10 +3154,13 @@ function renderDetail(){
       </div>`;
     }).join('')}`;
   let fh='';
-  if(m.status==='open'||m.status==='soldout')fh=`<div class="row" style="gap:8px">
-    <button class="btn btn-o grow" onclick="addItemSheet()">新增盘口</button>
-    <button class="btn btn-o grow" onclick="topupSheet()">补充额度</button>
-    <button class="btn btn-r grow" onclick="stopSheet()">停止收单</button></div>`;
+  if(m.status==='open'||m.status==='soldout')fh=marketEnabled()
+    ?`<div class="row" style="gap:8px">
+        <button class="btn btn-o grow" onclick="addItemSheet()">新增盘口</button>
+        <button class="btn btn-o grow" onclick="topupSheet()">补充额度</button>
+        <button class="btn btn-r grow" onclick="stopSheet()">停止收单</button></div>`
+    :`<div class="hint" style="margin:0 0 8px">商户已关闭私盘,本盘不可新增盘口与补充额度,可停止收单或等待赛事结算。</div>
+      <button class="btn btn-r" style="width:100%" onclick="stopSheet()">停止收单</button>`;
   /* 已结算 / 已关闭无控盘操作:底部操作区整条隐藏,返回走左上角返回按钮 */
   $('dt-footer').innerHTML=fh;
   $('dt-footer').style.display=fh?'block':'none';
@@ -3496,7 +3538,7 @@ function stopSheet(){
 function stopAll(){cur.status='closed';closeCfm();toast('已停止收单,盘已关闭,私盘已从列表下架');updBadge();renderDetail();renderHome()}
 
 Object.keys(MATCHES).forEach(mid=>mtRegister(mid));   /* 启动即注册全部盘口,使投注项数量口径稳定 */
-if(!OPEN_MARKET_ENABLED){const _fc=$('fp-clone');if(_fc)_fc.style.display='none';}
+syncMerchantUI();
 seedSampleDates();
 champInit();
 renderHomeTop();
