@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v13.1</title>
+<title>P2P 开盘坐庄 · 交互原型 v13.3</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.1 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.3 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -448,6 +448,7 @@ input:focus{border-color:#FF8C00}
     <li>「进行中」的判定范围：<b>卖出中、已封盘</b>计入（私盘仍在列表或可恢复）；<b>已售罄、已关闭、已结算不计入</b>，庄家可对同一比赛再开新盘——售罄盘已从列表消失，不会造成重复占位。</li>
     <li>单场私盘<b>展示上限 N 个（默认 5）</b>，超出折叠为「查看全部私盘」，折叠不影响卖单簿成交。</li>
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
+    <li><b>比赛卡片的队伍信息</b>：每行为「球队图标 + 队名 + 红黄牌角标」，行右侧展示该队当前比分；黄牌为橙底白字方块、红牌为红底白字方块，牌数为 0 时该角标不展示。队名下方一行展示「直播图标 + 半场比分 + 角球图标与角球比分」，对应字段缺失时该项不展示、整行无内容时不占位。官方盘与私盘的这部分展示规则一致。</li>
     <li><b>私盘行版式与官方盘一致</b>：标题行为私盘名称 + 右侧「私盘」标识；<b>开赛时间展示在队名上方</b>；<b>盘口名称列头</b>（全场 / 上半场 的 独赢、让球、大/小）与官方盘同位置同样式；<b>「全部 N▸」入口展示在队名下方</b>（与官方盘的「所有盘口 N▸」同位置）；底部翻页指示点与左右滑动切换全场 / 上半场的交互也与官方盘一致，<b>与该场官方盘共用同一分页状态</b>（官方盘切到上半场时，其下的私盘同步切换）。</li>
     <li><b>私盘的「全部 N▸」入口</b>：赛事列表的私盘行只展示六类主玩法（全场 / 上半场 的 独赢、让球、大/小）。当私盘开了这六类之外的盘口（如进球、波胆、特殊玩法）时，展示「全部 N▸」（N = 该私盘开放的盘口总数）；点击进入盘口详情页，页面<b>仅展示该私盘开放的盘口</b>、按该私盘的庄单赔率显示，点击任一盘口即加入购物车并按私盘规则投注。私盘开放的盘口全部落在六类主玩法内时不展示该入口。</li>
   </ul>
@@ -948,12 +949,14 @@ const MATCHES={
   t1:{id:'t1',home:'TEST测试主队A',away:'TEST测试客队B',hIcon:'🛡️',aIcon:'🛡️',league:'TEST测试联赛-接口验收专用',time:'06-30 21:00',cnt:'2+',tagTxt:'今日',special:'test',
       odds:{bigL:'大 2.5',big:1.85,smallL:'小 2.5',small:1.95}},
   m1:{id:'m1',home:'登克尔克',away:'德罗赫达联',hIcon:'🔴',aIcon:'🟣',league:'爱尔兰超级联赛',time:'07-11 02:45',cnt:'184+',tagTxt:'今日',
+      score:[2,1],yellow:[2,1],red:[0,1],ht:'2-0',corner:'2-1',live:true,
       odds:{mw:1.66,ma:4.34,md:3.92,hhL:'主 -0.5/1',hh:0.88,ahL:'客 +0.5/1',ah:1.02,bigL:'大 3',big:1.02,smallL:'小 3',small:0.86},
       half:{mw:2.12,ma:5.07,md:2.37,hhL:'主 -0/0.5',hh:0.77,ahL:'客 +0/0.5',ah:1.12,bigL:'大 1/1.5',big:1.04,smallL:'小 1/1.5',small:0.84}},
-  m2:{id:'m2',home:'瓦特福',away:'圣巴特里克竞技',hIcon:'🔵',aIcon:'🔴',league:'爱尔兰超级联赛',time:'07-11 03:00',cnt:'182+',tagTxt:'今日',
+  m2:{id:'m2',home:'瓦特福',away:'圣巴特里克竞技',hIcon:'🔵',aIcon:'🔴',league:'爱尔兰超级联赛',time:'07-11 03:00',
+      score:[1,0],yellow:[1,3],red:[0,0],ht:'1-0',corner:'4-2',live:true,cnt:'182+',tagTxt:'今日',
       odds:{mw:4.41,ma:1.68,md:3.73,hhL:'主 +0.5/1',hh:0.99,ahL:'客 -0.5/1',ah:0.91,bigL:'大 2.5/3',big:1.04,smallL:'小 2.5/3',small:0.84},
       half:{mw:4.38,ma:1.69,md:3.72,hhL:'主 +0/0.5',hh:0.98,ahL:'客 -0/0.5',ah:0.92,bigL:'大 1',big:0.83,smallL:'小 1',small:1.05}},
-  m3:{id:'m3',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',hIcon:'🔴',aIcon:'🔵',league:'冰岛女子超级联赛',time:'07-11 02:00',cnt:'152+',tagTxt:'今日',
+  m3:{id:'m3',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',live:true,hIcon:'🔴',aIcon:'🔵',league:'冰岛女子超级联赛',time:'07-11 02:00',cnt:'152+',tagTxt:'今日',
       odds:{mw:3.87,ma:1.68,md:3.67,hhL:'主 +0.5/1',hh:0.84,ahL:'客 -0.5/1',ah:0.90,bigL:'大 2.5/3',big:0.74,smallL:'小 2.5/3',small:1.12},
       half:{mw:4.10,ma:1.80,md:3.20,hhL:'主 +0/0.5',hh:0.90,ahL:'客 -0/0.5',ah:0.86,bigL:'大 1',big:0.92,smallL:'小 1',small:0.94}}
 };
@@ -1284,8 +1287,22 @@ function cloneRowsHtml(mid){
       </div>
       <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
         <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
-          <div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span></div>
-          <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
+          ${(()=>{
+            /* 队名行:球队图标 + 队名 + 红黄牌角标,右侧为该队当前比分 */
+            const card=(n,i)=>{
+              const y=(m.yellow||[])[i]||0, r=(m.red||[])[i]||0;
+              return (y?`<span style="background:#F5A623;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;flex-shrink:0">${y}</span>`:'')
+                   +(r?`<span style="background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0">${r}</span>`:'');
+            };
+            const sc=i=>(m.score?`<span style="font-size:12px;color:#222;font-weight:600;margin-left:6px;flex-shrink:0">${m.score[i]}</span>`:'');
+            return `<div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span>${card(0,0)}<span class="grow"></span>${sc(0)}</div>
+          <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span>${card(1,1)}<span class="grow"></span>${sc(1)}</div>`;
+          })()}
+          ${(m.live||m.ht||m.corner)?`<div class="row" style="gap:5px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+            ${m.live?`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#1D9E75;fill:none;stroke-width:2;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#1D9E75" stroke="none"/></svg>`:''}
+            ${m.ht?`<span class="muted nowrap" style="font-size:11px">半场 ${m.ht}</span>`:''}
+            ${m.corner?`<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:#E24B4A;flex-shrink:0;margin-left:2px"><path d="M5 3v18M5 3l12 4-12 4z"/></svg><span class="muted nowrap" style="font-size:11px">${m.corner}</span>`:''}
+          </div>`:''}
           <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
             ${(()=>{
               /* 赛事列表仅展示六大玩法(全场/上半场 的 独赢·让球·大小);
@@ -1370,8 +1387,21 @@ function renderHome(){
         </div>
         <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
           <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
-            <div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span></div>
-            <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
+            ${(()=>{
+              const cd=i=>{
+                const y=(m.yellow||[])[i]||0, r=(m.red||[])[i]||0;
+                return (y?`<span style="background:#F5A623;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;flex-shrink:0">${y}</span>`:'')
+                     +(r?`<span style="background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0">${r}</span>`:'');
+              };
+              const sc=i=>(m.score?`<span style="font-size:13px;color:#222;font-weight:700;margin-left:6px;flex-shrink:0">${m.score[i]}</span>`:'');
+              return `<div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span>${cd(0)}<span class="grow"></span>${sc(0)}</div>
+            <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span>${cd(1)}<span class="grow"></span>${sc(1)}</div>`;
+            })()}
+            ${(m.live||m.ht||m.corner)?`<div class="row" style="gap:5px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+              ${m.live?`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#1D9E75;fill:none;stroke-width:2;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#1D9E75" stroke="none"/></svg>`:''}
+              ${m.ht?`<span class="muted nowrap" style="font-size:11px">半场 ${m.ht}</span>`:''}
+              ${m.corner?`<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:#E24B4A;flex-shrink:0;margin-left:2px"><path d="M5 3v18M5 3l12 4-12 4z"/></svg><span class="muted nowrap" style="font-size:11px">${m.corner}</span>`:''}
+            </div>`:''}
             <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
               <span class="muted nowrap allmk" style="font-size:11px;cursor:pointer;flex-shrink:0" onclick="openMatch('${mid}')">全部 ${itemCountOf(mid)}▸</span>
               ${(()=>{const n=p2pCountOf(mid);if(!n)return '';
