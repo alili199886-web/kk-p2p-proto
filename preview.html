@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v13.5</title>
+<title>P2P 开盘坐庄 · 交互原型 v13.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.5 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.6 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -540,7 +540,7 @@ input:focus{border-color:#FF8C00}
     <li><b>庄单赔率</b>：绿色显示。确认开盘后固定，不随官方赔率联动。</li>
     <li><b>官方当前赔率</b>：仅作参考不参与计算；当庄单赔率低于官方赔率时追加红字「低于官方」提示（此时该档位已从卖单簿下架，不可成交）。</li>
     <li>已收金额、剩余可卖额度（标注「共享盘押金」，提示额度来自整盘共享池）。</li>
-    <li>单项操作：调水、封盘 / 恢复。</li>
+    <li>单项操作：调水、封盘 / 恢复；无成交的盘口可移除。<b>私盘暂不支持分享，投注项庄单卡片与页面任何位置均不提供分享入口</b>。</li>
     <li><b>子单列表</b>：标题「子单数据(N)」，<b>默认收起</b>，点击标题行展开 / 收起（右侧显示「展开 ⌄ / 收起 ⌃」）；每次进入详情页默认全部收起。无成交时显示「子单数据(0)：暂无成交」，不可展开。每笔两行——第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算，赢绿输红；未结算显示「未结算」）。</li>
   </ul>
 
@@ -3098,7 +3098,6 @@ function renderDetail(){
           ?`<div class="row" style="gap:6px;margin-top:9px">
               <button class="btn btn-o btn-sm grow" onclick="adjSheet(${i})">调水</button>
               <button class="btn btn-ro btn-sm grow" onclick="sealItemSheet(${i})">立即封盘</button>
-              ${remain>0.001?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="shareSheet(${i})">分享</button>`:''}
               ${it.sold<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="removeItemSheet(${i})">移除</button>`:''}</div>`
           :`<div class="row" style="gap:6px;margin-top:9px">
               <button class="btn btn-p btn-sm grow" onclick="resumeItem(${i})">恢复开盘</button>
