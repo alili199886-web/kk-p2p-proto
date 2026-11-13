@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v14.1</title>
+<title>P2P 开盘坐庄 · 交互原型 v14.2</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v14.1 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v14.2 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -429,7 +429,10 @@ input:focus{border-color:#FF8C00}
 
   <h4>商户开关</h4>
   <ul>
-    <li><b>两级开关</b>：商户 <b>P2P 开关</b>为前置条件，商户 <b>私盘开关</b>独立配置。私盘可用 = P2P 开启 <b>且</b> 私盘开启；商户未开通 P2P 时，P2P 与私盘的前端入口全部隐藏。</li>
+    <li><b>开关层级</b>：后台 <b>P2P 全局开关</b>（<code>p2p_enabled</code>）是前置条件，优先级最高；其下的<b>商户 P2P 开关</b>与<b>商户私盘开关</b>平级、各自独立——商户 P2P 开关只控制投注项卖出，不影响私盘。
+      <br>· 投注项卖出可用 = 全局开关开启 <b>且</b> 商户 P2P 开关开启
+      <br>· 私盘可用 = 全局开关开启 <b>且</b> 商户私盘开关开启
+      <br>全局开关关闭时，P2P 与私盘的前端入口全部隐藏；两个商户开关各自关闭时，只隐藏自己那一块。</li>
     <li><b>关闭后的隐藏范围</b>：
       <br>· <b>赛事页</b>：赛事行「开盘」按钮、赛事列表的私盘行、筛选行的「私盘」胶囊；
       <br>· <b>我的卖出页</b>：<b>私盘页签隐藏</b>，列表只保留「投注项卖单」单页签形态；本人仍有未结算的盘时按下一条例外处理；
@@ -1103,13 +1106,17 @@ function itemRemain(m,it){return it.status!=='on'?0:Math.floor(mRemainDep(m)/it.
 function maxOdds(arr){return arr.length?Math.max(...arr):0}
 /* ═════ 开盘坐庄功能开关:产品是否建设该功能 ═════ */
 const OPEN_MARKET_BUILT=true;
-/* ═════ 商户级开关(后台配置) ═════
-   p2pOn    : 商户 P2P 开关,关闭时 P2P 与私盘全部隐藏
-   marketOn : 商户私盘开关,独立于 P2P;私盘可用 = p2pOn && marketOn
+/* ═════ 开关层级(后台配置) ═════
+   GLOBAL.p2pEnabled : 后台 P2P 全局开关,前置条件;关闭时 P2P 与私盘全部不可用
+   MCH.p2pOn         : 商户 P2P 开关,仅控制投注项卖出(P2P)
+   MCH.marketOn      : 商户私盘开关,与商户 P2P 开关平级,各自独立
+   投注项卖出可用 = 全局开关 && 商户 P2P 开关
+   私盘可用       = 全局开关 && 商户私盘开关
    软关闭:关闭后不可新开 / 不可补充额度,存量未结算的盘继续执行至结算 */
+let GLOBAL={p2pEnabled:true};
 let MCH={p2pOn:true,marketOn:true};
-function p2pEnabled(){return MCH.p2pOn}
-function marketEnabled(){return OPEN_MARKET_BUILT&&MCH.p2pOn&&MCH.marketOn}
+function p2pEnabled(){return GLOBAL.p2pEnabled&&MCH.p2pOn}
+function marketEnabled(){return OPEN_MARKET_BUILT&&GLOBAL.p2pEnabled&&MCH.marketOn}
 function hasLiveMarkets(){return markets.some(m=>m.status!=='settled')}
 /* 私盘相关展示是否可见:开关开启,或关闭但本人仍有未结算的盘 */
 function marketVisible(){return OPEN_MARKET_BUILT&&(marketEnabled()||hasLiveMarkets())}
@@ -2779,8 +2786,11 @@ function renderMe(){
         <span style="color:#ccc">›</span></div>
     </div>
     <div class="grp">
-      <div class="gl">演示 · 商户开关（仅用于演示，不上线）</div>
+      <div class="gl">演示 · 后台开关（仅用于演示，不上线）</div>
       <div class="gr">
+        <span style="font-size:14px;font-weight:600;color:#222" class="grow">P2P 全局开关（前置）</span>
+        <span class="sw ${GLOBAL.p2pEnabled?'on':''}" onclick="GLOBAL.p2pEnabled=!GLOBAL.p2pEnabled;syncMerchantUI();renderMe()"><i></i></span></div>
+      <div class="gr" style="border-top:1px dashed #f0f0f0">
         <span style="font-size:14px;font-weight:600;color:#222" class="grow">商户 P2P 开关</span>
         <span class="sw ${MCH.p2pOn?'on':''}" onclick="MCH.p2pOn=!MCH.p2pOn;syncMerchantUI();renderMe()"><i></i></span></div>
       <div class="gr" style="border-top:1px dashed #f0f0f0">
