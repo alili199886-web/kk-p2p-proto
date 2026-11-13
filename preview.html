@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.9</title>
+<title>P2P 开盘坐庄 · 交互原型 v13.1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v12.9</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.1 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -535,7 +535,7 @@ input:focus{border-color:#FF8C00}
 
   <h4>庄单卡片字段</h4>
   <ul>
-    <li>投注项名 + 单项状态标签：进行中为收单中 / 部分成交 / 已封盘 / 已售罄；<b>盘已结算时标签改为该投注项的输赢结果</b>（赢绿 / 输红 / 走水灰），不再显示「已结算」。</li>
+    <li>投注项名 + 单项状态标签：<b>单项状态跟随盘状态</b>——盘为卖出中时各投注项均显示「卖出中」，盘为已售罄时各项均显示「已售罄」，盘已关闭时各项显示「已关闭」；<b>单项被庄家手动封盘</b>时该项显示「已封盘」，不随盘状态；盘已结算时标签改为该投注项的输赢结果（赢绿 / 输红 / 走水灰），不再显示「已结算」。</li>
     <li><b>庄单赔率</b>：绿色显示。确认开盘后固定，不随官方赔率联动。</li>
     <li><b>官方当前赔率</b>：仅作参考不参与计算；当庄单赔率低于官方赔率时追加红字「低于官方」提示（此时该档位已从卖单簿下架，不可成交）。</li>
     <li>已收金额、剩余可卖额度（标注「共享盘押金」，提示额度来自整盘共享池）。</li>
@@ -604,7 +604,7 @@ input:focus{border-color:#FF8C00}
 
   <h4>页面结构</h4>
   <ul>
-    <li><b>顶栏</b>：返回、标题「庄家卖出详情」、右上角分享入口（仅卖出中 / 部分成交时展示；已售罄、已封盘、已关闭、已结算时隐藏）。</li>
+    <li><b>顶栏</b>：返回、标题「庄家卖出详情」、右上角分享入口——<b>仅「卖出中」状态展示</b>，部分成交、已售罄、已封盘、已关闭、已结算均隐藏；卖单列表卡片上的分享图标同此规则。</li>
     <li><b>赛事卡</b>：联赛 + 状态标签；主队 VS 客队（队名完整展示，不截断）；玩法标签 + 投注项。</li>
     <li><b>最终输赢</b>：仅已结算展示，大字号居中，赢绿输红。</li>
     <li><b>三列指标</b>：剩余额度 / 已收单 / 上浮点位。</li>
@@ -2826,7 +2826,7 @@ function renderOrders(){
     return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openSellDetail(${idx})">
       <div class="row">
         <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${l.league}</span>
-        ${(l.state==='卖出中'||l.state==='部分成交')?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
+        ${l.state==='卖出中'?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
         <span class="tag ${L_TAG[l.state]}">${l.state}</span></div>
       <div class="muted" style="margin:6px 0 4px">${l.home} VS ${l.away}</div>
       <div class="row" style="font-size:12px;color:#666;gap:6px">
@@ -2852,6 +2852,9 @@ function openSellDetail(idx){sdIdx=idx;renderSellDetail();go('pg-selldetail')}
 function renderSellDetail(){
   const l=legacySells[sdIdx];
   if(!l){$('sd-body').innerHTML='';return}
+  /* 仅「卖出中」的投注项卖单可分享,其余状态隐藏分享入口 */
+  const _sh=$('sd-share');
+  if(_sh)_sh.style.display=(l.state==='卖出中')?'block':'none';
   const settled=l.state==='已结算',pct=lsPct(l);
   const barColor=settled?'#1D9E75':(l.state==='已关闭'?'#c9ccd1':'#2E7BD6');
   $('sd-body').innerHTML=`
@@ -2906,8 +2909,7 @@ function renderSellDetail(){
         <span style="font-size:13px;color:#222;font-weight:600" class="grow">卖出返回</span>
         <span style="font-size:14px;font-weight:800;color:#222" class="nowrap">${money(lsRefund(l))} CNY</span></div>`:''}
     </div>`:''}`;
-  const canOp=(l.state==='卖出中'||l.state==='部分成交');
-  const sdsh=$('sd-share');if(sdsh)sdsh.style.display=canOp?'block':'none';
+  const canOp=(l.state==='卖出中'||l.state==='部分成交');   /* 可操作状态:补充押金 / 停止收单 */
   $('sd-footer').innerHTML=canOp
     ?`<div class="row" style="gap:10px">
         <button class="btn btn-p grow" onclick="topupSell()">补充押金</button>
@@ -2995,9 +2997,12 @@ function itemTag(m,it){
   }
   if(m.status==='closed')return '<span class="tag tag-closed">已关闭</span>';
   if(it.status==='sealed')return '<span class="tag tag-sealed">已封盘</span>';
+  /* 盘状态决定全部投注项的状态:盘已售罄则各项均为已售罄,盘卖出中则各项均为卖出中
+     (单项被庄家手动封盘时仍显示已封盘,该项不随盘状态) */
+  if(m.status==='soldout')return '<span class="tag tag-soldout">已售罄</span>';
   const remain=itemRemain(cur,it);
   if(remain<=0.001)return '<span class="tag tag-soldout">已售罄</span>';
-  return it.sold>0?'<span class="tag tag-partial">部分成交</span>':'<span class="tag tag-open">卖出中</span>';
+  return '<span class="tag tag-open">卖出中</span>';
 }
 function renderDetail(){
   const m=cur,mt=MATCHES[m.mid];
@@ -3138,11 +3143,9 @@ function renderAddSheet(){
           <span class="spin"><input value="${t.pt}" onchange="addPt(${i},this.value)"><span class="ud"><button onclick="addStep(${i},1)">▲</button><button onclick="addStep(${i},-1)">▼</button></span></span>
           <span style="font-size:12px;color:#666" class="nowrap">庄单赔率</span>
           <span class="odds-g nowrap">@${f2(odds)}</span>${odds<hk?'<span class="low">低于官方</span>':''}</div>
-        <div class="muted" style="margin-top:4px">共享盘押金,无需单独押金;剩余可卖 = 剩余押金 ÷ 该项赔率</div>
       </div>`:''}
     </div>`}).join('');
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:8px">新增盘口</h3>
-    <div class="muted" style="text-align:center;margin-bottom:10px">按新增时官方赔率 + 上浮点位定价,共享盘押金,确认后进入卖单簿并对买家开放</div>
     <div style="max-height:320px;overflow-y:auto">${rows}</div>
     <div class="row" style="gap:8px;margin-top:6px">
       <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
@@ -3409,7 +3412,6 @@ function shareLand(){
 function topupSheet(){
   const mo=maxOdds(cur.items.filter(i=>i.status==='on').map(i=>i.odds));
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">补充额度</h3>
-    <div class="muted" style="text-align:center;margin-bottom:10px">追加盘押金,全部盘口共享;庄单赔率与卖出状态不变,已售罄时追加后自动恢复收单</div>
     <div style="border:1px solid #f0f0f0;border-radius:8px;padding:12px;margin-bottom:8px">
       <div class="row"><span class="muted grow">当前盘押金</span><span class="nowrap" style="font-weight:600">¥${money(cur.dep)}</span></div>
       <div class="row" style="margin-top:4px"><span class="muted grow">剩余押金</span><span class="nowrap">¥${money(mRemainDep(cur))}</span></div>
