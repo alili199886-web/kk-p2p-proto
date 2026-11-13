@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v14.0</title>
+<title>P2P 开盘坐庄 · 交互原型 v14.1</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v14.0 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v14.1 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -430,7 +430,11 @@ input:focus{border-color:#FF8C00}
   <h4>商户开关</h4>
   <ul>
     <li><b>两级开关</b>：商户 <b>P2P 开关</b>为前置条件，商户 <b>私盘开关</b>独立配置。私盘可用 = P2P 开启 <b>且</b> 私盘开启；商户未开通 P2P 时，P2P 与私盘的前端入口全部隐藏。</li>
-    <li><b>关闭后的隐藏范围</b>：赛事行「开盘」按钮、赛事列表的私盘行、筛选行的「私盘」胶囊（P2P 关闭时另含「P2P」胶囊、赔率格红点与 P2P 入口）、购物车内私盘投注项的相关展示。</li>
+    <li><b>关闭后的隐藏范围</b>：
+      <br>· <b>赛事页</b>：赛事行「开盘」按钮、赛事列表的私盘行、筛选行的「私盘」胶囊；
+      <br>· <b>我的卖出页</b>：<b>私盘页签隐藏</b>，列表只保留「投注项卖单」单页签形态；本人仍有未结算的盘时按下一条例外处理；
+      <br>· <b>购物车</b>：私盘投注项的相关展示与入口；
+      <br>· P2P 开关关闭时，另含「P2P」胶囊、赔率格红点与比赛行的 P2P 入口。</li>
     <li><b>软关闭，存量盘继续执行</b>：关闭前已存在且<b>未结算</b>的私盘继续执行至赛事结算，已成交子单正常结算、未消费押金结算后退回。</li>
     <li><b>存量盘的管理入口保留</b>：本人仍有未结算的盘时，「我的卖出」的<b>私盘页签保留可见</b>，可进入开盘详情查看；但<b>不可新开盘、不可新增盘口、不可补充额度</b>，底部仅保留「停止收单」，并提示「商户已关闭私盘，本盘不可新增盘口与补充额度，可停止收单或等待赛事结算」。本人全部盘结算完成后，私盘页签随之隐藏。</li>
   </ul>
