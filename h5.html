@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v12.9</title>
+<title>P2P 开盘坐庄 · 交互原型 v13.8</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -95,7 +95,7 @@ input:focus{border-color:#FF8C00}
 .fpill.on{background:#FF8C00;color:#fff;border-color:#FF8C00}
 .tpill{font-size:12px;padding:4px 10px;border-radius:13px;background:transparent;color:#888;white-space:nowrap;cursor:pointer}
 .tpill.on{background:#FF8C00;color:#fff}
-.oddcell{width:60px;border-radius:8px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid transparent;position:relative;padding:5px 2px;min-height:38px}
+.oddcell{width:58px;border-radius:8px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid transparent;position:relative;padding:5px 2px;min-height:38px}
 .oddcell.sel{background:linear-gradient(180deg,#FFA33A,#FF8C00);color:#fff}
 .oddcell .lb{font-size:10px;opacity:.75;white-space:nowrap}
 .oddcell .v{font-weight:700;font-size:13px}
@@ -446,6 +446,7 @@ input:focus{border-color:#FF8C00}
     <li>「进行中」的判定范围：<b>卖出中、已封盘</b>计入（私盘仍在列表或可恢复）；<b>已售罄、已关闭、已结算不计入</b>，庄家可对同一比赛再开新盘——售罄盘已从列表消失，不会造成重复占位。</li>
     <li>单场私盘<b>展示上限 N 个（默认 5）</b>，超出折叠为「查看全部私盘」，折叠不影响卖单簿成交。</li>
     <li>筛选行「私盘」胶囊：开启后仅展示私盘。</li>
+    <li><b>比赛卡片的队伍信息</b>：每行为「球队图标 + 队名 + 红黄牌角标」，行右侧展示该队当前比分；黄牌为橙底白字方块、红牌为红底白字方块，牌数为 0 时该角标不展示。队名下方一行展示「直播图标 + 半场比分 + 角球图标与角球比分」，对应字段缺失时该项不展示、整行无内容时不占位。官方盘与私盘的这部分展示规则一致。</li>
     <li><b>私盘行版式与官方盘一致</b>：标题行为私盘名称 + 右侧「私盘」标识；<b>开赛时间展示在队名上方</b>；<b>盘口名称列头</b>（全场 / 上半场 的 独赢、让球、大/小）与官方盘同位置同样式；<b>「全部 N▸」入口展示在队名下方</b>（与官方盘的「所有盘口 N▸」同位置）；底部翻页指示点与左右滑动切换全场 / 上半场的交互也与官方盘一致，<b>与该场官方盘共用同一分页状态</b>（官方盘切到上半场时，其下的私盘同步切换）。</li>
     <li><b>私盘的「全部 N▸」入口</b>：赛事列表的私盘行只展示六类主玩法（全场 / 上半场 的 独赢、让球、大/小）。当私盘开了这六类之外的盘口（如进球、波胆、特殊玩法）时，展示「全部 N▸」（N = 该私盘开放的盘口总数）；点击进入盘口详情页，页面<b>仅展示该私盘开放的盘口</b>、按该私盘的庄单赔率显示，点击任一盘口即加入购物车并按私盘规则投注。私盘开放的盘口全部落在六类主玩法内时不展示该入口。</li>
   </ul>
@@ -533,11 +534,12 @@ input:focus{border-color:#FF8C00}
 
   <h4>庄单卡片字段</h4>
   <ul>
-    <li>投注项名 + 单项状态标签：进行中为收单中 / 部分成交 / 已封盘 / 已售罄；<b>盘已结算时标签改为该投注项的输赢结果</b>（赢绿 / 输红 / 走水灰），不再显示「已结算」。</li>
+    <li>投注项名 + 单项状态标签：<b>单项状态跟随盘状态</b>——盘为卖出中时各投注项均显示「卖出中」，盘为已售罄时各项均显示「已售罄」，盘已关闭时各项显示「已关闭」；<b>单项被庄家手动封盘</b>时该项显示「已封盘」，不随盘状态；盘已结算时标签改为该投注项的输赢结果（赢绿 / 输红 / 走水灰），不再显示「已结算」。</li>
     <li><b>庄单赔率</b>：绿色显示。确认开盘后固定，不随官方赔率联动。</li>
     <li><b>官方当前赔率</b>：仅作参考不参与计算；当庄单赔率低于官方赔率时追加红字「低于官方」提示（此时该档位已从卖单簿下架，不可成交）。</li>
     <li>已收金额、剩余可卖额度（标注「共享盘押金」，提示额度来自整盘共享池）。</li>
-    <li>单项操作：调水、封盘 / 恢复。</li>
+    <li>单项操作：调水、封盘 / 恢复、分享；无成交的盘口可移除。</li>
+    <li><b>分享按钮按单项庄单状态判定</b>：仅该投注项庄单处于「卖出中」（盘在售、该项未封盘、仍有剩余可卖额度）时展示；已售罄、已封盘、已关闭、已结算均不展示。与投注项卖出详情的规则一致。</li>
     <li><b>子单列表</b>：标题「子单数据(N)」，<b>默认收起</b>，点击标题行展开 / 收起（右侧显示「展开 ⌄ / 收起 ⌃」）；每次进入详情页默认全部收起。无成交时显示「子单数据(0)：暂无成交」，不可展开。每笔两行——第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算，赢绿输红；未结算显示「未结算」）。</li>
   </ul>
 
@@ -602,7 +604,7 @@ input:focus{border-color:#FF8C00}
 
   <h4>页面结构</h4>
   <ul>
-    <li><b>顶栏</b>：返回、标题「庄家卖出详情」、右上角分享入口（仅卖出中 / 部分成交时展示；已售罄、已封盘、已关闭、已结算时隐藏）。</li>
+    <li><b>顶栏</b>：返回、标题「庄家卖出详情」、右上角分享入口——<b>仅「卖出中」状态展示</b>，部分成交、已售罄、已封盘、已关闭、已结算均隐藏；卖单列表卡片上的分享图标同此规则。</li>
     <li><b>赛事卡</b>：联赛 + 状态标签；主队 VS 客队（队名完整展示，不截断）；玩法标签 + 投注项。</li>
     <li><b>最终输赢</b>：仅已结算展示，大字号居中，赢绿输红。</li>
     <li><b>三列指标</b>：剩余额度 / 已收单 / 上浮点位。</li>
@@ -946,12 +948,14 @@ const MATCHES={
   t1:{id:'t1',home:'TEST测试主队A',away:'TEST测试客队B',hIcon:'🛡️',aIcon:'🛡️',league:'TEST测试联赛-接口验收专用',time:'06-30 21:00',cnt:'2+',tagTxt:'今日',special:'test',
       odds:{bigL:'大 2.5',big:1.85,smallL:'小 2.5',small:1.95}},
   m1:{id:'m1',home:'登克尔克',away:'德罗赫达联',hIcon:'🔴',aIcon:'🟣',league:'爱尔兰超级联赛',time:'07-11 02:45',cnt:'184+',tagTxt:'今日',
+      score:[2,1],yellow:[2,1],red:[0,1],ht:'2-0',corner:'2-1',live:true,
       odds:{mw:1.66,ma:4.34,md:3.92,hhL:'主 -0.5/1',hh:0.88,ahL:'客 +0.5/1',ah:1.02,bigL:'大 3',big:1.02,smallL:'小 3',small:0.86},
       half:{mw:2.12,ma:5.07,md:2.37,hhL:'主 -0/0.5',hh:0.77,ahL:'客 +0/0.5',ah:1.12,bigL:'大 1/1.5',big:1.04,smallL:'小 1/1.5',small:0.84}},
-  m2:{id:'m2',home:'瓦特福',away:'圣巴特里克竞技',hIcon:'🔵',aIcon:'🔴',league:'爱尔兰超级联赛',time:'07-11 03:00',cnt:'182+',tagTxt:'今日',
+  m2:{id:'m2',home:'瓦特福',away:'圣巴特里克竞技',hIcon:'🔵',aIcon:'🔴',league:'爱尔兰超级联赛',time:'07-11 03:00',
+      score:[1,0],yellow:[1,3],red:[0,0],ht:'1-0',corner:'4-2',live:true,cnt:'182+',tagTxt:'今日',
       odds:{mw:4.41,ma:1.68,md:3.73,hhL:'主 +0.5/1',hh:0.99,ahL:'客 -0.5/1',ah:0.91,bigL:'大 2.5/3',big:1.04,smallL:'小 2.5/3',small:0.84},
       half:{mw:4.38,ma:1.69,md:3.72,hhL:'主 +0/0.5',hh:0.98,ahL:'客 -0/0.5',ah:0.92,bigL:'大 1',big:0.83,smallL:'小 1',small:1.05}},
-  m3:{id:'m3',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',hIcon:'🔴',aIcon:'🔵',league:'冰岛女子超级联赛',time:'07-11 02:00',cnt:'152+',tagTxt:'今日',
+  m3:{id:'m3',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',live:true,hIcon:'🔴',aIcon:'🔵',league:'冰岛女子超级联赛',time:'07-11 02:00',cnt:'152+',tagTxt:'今日',
       odds:{mw:3.87,ma:1.68,md:3.67,hhL:'主 +0.5/1',hh:0.84,ahL:'客 -0.5/1',ah:0.90,bigL:'大 2.5/3',big:0.74,smallL:'小 2.5/3',small:1.12},
       half:{mw:4.10,ma:1.80,md:3.20,hhL:'主 +0/0.5',hh:0.90,ahL:'客 -0/0.5',ah:0.86,bigL:'大 1',big:0.92,smallL:'小 1',small:0.94}}
 };
@@ -1005,6 +1009,11 @@ let legacySells=[
   {id:'S20260731001',league:'冰岛女子超级联赛',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',play:'全场 · 让球',item:'主 +0.5/1',
    itemKey:'m3_hh',odds:0.90,pt:0.06,ptPct:7.1,dep:1000,cap:1111.11,sold:0,subsList:[],
    state:'卖出中',time:'2026-07-31 02:00',bucket:'today'},
+  /* 已售罄:额度卖完,等待赛事结算;用于验证该状态不展示分享按钮 */
+  {id:'S20260730009',league:'爱尔兰超级联赛',home:'瓦特福',away:'圣巴特里克竞技',play:'全场 · 大/小',item:'大 2.5/3',
+   itemKey:'m2_big',odds:1.06,pt:0.02,ptPct:1.9,dep:500,cap:471.70,sold:471.70,
+   subsList:[{u:'al***07',amt:300,time:'2026-07-30 19:10',settle:0},{u:'al***55',amt:171.70,time:'2026-07-30 20:02',settle:0}],
+   state:'已售罄',time:'2026-07-30 18:40',bucket:'today'},
   {id:'S20260729014',league:'冰岛女子超级联赛',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',play:'全场 · 独赢',item:'主胜',
    itemKey:'m3_mw',odds:3.10,pt:0.23,ptPct:8.0,dep:85,cap:27.41,sold:5,
    subsList:[{u:'al***12',amt:5,time:'2026-07-29 15:24',settle:0}],
@@ -1280,10 +1289,24 @@ function cloneRowsHtml(mid){
         <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px;margin:0 4px">${scope} 让球</span>
         <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">${scope} 大/小</span>
       </div>
-      <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
+      <div class="row" style="align-items:flex-start;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
         <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
-          <div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span></div>
-          <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
+          ${(()=>{
+            /* 队名行:球队图标 + 队名 + 红黄牌角标,右侧为该队当前比分 */
+            const card=(n,i)=>{
+              const y=(m.yellow||[])[i]||0, r=(m.red||[])[i]||0;
+              return (y?`<span style="background:#F5A623;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;flex-shrink:0">${y}</span>`:'')
+                   +(r?`<span style="background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0">${r}</span>`:'');
+            };
+            const sc=i=>(m.score?`<span style="font-size:12px;color:#222;font-weight:600;margin-left:6px;flex-shrink:0">${m.score[i]}</span>`:'');
+            return `<div class="row"><span>${m.hIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.home}</span>${card(0,0)}${sc(0)}</div>
+          <div class="row"><span>${m.aIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.away}</span>${card(1,1)}${sc(1)}</div>`;
+          })()}
+          ${(m.live||m.ht||m.corner)?`<div class="row" style="gap:5px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+            ${m.live?`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#1D9E75;fill:none;stroke-width:2;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#1D9E75" stroke="none"/></svg>`:''}
+            ${m.ht?`<span class="muted nowrap" style="font-size:11px">半场 ${m.ht}</span>`:''}
+            ${m.corner?`<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:#E24B4A;flex-shrink:0;margin-left:2px"><path d="M5 3v18M5 3l12 4-12 4z"/></svg><span class="muted nowrap" style="font-size:11px">${m.corner}</span>`:''}
+          </div>`:''}
           <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
             ${(()=>{
               /* 赛事列表仅展示六大玩法(全场/上半场 的 独赢·让球·大小);
@@ -1366,10 +1389,23 @@ function renderHome(){
           <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px;margin:0 4px">${scope} 让球</span>
           <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">${scope} 大/小</span>
         </div>
-        <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
+        <div class="row" style="align-items:flex-start;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
           <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
-            <div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span></div>
-            <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span></div>
+            ${(()=>{
+              const cd=i=>{
+                const y=(m.yellow||[])[i]||0, r=(m.red||[])[i]||0;
+                return (y?`<span style="background:#F5A623;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:5px;flex-shrink:0">${y}</span>`:'')
+                     +(r?`<span style="background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0">${r}</span>`:'');
+              };
+              const sc=i=>(m.score?`<span style="font-size:13px;color:#222;font-weight:700;margin-left:6px;flex-shrink:0">${m.score[i]}</span>`:'');
+              return `<div class="row"><span>${m.hIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.home}</span>${cd(0)}${sc(0)}</div>
+            <div class="row"><span>${m.aIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.away}</span>${cd(1)}${sc(1)}</div>`;
+            })()}
+            ${(m.live||m.ht||m.corner)?`<div class="row" style="gap:5px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+              ${m.live?`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#1D9E75;fill:none;stroke-width:2;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#1D9E75" stroke="none"/></svg>`:''}
+              ${m.ht?`<span class="muted nowrap" style="font-size:11px">半场 ${m.ht}</span>`:''}
+              ${m.corner?`<svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:#E24B4A;flex-shrink:0;margin-left:2px"><path d="M5 3v18M5 3l12 4-12 4z"/></svg><span class="muted nowrap" style="font-size:11px">${m.corner}</span>`:''}
+            </div>`:''}
             <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
               <span class="muted nowrap allmk" style="font-size:11px;cursor:pointer;flex-shrink:0" onclick="openMatch('${mid}')">全部 ${itemCountOf(mid)}▸</span>
               ${(()=>{const n=p2pCountOf(mid);if(!n)return '';
@@ -2824,7 +2860,7 @@ function renderOrders(){
     return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openSellDetail(${idx})">
       <div class="row">
         <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${l.league}</span>
-        ${(l.state==='卖出中'||l.state==='部分成交')?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
+        ${l.state==='卖出中'?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
         <span class="tag ${L_TAG[l.state]}">${l.state}</span></div>
       <div class="muted" style="margin:6px 0 4px">${l.home} VS ${l.away}</div>
       <div class="row" style="font-size:12px;color:#666;gap:6px">
@@ -2850,6 +2886,9 @@ function openSellDetail(idx){sdIdx=idx;renderSellDetail();go('pg-selldetail')}
 function renderSellDetail(){
   const l=legacySells[sdIdx];
   if(!l){$('sd-body').innerHTML='';return}
+  /* 仅「卖出中」的投注项卖单可分享,其余状态隐藏分享入口 */
+  const _sh=$('sd-share');
+  if(_sh)_sh.style.display=(l.state==='卖出中')?'block':'none';
   const settled=l.state==='已结算',pct=lsPct(l);
   const barColor=settled?'#1D9E75':(l.state==='已关闭'?'#c9ccd1':'#2E7BD6');
   $('sd-body').innerHTML=`
@@ -2904,8 +2943,7 @@ function renderSellDetail(){
         <span style="font-size:13px;color:#222;font-weight:600" class="grow">卖出返回</span>
         <span style="font-size:14px;font-weight:800;color:#222" class="nowrap">${money(lsRefund(l))} CNY</span></div>`:''}
     </div>`:''}`;
-  const canOp=(l.state==='卖出中'||l.state==='部分成交');
-  const sdsh=$('sd-share');if(sdsh)sdsh.style.display=canOp?'block':'none';
+  const canOp=(l.state==='卖出中'||l.state==='部分成交');   /* 可操作状态:补充押金 / 停止收单 */
   $('sd-footer').innerHTML=canOp
     ?`<div class="row" style="gap:10px">
         <button class="btn btn-p grow" onclick="topupSell()">补充押金</button>
@@ -2982,6 +3020,13 @@ function toggleSub(mid,i){
   subOpen[k]=!subOpen[k];
   renderDetail();
 }
+/* 单项庄单是否处于「卖出中」:盘在售 + 该项未封盘 + 仍有剩余可卖额度
+   仅此状态展示分享按钮;已售罄 / 已封盘 / 已关闭 / 已结算均不展示 */
+function itemSellable(m,it){
+  if(m.status!=='open')return false;        /* 盘已售罄/关闭/结算:该盘全部投注项均不可分享 */
+  if(it.status!=='on')return false;         /* 该项已封盘 */
+  return itemRemain(m,it)>0.001;            /* 该项已无可卖额度 */
+}
 function itemTag(m,it){
   if(m.status==='settled'){
     /* 已结算:展示该投注项的输赢结果,而非「已结算」 */
@@ -2993,9 +3038,12 @@ function itemTag(m,it){
   }
   if(m.status==='closed')return '<span class="tag tag-closed">已关闭</span>';
   if(it.status==='sealed')return '<span class="tag tag-sealed">已封盘</span>';
+  /* 盘状态决定全部投注项的状态:盘已售罄则各项均为已售罄,盘卖出中则各项均为卖出中
+     (单项被庄家手动封盘时仍显示已封盘,该项不随盘状态) */
+  if(m.status==='soldout')return '<span class="tag tag-soldout">已售罄</span>';
   const remain=itemRemain(cur,it);
   if(remain<=0.001)return '<span class="tag tag-soldout">已售罄</span>';
-  return it.sold>0?'<span class="tag tag-partial">部分成交</span>':'<span class="tag tag-open">卖出中</span>';
+  return '<span class="tag tag-open">卖出中</span>';
 }
 function renderDetail(){
   const m=cur,mt=MATCHES[m.mid];
@@ -3056,7 +3104,7 @@ function renderDetail(){
           ?`<div class="row" style="gap:6px;margin-top:9px">
               <button class="btn btn-o btn-sm grow" onclick="adjSheet(${i})">调水</button>
               <button class="btn btn-ro btn-sm grow" onclick="sealItemSheet(${i})">立即封盘</button>
-              ${remain>0.001?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="shareSheet(${i})">分享</button>`:''}
+              ${itemSellable(m,it)?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="shareSheet(${i})">分享</button>`:''}
               ${it.sold<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="removeItemSheet(${i})">移除</button>`:''}</div>`
           :`<div class="row" style="gap:6px;margin-top:9px">
               <button class="btn btn-p btn-sm grow" onclick="resumeItem(${i})">恢复开盘</button>
@@ -3136,11 +3184,9 @@ function renderAddSheet(){
           <span class="spin"><input value="${t.pt}" onchange="addPt(${i},this.value)"><span class="ud"><button onclick="addStep(${i},1)">▲</button><button onclick="addStep(${i},-1)">▼</button></span></span>
           <span style="font-size:12px;color:#666" class="nowrap">庄单赔率</span>
           <span class="odds-g nowrap">@${f2(odds)}</span>${odds<hk?'<span class="low">低于官方</span>':''}</div>
-        <div class="muted" style="margin-top:4px">共享盘押金,无需单独押金;剩余可卖 = 剩余押金 ÷ 该项赔率</div>
       </div>`:''}
     </div>`}).join('');
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:8px">新增盘口</h3>
-    <div class="muted" style="text-align:center;margin-bottom:10px">按新增时官方赔率 + 上浮点位定价,共享盘押金,确认后进入卖单簿并对买家开放</div>
     <div style="max-height:320px;overflow-y:auto">${rows}</div>
     <div class="row" style="gap:8px;margin-top:6px">
       <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
@@ -3407,7 +3453,6 @@ function shareLand(){
 function topupSheet(){
   const mo=maxOdds(cur.items.filter(i=>i.status==='on').map(i=>i.odds));
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">补充额度</h3>
-    <div class="muted" style="text-align:center;margin-bottom:10px">追加盘押金,全部盘口共享;庄单赔率与卖出状态不变,已售罄时追加后自动恢复收单</div>
     <div style="border:1px solid #f0f0f0;border-radius:8px;padding:12px;margin-bottom:8px">
       <div class="row"><span class="muted grow">当前盘押金</span><span class="nowrap" style="font-weight:600">¥${money(cur.dep)}</span></div>
       <div class="row" style="margin-top:4px"><span class="muted grow">剩余押金</span><span class="nowrap">¥${money(mRemainDep(cur))}</span></div>
