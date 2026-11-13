@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v13.3</title>
+<title>P2P 开盘坐庄 · 交互原型 v13.5</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -95,7 +95,7 @@ input:focus{border-color:#FF8C00}
 .fpill.on{background:#FF8C00;color:#fff;border-color:#FF8C00}
 .tpill{font-size:12px;padding:4px 10px;border-radius:13px;background:transparent;color:#888;white-space:nowrap;cursor:pointer}
 .tpill.on{background:#FF8C00;color:#fff}
-.oddcell{width:60px;border-radius:8px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid transparent;position:relative;padding:5px 2px;min-height:38px}
+.oddcell{width:58px;border-radius:8px;background:#f3f4f6;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;cursor:pointer;border:1px solid transparent;position:relative;padding:5px 2px;min-height:38px}
 .oddcell.sel{background:linear-gradient(180deg,#FFA33A,#FF8C00);color:#fff}
 .oddcell .lb{font-size:10px;opacity:.75;white-space:nowrap}
 .oddcell .v{font-weight:700;font-size:13px}
@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.3 · 待确认</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v13.5 · 待确认</div>
 
 <div class="phone" id="app">
 
@@ -1010,6 +1010,11 @@ let legacySells=[
   {id:'S20260731001',league:'冰岛女子超级联赛',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',play:'全场 · 让球',item:'主 +0.5/1',
    itemKey:'m3_hh',odds:0.90,pt:0.06,ptPct:7.1,dep:1000,cap:1111.11,sold:0,subsList:[],
    state:'卖出中',time:'2026-07-31 02:00',bucket:'today'},
+  /* 已售罄:额度卖完,等待赛事结算;用于验证该状态不展示分享按钮 */
+  {id:'S20260730009',league:'爱尔兰超级联赛',home:'瓦特福',away:'圣巴特里克竞技',play:'全场 · 大/小',item:'大 2.5/3',
+   itemKey:'m2_big',odds:1.06,pt:0.02,ptPct:1.9,dep:500,cap:471.70,sold:471.70,
+   subsList:[{u:'al***07',amt:300,time:'2026-07-30 19:10',settle:0},{u:'al***55',amt:171.70,time:'2026-07-30 20:02',settle:0}],
+   state:'已售罄',time:'2026-07-30 18:40',bucket:'today'},
   {id:'S20260729014',league:'冰岛女子超级联赛',home:'瓦鲁尔(女)',away:'斯塔尔南(女)',play:'全场 · 独赢',item:'主胜',
    itemKey:'m3_mw',odds:3.10,pt:0.23,ptPct:8.0,dep:85,cap:27.41,sold:5,
    subsList:[{u:'al***12',amt:5,time:'2026-07-29 15:24',settle:0}],
@@ -1285,7 +1290,7 @@ function cloneRowsHtml(mid){
         <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px;margin:0 4px">${scope} 让球</span>
         <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">${scope} 大/小</span>
       </div>
-      <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
+      <div class="row" style="align-items:flex-start;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
         <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
           ${(()=>{
             /* 队名行:球队图标 + 队名 + 红黄牌角标,右侧为该队当前比分 */
@@ -1295,8 +1300,8 @@ function cloneRowsHtml(mid){
                    +(r?`<span style="background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0">${r}</span>`:'');
             };
             const sc=i=>(m.score?`<span style="font-size:12px;color:#222;font-weight:600;margin-left:6px;flex-shrink:0">${m.score[i]}</span>`:'');
-            return `<div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span>${card(0,0)}<span class="grow"></span>${sc(0)}</div>
-          <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span>${card(1,1)}<span class="grow"></span>${sc(1)}</div>`;
+            return `<div class="row"><span>${m.hIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.home}</span>${card(0,0)}${sc(0)}</div>
+          <div class="row"><span>${m.aIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.away}</span>${card(1,1)}${sc(1)}</div>`;
           })()}
           ${(m.live||m.ht||m.corner)?`<div class="row" style="gap:5px;margin-top:1px;flex-shrink:0;white-space:nowrap">
             ${m.live?`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#1D9E75;fill:none;stroke-width:2;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#1D9E75" stroke="none"/></svg>`:''}
@@ -1385,7 +1390,7 @@ function renderHome(){
           <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px;margin:0 4px">${scope} 让球</span>
           <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">${scope} 大/小</span>
         </div>
-        <div class="row" style="align-items:stretch;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
+        <div class="row" style="align-items:flex-start;touch-action:pan-y" onpointerdown="swS(event)" onpointerup="swE(event,'${mid}')">
           <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
             ${(()=>{
               const cd=i=>{
@@ -1394,8 +1399,8 @@ function renderHome(){
                      +(r?`<span style="background:#E24B4A;color:#fff;font-size:10px;font-weight:700;min-width:14px;height:15px;border-radius:2px;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;flex-shrink:0">${r}</span>`:'');
               };
               const sc=i=>(m.score?`<span style="font-size:13px;color:#222;font-weight:700;margin-left:6px;flex-shrink:0">${m.score[i]}</span>`:'');
-              return `<div class="row"><span>${m.hIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.home}</span>${cd(0)}<span class="grow"></span>${sc(0)}</div>
-            <div class="row"><span>${m.aIcon}</span><span style="font-size:12px;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.away}</span>${cd(1)}<span class="grow"></span>${sc(1)}</div>`;
+              return `<div class="row"><span>${m.hIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.home}</span>${cd(0)}${sc(0)}</div>
+            <div class="row"><span>${m.aIcon}</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${m.away}</span>${cd(1)}${sc(1)}</div>`;
             })()}
             ${(m.live||m.ht||m.corner)?`<div class="row" style="gap:5px;margin-top:1px;flex-shrink:0;white-space:nowrap">
               ${m.live?`<svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#1D9E75;fill:none;stroke-width:2;flex-shrink:0"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M10 9.5l5 2.5-5 2.5z" fill="#1D9E75" stroke="none"/></svg>`:''}
