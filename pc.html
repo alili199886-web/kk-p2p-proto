@@ -26,7 +26,7 @@
   --green:#17a25a;
   --scorebox:#2fae5f;
   --shadow:0 1px 2px rgba(0,0,0,.05);
-  --lcol:366px;
+  --lcol:300px;
   --hd:54px;
 }
 @media (prefers-color-scheme: dark){
@@ -144,11 +144,11 @@ input{font:inherit}
 .scroller{overflow-x:auto;scrollbar-width:thin}
 .scroller::-webkit-scrollbar{height:6px}
 .scroller::-webkit-scrollbar-thumb{background:#cfcfcf;border-radius:3px}
-.thead{display:flex;height:26px;align-items:flex-end}
+.thead{display:flex;min-height:26px;align-items:flex-end;padding-bottom:2px}
 .t-left{width:var(--lcol);flex:none;position:sticky;left:0;background:var(--surface);z-index:2}
-.t-cols{display:flex}
-.th{width:176px;flex:none;padding:0 6px;font-size:12px;color:var(--ink-mute);text-align:center;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.t-cols{display:flex;flex:1;min-width:0}
+.th{width:176px;flex:1 1 0;min-width:96px;padding:0 6px;font-size:11.5px;color:var(--ink-mute);text-align:center;
+  white-space:normal;line-height:1.25;align-self:flex-end}
 .trow{display:flex;padding:8px 0;position:relative}
 .trow.sel{box-shadow:inset 0 0 0 1px var(--accent)}
 .t-left{display:flex;align-items:stretch;padding-left:8px}
@@ -158,12 +158,19 @@ input{font:inherit}
 .m-teams{flex:1;min-width:0;border-left:1px solid var(--line);padding:0 10px;display:flex;flex-direction:column;justify-content:center;gap:9px}
 .team{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-strong)}
 .team .av{width:15px;height:15px;border-radius:50%;background:var(--surface-2);display:grid;place-items:center;font-size:8px;flex:none}
-.team .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.team .nm{flex:1;min-width:0;white-space:normal;word-break:break-word;line-height:1.35}
+.cd{flex:none;min-width:16px;height:16px;padding:0 3px;border-radius:3px;color:#fff;font-size:10px;
+  display:inline-flex;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.cd.cy{background:#F5A524;color:#fff}
+.cd.cr{background:#E5484D;color:#fff}
+.m-half{position:absolute;left:10px;top:50%;transform:translateY(-50%);
+  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-mute);font-variant-numeric:tabular-nums}
+.m-half i{font-style:normal;opacity:.8}
 .team .sc{font-size:12px;color:var(--ink-strong);font-variant-numeric:tabular-nums}
 .team .sc.g{background:var(--scorebox);color:#fff;border-radius:2px;padding:0 5px;font-size:11px}
 .m-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-mute);padding-left:2px}
 .m-foot{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--ink-mute);
-  padding:6px 0 0;border-top:1px solid var(--line);margin-top:8px}
+  padding:6px 0 0;border-top:1px solid var(--line);margin-top:8px;position:relative}
 .star{color:var(--ink-mute);font-size:13px}
 .star.on{color:var(--accent)}
 /* 「全部 +N ›」与「P2P n ›」同一套胶囊样式，只有配色不同 */
@@ -180,7 +187,7 @@ input{font:inherit}
 .mchip.is-p2p{border-color:var(--accent);color:var(--accent)}
 .mchip.is-p2p .ar{color:var(--accent)}
 .mchip.is-p2p:hover{background:rgba(255,140,0,.08)}
-.tc{width:176px;flex:none;padding:0 4px;display:flex;flex-direction:column;gap:6px}
+.tc{width:176px;flex:1 1 0;min-width:96px;padding:0 4px;display:flex;flex-direction:column;gap:6px}
 .bet{height:30px;border-radius:3px;background:var(--surface-2);display:flex;align-items:center;gap:6px;padding:0 8px;
   font-size:12px;color:var(--ink);transition:background .12s,color .12s;width:100%}
 .bet:hover{background:rgba(255,140,0,.12)}
@@ -847,6 +854,7 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 .oit-b{font-size:12px;color:var(--ink-mute);border:1px solid transparent;border-radius:13px;
   padding:3px 11px;background:var(--surface-2)}
 .oit-b:hover{background:rgba(255,140,0,.1);color:var(--accent)}
+.oit-subh.none{cursor:default;color:var(--ink-mute)}
 .oit-subh{display:flex;align-items:center;justify-content:space-between;margin-top:9px;
   font-size:11.5px;color:var(--ink-mute);cursor:pointer}
 .oit-subh:hover{color:var(--accent)}
@@ -1006,7 +1014,7 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 @media (max-width:1500px){ .vp{width:300px} }
 @media (max-width:1360px){ .vp{display:none} }
 /* 窄屏：需求说明不整条消失，收成右侧竖排标签，点开浮在内容上 */
-@media (max-width:1180px){
+@media (max-width:1680px){
   .rp{position:fixed;right:0;top:calc(var(--hd) + 8px);z-index:40}
   .rp:not(.mini){width:340px;padding:0 0 10px;background:var(--surface);
     box-shadow:-4px 0 18px rgba(0,0,0,.14);border-radius:8px 0 0 8px;
@@ -1021,7 +1029,7 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 }
 @media (max-width:520px){
   :root{--lcol:170px}
-  .th,.tc{width:140px}
+  .th,.tc{width:140px;min-width:92px}
   .hd{gap:8px;padding-inline:10px}
   .hd-right .ctrl.lang{display:none}
 }
@@ -1073,6 +1081,27 @@ const LIVE_CHIPS=[["全部",null],["足球",0],["篮球",1],["网络足球",3],[
 
 /* 一场比赛：cols 与 markets 对齐，每列自上而下对应 rows */
 const LIVE=[
+ {sport:"足球",league:"*Spain La Liga CHS",flag:"🇪🇸",p2p:true,
+  markets:["全场独赢 - 全场1*2","全场让球","全场大/小"],
+  matches:[{id:"lf1",phase:"下半场",clock:"49:32",live:true,home:"巴塞罗那",away:"皇家马德里",
+    hs:0,as:1,hy:2,hr:0,ay:1,ar:1,ht:"1-0",ck:"6-4",more:96,
+    rows:[[["主","1.52"],["主 -0.5","0.95"],["大 2.5","0.88"]],
+          [["客","2.48"],["客 +0.5","0.87"],["小 2.5","0.94"]],
+          [["和","3.40"],null,null]]}]},
+ {sport:"足球",league:"*England Premier League ENG CHS",flag:"🏴",p2p:true,
+  markets:["全场独赢 - 全场1*2","全场让球","全场大/小"],
+  matches:[{id:"lf2",phase:"下半场",clock:"38:46",live:true,home:"阿森纳",away:"利物浦",
+    hs:0,as:1,hy:1,hr:0,ay:3,ar:0,ht:"0-1",ck:"5-3",more:88,
+    rows:[[["主","2.05"],["主 +0/0.5","0.90"],["大 3","1.02"]],
+          [["客","1.78"],["客 -0/0.5","0.92"],["小 3","0.80"]],
+          [["和","3.10"],null,null]]}]},
+ {sport:"足球",league:"Germany Bundesliga 2 CHS",flag:"🇩🇪",p2p:false,
+  markets:["全场独赢 - 全场1*2","全场让球","全场大/小"],
+  matches:[{id:"lf3",phase:"下半场",clock:"44:05",live:true,home:"汉堡",away:"沙尔克04",
+    hs:0,as:1,hy:0,hr:0,ay:2,ar:1,ht:"0-1",ck:"3-7",more:74,
+    rows:[[["主","2.62"],["主 -0/0.5","1.05"],["大 2.5/3","0.96"]],
+          [["客","1.60"],["客 +0/0.5","0.77"],["小 2.5/3","0.86"]],
+          [["和","3.55"],null,null]]}]},
  {sport:"篮球",league:"BB Cashout 4x10 CHS",flag:"🏀",p2p:false,
   markets:["独赢","让分","总分 - 大小"],
   matches:[{id:"m1",phase:"第一节",clock:"03:30",live:true,home:"HomeTeam52556 CHS",away:"AwayTeam52557 CHS",hs:0,as:0,more:32,
@@ -1177,6 +1206,45 @@ const HOT=[
     rows:[[["主","1.25"],["9.5","0.91"],["大 171","0.95"]],
           [["客","3.26"],["+9.5","0.99"],["小 171","0.95"]]]}]}
 ];
+
+/* PC 足球默认直接展示六个主盘口，不做左右翻页；数据缺的半场盘按全场盘推导补齐 */
+const FB_MARKETS=["全场独赢 - 全场1*2","全场让球","全场大/小",
+                  "上半场独赢","上半场让球","上半场大/小"];
+function halfCell(base,slot){
+  if(base==null)return null;
+  if(base==="lock")return "lock";
+  const [label,odds]=base, v=parseFloat(odds);
+  if(!isFinite(v))return null;
+  if(slot===3)return [label,(v*1.45+0.1).toFixed(2)];
+  if(slot===4)return [label.replace(/\s.*$/,"")+" 0",(v*0.97).toFixed(2)];
+  return [label.replace(/\s.*$/,"")+" 1/1.5",(v*1.02).toFixed(2)];
+}
+/* 红黄牌与半场 / 角球比分：已有字段优先，缺失的按场次 id 稳定生成，滚球才有半场比分 */
+function padMatchStats(mt){
+  const seed=[...String(mt.id)].reduce((a,c)=>a+c.charCodeAt(0),0);
+  if(mt.hy===undefined)mt.hy=seed%4;
+  if(mt.hr===undefined)mt.hr=seed%7===0?1:0;
+  if(mt.ay===undefined)mt.ay=(seed+2)%4;
+  if(mt.ar===undefined)mt.ar=(seed+3)%9===0?1:0;
+  const live=!mt.date;
+  if(mt.ht===undefined)mt.ht=live?`${seed%3}-${(seed+1)%3}`:"";
+  if(mt.ck===undefined)mt.ck=live?`${4+seed%5}-${2+seed%4}`:"";
+}
+function padFootballIn(groups){
+  groups.forEach(g=>{
+    if(["足球","网络足球"].includes(g.sport))(g.matches||[]).forEach(padMatchStats);
+    if(g.sport!=="足球")return;
+    g.markets=FB_MARKETS.slice();
+    (g.matches||[]).forEach(mt=>{
+      mt.rows=(mt.rows||[]).map(row=>{
+        const r=row.slice(0,FB_MARKETS.length);
+        while(r.length<FB_MARKETS.length)r.push(halfCell(row[r.length-3],r.length));
+        return r;
+      });
+    });
+  });
+}
+[EARLY_FOOTBALL,TODAY_FOOTBALL,TODAY_CYBER,LIVE,HOT].forEach(padFootballIn);
 
 const DETAIL_MARKETS=[
  {name:"上半场 独赢",pairs:[[["主","2.21"],["客","3.61"]]]},
@@ -1326,7 +1394,7 @@ let markets=[
  {id:"M20260625003",mid:"m1",status:"closed",nick:"金刚庄",auto:0,created:"07-12 20:15",bucket:"today",
   dep:300,topup:0,profit:null,league:"爱尔兰超级联赛",sport:"足球",home:"登克尔克",away:"德罗赫达联",kick:"07-11 02:45",
   items:[
-   {key:"m1_mw",name:"全场 独赢 · 主胜",off:"0.66",pt:0.04,odds:"0.70",status:"sealed",sold:0,lastAdj:0,subs:[]}]}
+   {key:"m1_mw",name:"全场 独赢 · 主胜",off:"0.66",pt:0.04,odds:"0.70",status:"on",sold:0,lastAdj:0,subs:[]}]}
 ];
 function nowStamp(){const n=new Date(),p2=v=>String(v).padStart(2,"0");
   return `2026-09-18 ${p2(n.getHours())}:${p2(n.getMinutes())}`}
@@ -1727,7 +1795,8 @@ const SPEC={
    "不同会员互不影响：A 在某场开盘坐庄，不妨碍 B 在同一场挂投注项卖出，两套机制在同一场比赛上并存，各自独立成交与结算。",
    "滚球不可开盘：已开赛的赛事不出开盘入口，理由是赛果已在变动，与互斥规则无关。",
    "提交二次校验：确认开盘时只再查一次「本人在弹窗打开期间是否挂出了该场的投注项卖出」，命中则关闭弹窗并拦截。",
-   "庄家开放的盘口若不在列表展示的几列里（波胆、角球、半场等），私盘行下方出「全部 N ›」入口，点击进入该庄家的私盘盘口详情，可对其余盘口下注；全部盘口都能在列表列位展示时不出该入口。"]},
+   "赛事列表只展示六类主玩法（全场 / 上半场 的 独赢、让球、大小）。私盘开了这六类之外的盘口（进球、波胆、特殊等）时，私盘行队名下方展示「全部 N ›」，N = 该私盘开放的盘口总数；全部盘口都落在六类内时不展示该入口。",
+   "点「全部 N ›」进入盘口详情，该页只展示这个私盘开放的盘口、按该私盘的庄单赔率显示，点击即加入购物车，不混入官方盘口。"]},
   {t:"开盘入口与门槛",pg:"live",tag:"新增",d:[
    "入口：首页 P2P 已生效联赛下，每场比赛行的时间 / 场次信息旁展示「开盘」按钮，按钮所在行正下方是队伍名称区，不与赔率列重叠。",
    "开盘范围 = IM 在售且未开赛的赛事，含今日盘与早盘；已开赛（滚球）不展示开盘入口，切换到滚球页签时该页全部赛事均无开盘入口。判断依据是赛事是否已开赛，与今日 / 早盘的展示分类无关。",
@@ -1735,11 +1804,9 @@ const SPEC={
    "前置与临界：IM 交集内可开盘口不足 min_items 时不展示开盘入口；账户余额需 ≥ 盘押金，等于时允许；封盘前置时间以服务端收到开盘请求的时间为准，不以客户端点击时间为准。",
    "赛事所属联赛需在「可坐庄联赛白名单」内，不在白名单的不展示开盘入口；庄家的坐庄权限被运营关闭时同样不展示，已有存量盘不受影响。",
    "同一庄家对同一比赛仅允许 1 个进行中的盘，重复开盘拦截并提示去开盘详情管理；不同庄家互不影响，可各自对同一场比赛开盘。",
-   "整场互斥：该场官方盘已有任何会员的投注项卖出挂单时，对所有会员隐藏开盘入口 —— 一场比赛要么走投注项卖出，要么走开盘坐庄，不并存；反之该场已有私盘时，该场不再接受新的投注项卖出。",
-   "同一会员对同一场比赛，开盘坐庄与投注项卖出二选一：已有进行中的盘时，该场全部投注项的「卖出」入口置灰并提示「该场已开盘，不可再单独卖出」；已有该场进行中的投注项卖出时，该场「开盘」入口置灰并提示「该场已有投注项卖出，不可再开盘」。",
-   "两者的「进行中」判定一致：卖出中、已封盘计入；已售罄 / 已关闭 / 已结算不计入。",
-   "提交时二次校验：开盘弹窗打开后至点击「确认开盘」期间，若该场出现了投注项卖出挂单，提交时拦截并提示「该场已有投注项卖出，不可再开盘」，弹窗关闭。",
-   "「进行中」的判定：卖出中、已封盘计入；已售罄、已关闭、已结算不计入，庄家可对同一比赛再开新盘 —— 售罄盘已从列表消失，不会在列表里重复出现。"]},
+   "互斥仅限同一会员：本人已有该场进行中的私盘时，该场全部投注项的「卖出」入口置灰；本人已有该场进行中的投注项卖出时，该场「开盘」入口置灰。不同会员互不影响 —— 该场已有其他会员的 P2P 挂单时仍可正常开盘。",
+   "「进行中」的判定两边一致：卖出中、已封盘计入；已售罄、已关闭、已结算不计入，不计入的情形下庄家可对同一比赛再开新盘。",
+   "提交时二次校验：开盘弹窗打开后至点击「确认开盘」期间，若本人挂出了该场的投注项卖出，提交时拦截并关闭弹窗。"]},
   {t:"开盘设置弹窗",pg:"live",tag:"新增",d:[
    "投注项列表与 IM 实时取交集：IM 无数据的玩法展示「IM 无数据，不可开」，锁盘玩法展示「IM 锁盘中，不可开」，两者均置灰不可勾选。",
    "勾选某投注项后卡片内联展开该项设置：上浮点位居左，用紧凑的上下步进控件（▲/▼，步进 0.01，可为负，也可直接输入）；庄单赔率靠右只读展示 = 开盘时官方港盘赔率 + 上浮点位。",
@@ -1760,6 +1827,19 @@ const SPEC={
    "原比赛的官方盘口与官方投注完全不受影响，私盘只是另挂一行，不改变原比赛的任何赔率与玩法。",
    "「私盘」与「P2P」两个标识互斥：私盘标识只标注在私盘行；P2P 标识表示该场玩法项有会员坐庄，只标注在官方盘（原比赛行与联赛头）。官方盘不展示私盘标识，两者不同时出现在同一对象上。",
    "首页筛选行新增「私盘」筛选，开启后列表仅展示私盘。"]},
+  {t:"比赛卡片的队伍信息",pg:"live",tag:"调整",d:[
+   "每行为「球队图标 + 队名 + 红黄牌角标」，行右侧展示该队当前比分。",
+   "黄牌橙底白字方块、红牌红底白字方块；牌数为 0 时该角标不展示。",
+   "队名下方一行展示「直播图标 + 半场比分 + 角球图标与角球比分」；字段缺失时该项不展示，整行无内容时不保留空行。",
+   "队名完整展示，超出宽度自动换行，不截断。",
+   "官方盘与私盘的这部分规则完全一致。",
+   "足球盘口列固定为六个：全场独赢 - 全场1*2 / 全场 - 让球 / 全场 - 大小 / 上半场独赢 - 上半场1*2 / 上半场 - 让球 / 上半场 - 大小，列头与赔率格一次性全部展示。缺数据的格子按既有规则展示 -- 或锁定态，不省略列位。"]},
+  {t:"私盘行的版式",pg:"live",tag:"调整",d:[
+   "私盘行与官方盘同构：标题行为私盘名称 + 右侧「私盘」标识；开赛时间在队名上方；盘口名称列头（全场 / 上半场 的 独赢、让球、大小）与官方盘同位置、同样式。",
+   "「全部 N ›」入口在队名下方，与官方盘的「全部 N ›」左右位置一致。",
+   "PC 与 H5 的差异：足球的六个主盘口（全场 / 上半场 的 独赢、让球、大小）在 PC 上一次性全部展开，不做左右切换，所以不存在分页状态；H5 受屏宽所限用底部指示点与左右滑动，并要求私盘行与该场官方盘共用同一分页状态。",
+   "窗口过窄导致六列放不下时才在赔率区右侧出现 » 横向翻页；放得下时该按钮不出现，私盘行与官方行一致。",
+   "私盘赔率格样式与官方盘一致，不做颜色区分。"]},
   {t:"卖单簿：按来源隔离",pg:"live",tag:"调整",d:[
    "卖单簿按来源隔离，三类档位不会同时出现在同一个卖单簿中：私盘的卖单簿只有「该开盘庄家的档位 + 官方无限档位」；官方盘的卖单簿只有「投注项卖出档位 + 官方无限档位」。",
    "各自内部排序：赔率降序 → 同赔率按卖出时间升序（先挂先排）→ 官方档位固定排最后。",
@@ -1776,7 +1856,15 @@ const SPEC={
    "入口：比赛卡片底部的「全部」或「P2P」，两个入口进入同一页面，内容完全一致，不做筛选差异。",
    "「全部 N」的 N 为该场投注项数量，与本页赔率格总数一致；「P2P N」的 N 为该场存在 P2P 庄单的投注项数量。",
    "赔率格规则与赛事大厅一致：有更优 P2P 档位时展示最高 P2P 赔率并带红点；红点常驻、不因点击消失，仅当无高于官方的档位时自动消失。",
-   "私盘不单独进入盘口详情页：私盘只在赛事列表中以一行展示，点私盘赔率格直接加入购物车。"]},
+   "私盘有自己的盘口详情：入口是私盘行的「全部 N ›」，只在私盘开了六类主玩法之外的盘口时出现。该页只列这个私盘开放的盘口，按庄单赔率展示，点击即加入购物车，不与官方盘口混排。",
+   "私盘行上能直接点的赔率格仍然直接加入购物车，不需要先进详情。"]},
+  {t:"购物车版式",pg:"slip",tag:"调整",d:[
+   "顶部只有买入 / 卖出两个等分页签，右上角常驻关闭按钮（×）：点击仅收起面板，已选注单保留。不展示注单计数，也不展示清空图标。",
+   "选中私盘投注项时隐藏「卖出」页签 —— 私盘只承载开盘庄家自己的档位；已停留在卖出页时自动切回买入。",
+   "投注卡片四行：「盘口 + 队名」/「玩法 · [盘口类型]」/「主队 VS 客队」/「足球 · 联赛」。",
+   "档位表只在该投注项存在不低于官方赔率的 P2P 档位时展示；无此类档位时整块隐藏，输入框下直接接键盘 / 快捷金额。",
+   "底部按钮行为「串关 / 单关」+「投注 CNY 合计」，不设「返回」。",
+   "投注成功后：已投注项自动取消选中、金额清空、购物车收起并回到赛事列表，再弹注单确认；仍有未投注项时，点「保留注单，继续投注」会重新打开购物车。"]},
   {t:"买入与串关",pg:"slip",tag:"调整",d:[
    "买入：输入金额后底部实时试算合计与最高可赢，按依序吃单逐档位赔率累计；投注成功后各档位额度、庄单已收 / 子单、账户余额同步更新。",
    "私盘投注项不参与串关：私盘项仍在串关页展示，置灰并标注「私盘投注项不支持串关，仅官方盘投注项可参与」，不计入组合、也不计入串关资格判定。",
@@ -1791,10 +1879,10 @@ const SPEC={
    "状态横幅仅在已关闭时展示：「已停止收单，卖出单已从卖单簿下架，等待赛事结算，未消费押金结算后退回」。已结算不展示顶部横幅，盈亏在汇总与各投注项庄单的输赢标签上体现。",
    "赛事信息卡：主队 vs 客队、联赛 · 开赛时间、开盘时间、自动封盘设置（开赛前 N 分钟）。下接四列汇总：总押金 / 已收单 / 子单数 / 状态。",
    "投注项庄单列表标题「投注项庄单(N)」，逐项展示卡片。",
-   "庄单卡片：投注项名 + 单项状态标签 —— 进行中为 收单中 / 部分成交 / 已封盘 / 已售罄；盘已结算时标签改为该投注项的输赢结果（赢绿 / 输红 / 走水灰），不再显示「已结算」。",
-   "庄单赔率绿色显示，确认开盘后固定、不随官方赔率联动；官方当前赔率仅作参考不参与计算，当庄单赔率低于官方赔率时追加红字「低于官方」，此时该档位已从卖单簿下架、不可成交。",
+   "庄单卡片：投注项名 + 单项状态标签。单项状态跟随盘状态 —— 盘卖出中则各项显示「卖出中」，盘已售罄则各项「已售罄」，盘已关闭则各项「已关闭」；被庄家手动封盘的单项显示「已封盘」，不随盘状态；盘已结算时标签改为该项的输赢结果（赢绿 / 输红 / 走水灰）。",
+   "庄单赔率绿色显示，卡片上不加「固定」标注；赔率确认开盘后即固定、不随官方赔率联动，这条是规则而非界面文案。官方当前赔率仅作参考不参与计算，当庄单赔率低于官方赔率时追加红字「低于官方」，此时该档位已从卖单簿下架、不可成交。",
    "卡片还展示已收金额与剩余可卖额度，额度旁标注「共享盘押金」说明来自整盘共享池。",
-   "子单列表标题「子单数据(N)」，默认收起、点击标题行展开 / 收起（右侧显示 展开 ⌄ / 收起 ⌃），每次进入详情页默认全部收起；无成交时显示「子单数据(0)：暂无成交」且不可展开。",
+   "子单列表标题「子单数据(N)」，默认收起、点击标题行展开 / 收起（右侧显示 展开 ⌄ / 收起 ⌃），每次进入详情页重置为收起；无成交时该行仍然展示为「子单数据(0)：暂无成交」，不可展开。",
    "每笔子单两行：第一行「会员」标签 + 买家 ID + 成交金额 + 成交赔率；第二行成交时间 + 结算金额（已结算赢绿输红，未结算显示「未结算」）。",
    "底部操作区按盘状态变化：卖出中 / 已售罄展示「新增盘口」「补充额度」「停止收单」；已结算 / 已关闭无任何控盘操作，底部操作区整条隐藏，返回统一走左上角返回按钮。",
    "单项操作：调水、封盘 / 恢复。",
@@ -1807,7 +1895,8 @@ const SPEC={
    "移除盘口：仅该盘口无任何成交时可移除；盘押金为共享池，不因移除变动、不退款。移除后开放盘口数仍需 ≥ min_items，低于门槛拦截并提示「如需清空请使用停止收单」。",
    "IM 侧被动下架：某盘口被 IM 下架时该投注项自动置为已封盘并从卖单簿移除，已成交子单按 IM 返回结果处理；若开放项因此低于 min_items，盘不自动关闭、可继续收单（门槛只约束开盘与主动移除，不回溯被动变化），但该盘口不可再新增。",
    "补充额度：输入一笔追加金额，实时预览追加后押金与新增预计可卖额度；追加进入共享池，全部盘口剩余可卖同步扩大，赔率与状态不变；已售罄追加后回到卖出中。",
-   "停止收单：二次确认（明示不可逆）后全部档位立即下架、私盘从列表消失、盘置为已关闭；已成交子单正常结算，未消费押金结算后退回。"]},
+   "停止收单：二次确认（明示不可逆）后全部档位立即下架、私盘从列表消失、盘置为已关闭；已成交子单正常结算，未消费押金结算后退回。",
+   "弹层文案：新增盘口弹层不加顶部说明，也不加选中项说明；补充额度弹层不加顶部说明；调水弹窗只保留一句「已成交子单按原赔率结算不受影响。」；移除盘口的二次确认文案为「该盘口将从本私盘中移除，该私盘内不再展示、不可投注；原比赛的官方盘与其他会员的挂单不受影响。盘押金为共享押金，不因移除变动。」"]},
   {t:"开盘详情与投注项卖出详情的区别",pg:"sell",tag:"新增",d:[
    "投注项卖出详情是单个投注项的卖出挂单：押金独立、只对应一个盘口，入口为 我的卖出 → 投注项卖单页签 → 点击卖单卡片。",
    "开盘详情是整盘：押金共享、含多个投注项庄单，入口为 我的卖出 → 私盘页签 → 查看详情。两者是两个独立页面。",
@@ -1815,8 +1904,10 @@ const SPEC={
    "投注项卖出详情无调水与新增 / 移除盘口能力，只能补充押金或停止收单；开盘详情具备完整控盘能力。"]},
   {t:"我的卖出改造",pg:"sell",tag:"调整",d:[
    "顶部两个页签（样式同买单列表）：投注项卖单（默认选中，展示官方盘的投注项坐庄数据）、私盘（展示开盘坐庄的盘卡片）。",
-   "页签下方筛选区一排两个下拉，对两个页签同时生效：时间筛选默认「今天」，选项为 今天 / 昨天 / 近7天 / 近30天 / 自定义，选「自定义」弹出与买单已结算一致的时间弹窗，应用后下拉文案显示所选区间；状态筛选默认「全部」，选项为 全部 / 卖出中 / 已售罄 / 已结算 / 已关闭。",
+   "页签下方筛选区两排 chip，对两个页签同时生效：状态一排（全部 / 卖出中 / 已售罄 / 已结算 / 已关闭，默认全部），时间一排（全部 / 今天 / 昨天 / 近7天 / 近30天，默认全部）外加一个自定义区间控件，选定后预置项取消高亮、控件上显示所选区间。筛选行右侧不展示「共 N 条」。",
+   "PC 与 H5 的差异：H5 受宽度所限用两个下拉，PC 横向空间够，直接平铺 chip，少一次展开收起。筛选项集合、默认值与筛选结果两端一致，只是控件形态不同。",
    "筛选区下方四列汇总：总卖出 / 进行中 / 已消费 / 总结算盈亏，盈利绿、亏损红、不输不赢黑，符号与数值同行不换行。",
+   "总结算盈亏 = 已结算私盘盈亏 + 已结算投注项卖单盈亏，两个页签的数据合并计算，三态配色（盈绿 / 亏红 / 零黑）。",
    "私盘卡片字段：联赛、状态标签、私盘名称、盘号、开放项数、总押金、收单进度条、已收 / 押金、查看详情。",
    "私盘名称与赛事列表中该私盘的名称一致，即「原比赛名 · 庄家昵称」，不使用原比赛名。",
    "卡片不展示「私盘」标识（私盘列表本身已表明来源）；已结算盘在联赛名右侧、状态标签左侧展示盘净盈亏，赢绿输红、不输不赢黑，带正负号且同行不换行。",
@@ -1836,7 +1927,10 @@ const SPEC={
    "重复提交：按钮置灰防重，服务端幂等。开关关闭为软关闭：存量盘继续执行至结算，禁止新开盘、开盘入口隐藏。"]},
   {t:"配置项与开关",pg:"live",tag:"新增",d:[
    "本期新增四个全局配置：p2p_open_market_enabled（开盘坐庄独立开关，默认 0，用于灰度）、p2p_open_min_deposit（押金下限，默认 1000）、p2p_open_min_items（最少开放盘口数，默认 3）、p2p_open_freeze_minutes（开赛前禁开分钟数，默认 10）。",
-   "三级开关关系：p2p_enabled > 商户开关 > 开盘开关，任一关闭则开盘不可用，均为软关闭。",
+   "开关层级：后台 P2P 全局开关 p2p_enabled 是前置条件、优先级最高；其下商户 P2P 开关与商户私盘开关平级、各自独立 —— 商户 P2P 开关只控制投注项卖出，不影响私盘。",
+   "可用性：投注项卖出可用 = 全局开关 且 商户 P2P 开关；私盘可用 = 全局开关 且 商户私盘开关。",
+   "私盘关闭后的隐藏范围：赛事页的「开盘」按钮、私盘行、「私盘」胶囊；我的卖出页的私盘页签；购物车内私盘投注项的展示与入口。全局开关关闭时另含「P2P」胶囊、赔率格红点与比赛行的 P2P 入口。",
+   "软关闭：关闭前已存在且未结算的私盘继续执行至结算。本人仍有未结算的盘时，我的卖出的私盘页签保留可见、可进详情查看，但不可新开盘、不可新增盘口、不可补充额度，底部仅保留「停止收单」，并提示「商户已关闭私盘，本盘不可新增盘口与补充额度，可停止收单或等待赛事结算」；全部结算后页签自动隐藏。",
    "三项门槛参数修改后对新开盘即时生效，不影响存量盘。",
    "另新增两项运营配置：p2p_market_league_whitelist（可坐庄联赛白名单）、p2p_market_display_limit（单场私盘展示上限，默认 5）。",
    "调水频控默认 10 秒；押金限额沿用既有卖出押金限额配置；抽佣费率由 APISYS 下发，本系统不配置。"]},
@@ -1905,12 +1999,10 @@ const SPEC={
    "已关闭：庄家停止收单 / 运营强制下架 / IM 全部盘口关闭。仅查看、等待结算，私盘已从列表消失。",
    "已结算：IM 赛果结算完成。仅查看，私盘已从列表消失。"]},
   {t:"投注项庄单状态",pg:"sell",tag:"新增",d:[
-   "卖出中：在卖单簿中正常收单，尚无成交。",
-   "部分成交：已有子单成交，仍有剩余额度。",
-   "已售罄：共享押金池耗尽；盘级补充额度后恢复。",
-   "已封盘：单项封盘，庄家档位从卖单簿下架，卖出单保留、可恢复；官方档位保留可投。",
-   "已移除：无成交时被庄家移除，盘口回到未开放状态。",
-   "已关闭：随盘关闭或 IM 该盘口关闭。已结算：随盘结算。"]},
+   "单项状态跟随盘状态显示：盘卖出中 → 各项「卖出中」，盘已售罄 → 各项「已售罄」，盘已关闭 → 各项「已关闭」，盘已结算 → 各项显示该项的输赢结果（赢 / 输 / 走水）。",
+   "「已封盘」是唯一不随盘状态的单项状态：庄家手动封盘或 IM 下架该盘口时固定显示已封盘，档位从卖单簿下架、卖出单保留、开赛前可恢复，官方档位不受影响。",
+   "已移除：无成交时被庄家移除，盘口回到未开放状态，不再出现在私盘与庄单列表中。",
+   "成交进度不作为单项状态表达，已收金额与剩余可卖额度在卡片上单独成列。"]},
   {t:"状态联动",pg:"sell",tag:"新增",d:[
    "盘级操作（自动封盘 / 停止收单 / 强制下架 / 结算）向下同步全部投注项庄单。",
    "单项售罄或封盘不改变盘状态，除非全部项同态；共享押金池耗尽（剩余押金归零）时盘置为已售罄。",
@@ -1931,7 +2023,7 @@ const S={
   page:"live", topnav:"体育赛事", period:"今日", sport:null,
   theme:"light", autoOdds:true, balanceHidden:false,
   oddsType:"香港盘", sortBy:"联赛", chip:"全部",
-  detailPriv:null,
+  detailPriv:null, omDetailOpened:null,
   slip:[], slipTab:"买入", buyMode:"单关", combo:"2串1", stakes:{}, comboStake:"",
   specOpen:(()=>{try{return localStorage.getItem("kk-spec-open")!=="0"}catch(e){return true}})(),
   p2pOnly:false, bookOpen:true,
@@ -2116,8 +2208,8 @@ function renderSlip(s){
   /* 整场互斥：购物车里有私盘投注项时，不出卖出入口 */
   const noSell=S.slip.some(x=>x.priv);
   if(noSell&&S.slipTab==="卖出")S.slipTab="买入";
-  [["买入",S.slip.length],["卖出",0]].filter(([t])=>!(noSell&&t==="卖出")).forEach(([t,n])=>{
-    const b=el("button",S.slipTab===t?"on":"",t+(n?`<i class="dot">${n}</i>`:""));
+  ["买入","卖出"].filter(t=>!(noSell&&t==="卖出")).forEach(t=>{
+    const b=el("button",S.slipTab===t?"on":"",t);
     b.onclick=()=>{S.slipTab=t;renderSide()};tabs.appendChild(b);
   });
   s.appendChild(tabs);
@@ -2592,7 +2684,7 @@ function privCell(m,mkName,label){
   if(half)k=null;                                   /* 本期示例盘只开全场项 */
   else if(/独赢|1\*2/.test(mkName))k=isH?"1x2-h":isA?"1x2-a":null;
   else if(/让球|让分/.test(mkName))k=(isA||/^\+/.test(label))?"ah-a":"ah-h";
-  else if(/大小|总分/.test(mkName))k=isO?"ou-o":isU?"ou-u":null;
+  else if(/大小|大\/小|总分/.test(mkName))k=isO?"ou-o":isU?"ou-u":null;
   if(!k)return null;
   return m.items.find(x=>x.status!=="removed"&&itemSlot(x.name)===k)||null;
 }
@@ -2646,8 +2738,10 @@ function leagueCard(g){
     left.appendChild(time);
     const teams=el("div","m-teams");
     const sc2=v=>mt.green?`<span class="sc g">${v}</span>`:`<span class="sc">${v}</span>`;
-    teams.innerHTML=`<div class="team"><span class="av">⬤</span><span class="nm">${esc(mt.home)}</span>${sc2(mt.hs)}</div>
-      <div class="team"><span class="av">⬤</span><span class="nm">${esc(mt.away)}</span>${sc2(mt.as)}</div>
+    /* 红黄牌角标：牌数为 0 不展示 */
+    const cards=(y,r)=>`${y?`<span class="cd cy">${y}</span>`:""}${r?`<span class="cd cr">${r}</span>`:""}`;
+    teams.innerHTML=`<div class="team"><span class="av">⬤</span><span class="nm">${esc(mt.home)}</span>${cards(mt.hy,mt.hr)}${sc2(mt.hs)}</div>
+      <div class="team"><span class="av">⬤</span><span class="nm">${esc(mt.away)}</span>${cards(mt.ay,mt.ar)}${sc2(mt.as)}</div>
       ${mt.meta?`<div class="m-meta">${esc(mt.meta)}</div>`:""}`;
     left.appendChild(teams);
     row.appendChild(left);
@@ -2713,6 +2807,13 @@ function leagueCard(g){
       sc.appendChild(wrap0);return;
     }
     const foot=el("div","m-foot");
+    /* 左侧常驻：直播图标 + 半场比分 + 角球；字段缺失时整块不渲染 */
+    if(mt.ht||mt.ck){
+      const hf=el("div","m-half");
+      if(mt.ht)hf.innerHTML+=`<span><i>🎞</i> 上半场 ${esc(mt.ht)}</span>`;
+      if(mt.ck)hf.innerHTML+=`<span><i>⛳</i> 角球 ${esc(mt.ck)}</span>`;
+      foot.appendChild(hf);
+    }
     /* 收藏星放在「全部 +N」前面 */
     const st=el("button","star"+(S.fav.has(mt.id)?" on":""),S.fav.has(mt.id)?"★":"☆");
     st.title=S.fav.has(mt.id)?"取消关注":"加入我的关注";
@@ -2736,10 +2837,15 @@ function leagueCard(g){
     sc.appendChild(wrap);
   });
   tbl.appendChild(sc);
-  if(g.markets.length>3){
+  /* 盘口装得下就不出横向翻页，装不下才给 » */
+  {
     const nb=el("button","nextbtn","»");
-    nb.onclick=()=>sc.scrollBy({left:352,behavior:"smooth"});
+    nb.style.display="none";
+    nb.onclick=()=>sc.scrollBy({left:Math.round(sc.clientWidth*0.8),behavior:"smooth"});
     tbl.appendChild(nb);
+    const sync=()=>{nb.style.display=sc.scrollWidth-sc.clientWidth>4?"grid":"none"};
+    requestAnimationFrame(sync);
+    sc.addEventListener("scroll",sync);
   }
   c.appendChild(tbl);
   return c;
@@ -3117,7 +3223,7 @@ function renderVideo(){
 function renderRight(){
   const r=$("#rp");r.innerHTML="";
   /* 窄屏默认收成竖排标签，点开后浮在内容上；宽屏沿用常驻形态 */
-  const narrow=window.innerWidth<=1180;
+  const narrow=window.innerWidth<=1680;
   const open=narrow?S.specNarrowOpen:S.specOpen;
   r.className="rp"+(open?"":" mini");
   if(!open){
@@ -3965,6 +4071,8 @@ function privCards(m){
 /* ============ 开盘详情与控盘 ============ */
 function renderOmDetail(m){
   const k=markets.find(x=>x.id===S.omDetail);
+  /* 每次进入详情页，子单一律重置为收起 */
+  if(S.omDetailOpened!==S.omDetail){S.omSubOpen.clear();S.omDetailOpened=S.omDetail}
   if(!k){S.page="history";return render()}
   const [stTxt]=M_ST[k.status];
   const live=["open","soldout"].includes(k.status);
@@ -4002,8 +4110,8 @@ function renderOmDetail(m){
     const c=el("div","oit"+(idx?" sep":""));
     const low=parseFloat(it.odds)<parseFloat(it.off);
     const q=Math.max(omItemQuota(k,it),0);
-    const tag=k.status==="settled"?(it.res||"走水"):(it.status==="sealed"?"已封盘"
-      :(q<=0?"已售罄":(it.subs.length?"部分成交":"收单中")));
+    const tag=k.status==="settled"?(it.res||"走水")
+      :(it.status==="sealed"?"已封盘":M_ST[k.status][0]);
     const tagc=k.status==="settled"
       ? (it.res==="赢"?"var(--green)":it.res==="输"?"#e8402a":"var(--ink-mute)")
       : (it.status==="sealed"?"var(--ink-mute)":"var(--accent)");
@@ -4025,12 +4133,13 @@ function renderOmDetail(m){
       }
       $(".oit-h",c).appendChild(ops);
     }
-    /* 有成交才出子单行，无成交不占位 */
-    if(it.subs.length){
-      const sid=k.id+":"+it.key, open=S.omSubOpen.has(sid);
-      const sh=el("div","oit-subh",
-        `<span>子单数据(${it.subs.length})</span><span class="ar">${open?"收起 ⌃":"展开 ⌄"}</span>`);
-      sh.onclick=()=>{open?S.omSubOpen.delete(sid):S.omSubOpen.add(sid);render()};
+    /* 子单行常驻：无成交时展示 (0) 暂无成交且不可展开 */
+    {
+      const sid=k.id+":"+it.key, open=S.omSubOpen.has(sid), has=it.subs.length>0;
+      const sh=el("div","oit-subh"+(has?"":" none"),
+        has?`<span>子单数据(${it.subs.length})</span><span class="ar">${open?"收起 ⌃":"展开 ⌄"}</span>`
+           :`<span>子单数据(0)：暂无成交</span>`);
+      if(has)sh.onclick=()=>{open?S.omSubOpen.delete(sid):S.omSubOpen.add(sid);render()};
       c.appendChild(sh);
       if(open){
         const sb=el("div","oit-subs");
@@ -4104,7 +4213,7 @@ function removeItem(k,it){
   if(omOpenItems(k)-1<OM_CFG.minItems)
     return toast(`开放盘口数不得低于 ${OM_CFG.minItems} 个，如需清空请使用停止收单`);
   confirmDialog({title:"移除盘口",okText:"确认移除",
-    body:`确认移除「${it.name}」？该盘口回到未开放状态，全平台不可投。盘押金为共享押金，不因移除变动、不产生退款。`,
+    body:`确认移除「${it.name}」？该盘口回到未开放状态，全盘口不可投。盘押金为共享押金，不因移除变动、不产生退款。`,
     onOk:()=>{k.items=k.items.filter(x=>x!==it);render();toast("已移除，盘押金不变")}});
 }
 /* 新增盘口：从 IM 交集内未开放的盘口里选 */
