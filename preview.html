@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v19.6 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v19.7 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -814,6 +814,10 @@ input:focus{border-color:#FF8C00}
     <li><b>投注项价格 = 其命中的全部比分状态价格之和</b>。同一件事从不同玩法买到的价格必然相同，<b>不存在跨玩法套利</b>。</li>
     <li>同一玩法各投注项<b>价格之和 = 1 + 溢价</b>（默认 3%，按开盘概率分摊，平台统一配置）。</li>
     <li><b>显示赔率</b> = (1 − 抽水率) ÷ 价格，再按赔率封顶（默认 99）截取。抽水默认每万收 300，<b>以压低赔率的方式收取，不从投注额里扣</b>。</li>
+    <li><b>本期有两处抽水，口径不同，不要混淆</b>：
+      <br>· <b>玩家侧抽水</b>（默认每万收 300，即 3%）——在<b>每笔成交当下</b>就以压低赔率的方式收取，玩家付 100 元、只有 97 元进入做市计算份额，账面上看不到单独的扣款。
+      <br>· <b>庄家侧抽水</b>（比例由 APISYS 下发，演示 2%）——在<b>结算时</b>对庄家的盈利部分收取，亏损不收。
+      <br>· 赛事作废时按投注金额<b>全额退回</b>，由于玩家侧抽水只是少给了份额、并非单独扣款，全额退回即自动包含该部分，平台在作废场次上不赚不亏；庄家侧抽水因未进入结算阶段，本就不会产生。</li>
     <li>玩家使用<b>钱包余额</b>下注，没有「期初余额」的概念。算法文档 5.5 节的期初筹码、沿用上一场期末余额、累计盈亏快照、排行榜，是单机模拟页的虚拟筹码玩法，<b>本期不实现，研发不要照该节实现</b>。</li>
   </ul>
 
@@ -847,8 +851,8 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>赛果只计<b>常规时间 90 分钟（含补时）</b>，不含加时赛与点球大战。</li>
     <li>赛果比分超出模型球数范围时，按比分状态结算，任何非负整数比分都能结算。</li>
-    <li><b>赛果由庄家录入、运营审核</b>：庄家封盘后录入比分提交，比赛进入待审核；运营核对后通过则正式结算，<b>审核通过前不发生任何资金兑付</b>。撤销结算同样由庄家发起、运营审核。</li>
-    <li>庄家可在自己的盘上下注，其投注在盘详情与后台标注「庄家自投」，供运营审核赛果时一并核验。</li>
+    <li><b>赛果由庄家录入、运营审核</b>：庄家封盘后录入比分提交，比赛进入待审核；运营核对后通过则正式结算，<b>审核通过前不发生任何资金兑付</b>。<b>本期不做撤销结算</b>：结算后如发现赛果有误，走人工处理，不在 C 端提供撤销入口。</li>
+    <li><b>禁止庄家在自己创建的盘上下注</b>。庄家能调水、又由庄家录入赛果，若允许自投则存在「先调水拉高赔率、自投后再压回」以及「按对自己有利的比分录入」的操纵路径。赔率格点击与下单提交两处都做拦截，提示「不能投注自己开的盘」。</li>
   </ul>
 </div>
 
@@ -907,7 +911,7 @@ input:focus{border-color:#FF8C00}
       <br><b>卖单列表卡片</b>状态标签只显示「待审核」，不加驳回标识；在卡片内给一行红色提示「赛果被驳回，请进入详情查看原因并重新录入」或「开盘被驳回，请进入详情查看原因」，<b>不展示原因正文</b>——列表只负责让庄家知道哪条需要处理，具体原因进详情看。不依赖客服通道。</li>
     <li><b>状态对外收敛</b>：开盘待审核、赛果待审核、开盘被驳回、赛果被驳回四种内部情形，<b>对庄家统一显示为「待审核」</b>，筛选项里也只有一个「待审核」并涵盖这四种。区别只体现在详情页的驳回区块与底部按钮上。</li>
     <li><b>⑥ 已结算</b>：按赛果兑付子单，押金解冻退回，盘详情展示结算明细与本场净盈亏。</li>
-    <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营作废，状态转为<b>已关闭</b>，全部成交撤销、投注金额原路退回、不计盈亏。撤销结算由庄家发起、运营审核。</li>
+    <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营作废，状态转为<b>已关闭</b>，全部成交撤销、<b>投注金额全额原路退回</b>（含玩家在成交时已付的抽水）、庄家押金全额解冻、本场不计盈亏、不抽庄家的水。<b>本期不做撤销结算</b>，已结算的盘如发现赛果有误走人工处理。</li>
   </ul>
 
   <h4>控盘操作</h4>
@@ -1675,7 +1679,8 @@ function cmRowHtml(c){
   const cell=(it,label)=>{
     if(!it)return `<div class="oddcell" style="opacity:.4"><span class="lb">${label}</span><span class="v">--</span></div>`;
     const L=EG.limits(e,cfg,it), od=EG.showOdds(e,cfg,it);
-    const live=can&&!L.paused;
+    /* 自己开的盘不可投注,赔率照常展示但不可点 */
+    const live=can&&!L.paused&&!c.mine;
     const k='CM|'+c.id+'|'+it.key;
     return `<div class="oddcell${sel[k]?' sel':''}" id="cell-${k}" style="${live?'':'opacity:.45'}"
       ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
@@ -1760,7 +1765,8 @@ function cmRenderDetail(){
     ${c.state==='settled'?`<div class="hint" style="margin:8px 12px 0">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>(常规时间 90 分钟,不含加时与点球)</div>`:''}
     ${c.state==='sealed'?`<div class="hint" style="margin:8px 12px 0">已封盘,等待庄家录入赛果并由运营审核。封盘后不可投注,已持有份额不可卖出。</div>`:''}
     ${c.state==='pending'?`<div class="hint" style="margin:8px 12px 0">赛果 <b>${c.score[0]}-${c.score[1]}</b> 待运营审核,审核通过后正式结算。</div>`:''}
-    ${c.state==='closed'?`<div class="hint" style="margin:8px 12px 0;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销,投注金额已原路退回。</div>`:''}`;
+    ${c.state==='closed'?`<div class="hint" style="margin:8px 12px 0;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销,投注金额已原路退回。</div>`:''}
+    ${c.mine?`<div class="hint" style="margin:8px 12px 0">本场由你开盘,<b>不能投注自己开的盘</b>。管理本盘请到「卖单 → 私盘」。</div>`:''}`;
   /* 玩法 Tab:全部 + 各玩法分类 */
   const tabs=[['all','全部']].concat(e.mks.map(mk=>[mk.key,mk.name]));
   $('cd-tabs').innerHTML=`<span style="padding:11px 8px 9px;color:#FF8C00;font-size:13px;flex-shrink:0">⌃</span>`
@@ -1801,7 +1807,7 @@ function cmRenderDetail(){
     const two=['wdl','btts'].includes(mk.key)||/^ou/.test(mk.key)||/^ah/.test(mk.key)||/^eh/.test(mk.key)||/^tg/.test(mk.key);
     const cellOf=it=>{
       const L=EG.limits(e,cfg,it),od=EG.showOdds(e,cfg,it);
-      const live=c.state==='open'&&!L.paused;
+      const live=c.state==='open'&&!L.paused&&!c.mine;
       const k='CM|'+c.id+'|'+it.key;
       return `<div class="row" id="cell-d-${k}" style="background:${sel[k]?'linear-gradient(180deg,#FFA33A,#FF8C00)':'#F7F8FA'};border-radius:8px;padding:11px 12px;margin-bottom:7px;cursor:${live?'pointer':'default'};${live?'':'opacity:.45'}"
         ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
@@ -1838,7 +1844,7 @@ function cmRenderDetail(){
     }else{
       cells=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 12px">${mk.items.map(it=>{
         const L=EG.limits(e,cfg,it),od=EG.showOdds(e,cfg,it);
-        const live=c.state==='open'&&!L.paused;
+        const live=c.state==='open'&&!L.paused&&!c.mine;
         const k='CM|'+c.id+'|'+it.key;
         return `<div class="oddcell${sel[k]?' sel':''}" id="cell-d-${k}" style="height:auto;padding:9px 4px;${live?'':'opacity:.45'}"
           ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
@@ -1861,6 +1867,8 @@ function cmRenderDetail(){
 /* 选中自定义赛事投注项 → 加入原购物车(与官方盘一致) */
 function cmToggle(id,key){
   const c=cmFind(id);
+  /* 禁止庄家在自己创建的盘上下注:避免先调水再自投的操纵路径,且赛果由庄家录入,存在利益冲突 */
+  if(c.mine)return toast('不能投注自己开的盘');
   if(c.state!=='open')return toast('本场已封盘,不可投注');
   const it=cmItem(c,key);
   const L=EG.limits(c.eng,c.cfg,it);
@@ -3706,6 +3714,7 @@ function doBuy(){
     if(!k.startsWith('CM|'))continue;
     const [,cid,ikey]=k.split('|');
     const c=cmFind(cid); if(!c)return toast('该比赛已不可投注');
+    if(c.mine)return toast('不能投注自己开的盘');
     if(c.state!=='open')return toast('该比赛已封盘');
     const _it=cmItem(c,ikey);
     const L=EG.limits(c.eng,c.cfg,_it);
