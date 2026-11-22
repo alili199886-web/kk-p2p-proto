@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.2 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.3 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -884,7 +884,11 @@ input:focus{border-color:#FF8C00}
 
   <h4>控盘操作</h4>
   <ul>
-    <li><b>调水</b>：做市定价下调水等效于庄家主动推动该投注项价格，同玩法其他项赔率同步反向变动。提供快捷点位与自定义输入，实时预览调整后赔率；调整后赔率需在平台最低赔率与赔率封顶之间。<b>已成交子单按原成交赔率结算，不受影响。</b></li>
+    <li><b>调水</b>：弹窗结构为「当前庄单赔率 → 开盘赔率（参考）→ 调整点位 → 新庄单赔率」。
+      <br>· <b>调整点位即赔率增减量</b>（两位小数、可为负），带 － / ＋ 步进按钮每次 0.01，输入后实时算出新庄单赔率并以绿色大字预览。
+      <br>· <b>参考基准用开盘赔率</b>：自定义赛事没有官方盘可参照，开盘价是庄家自己设的起点，同时展示当前相对开盘的偏离百分比（涨绿跌红），便于判断该往哪调。
+      <br>· 新赔率需落在平台最低赔率与赔率封顶之间，越界时提示原因并禁用确认按钮。
+      <br>· 做市定价下调水等效于庄家推动该投注项价格，<b>同玩法其他项赔率同步反向变动</b>；<b>已成交子单按原成交赔率结算，不受影响</b>。</li>
     <li><b>立即封盘</b>：<b>以玩法为单位</b>。做市定价下同一玩法内各投注项共享同一条价格曲线，单独封掉其中一项会破坏跨玩法同价、产生套利空间，因此封盘必须整个玩法一起封。</li>
     <li><b>分享</b>：分享该玩法及其投注项赔率到金刚，接收方进入本场赛事详情并定位到该玩法。</li>
     <li><b>移除</b>：仅该玩法无任何成交时可移除。移除会改变比分状态的合并方式，其余玩法赔率随之重算；已成交份额按原成交赔率结算不受影响。</li>
@@ -2047,41 +2051,67 @@ function cmAdjSheet(mkKey,itKey){
 function cmRenderAdj(){
   const c=cmCur,e=c.eng,cfg=c.cfg,it=cmAdjIt;
   const cur=EG.showOdds(e,cfg,it);
+  /* 开盘赔率:自定义赛事无官方盘可参照,用庄家自己设定的开盘价作基准 */
+  let open0=cur;
+  try{
+    const m0=EG.init(cfg);
+    const it0=m0.mks.flatMap(x=>x.items).find(x=>x.key===it.key);
+    if(it0)open0=EG.showOdds(m0,cfg,it0);
+  }catch(err){}
+  const drift=open0?((cur-open0)/open0*100):0;
+  /* 调整点位 = 赔率增减量(两位小数,可为负) */
   const pt=parseFloat(cmAdjPt)||0;
-  /* 调价:庄家主动推动该投注项价格。正数调低赔率(抬价),负数调高赔率(压价) */
-  let prevOdds=cur, ok=false;
-  if(pt!==0){
+  const target=+(cur+pt).toFixed(2);
+  /* 二分求达到目标赔率所需的推动量,用于确认时落库 */
+  const shiftFor=tgt=>{
+    if(Math.abs(tgt-cur)<1e-6)return 0;
     const q0=e.q.slice();
-    it.sidx.forEach(k=>e.q[k]+=pt*e.b*0.01);
-    prevOdds=EG.showOdds(e,cfg,it);
-    e.q=q0;
-    ok=prevOdds>=cfg.minOdds&&prevOdds<=cfg.maxOdds;
-  }
-  $('cfm-body').innerHTML=`<h3 style="font-size:15px;text-align:center;margin-bottom:4px">盘中调价</h3>
-    <div class="muted" style="text-align:center;margin-bottom:10px">${it.name}</div>
-    <div class="card">
-      <div class="row"><span class="muted grow">当前赔率</span><span class="nowrap"><b>@${f2(cur)}</b></span></div>
-      <div class="row" style="margin-top:9px;gap:6px">
-        ${[-3,-1,1,3].map(v=>`<button class="btn btn-g grow" style="padding:7px;font-size:12px"
-          onclick="cmAdjPt='${v}';cmRenderAdj()">${v>0?'+':''}${v}</button>`).join('')}
+    const oddsAt=d=>{const q=q0.slice();it.sidx.forEach(k=>q[k]+=d);
+      const bk=e.q;e.q=q;const o=EG.showOdds(e,cfg,it);e.q=bk;return o};
+    let lo=-e.b*4, hi=e.b*4;
+    for(let t=0;t<70;t++){const mid=(lo+hi)/2; oddsAt(mid)>tgt?lo=mid:hi=mid}
+    return (lo+hi)/2;
+  };
+  const okRange = pt!==0 && target>=cfg.minOdds && target<=(cfg.maxOdds||99);
+  const warn = pt!==0 && !okRange
+    ? (target<cfg.minOdds?`新赔率低于平台最低赔率 ${f2(cfg.minOdds)}`:`新赔率超过赔率封顶 ${f2(cfg.maxOdds||99)}`)
+    : '';
+  const mk=e.mks.find(x=>x.items.some(y=>y.key===it.key));
+  const step=v=>`<span style="width:38px;height:38px;border:1px solid #e3e5e8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#666;cursor:pointer;flex-shrink:0;background:#fff;user-select:none"
+      onclick="cmAdjPt=(((parseFloat(cmAdjPt)||0)+(${v}))).toFixed(2);cmRenderAdj()">${v>0?'＋':'－'}</span>`;
+  $('cfm-body').innerHTML=`
+    <h3 style="font-size:15px;text-align:center;margin-bottom:14px">调水 · ${mk.name} · ${it.name}</h3>
+    <div class="row" style="margin-top:10px">
+      <span class="muted grow" style="font-size:13px">当前庄单赔率</span>
+      <span class="nowrap" style="font-size:15px;font-weight:700;color:#222">@${f2(cur)}</span></div>
+    <div class="row" style="margin-top:12px">
+      <span class="muted grow" style="font-size:13px">开盘赔率</span>
+      <span class="nowrap" style="font-size:14px;color:#9aa0a6">@${f2(open0)}（参考）${Math.abs(drift)>=0.5?`<span style="margin-left:5px;color:${drift>0?'#1D9E75':'#E24B4A'}">${drift>0?'↑':'↓'}${Math.abs(drift).toFixed(1)}%</span>`:''}</span></div>
+    <div class="row" style="margin-top:14px">
+      <span class="muted grow" style="font-size:13px">调整点位</span>
+      <div class="row" style="gap:0;flex-shrink:0">
+        ${step(-0.01)}
+        <input id="cm-adj" inputmode="decimal" value="${cmAdjPt||'0.00'}"
+          style="width:76px;height:38px;border:1px solid #e3e5e8;border-left:none;border-right:none;padding:0 6px;font-size:15px;font-weight:600;text-align:center;outline:none;background:#fff"
+          oninput="cmAdjPt=this.value;cmRenderAdj();setTimeout(()=>{const i=$('cm-adj');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)">
+        ${step(0.01)}
       </div>
-      <input class="inp" id="cm-adj" inputmode="decimal" placeholder="调价点位,正数抬价/负数压价" value="${cmAdjPt}"
-        style="width:100%;height:40px;border:1px solid #e3e5e8;border-radius:9px;padding:0 11px;font-size:14px;outline:none;margin-top:9px"
-        oninput="cmAdjPt=this.value;cmRenderAdj();setTimeout(()=>{const i=$('cm-adj');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)">
-      ${pt!==0?`<div class="row" style="margin-top:9px"><span class="muted grow">调整后赔率</span>
-        <span class="nowrap"><b style="color:${ok?'#FF8C00':'#E24B4A'}">@${f2(prevOdds)}</b></span></div>`:''}
-    </div>
-    <div class="muted" style="font-size:11px;margin-top:9px;line-height:1.7">自定义赛事为做市定价,调价等效于庄家自己推动该投注项的价格,同玩法其他项赔率同步反向变动。已成交子单按原成交赔率结算,不受影响。调整后赔率需在平台最低赔率与赔率封顶之间。</div>
-    <div class="row" style="gap:8px;margin-top:12px">
-      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
-      <button class="btn btn-p grow" ${pt!==0&&ok?'':'disabled'} onclick="cmDoAdj()">确认调价</button></div>`;
+      <span class="muted nowrap" style="font-size:11px;margin-left:8px">可为负，两位小数</span></div>
+    <div class="row" style="margin-top:14px">
+      <span class="muted grow" style="font-size:13px">新庄单赔率</span>
+      <span class="nowrap" style="font-size:17px;font-weight:800;color:${okRange?'#1D9E75':(pt===0?'#9aa0a6':'#E24B4A')}">@${f2(pt===0?cur:target)}</span></div>
+    ${warn?`<div class="hint" style="margin-top:10px;background:#FDECEC;color:#C0392B">${warn}</div>`:''}
+    <div class="muted" style="font-size:11px;margin-top:12px;line-height:1.7">已成交子单按原赔率结算不受影响。调水会同步推动同玩法其他投注项的赔率反向变动。</div>
+    <div class="row" style="gap:10px;margin-top:16px">
+      <button class="btn btn-g grow" style="height:46px;font-size:15px" onclick="closeCfm()">取消</button>
+      <button class="btn btn-p grow" style="height:46px;font-size:15px" ${okRange?'':'disabled'} onclick="cmDoAdj(${shiftFor(target)})">确认调水</button></div>`;
 }
-function cmDoAdj(){
+
+function cmDoAdj(shift){
   const c=cmCur,e=c.eng,it=cmAdjIt;
-  const pt=parseFloat(cmAdjPt)||0;
-  it.sidx.forEach(k=>e.q[k]+=pt*e.b*0.01);
+  it.sidx.forEach(k=>e.q[k]+=shift);
   closeCfm(); cmRenderOwnDetail(); renderHome();
-  toast('已调价,当前赔率 @'+f2(EG.showOdds(e,c.cfg,it)));
+  toast('已调水,当前赔率 @'+f2(EG.showOdds(e,c.cfg,it)));
 }
 
 let cmTopup='';
