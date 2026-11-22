@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v14.3</title>
+<title>P2P 开盘坐庄 · 交互原型 v17.6</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -189,10 +189,10 @@ input:focus{border-color:#FF8C00}
     <span style="color:#FF8C00;font-size:14px">⟳</span>
     <span style="font-size:15px;font-weight:700;color:#222" id="bal-home">99,691.71</span><span class="muted" style="font-size:11px">CNY</span>
     </div>
-  <div style="display:flex;gap:8px;padding:8px 12px;overflow-x:auto" id="home-tabs"></div>
-  <div style="display:flex;gap:10px;padding:4px 14px 6px;overflow-x:auto" id="home-sports"></div>
+  <div style="display:flex;gap:10px;padding:8px 14px 4px;overflow-x:auto" id="home-sports"></div>
+  <div style="display:flex;gap:8px;padding:4px 12px 6px;overflow-x:auto" id="home-tabs"></div>
   <div style="display:flex;gap:8px;padding:6px 12px;overflow-x:auto" id="home-fbar">
-    <span class="fpill on">联赛</span><span class="fpill">时间</span><span class="fpill">筛选 ▽</span><span class="fpill" id="fp-p2p" onclick="toggleP2POnly()" style="position:relative">P2P<span class="reddot" id="fp-p2p-dot" style="top:-1px;right:-1px"></span></span><span class="fpill" id="fp-clone" onclick="toggleCloneOnly()">私盘</span><span class="fpill" id="fp-collapse" onclick="toggleAll()" style="display:flex;align-items:center;gap:4px">收起 <span id="fp-arrow" style="color:#FF8C00;font-size:13px;font-weight:800;display:inline-block;transform:rotate(-90deg)">≫</span></span>
+    <span class="fpill" id="fp-newcm" onclick="cmCreateSheet()" style="background:#FF8C00;color:#fff;border-color:#FF8C00;font-weight:600">＋ 我要开盘</span><span class="fpill" id="fp-cm" onclick="toggleCmOnly()">自定义赛事</span><span class="fpill" id="fp-lg" onclick="toggleImFilter('lg')">联赛</span><span class="fpill" id="fp-tm" onclick="toggleImFilter('tm')">时间</span><span class="fpill">筛选 ▽</span><span class="fpill" id="fp-p2p" onclick="toggleP2POnly()" style="position:relative">P2P<span class="reddot" id="fp-p2p-dot" style="top:-1px;right:-1px"></span></span><span class="fpill" id="fp-clone" onclick="toggleCloneOnly()">私盘</span><span class="fpill" id="fp-collapse" onclick="toggleAll()" style="display:flex;align-items:center;gap:4px">收起 <span id="fp-arrow" style="color:#FF8C00;font-size:13px;font-weight:800;display:inline-block;transform:rotate(-90deg)">≫</span></span>
   </div>
   <div class="scroll" style="padding:6px 10px 66px" id="home-list"></div>
   <div id="cartbar" style="display:none;position:absolute;left:10px;right:10px;bottom:74px;height:40px;background:#FF8C00;border-radius:10px;box-shadow:0 3px 12px rgba(255,140,0,.4);align-items:center;padding:0 14px;color:#fff;cursor:pointer;z-index:45" class="row" onclick="openBetslip()">
@@ -211,6 +211,7 @@ input:focus{border-color:#FF8C00}
     <div style="background:#fff;border-radius:12px;margin:10px 12px 0;display:flex" id="orders-seg">
       <div class="ptab on" id="seg-1" onclick="segTab(1)" style="font-size:15px">投注项卖单</div>
       <div class="ptab" id="seg-0" onclick="segTab(0)" style="font-size:15px">私盘</div>
+      <div class="ptab" id="seg-2" onclick="segTab(2)" style="font-size:15px">私盘</div>
     </div>
     <div class="row" style="gap:8px;padding:10px 12px 0" id="orders-filters"></div>
     <div style="padding:10px 12px 0" id="orders-stats"></div>
@@ -306,6 +307,43 @@ input:focus{border-color:#FF8C00}
   </div>
   <div class="scroll" style="padding:10px 12px" id="dt-body"></div>
   <div style="background:#fff;border-top:1px solid #eee;padding:10px 12px;flex-shrink:0" id="dt-footer"></div>
+</div>
+
+<!-- ═════════ 私盘 · 盘口详情 ═════════ -->
+<div class="page" id="pg-cmdetail" style="background:#F2F3F5">
+  <div class="row" style="background:#fff;padding:12px 14px">
+    <span style="font-size:18px;cursor:pointer" onclick="cmBack()">‹</span>
+    <span style="font-size:15px;font-weight:600;color:#222;flex:1;text-align:center" id="cd-title">自定义赛事</span>
+    <span class="tag" id="cd-state" style="margin-right:10px"></span>
+    <svg id="cd-share" viewBox="0 0 24 24" style="width:18px;height:18px;stroke:#FF8C00;fill:none;stroke-width:1.8;cursor:pointer" onclick="cmShareMatch()">
+      <circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/>
+      <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>
+  </div>
+  <div id="cd-banner"></div>
+  <div style="display:flex;background:#fff;border-bottom:1px solid #f0f0f0;overflow-x:auto" id="cd-tabs"></div>
+  <div class="scroll" style="padding:8px 12px 20px" id="cd-body"></div>
+  <div style="background:#fff;border-top:1px solid #eee;padding:10px 12px;flex-shrink:0" id="cd-footer"></div>
+</div>
+
+<!-- ═════════ 私盘 · 投注面板 ═════════ -->
+<div class="ovl" id="ov-cmbet" onclick="if(event.target===this)hide('ov-cmbet')">
+  <div class="sheet" id="cmbet-body" style="background:#F2F3F5"></div>
+</div>
+
+<!-- ═════════ 私盘 · 开盘详情(庄家管理,仅从卖单进入) ═════════ -->
+<div class="page" id="pg-cmown" style="background:#F2F3F5">
+  <div class="row" style="background:#fff;padding:12px 14px">
+    <span style="font-size:18px;cursor:pointer" onclick="renderOrders();go('pg-orders');setNav('sell')">‹</span>
+    <span style="font-size:16px;font-weight:600;color:#222;flex:1;text-align:center">开盘详情</span>
+    <span class="tag" id="co-state"></span>
+  </div>
+  <div class="scroll" style="padding:10px 12px 20px" id="co-body"></div>
+  <div style="background:#fff;border-top:1px solid #eee;padding:10px 12px;flex-shrink:0" id="co-footer"></div>
+</div>
+
+<!-- ═════════ 私盘 · 开盘 ═════════ -->
+<div class="ovl" id="ov-cmnew" onclick="if(event.target===this)hide('ov-cmnew')">
+  <div class="sheet" id="cmnew-body" style="background:#F2F3F5;max-height:88%;overflow-y:auto;-webkit-overflow-scrolling:touch"></div>
 </div>
 
 <!-- ═════════ 投注面板 ═════════ -->
@@ -421,7 +459,7 @@ input:focus{border-color:#FF8C00}
 
 
 <!-- ═════════ 右侧标注:赛事大厅(开盘入口) ═════════ -->
-<div class="spec" id="spec-home" data-page="pg-home" style="display:none">
+<div class="spec" id="spec-home" data-page="__hidden__" style="display:none">
   <h3>赛事大厅 · 开盘坐庄需求标注</h3>
   <p class="sub">本期在 IM 既有赛事与盘口范围内，升级为「私盘模式按赛事开盘坐庄」。原比赛与既有投注项卖出完全不受影响。</p>
 
@@ -503,7 +541,7 @@ input:focus{border-color:#FF8C00}
 </div>
 
 <!-- ═════════ 右侧标注:我的卖出 ═════════ -->
-<div class="spec" id="spec-orders" data-page="pg-orders" style="display:none">
+<div class="spec" id="spec-orders" data-page="__hidden__" style="display:none">
   <h3>我的卖出 · 需求标注</h3>
   <p class="sub">私盘与既有投注项卖出并存，分页签展示，筛选对两个页签同时生效。</p>
 
@@ -531,7 +569,7 @@ input:focus{border-color:#FF8C00}
 </div>
 
 <!-- ═════════ 右侧标注:开盘详情与控盘 ═════════ -->
-<div class="spec" id="spec-detail" data-page="pg-detail" style="display:none">
+<div class="spec" id="spec-detail" data-page="__hidden__" style="display:none">
   <h3>开盘详情与控盘 · 需求标注</h3>
   <p class="sub">庄家对自己私盘拥有完整控盘能力：动态增减盘口、调水、单项封盘、补充额度、停止收单。</p>
 
@@ -624,7 +662,7 @@ input:focus{border-color:#FF8C00}
     <li><b>最终输赢</b>：仅已结算展示，大字号居中，赢绿输红。</li>
     <li><b>三列指标</b>：剩余额度 / 已收单 / 上浮点位。</li>
     <li><b>消费进度</b>：已收单 ÷ 总额度，进行中蓝、已结算绿、已关闭灰。</li>
-    <li><b>基础信息</b>：抵押类型、抵押金额（旁有感叹号图标，点击查看押金变动记录）、卖出赔率（港盘）、总额度、子单数、卖出时间。</li>
+    <li><b>基础信息</b>：抵押类型、押金额（旁有感叹号图标，点击查看押金变动记录）、卖出赔率（港盘）、总额度、子单数、卖出时间。</li>
     <li><b>会员买单列表</b>：逐笔展示买家、成交金额、成交时间；已结算时追加每笔结算金额、平台抽水与卖出返回。</li>
     <li><b>底部操作</b>：卖出中 / 部分成交 / 已售罄时展示「补充押金」「停止收单」；已结算、已关闭时无操作按钮。</li>
   </ul>
@@ -704,6 +742,202 @@ input:focus{border-color:#FF8C00}
   </ul>
 </div>
 
+<!-- ═════════ 右侧标注:私盘 · 赛事大厅 ═════════ -->
+<div class="spec" id="spec-cm-home" data-page="pg-home" style="display:none">
+  <h3>私盘（自定义赛事）· 赛事大厅</h3>
+  <p class="sub">本期做<b>自定义赛事坐庄</b>：脱离 IM 的自定义足球比赛，庄家填两队名与两队场均进球 λ，系统按 Poisson 比分模型生成全套盘口并按比分统一做市，赔率没有外部来源。第二期做「复制 IM 既有赛事坐庄」，同样叫私盘，本期其入口整体隐藏。</p>
+
+  <h4>入口与筛选</h4>
+  <ul>
+    <li><b>独立联赛分组</b>：自定义赛事没有 IM 母体，不挂在任何原比赛下方，在赛事列表顶部独立成「自定义赛事」分组，右侧带「私盘」标识，可折叠。</li>
+    <li><b>仅今日盘与早盘</b>展示「＋ 我要开盘」与「自定义赛事」胶囊，<b>滚球页签不展示</b>（自定义赛事只做赛前盘）。</li>
+    <li>今日盘 / 早盘<b>默认选中「自定义赛事」</b>，「联赛」「时间」默认不选中。三者<b>互斥</b>——联赛与时间是 IM 数据源推送，自定义赛事是玩家自己开盘，点其一自动取消其余。</li>
+    <li><b>「＋ 我要开盘」是全局入口</b>，放在筛选行最左。自定义赛事无 IM 母体，无法像第二期那样在某场比赛行上开盘。</li>
+    <li>比赛行三列固定，与官方盘一致：<b>全场独赢 / 全场让球 / 全场大/小</b>；完整玩法进赛事详情查看，入口为队名下方的「全部 N▸」。<b>列表行不展示比赛状态</b>。</li>
+  </ul>
+
+  <h4>比赛状态（六个）</h4>
+  <ul>
+    <li><b>卖出中</b>：可买入。</li>
+    <li><b>已售罄</b>：押金占用触顶、接不了新注，赔率格置灰；<b>补充额度后自动恢复为卖出中</b>。这是资金层面的被动状态。</li>
+    <li><b>已封盘</b>：庄家或运营主动停止收单，其他玩家不能再购买该盘口，<b>不可恢复</b>。与已售罄是两回事。</li>
+    <li><b>待审核</b>：庄家已录入赛果，等待运营审核。</li>
+    <li><b>已结算</b>：审核通过，按赛果兑付，每份命中兑付 1 个结算单位。</li>
+    <li><b>已关闭</b>：作废，全部成交撤销、投注金额原路退回、不计盈亏。</li>
+  </ul>
+
+  <h4>赔率格暂停态</h4>
+  <ul>
+    <li>赔率降到<b>平台最低赔率</b>（默认 1.05），或<b>本笔可投额度低于 5</b> 时，该投注项暂停买入，格子置灰并标「暂停」。</li>
+    <li>全部开放投注项都暂停时，整盘转为<b>已售罄</b>。额度回升自动恢复；暂停只影响买入。</li>
+  </ul>
+
+  <h4>我要开盘</h4>
+  <ul>
+    <li>赛事信息：主队名与<b>队徽</b>、客队名与队徽、开赛时间、<b>赛事直播地址（选填）</b>、两队场均进球 λ（0.1~6）。填了直播地址后，赛事详情横幅展示「▦ 动画直播」入口，点击播放。</li>
+    <li><b>七类玩法可勾选</b>：全场独赢、全场大/小、双方进球、全场波胆、全场让球（半球）、欧洲让球、主客队进球数。大小球与让球可多选盘口线；带「按 λ 自动推荐盘口线」开关。</li>
+    <li>押金与收单：押金金额、单笔最多收、<b>自动封盘时长</b>。
+      <br>· 自动封盘时长 = 开赛前多少分钟停止收单，<b>默认 10 分钟</b>，提供「开赛时 / 5 / 10 / 15 / 30 分钟」快捷项，也可自定义输入，<b>取值 0~180 的整数</b>，超范围在提交前拦截。
+      <br>· 设为「开赛时」即开赛瞬间封盘。到达时点后玩家不可再投注、已持有份额不可卖出，比赛结束后由庄家录入赛果。
+      <br>· <b>庄家侧的赔率下限（被压价到多少就停止收单）本期不做</b>，不在开盘弹窗配置；如后续要加，需与玩家侧的「最低接受赔率」区分命名。</li>
+    <li><b>抽水比例由 APISYS 下发</b>，不在本页配置；溢价与赔率封顶由平台统一控制，不对庄家展示。</li>
+    <li><b>每类玩法开启后，其下方直接展示该类全部投注项的开盘赔率</b>，随 λ 与盘口线实时重算。弹窗内容可滚动。</li>
+    <li><b>必填校验按字段就地提示</b>：不做汇总式的「还需填写 X、Y」。刚打开时不标红；字段被编辑过、或点过「提交审核」之后，不合法的字段<b>输入框边框变红、下方给一行红色说明</b>（如「请输入主队名称」「押金不得低于 100」「请输入 0 ~ 180 的整数」）。改正后红色即消失。点提交时若有不合法字段，滚动定位到第一个。</li>
+    <li>提交后<b>需运营审核</b>，通过才上架；<b>押金在审核通过时冻结</b>，未通过则不冻结，<b>驳回原因在「卖单 → 私盘」的盘详情中、队名下方展示</b>。押金是本场最大亏损上限。</li>
+  </ul>
+</div>
+
+<!-- ═════════ 右侧标注:私盘 · 盘口详情与投注 ═════════ -->
+<div class="spec" id="spec-cm-detail" data-page="pg-cmdetail" style="display:none">
+  <h3>赛事详情（玩家投注视角）</h3>
+  <p class="sub">从赛事大厅或赛果页进入。<b>这是纯投注页面</b>——无论这场盘是谁开的，页面表现完全一致，不展示庄家风险区与控盘操作。庄家管理自己的盘走「卖单 → 私盘 → 开盘详情」。</p>
+
+  <h4>页面结构</h4>
+  <ul>
+    <li><b>横幅</b>：球场背景，圆形队徽、队名、比赛状态与开赛时间；已结算 / 待审核时展示比分；配置了直播地址时展示「▦ 动画直播」；底部为庄家昵称。</li>
+    <li><b>顶栏右上角分享</b>：只有<b>「分享到金刚」</b>，不含分享到 TG 与复制链接，分享的是整场赛事，接收方点击后进入本场详情、不预选投注项。</li>
+    <li><b>玩法 Tab</b>：全部 / 各玩法分类，左侧带折叠箭头。</li>
+    <li><b>赔率区</b>：按主客两列并排，列头为带橙色竖条的队名（大小球为「大球 / 小球」，双方进球为「是 / 否」）；正确比分等多项玩法用三列网格。</li>
+  </ul>
+
+  <h4>本期玩法（七类）</h4>
+  <ul>
+    <li>全场独赢、全场大/小（可多线）、双方进球、全场波胆、全场让球（半球）、欧洲让球、主客队进球数。玩法名称与赛事列表保持一致。</li>
+    <li>亚洲让球整数线与大小球整数线<b>永久不做</b>：走盘要退本金，无法用比分状态表达，与按比分做市的底层结构冲突。</li>
+  </ul>
+
+  <h4>定价原理（需求侧需要知道的）</h4>
+  <ul>
+    <li>庄家只填<b>两队场均进球 λ</b>，系统按独立 Poisson 生成比分矩阵，再把「在全部已开玩法下结算结果完全相同」的比分合并为<b>比分状态</b>，做市在状态层进行。</li>
+    <li><b>投注项价格 = 其命中的全部比分状态价格之和</b>。同一件事从不同玩法买到的价格必然相同，<b>不存在跨玩法套利</b>。</li>
+    <li>同一玩法各投注项<b>价格之和 = 1 + 溢价</b>（默认 3%，按开盘概率分摊，平台统一配置）。</li>
+    <li><b>显示赔率</b> = (1 − 抽水率) ÷ 价格，再按赔率封顶（默认 99）截取。抽水默认每万收 300，<b>以压低赔率的方式收取，不从投注额里扣</b>。</li>
+    <li><b>本期有两处抽水，口径不同，不要混淆</b>：
+      <br>· <b>玩家侧抽水</b>（默认每万收 300，即 3%）——在<b>每笔成交当下</b>就以压低赔率的方式收取，玩家付 100 元、只有 97 元进入做市计算份额，账面上看不到单独的扣款。
+      <br>· <b>庄家侧抽水</b>（比例由 APISYS 下发，演示 2%）——在<b>结算时</b>对庄家的盈利部分收取，亏损不收。
+      <br>· 赛事作废时按投注金额<b>全额退回</b>，由于玩家侧抽水只是少给了份额、并非单独扣款，全额退回即自动包含该部分，平台在作废场次上不赚不亏；庄家侧抽水因未进入结算阶段，本就不会产生。</li>
+    <li>玩家使用<b>钱包余额</b>下注，没有「期初余额」的概念。算法文档 5.5 节的期初筹码、沿用上一场期末余额、累计盈亏快照、排行榜，是单机模拟页的虚拟筹码玩法，<b>本期不实现，研发不要照该节实现</b>。</li>
+  </ul>
+
+  <h4>购物车（沿用原有购物车，不另开面板）</h4>
+  <ul>
+    <li>选中自定义赛事投注项直接进原购物车；<b>卖出页签自动隐藏</b>，做市成交不支持被其他会员卖出。关闭按钮保留。</li>
+    <li>卡片右上角是<b>本笔实际成交赔率</b>，随输入金额实时变动，后面紧跟「(低 X%)」说明相对所见赔率的差距；输入框上方一行对照展示<b>所见赔率</b>与<b>成交后赔率</b>。盘口类型标注为 <b>[欧洲盘]</b>。</li>
+    <li><b>三个赔率的关系恒为：所见赔率 &gt; 本笔实际赔率 &gt; 成交后赔率</b>。所见赔率是下单前该项的当前赔率；本笔实际赔率是这笔钱买到的平均赔率，投注额越大越低；成交后赔率是本笔推动价格后该项的新赔率，供玩家判断自己对盘口的影响。三者必须同口径（同样计入溢价与抽水），否则小额投注会算出「本笔高于所见」的矛盾结果。</li>
+    <li><b>单笔上限直接作为输入框的限额提示</b>（「限额 2.00-X」），不单独列字段；上限 = 三项取最小：单笔最多收、滑点上限金额、最低赔率限额。冷门项（价格低于冷门线）滑点上限按比例放宽。超额按上限试算，不直接拒绝。</li>
+    <li>自定义赛事<b>不参与串关</b>。</li>
+    <li><b>赢时可得不在购物车展示</b>，在投注成功后的注单确认弹窗中以「获得份额」与「可赢金额」呈现。</li>
+    <li><b>买单列表不与官方注单统一展示</b>：官方注单是固定赔率、字段为「投注金额 / 最高可赢」；自定义赛事是做市成交、额外有「获得份额」，两者各按自己的口径展示，不合并成同一种卡片。已结算时自定义赛事同样展示输赢与比分，格式与官方注单一致。</li>
+    <li><b>最低接受赔率（玩家侧）</b>：输入金额后出现，默认填当前成交后赔率。从点击下注到真正成交之间，别人可能抢先买入把价格推高、赔率压低，<b>本笔成交赔率低于该值时直接拒绝本笔</b>，相当于限价单的保护价。这是玩家的滑点兜底；庄家侧「被压价到多少就停止收单」是另一回事，本期不做。</li>
+  </ul>
+
+  <h4>调水与算法定价的关系</h4>
+  <ul>
+    <li><b>调水不会架空算法</b>。算法约束的不是赔率数值本身，而是赔率与风险敞口的绑定：赔率由持仓量决定，亏损上限由押金锁死。调水等效于庄家替市场推动了一次持仓，系统后续定价仍从新的持仓出发，<b>不穿仓、跨玩法同价、价格随资金移动</b>三条约束全部继续成立。</li>
+    <li><b>跨玩法同价自动维持</b>：调水改的是该投注项命中的全部比分状态，正确比分等相关玩法的价格会同步联动，不会出现「主胜调了、波胆没动」的套利缺口。这是按比分状态做市的结构性好处。</li>
+    <li><b>调水的真实作用是调节吸单速度与敞口</b>，不是绕过定价。实测：抬高赔率后玩家投入从 1675 增至 2175、押金占用从 16.7% 升到 49.3%；压低赔率则相反。庄家是在用押金使用效率换成交量。</li>
+    <li>因此<b>赛事列表的赔率跟随调水变化是正确的</b>——那就是当前真实可成交的价格。</li>
+  </ul>
+
+  <h4>并发要求（必须写进研发需求）</h4>
+  <ul>
+    <li>每笔成交都移动价格，<b>同一场比赛的成交必须串行处理</b>，价格读取与扣减在同一事务内完成。否则份额算错、押金保护失效，平台亏损可能突破押金。</li>
+    <li>试算与成交之间价格若被他人推动，应<b>以服务端实时价格重新计算</b>，超出玩家可接受滑点时拒绝。</li>
+  </ul>
+
+  <h4>结算口径</h4>
+  <ul>
+    <li>赛果只计<b>常规时间 90 分钟（含补时）</b>，不含加时赛与点球大战。</li>
+    <li>赛果比分超出模型球数范围时，按比分状态结算，任何非负整数比分都能结算。</li>
+    <li><b>赛果由庄家录入、运营审核</b>：庄家封盘后录入比分提交，比赛进入待审核；运营核对后通过则正式结算，<b>审核通过前不发生任何资金兑付</b>。<b>本期不做撤销结算</b>：结算后如发现赛果有误，走人工处理，不在 C 端提供撤销入口。</li>
+    <li><b>禁止庄家在自己创建的盘上下注</b>。庄家能调水、又由庄家录入赛果，若允许自投则存在「先调水拉高赔率、自投后再压回」以及「按对自己有利的比分录入」的操纵路径。赔率格点击与下单提交两处都做拦截，提示「不能投注自己开的盘」。</li>
+  </ul>
+</div>
+
+<!-- ═════════ 右侧标注:我的卖出 · 私盘 ═════════ -->
+<div class="spec" id="spec-cm-orders" data-page="pg-orders" style="display:none">
+  <h3>我的卖出 · 私盘页签</h3>
+  <ul>
+    <li>页签：<b>投注项卖单</b>与<b>私盘</b>。本期私盘承载自定义赛事；第二期的「复制 IM 赛事坐庄」同样归入此页签，本期其数据整体隐藏。</li>
+    <li>私盘页签<b>只展示本人创建</b>的盘，不会出现他人的盘。</li>
+    <li>卡片字段：联赛、状态标签、主客队、盘号、两队 λ、押金、收单进度、开赛时间；已结算盘在状态标签左侧展示<b>本场净盈亏</b>（盈利绿、亏损红、不输不赢黑）。</li>
+    <li><b>状态筛选为七项</b>：全部 / 卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已关闭。待审核涵盖开盘待审、赛果待审与两种被驳回的情形。</li>
+    <li>被驳回的盘，状态标签仍为「待审核」，<b>卡片内给一行红色提示</b>说明是赛果被驳回还是开盘被驳回并引导进详情，<b>原因正文不在列表展示</b>。</li>
+    <li>点击卡片进入<b>开盘详情</b>（庄家管理页），与赛事大厅进入的赛事详情是两个不同页面。</li>
+    <li><b>账变记录</b>属后台展示范围，不在 H5 端处理；<b>B 端</b>的开盘审核、赛果审核、作废处理、平台参数配置、操作日志，均另行出需求与原型，不在本原型内。</li>
+  </ul>
+
+
+</div>
+
+<!-- ═════════ 右侧标注:开盘详情 ═════════ -->
+<div class="spec" id="spec-cm-own" data-page="pg-cmown" style="display:none">
+  <h3>开盘详情（庄家管理视角）</h3>
+  <p class="sub"><b>仅从「卖单 → 私盘」页签进入</b>，只有本人的盘能进。与赛事大厅进入的赛事详情是两个独立页面，各自单一职责：赛事详情只负责投注，开盘详情只负责管理。</p>
+
+  <h4>页面结构</h4>
+  <ul>
+    <li><b>顶栏</b>：返回（回我的卖出）、标题「开盘详情」、右侧盘状态标签。</li>
+    <li><b>赛事信息卡</b>：主客队、联赛与开赛时间、开盘时间、两队场均进球 λ。</li>
+    <li><b>状态提示条</b>：已售罄提示「押金占用已触顶，补充额度后可恢复收单」；已封盘、待审核、已结算、已关闭各有对应说明。</li>
+    <li><b>四列汇总</b>：总押金 / 已收单 / 子单数 / 押金占用；已结算时第四格换为<b>本场净盈亏</b>。</li>
+    <li><b>结算明细</b>（仅已结算）：收到投注合计、命中兑付合计、<b>盈亏小计</b>、<b>平台抽水</b>、押金解冻退回、本场净盈亏。
+      <br>· 计算链条：盈亏小计 = 收到投注合计 − 命中兑付合计；<b>抽水只对盈利部分收取</b>（比例由 APISYS 下发，演示按 2%），<b>亏损时不抽水</b>；本场净盈亏 = 盈亏小计 − 抽水。
+      <br>· 举例：收到投注 299.79、命中兑付 203.27 → 盈亏小计 +96.52 → 抽水 96.52 × 2% = 1.93 → 净盈亏 94.59。
+      <br>· <b>列表与详情必须同源</b>：卖单列表卡片上的本场净盈亏与详情的结算明细取同一个计算结果，不得各算各的。</li>
+    <li><b>全盘赔率总览</b>（可折叠，默认收起）：按玩法铺开全部投注项的当前赔率，供整体判断价位是否偏离。</li>
+    <li><b>投注项庄单卡片</b>：每个投注项一张。</li>
+    <li><b>底部固定操作区</b>。</li>
+  </ul>
+
+  <h4>庄单卡片字段</h4>
+  <ul>
+    <li>玩法 · 投注项名；已结算时右上角展示该项<b>输赢结果</b>（赢绿 / 未命中红），单项被封盘时展示「已封盘」，其余状态不展示标签（状态只在页面右上角展示一次）。</li>
+    <li><b>赔率对比行</b>：当前赔率（绿色大字）、开盘赔率、<b>偏离百分比</b>（涨绿跌红）。调水要判断的是当前价位相对开盘偏了多少，直接给出幅度比让庄家自己换算更可用。</li>
+    <li>已收、命中需赔、本笔上限；额度触顶时提示「该项额度已触顶，暂停买入」。</li>
+    <li><b>子单数据默认收起</b>，点击标题行展开；每笔展示买家、金额、份额、成交赔率、成交时间；已结算时右侧展示该笔的赔付或收入，已作废时展示退回金额。</li>
+  </ul>
+
+  <h4>自定义赛事完整生命周期</h4>
+  <ul>
+    <li><b>① 庄家开盘</b>：填赛事信息、玩法与盘口线、押金，提交后进入<b>待审核</b>。审核通过才上架、押金此时才冻结；未通过仍停留在待审核，押金不冻结，<b>驳回原因在盘详情的队名下方展示</b>。</li>
+    <li><b>② 上架收单</b>：进入赛事列表，玩家可投注。盘状态在<b>卖出中</b>与<b>已售罄</b>之间自动切换（押金占用触顶即售罄，补充押金后恢复）。庄家可调水、补充押金、主动「赛事下架」。</li>
+    <li><b>③ 自动封盘</b>：到达<b>开赛前 N 分钟</b>（N 由庄家开盘时设定，<b>默认 10 分钟</b>）系统自动封盘、停止收单，状态转为<b>已封盘</b>，已持有份额的玩家不可卖出。庄家主动「赛事下架」也进入该状态。开盘详情的赛事信息卡展示该设置。</li>
+    <li><b>④ 庄家录入赛果</b>：比赛结束后，庄家在开盘详情底部点「录入赛果」，填入常规时间 90 分钟（含补时）比分并提交，状态转为<b>待审核</b>。卖单列表该盘卡片上提示「比赛已结束，请录入赛果」。</li>
+    <li><b>⑤ 运营审核</b>：后台核对公开赛果，通过则正式结算；不通过时盘仍为<b>待审核</b>，底部按钮变为「重新录入赛果」，庄家按驳回说明改正后重新提交，重提后清除上一次的驳回信息。<b>审核通过前不发生任何资金兑付</b>。</li>
+    <li><b>驳回原因的展示</b>：运营在后台驳回时填写原因，展示在<b>开盘详情的赛事信息卡内、队名下方</b>的红色区块里，只给标题（开盘审核未通过 / 赛果审核未通过）与原因正文，<b>不展示驳回人与驳回时间</b>。
+      <br><b>卖单列表卡片</b>状态标签只显示「待审核」，不加驳回标识；在卡片内给一行红色提示「赛果被驳回，请进入详情查看原因并重新录入」或「开盘被驳回，请进入详情查看原因」，<b>不展示原因正文</b>——列表只负责让庄家知道哪条需要处理，具体原因进详情看。不依赖客服通道。</li>
+    <li><b>状态对外收敛</b>：开盘待审核、赛果待审核、开盘被驳回、赛果被驳回四种内部情形，<b>对庄家统一显示为「待审核」</b>，筛选项里也只有一个「待审核」并涵盖这四种。区别只体现在详情页的驳回区块与底部按钮上。</li>
+    <li><b>⑥ 已结算</b>：按赛果兑付子单，押金解冻退回，盘详情展示结算明细与本场净盈亏。</li>
+    <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营作废，状态转为<b>已关闭</b>，全部成交撤销、<b>投注金额全额原路退回</b>（含玩家在成交时已付的抽水）、庄家押金全额解冻、本场不计盈亏、不抽庄家的水。<b>本期不做撤销结算</b>，已结算的盘如发现赛果有误走人工处理。</li>
+  </ul>
+
+  <h4>控盘操作</h4>
+  <ul>
+    <li><b>调水</b>：弹窗结构为「当前庄单赔率 → 开盘赔率（参考）→ 调整点位 → 新庄单赔率」。
+      <br>· <b>调整点位即赔率增减量</b>（两位小数、可为负），带 － / ＋ 步进按钮每次 0.01，输入后实时算出新庄单赔率并以绿色大字预览。
+      <br>· <b>参考基准用开盘赔率</b>：自定义赛事没有官方盘可参照，开盘价是庄家自己设的起点，同时展示当前相对开盘的偏离百分比（涨绿跌红），便于判断该往哪调。
+      <br>· 新赔率需落在平台最低赔率与赔率封顶之间，越界时提示原因并禁用确认按钮。
+      <br>· 做市定价下调水等效于庄家推动该投注项价格，<b>同玩法其他项赔率同步反向变动</b>；<b>已成交子单按原成交赔率结算，不受影响</b>。
+      <br>· <b>幅度闸门</b>：单次调水不超过 0.05，单个投注项累计调水（历次绝对值之和）不超过 0.30。弹窗实时显示「单次上限 0.05 · 本项累计剩余 X / 0.30」，超限时提示原因并禁用确认按钮。没有闸门时庄家可一次把赔率从 1.93 拉到 5.36，既不合理也容易被当成操纵。
+      <br>· <b>全部调水留痕</b>：每次调水写入操作日志，记录投注项、调整前后赔率、调整幅度、调水时的已收单金额与押金占用、操作人与时间；开盘详情「投注项庄单」标题右侧有「调水记录」入口可查，运营在后台也能核查。庄家可在自己盘上下注，存在「先低价买入再调高赔率诱多」的操纵路径，因此调水与庄家自投都必须留痕。</li>
+    <li><b>立即封盘</b>：<b>以玩法为单位</b>。做市定价下同一玩法内各投注项共享同一条价格曲线，单独封掉其中一项会破坏跨玩法同价、产生套利空间，因此封盘必须整个玩法一起封。</li>
+    <li><b>分享</b>：分享该玩法及其投注项赔率到金刚，接收方进入本场赛事详情并定位到该玩法。</li>
+    <li><b>移除</b>：仅该玩法无任何成交时可移除。移除会改变比分状态的合并方式，其余玩法赔率随之重算；已成交份额按原成交赔率结算不受影响。</li>
+    <li><b>补充额度</b>：追加押金后本场最大亏损上限提高，<b>盘口流动性同步加深</b>（同样金额对赔率的推动变小），<b>当前赔率保持不变</b>；已售罄的盘补充后自动恢复为卖出中。</li>
+    <li><b>停止收单</b>：整盘封盘，二次确认后不可撤销；已持有份额的玩家不可卖出，等待录入赛果。</li>
+    <li><b>录入赛果</b>：庄家填入常规时间比分并提交，盘转为待审核，由运营核对后结算。</li>
+  </ul>
+
+  <h4>底部操作区（按状态）</h4>
+  <ul>
+    <li><b>卖出中 / 已售罄</b>：补充额度 / 停止收单。</li>
+    <li><b>已封盘</b>：录入赛果。</li>
+    <li><b>待审核</b>：展示等待审核提示，无操作按钮。</li>
+    <li><b>已结算 / 已关闭</b>：整条隐藏，返回走左上角返回按钮。</li>
+  </ul>
+</div>
+
 <!-- ═════════ 右侧标注:冠军玩法 ═════════ -->
 <div class="spec" id="spec-champ" data-page="pg-home" style="display:none">
   <h3>冠军玩法 · 需求标注</h3>
@@ -755,6 +989,23 @@ input:focus{border-color:#FF8C00}
 
 </div>
 
+<!-- ═════════ 右侧标注:我的 ═════════ -->
+<div class="spec" id="spec-me" data-page="pg-me" style="display:none">
+  <h3>我的 · 需求标注</h3>
+  <p class="sub">本期与自定义赛事相关的改动集中在「汇总报表」入口，其余分组沿用既有实现。</p>
+
+  <h4>汇总报表需包含私盘数据</h4>
+  <ul>
+    <li>入口：我的 → <b>汇总报表</b>。本期新增要求——报表的统计范围<b>必须包含私盘（自定义赛事）</b>，不能只统计买单与投注项卖单。</li>
+    <li><b>总盈亏</b> = 买单盈亏 + 卖单盈亏 + <b>私盘盈亏</b>。三者都是已扣除平台抽佣后的净额，量纲一致可相加。</li>
+    <li>按日明细表新增<b>「私盘盈亏」一列</b>，表头为：日期 / 买单输赢 / 卖单盈亏 / 私盘盈亏 / 合计。</li>
+    <li>展开某一日时，在买单、卖单两组之后新增一组<b>「私盘（自定义赛事）」</b>，字段为：结算场次、收到投注、平台抽水、押金合计、子单笔数、本日盈亏；底部提供<b>「查看私盘 ›」</b>跳转到「卖单 → 私盘」页签。当日无私盘结算时该组不展示。</li>
+    <li>私盘盈亏的计算<b>与开盘详情的结算明细同源</b>：收到投注合计 − 命中兑付合计 = 盈亏小计，盈利部分按 APISYS 下发比例抽水后得净盈亏。报表与详情不得各算各的。</li>
+    <li>归集口径与既有一致：<b>按结算时间</b>归集，<b>只统计已结算</b>的私盘；进行中（卖出中 / 已售罄 / 已封盘 / 待审核）的私盘只计入顶部的当前快照，不计入盈亏、不随时间筛选变化。</li>
+    <li>押金与投注额<b>不可相加</b>，不设「总投入」这类合并指标。</li>
+  </ul>
+</div>
+
 <!-- ═════════ 右侧标注:汇总报表 ═════════ -->
 <div class="spec" id="spec-report" data-page="pg-report" style="display:none">
   <h3>汇总报表 · 需求标注</h3>
@@ -764,7 +1015,8 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>已结算数据按<b>结算时间</b>归集，不按投注时间或挂单时间。</li>
     <li>总盈亏<b>只统计已结算</b>，未结算注单与进行中庄单一律不计入。</li>
-    <li>买单盈亏与卖单盈亏均取<b>扣除平台抽佣后</b>的净额，抽佣比例由后台配置。</li>
+    <li>买单盈亏、卖单盈亏与<b>私盘盈亏</b>均取<b>扣除平台抽佣后</b>的净额，抽佣比例由后台配置。</li>
+    <li><b>私盘（自定义赛事）纳入本页统计</b>：按结算时间归集已结算的私盘，盈亏取「收到投注 − 命中兑付 − 平台抽水」的净额，与开盘详情的结算明细同源。按日展开时单列一组「私盘（自定义赛事）」，含结算场次、收到投注、平台抽水、押金合计、子单笔数、本日盈亏，并提供「查看私盘」跳转到「卖单 → 私盘」。</li>
     <li>买单直接读取注单的<b>输赢字段</b>，不在本页做任何佣金计算。买方抽佣由已上线的结算功能处理，算法为「购买 P2P 订单盈利 − 购买官方单盈利」的差额乘以抽佣比例，结算时已从输赢中扣除。</li>
     <li>已关闭庄单：未售出部分的押金<b>原路退回</b>，该部分不计算盈亏；已售出部分仍按正常结算计入盈亏。</li>
     <li>完全未售出即关闭的庄单，押金全额退回，盈亏为 0，计入卖单笔数但不影响盈亏。</li>
@@ -782,7 +1034,7 @@ input:focus{border-color:#FF8C00}
 
   <h4>总览卡</h4>
   <ul>
-    <li>大字为总盈亏 = 买单盈亏 + 卖单盈亏，两者量纲一致可相加。</li>
+    <li>大字为总盈亏 = <b>买单盈亏 + 卖单盈亏 + 私盘盈亏</b>，三者量纲一致可相加。</li>
     <li>投注额与押金<b>不可相加</b>，不设「总投入」这类合并指标。</li>
     <li>底部细字为<b>当前时点快照</b>，展示待结算与进行中，<b>不随时间筛选变化</b>——这些单据尚无结算时间，落不进任何区间。</li>
   </ul>
@@ -831,7 +1083,7 @@ let homeTab='today',homeSport='fb';
 function renderHomeTop(){
   syncSpec();
   $('home-tabs').innerHTML=HOME_TABS.map(([k,t])=>
-    `<span class="pill ${homeTab===k?'on':''}" onclick="homeTab='${k}';champInit();renderHomeTop();renderHome()">${t}</span>`).join('');
+    `<span class="pill ${homeTab===k?'on':''}" onclick="homeTab='${k}';cmOnly=(k==='today'||k==='early');imFilter='';champInit();renderHomeTop();renderHome()">${t}</span>`).join('');
   const C=(homeTab==='champ')
     ? SPORTS.reduce((a,[k])=>{a[k]=CHAMP.filter(c=>c.sport===k).reduce((n,g)=>n+g.markets.length,0);return a},{})
     : (SPORT_CNT[homeTab]||{});
@@ -1103,7 +1355,7 @@ function mRemainDep(m){return Math.max(0,+(m.dep-mOccupied(m)).toFixed(2))}
 function itemRemain(m,it){return it.status!=='on'?0:Math.floor(mRemainDep(m)/it.odds*100)/100}
 function maxOdds(arr){return arr.length?Math.max(...arr):0}
 /* ═════ 开盘坐庄功能开关:产品是否建设该功能 ═════ */
-const OPEN_MARKET_BUILT=true;
+const OPEN_MARKET_BUILT=false;   /* 一期私盘(复制 IM 赛事坐庄)已推至第二期,整体隐藏;代码保留,二期置 true 即恢复 */
 /* ═════ 开关层级(后台配置) ═════
    GLOBAL.p2pEnabled : 后台 P2P 全局开关,前置条件;关闭时 P2P 与私盘全部不可用
    MCH.p2pOn         : 商户 P2P 开关,仅控制投注项卖出(P2P)
@@ -1122,10 +1374,1313 @@ function marketVisible(){return OPEN_MARKET_BUILT&&(marketEnabled()||hasLiveMark
 function syncMerchantUI(){
   const fp=$('fp-p2p'); if(fp)fp.style.display=p2pEnabled()?'':'none';
   const fc=$('fp-clone'); if(fc)fc.style.display=marketEnabled()?'':'none';
+  const fm=$('fp-cm'); if(fm)fm.style.display=cmEnabled()?'':'none';
+  const fn=$('fp-newcm'); if(fn)fn.style.display=cmEnabled()?'':'none';
 }
 const OPEN_MARKET_ENABLED=true;
+/* ═══════════════════════════════════════════════════════════════
+   自定义赛事定价引擎（原型版，按《足球预测交易·自定义球盘 算法 PRD》实现）
+   - 独立 Poisson 比分矩阵 → 比分状态合并 → 单一 LMSR 做市
+   - 投注项价格 = 其比分状态价格之和
+   - 正式环境以 engine.js 为准，本文件仅供原型演示
+   ═══════════════════════════════════════════════════════════════ */
+const EG = (function(){
+  const fact=n=>{let r=1;for(let i=2;i<=n;i++)r*=i;return r};
+  const pois=(l,k)=>Math.exp(-l)*Math.pow(l,k)/fact(k);
+
+  /* 按 λ 自动扩展球数上限 */
+  function gridSize(lH,lA,minG){
+    let G=Math.max(minG||10,Math.ceil(lH+lA)+8);
+    return Math.min(G,30);
+  }
+
+  /* 比分矩阵 */
+  function matrix(lH,lA,G){
+    const m=[];
+    for(let i=0;i<=G;i++){m[i]=[];for(let j=0;j<=G;j++)m[i][j]=pois(lH,i)*pois(lA,j)}
+    return m;
+  }
+
+  /* 玩法定义:返回 {key,name,items:[{key,name,hit(i,j)}]} */
+  function markets(cfg){
+    const out=[];
+    if(cfg.mk.wdl) out.push({key:'wdl',name:'全场 独赢',items:[
+      {key:'wdl_H',name:'主胜',hit:(i,j)=>i>j},
+      {key:'wdl_D',name:'平局',hit:(i,j)=>i===j},
+      {key:'wdl_A',name:'客胜',hit:(i,j)=>i<j}]});
+    if(cfg.mk.ou) (cfg.ouLines||[]).forEach(L=>out.push({key:'ou'+L,name:'全场 大/小 '+L,items:[
+      {key:'ou'+L+'_O',name:'大 '+L,hit:(i,j)=>i+j>L},
+      {key:'ou'+L+'_U',name:'小 '+L,hit:(i,j)=>i+j<L}]}));
+    if(cfg.mk.btts) out.push({key:'btts',name:'双方进球',items:[
+      {key:'btts_Y',name:'是',hit:(i,j)=>i>0&&j>0},
+      {key:'btts_N',name:'否',hit:(i,j)=>!(i>0&&j>0)}]});
+    /* 亚洲让球(半球线):主队让 L 球,L 为 x.5,不产生走盘 */
+    if(cfg.mk.ah) (cfg.ahLines||[]).forEach(L=>{
+      const t=L>0?('主 -'+L):('主 +'+Math.abs(L));
+      const a=L>0?('客 +'+L):('客 -'+Math.abs(L));
+      out.push({key:'ah'+L,name:'全场 让球 '+(L>0?('主 -'+L):('主 +'+Math.abs(L))),items:[
+        {key:'ah'+L+'_H',name:t,hit:(i,j)=>(i-j)-L>0},
+        {key:'ah'+L+'_A',name:a,hit:(i,j)=>(i-j)-L<0}]});
+    });
+    /* 欧洲让球:带让球的独赢,让球后比分可平,三项 */
+    if(cfg.mk.eh) (cfg.ehLines||[]).forEach(L=>out.push({key:'eh'+L,name:'欧洲让球 '+(L>0?('主 -'+L):('主 +'+Math.abs(L))),items:[
+      {key:'eh'+L+'_H',name:'主胜',hit:(i,j)=>(i-j)-L>0},
+      {key:'eh'+L+'_D',name:'平局',hit:(i,j)=>(i-j)-L===0},
+      {key:'eh'+L+'_A',name:'客胜',hit:(i,j)=>(i-j)-L<0}]}));
+    /* 主客队进球数:0 / 1 / 2 / 3+ */
+    if(cfg.mk.tg) [['h','主队'],['a','客队']].forEach(([s,nm])=>{
+      const items=[];
+      for(let n=0;n<=2;n++)items.push({key:'tg'+s+'_'+n,name:nm+' '+n+' 球',
+        hit:((side,v)=>(i,j)=>(side==='h'?i:j)===v)(s,n)});
+      items.push({key:'tg'+s+'_3',name:nm+' 3+ 球',hit:((side)=>(i,j)=>(side==='h'?i:j)>=3)(s)});
+      out.push({key:'tg'+s,name:nm+'进球数',items});
+    });
+    if(cfg.mk.cs){
+      const n=cfg.csMax, items=[];
+      for(let i=0;i<=n;i++)for(let j=0;j<=n;j++)
+        items.push({key:`cs_${i}_${j}`,name:`${i}:${j}`,hit:((a,b)=>(x,y)=>x===a&&y===b)(i,j)});
+      items.push({key:'cs_oth',name:'其他比分',hit:(x,y)=>x>n||y>n});
+      out.push({key:'cs',name:'全场 波胆',items});
+    }
+    return out;
+  }
+
+  /* 比分状态:全部已开玩法下结算结果完全相同的比分合并为一组 */
+  function build(cfg){
+    const G=gridSize(cfg.lH,cfg.lA,cfg.maxGoals), M=matrix(cfg.lH,cfg.lA,G);
+    const mks=markets(cfg);
+    const map={}, states=[];
+    for(let i=0;i<=G;i++)for(let j=0;j<=G;j++){
+      const sg=mks.map(m=>m.items.findIndex(it=>it.hit(i,j))).join(',');
+      if(map[sg]===undefined){map[sg]=states.length;states.push({p:0,scores:[],sg})}
+      const s=states[map[sg]];
+      s.p+=M[i][j]; s.scores.push([i,j]);
+    }
+    /* 每个投注项命中的状态集合 */
+    mks.forEach(m=>m.items.forEach(it=>{
+      it.sidx=states.map((s,k)=>s.scores.some(([i,j])=>it.hit(i,j))?k:-1).filter(k=>k>=0);
+    }));
+    return {G,M,mks,states};
+  }
+
+  /* 初始持仓:使状态价格 = 模型概率;b 由押金定,保证最大亏损 = 押金 */
+  function init(cfg){
+    const m=build(cfg);
+    /* 流动性参数 b:LMSR 全场最大亏损上界 = b·ln(N),N 为比分状态数
+       按押金反推,保证任何成交序列下亏损不超过押金 */
+    m.b=cfg.deposit/Math.log(m.states.length);
+    m.q=m.states.map(s=>m.b*Math.log(s.p));    /* C(q0)=0,价格=概率 */
+    m.cash=0; m.vigFee=0;
+    m.hold=m.states.map(()=>0);   /* 各状态已售出份额(= 该比分开出时的兑付额) */
+    return m;
+  }
+
+  const Csum=(q,b)=>{let mx=Math.max(...q),s=0;for(const x of q)s+=Math.exp((x-mx)/b);return mx+b*Math.log(s)};
+  const prices=m=>{const b=m.b,mx=Math.max(...m.q);
+    const e=m.q.map(x=>Math.exp((x-mx)/b)),s=e.reduce((a,c)=>a+c,0);
+    return e.map(x=>x/s)};
+
+  /* 投注项价格 = 其状态价格之和,再按溢价分摊加成 */
+  function itemPrice(m,cfg,it){
+    const ps=prices(m);
+    let p=it.sidx.reduce((a,k)=>a+ps[k],0);
+    return cfg.vigMode==='flat' ? p+cfg.vig/itemCount(m,it) : p*(1+cfg.vig);
+  }
+  function itemCount(m,it){
+    const mk=m.mks.find(x=>x.items.some(y=>y.key===it.key));
+    return mk?mk.items.length:2;
+  }
+  /* 做市赔率 → 显示赔率 */
+  const rawOdds=(m,cfg,it)=>(1-cfg.W/10000)/itemPrice(m,cfg,it);
+  const showOdds=(m,cfg,it)=>Math.min(rawOdds(m,cfg,it), cfg.maxOdds||999);
+
+  /* 买入:投入 stake(含抽水),进入做市的净额 = stake×(1−W/10000) */
+  /* 价格上限:价格达到即暂停买入(平台最低赔率) */
+  function priceCap(cfg){return cfg.minOdds>0?(1-cfg.W/10000)/cfg.minOdds:1}
+  function buy(m,cfg,it,stake){
+    const net=stake*(1-cfg.W/10000);
+    const b=m.b, q0=m.q.slice(), c0=Csum(q0,b);
+    /* 二分求份额 d:买入成本 = C(q0 + d) − C(q0),并按溢价加价
+       溢价必须与显示赔率口径一致(itemPrice 含溢价),否则小额买入会算出高于所见赔率的结果 */
+    const vigMul=(cfg.vigMode==='flat')?1:(1+cfg.vig);
+    let lo=0,hi=Math.max(net*2,1);
+    const cost=d=>{const q=q0.slice();it.sidx.forEach(k=>q[k]+=d);return (Csum(q,b)-c0)*vigMul};
+    while(cost(hi)<net&&hi<1e9)hi*=2;
+    for(let t=0;t<80;t++){const mid=(lo+hi)/2; cost(mid)<net?lo=mid:hi=mid}
+    const d=Math.floor(lo*1e6)/1e6;                     /* 份额 6 位向下截断 */
+    return {shares:d, odds:d/stake, fee:stake-net};
+  }
+  function apply(m,cfg,it,stake,shares){
+    it.sidx.forEach(k=>{m.q[k]+=shares; m.hold[k]+=shares});
+    it.soldShares=(it.soldShares||0)+shares;   /* 该投注项累计售出份额,用于逐项累加兑付 */
+    m.cash+=stake; m.vigFee+=stake*(cfg.W/10000);
+  }
+  /* 卖出 shares 份,回收额(已扣抽水) */
+  function sell(m,cfg,it,shares){
+    const b=m.b,q0=m.q.slice(),c0=Csum(q0,b);
+    const q=q0.slice(); it.sidx.forEach(k=>q[k]-=shares);
+    const vigMul=(cfg.vigMode==='flat')?1:(1+cfg.vig);
+    const gross=(c0-Csum(q,b))*vigMul;
+    return Math.floor(gross*(1-cfg.W/10000)*100)/100;   /* 向下截断 0.01 */
+  }
+
+  /* 各比分平台盈亏与全场最大亏损
+     该比分开出时:平台兑付 = 命中该状态的全部投注项持仓份额之和
+     平台亏损 = 兑付 − 累计净现金(含抽水) */
+  function risk(m,cfg){
+    /* 某比分开出时,平台要兑付「全部命中该比分的投注项」的持仓份额之和。
+       同一个比分会被多个玩法同时命中(如 2:1 同时命中 主胜 / 大2.5 / 双方进球 / 波胆2:1),
+       因此必须按投注项逐一累加,不能只看单项 */
+    const payout=m.states.map(()=>0);
+    m.mks.forEach(mk=>mk.items.forEach(it=>{
+      const sold=it.soldShares||0;
+      if(sold<=0)return;
+      it.sidx.forEach(k=>{payout[k]+=sold});
+    }));
+    const loss=payout.map(v=>v-m.cash);
+    const maxLoss=Math.max(0,...loss);
+    return {maxLoss,use:cfg.deposit?maxLoss/cfg.deposit:0,payout,
+            perState:m.states.map((s,k)=>({p:s.p,payout:payout[k],pl:m.cash-payout[k]}))};
+  }
+
+  /* ═════ 单笔上限 = min(A 单笔最多收, B 滑点上限金额, C 最低赔率限额) ═════
+     D 押金硬上限仅固定赔率模式,本期不做 */
+  function limits(m,cfg,it){
+    const seen=showOdds(m,cfg,it);                 /* 所见赔率 */
+    const p0=itemPrice(m,cfg,it);
+    /* 适用滑点上限:价格低于冷门线时按比例放宽,最多到冷门封顶 */
+    let slipCap=cfg.maxSlip;
+    if(cfg.maxSlip>0&&p0<cfg.coldPrice){
+      const r=1-p0/cfg.coldPrice;
+      slipCap=Math.min(cfg.coldMaxSlip,cfg.maxSlip+(cfg.coldMaxSlip-cfg.maxSlip)*r);
+    }
+    /* B:使本笔滑点恰好 = slipCap 的投注额 */
+    const slipOf=s=>{const r=buy(m,cfg,it,s);return 1-r.odds/seen};
+    let B=Infinity;
+    if(slipCap>0){
+      let lo=0.01,hi=cfg.maxStake;
+      if(slipOf(hi)<=slipCap)B=hi;
+      else{for(let t=0;t<60;t++){const mid=(lo+hi)/2;slipOf(mid)<=slipCap?lo=mid:hi=mid}B=lo}
+    }
+    /* C:把价格推到价格上限所需的投注额 */
+    const cap=priceCap(cfg);
+    let C=Infinity;
+    if(p0>=cap)C=0;
+    else{
+      let lo=0,hi=cfg.maxStake;
+      const over=s=>{const r=buy(m,cfg,it,s);
+        const q=m.q.slice();it.sidx.forEach(k=>q[k]+=r.shares);
+        const bk=m.q;m.q=q;const pp=itemPrice(m,cfg,it);m.q=bk;return pp>=cap};
+      if(!over(hi))C=hi;
+      else{for(let t=0;t<60;t++){const mid=(lo+hi)/2;over(mid)?hi=mid:lo=mid}C=lo}
+    }
+    const max=Math.min(cfg.maxStake,B,C);
+    return {max:Math.floor(max*100)/100,slipCap,seen,
+            paused:(p0>=cap)||(max<5),                 /* Q7:单笔上限 < 5 暂停 */
+            reason:p0>=cap?'已达平台最低赔率':(max<5?'当前可投额度不足':'')};
+  }
+  /* 按 λ 推荐盘口线:让球线取最接近净胜球期望的半球线,大小球线取最接近总进球期望 */
+  function suggestLines(lH,lA){
+    const d=lH-lA, t=lH+lA;
+    const half=x=>Math.round(x*2)/2;
+    let ah=half(d); if(Number.isInteger(ah))ah+=(d>=0?0.5:-0.5);
+    let ou=half(t); if(Number.isInteger(ou))ou+=0.5;
+    return {ah:+ah.toFixed(1), ou:+ou.toFixed(1),
+            ouSet:[+(ou-1).toFixed(1),+ou.toFixed(1),+(ou+1).toFixed(1)].filter(x=>x>0)};
+  }
+  return {suggestLines,build,init,prices,itemPrice,rawOdds,showOdds,buy,apply,sell,Csum,risk,markets,priceCap,limits};
+})();
+
+
+
+/* ═══════════ 私盘:赛事行 / 详情 / 投注 ═══════════ */
+let cmFold=false, cmCur=null, cmIt=null, cmAmt='', cmDetailFold={}, cdTab='all';
+/* 返回:从赛事大厅进则回大厅,从卖单进则回卖单 */
+function cmBack(){go('pg-home');renderHome();setNav('match')}
+/* 分享整场赛事到金刚(容器内才展示,不含 TG 与复制链接) */
+/* 分享某个玩法的投注项(卖单进入详情时可用) */
+function cmShareMk(mkKey){
+  const c=cmCur, mk=c.eng.mks.find(x=>x.key===mkKey);
+  const e=c.eng,cfg=c.cfg;
+  /* 该玩法的收单进度:已收 / 总额度 */
+  let got=0,cap=0;
+  mk.items.forEach(it=>{
+    got+=cmBets.filter(b=>b.cid===c.id&&b.key===it.key).reduce((a,b)=>a+b.stake,0);
+    cap+=EG.limits(e,cfg,it).max;
+  });
+  const tot=c.dep, pct=tot?Math.min(100,got/tot*100):0;
+  const first=mk.items[0];
+  const od=EG.showOdds(e,cfg,first);
+  const st=CM_ST[c.state];
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+    <div class="card" style="padding:12px">
+      <div class="row">
+        <span style="font-size:15px;font-weight:700;color:#222" class="grow">${mk.name} ${first.name}</span>
+        <span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:7px;line-height:1.5">${c.home} VS ${c.away}</div>
+      <div class="row" style="margin-top:8px;font-size:12px">
+        <span style="background:#FFF3E5;color:#E8850C;font-size:10px;padding:1px 5px;border-radius:3px" class="nowrap">押金</span>
+        <span style="margin-left:6px" class="nowrap">${curAmt(c.dep)} @ ${f2(od)}</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${c.time}</span></div>
+      <div class="row" style="margin-top:9px">
+        <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
+        <span class="muted nowrap" style="font-size:12px">${money(got)}/${money(c.dep)}</span></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
+    <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
+}
+
+function cmShareFrom(id){const bak=cmCur;cmCur=cmFind(id);cmShareMatch();cmCur=bak||cmCur}
+function cmShareMatch(){
+  const c=cmCur, st=CM_ST[c.state];
+  const e=c.eng;
+  const got=cmBets.filter(b=>b.cid===c.id).reduce((a,b)=>a+b.stake,0);
+  const pct=c.dep?Math.min(100,got/c.dep*100):0;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+    <div class="card" style="padding:12px">
+      <div class="row">
+        <span style="font-size:15px;font-weight:700;color:#222" class="grow">${c.home} vs ${c.away}</span>
+        <span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:7px;line-height:1.5">${c.league} · 庄家 ${c.banker}</div>
+      <div class="row" style="margin-top:8px;font-size:12px">
+        <span style="background:#FFF3E5;color:#E8850C;font-size:10px;padding:1px 5px;border-radius:3px" class="nowrap">押金</span>
+        <span style="margin-left:6px" class="nowrap">${curAmt(c.dep)}</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${c.time}</span></div>
+      <div class="row" style="margin-top:9px">
+        <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
+        <span class="muted nowrap" style="font-size:12px">${money(got)}/${money(c.dep)}</span></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
+    <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
+}
+
+/* 直播:播放庄家配置的直播地址 */
+function cmPlayLive(){
+  const c=cmCur;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">赛事直播</h3>
+    <div style="background:#111;border-radius:10px;height:170px;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px">直播画面(示意)</div>
+    <div class="muted" style="margin-top:9px;font-size:11px;word-break:break-all">地址:${c.live}</div>
+    <div class="muted" style="margin-top:6px;font-size:11px">直播地址由庄家开盘时配置,平台不校验内容,仅做跳转播放。</div>
+    <button class="btn btn-g" style="width:100%;margin-top:12px" onclick="closeCfm()">关闭</button>`);
+}
+
+/* 列表行三列固定:全场独赢 / 全场让球 / 全场大-小;完整玩法进赛事详情 */
+function cmRowHtml(c){
+  const e=c.eng, cfg=c.cfg, can=c.state==='open';
+  const st=CM_ST[c.state];
+  const get=(mkKey,itKey)=>{
+    const mk=e.mks.find(x=>x.key===mkKey); if(!mk)return null;
+    return mk.items.find(x=>x.key===itKey)||null;
+  };
+  const cell=(it,label)=>{
+    if(!it)return `<div class="oddcell" style="opacity:.4"><span class="lb">${label}</span><span class="v">--</span></div>`;
+    const L=EG.limits(e,cfg,it), od=EG.showOdds(e,cfg,it);
+    /* 自己开的盘不可投注,赔率照常展示但不可点 */
+    const live=can&&!L.paused&&!c.mine;
+    const k='CM|'+c.id+'|'+it.key;
+    return `<div class="oddcell${sel[k]?' sel':''}" id="cell-${k}" style="${live?'':'opacity:.45'}"
+      ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
+      <span class="lb">${label}</span><span class="v">${live?f2(od):'--'}</span>
+      ${can&&L.paused?'<span style="position:absolute;right:3px;top:2px;font-size:8px;color:#bbb">暂停</span>':''}
+    </div>`;
+  };
+  const itemCnt=e.mks.reduce((a,x)=>a+x.items.length,0);
+  return `<div style="padding:10px 12px;border-top:1px dashed #f2f2f2">
+    <div class="row" style="margin-bottom:4px">
+      <span class="muted nowrap" style="font-size:11px">庄家 ${c.banker}</span>
+      <span class="grow"></span>
+    </div>
+    <div class="row" style="margin-bottom:6px">
+      <span style="color:#ccc">☆</span><span class="muted nowrap" style="font-size:12px">${c.time}</span>
+      <span class="grow"></span>
+    </div>
+    <div class="row" style="margin-bottom:6px">
+      <span class="grow"></span>
+      <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">全场 独赢</span>
+      <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px;margin:0 4px">全场 让球</span>
+      <span class="muted nowrap" style="width:62px;text-align:center;font-size:10px">全场 大/小</span>
+    </div>
+    <div class="row" style="align-items:flex-start">
+      <div class="grow" style="display:flex;flex-direction:column;gap:7px;min-width:0">
+        <div class="row"><span>⚽</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${c.home}</span></div>
+        <div class="row"><span>⚽</span><span class="grow" style="font-size:12px;color:#222;line-height:1.35;word-break:break-word;min-width:0">${c.away}</span></div>
+        <div class="row" style="gap:4px;margin-top:1px;flex-shrink:0;white-space:nowrap">
+          <span class="muted nowrap" style="font-size:11px;cursor:pointer" onclick="event.stopPropagation();cmOpenDetail('${c.id}')">全部 ${itemCnt}▸</span>
+        </div>
+      </div>
+      ${(()=>{
+        /* 三列固定:全场独赢 / 全场让球 / 全场大小;取该盘已开放的第一条让球线与大小球线 */
+        const ahMk=e.mks.find(x=>/^ah/.test(x.key));
+        const ouMk=e.mks.find(x=>x.key==='ou2.5')||e.mks.find(x=>/^ou/.test(x.key));
+        const pick=(mk,i)=>mk&&mk.items[i]?mk.items[i]:null;
+        const lbl=it=>it?it.name.replace(/^全场\s*/,''):'';
+        return `<div style="display:flex;flex-direction:column;gap:5px">${cell(get('wdl','wdl_H'),'主')}${cell(get('wdl','wdl_A'),'客')}${cell(get('wdl','wdl_D'),'和')}</div>
+      <div style="display:flex;flex-direction:column;gap:5px;margin:0 4px">${ahMk?cell(pick(ahMk,0),lbl(pick(ahMk,0)))+cell(pick(ahMk,1),lbl(pick(ahMk,1))):cell(null,'--')+cell(null,'--')}</div>
+      <div style="display:flex;flex-direction:column;gap:5px">${ouMk?cell(pick(ouMk,0),lbl(pick(ouMk,0)))+cell(pick(ouMk,1),lbl(pick(ouMk,1))):cell(null,'--')+cell(null,'--')}</div>`;
+      })()}
+    </div>
+  </div>`;
+}
+
+/* 盘口详情:四类玩法全量 */
+/* 赛事详情:赛事大厅 / 赛果页进入,纯投注视角 */
+function cmOpenDetail(id){const _t=$('cd-tabs');if(_t)_t.style.display='flex';cmCur=cmFind(id);cmDetailFold={};cdTab='all';cmLiveOn=false;go('pg-cmdetail');cmRenderDetail()}
+/* 开盘详情:仅从卖单私盘页签进入,庄家管理视角 */
+function cmOpenOwn(id){cmCur=cmFind(id);cmSubOpen={};go('pg-cmown');cmRenderOwnDetail()}
+function cmRenderDetail(){
+  const c=cmCur,e=c.eng,cfg=c.cfg,st=CM_ST[c.state];
+  $('cd-title').innerHTML=c.league+' <span style="font-size:11px;color:#999">▾</span>';
+  $('cd-state').textContent=st[0];$('cd-state').className='tag '+st[1]+' nowrap';
+  /* 赛事横幅:队徽、队名、开赛时间,与 IM 赛事详情一致;有直播地址时展示直播入口 */
+  $('cd-banner').innerHTML=`<div style="background:linear-gradient(170deg,#0A1F12,#17422A 48%,#0E2A18);padding:14px 14px 16px;color:#fff;position:relative;overflow:hidden">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 112%,rgba(90,200,120,.34),transparent 62%)"></div>
+      <div style="position:absolute;left:0;right:0;top:0;height:24px;background:repeating-linear-gradient(90deg,transparent 0 16px,rgba(255,255,255,.2) 16px 19px)"></div>
+      <div class="row" style="position:relative;margin-top:8px">
+        <div style="text-align:center;width:104px">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto">${c.hLogo||'⚽'}</div>
+          <div style="font-size:12px;margin-top:6px;word-break:break-word;line-height:1.35">${c.home}</div></div>
+        <div class="grow" style="text-align:center">
+          <div style="font-size:12px;color:rgba(255,255,255,.85)">${st[0]}</div>
+          <div style="font-size:13px;font-weight:600;margin-top:3px">${c.time}</div>
+          ${c.state==='settled'||c.state==='pending'?`<div style="font-size:22px;font-weight:800;margin-top:5px">${c.score[0]} - ${c.score[1]}</div>`:''}
+        </div>
+        <div style="text-align:center;width:104px">
+          <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto">${c.aLogo||'⚽'}</div>
+          <div style="font-size:12px;margin-top:6px;word-break:break-word;line-height:1.35">${c.away}</div></div>
+      </div>
+      ${c.live?(cmLiveOn?`<div style="position:relative;margin-top:12px;background:#000;border-radius:10px;overflow:hidden;height:150px;display:flex;align-items:center;justify-content:center">
+          <div style="text-align:center;color:#8a8f96;font-size:12px;line-height:1.8">
+            <div style="font-size:26px">▦</div>动画直播播放中<br>
+            <span style="font-size:10px;opacity:.7;word-break:break-all;padding:0 12px;display:inline-block">${c.live}</span></div>
+          <span style="position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer" onclick="cmLiveOn=false;cmRenderDetail()">×</span>
+        </div>`
+        :`<div style="text-align:center;margin-top:12px;position:relative">
+          <span style="background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:14px;cursor:pointer" onclick="cmLiveOn=true;cmRenderDetail()">▦ 动画直播</span></div>`):''}
+      <div style="text-align:center;margin-top:${c.live?'8':'12'}px;position:relative;font-size:11px;color:rgba(255,255,255,.72)">庄家 ${c.banker}</div>
+    </div>
+    ${c.state==='settled'?`<div class="hint" style="margin:8px 12px 0">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>(常规时间 90 分钟,不含加时与点球)</div>`:''}
+    ${c.state==='sealed'?`<div class="hint" style="margin:8px 12px 0">已封盘,等待庄家录入赛果并由运营审核。封盘后不可投注,已持有份额不可卖出。</div>`:''}
+    ${c.state==='pending'?`<div class="hint" style="margin:8px 12px 0">赛果 <b>${c.score[0]}-${c.score[1]}</b> 待运营审核,审核通过后正式结算。</div>`:''}
+    ${c.state==='closed'?`<div class="hint" style="margin:8px 12px 0;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销,投注金额已原路退回。</div>`:''}
+    ${c.mine?`<div class="hint" style="margin:8px 12px 0">本场由你开盘,<b>不能投注自己开的盘</b>。管理本盘请到「卖单 → 私盘」。</div>`:''}`;
+  /* 玩法 Tab:全部 + 各玩法分类 */
+  const tabs=[['all','全部']].concat(e.mks.map(mk=>[mk.key,mk.name]));
+  $('cd-tabs').innerHTML=`<span style="padding:11px 8px 9px;color:#FF8C00;font-size:13px;flex-shrink:0">⌃</span>`
+    +tabs.map(([k,t])=>
+    `<span style="padding:11px 12px 9px;font-size:14px;flex-shrink:0;cursor:pointer;white-space:nowrap;${cdTab===k?'color:#222;font-weight:700;border-bottom:2px solid #FF8C00':'color:#8a8f96'}"
+      onclick="cdTab='${k}';cmRenderDetail()">${t}</span>`).join('');
+  $('cd-share').style.display=(c.state==='open'||c.state==='sealed')?'':'none';
+  /* 赛事详情为纯投注视角:不展示庄家风险区与控盘操作(庄家管理走「卖单 → 私盘 → 开盘详情」) */
+  cmSyncState(c);
+  const mine=false;
+  let bankerHtml='';
+  if(mine){
+    const rk=EG.risk(e,cfg);
+    const sold=e.cash||0;
+    const canOp=c.state==='open';
+    bankerHtml=`<div class="card" style="margin-bottom:10px;border-left:3px solid #FF8C00">
+      <div class="row"><span style="font-size:14px;font-weight:700;color:#222" class="grow">我的盘 · 风险</span>
+        <span class="tag tag-p2p">庄家</span></div>
+      <div class="m3" style="margin-top:9px">
+        <div class="c"><div class="l">押金</div><div class="v nowrap">${curAmt(c.dep)}</div></div>
+        <div class="c"><div class="l">已收单</div><div class="v nowrap">${curAmt(sold)}</div></div>
+        <div class="c"><div class="l">押金占用</div><div class="v nowrap ${rk.use>0.85?'lose':''}">${(rk.use*100).toFixed(1)}%</div></div>
+      </div>
+      <div class="row" style="margin-top:8px"><span class="muted grow" style="font-size:12px">全场最大亏损</span>
+        <span class="nowrap" style="font-size:12px"><b>${curAmt(rk.maxLoss)}</b> / 上限 ${curAmt(c.dep)}</span></div>
+      <div class="muted" style="font-size:11px;margin-top:5px;line-height:1.6">最大亏损按各比分逐一试算后取最差值,任何比分开出都不会超过押金。</div>
+      ${c.state==='soldout'?`<div class="hint" style="margin-top:8px">押金占用已触顶,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
+    </div>`;
+  }
+  /* 底部固定操作区:仅本人的盘展示,按状态变化(与一期私盘详情一致) */
+  /* 赛事详情无底部操作区 */
+  $('cd-footer').innerHTML='';
+  $('cd-footer').style.display='none';
+  $('cd-body').innerHTML=bankerHtml+e.mks.filter(mk=>cdTab==='all'||cdTab===mk.key).map(mk=>{
+    const open=!cmDetailFold[mk.key];
+    const cols=mk.key==='cs'?3:mk.items.length;
+    /* 赔率区:按图 1 版式——主客两列并排,列头为队名;单列玩法(正确比分等)用网格 */
+    const two=['wdl','btts'].includes(mk.key)||/^ou/.test(mk.key)||/^ah/.test(mk.key)||/^eh/.test(mk.key)||/^tg/.test(mk.key);
+    const cellOf=it=>{
+      const L=EG.limits(e,cfg,it),od=EG.showOdds(e,cfg,it);
+      const live=c.state==='open'&&!L.paused&&!c.mine;
+      const k='CM|'+c.id+'|'+it.key;
+      return `<div class="row" id="cell-d-${k}" style="background:${sel[k]?'linear-gradient(180deg,#FFA33A,#FF8C00)':'#F7F8FA'};border-radius:8px;padding:11px 12px;margin-bottom:7px;cursor:${live?'pointer':'default'};${live?'':'opacity:.45'}"
+        ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
+        <span style="font-size:12px;color:${sel[k]?'rgba(255,255,255,.9)':'#9aa0a6'}" class="grow nowrap">${it.name}</span>
+        <span style="font-size:15px;font-weight:700;color:${sel[k]?'#fff':'#222'}" class="nowrap">${live?f2(od):'--'}</span>
+        ${c.state==='open'&&L.paused?'<span style="font-size:9px;color:#bbb;margin-left:4px">暂停</span>':''}
+      </div>`;
+    };
+    let cells='';
+    if(!open)cells='';
+    else if(two){
+      /* 两列:左列主队/大/是,右列客队/小/否 */
+      const half=Math.ceil(mk.items.length/2);
+      const colA=mk.items.filter((_,i)=>i%2===0||mk.items.length<=2&&i===0);
+      let L=[],R=[];
+      if(mk.key==='wdl'){L=[mk.items[0],mk.items[1]];R=[mk.items[2]]}
+      else if(mk.items.length===2){L=[mk.items[0]];R=[mk.items[1]]}
+      else if(mk.items.length===3){L=[mk.items[0],mk.items[1]];R=[mk.items[2]]}
+      else{L=mk.items.slice(0,half);R=mk.items.slice(half)}
+      const head=(mk.key==='wdl'||/^eh/.test(mk.key))?[c.home,c.away]
+        :(/^ou/.test(mk.key)?['大球','小球']
+        :(/^ah/.test(mk.key)?[c.home,c.away]
+        :(/^tgh/.test(mk.key)?[c.home,c.home]:(/^tga/.test(mk.key)?[c.away,c.away]:['是','否']))));
+      cells=`<div class="row" style="align-items:flex-start;gap:10px;padding:10px 12px">
+        <div class="grow" style="min-width:0">
+          <div class="row" style="margin-bottom:7px"><span style="width:3px;height:12px;background:#FF8C00;border-radius:2px;margin-right:6px"></span>
+            <span style="font-size:12px;color:#222;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${head[0]}</span></div>
+          ${L.map(cellOf).join('')}</div>
+        <div class="grow" style="min-width:0">
+          <div class="row" style="margin-bottom:7px"><span style="width:3px;height:12px;background:#FF8C00;border-radius:2px;margin-right:6px"></span>
+            <span style="font-size:12px;color:#222;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${head[1]}</span></div>
+          ${R.map(cellOf).join('')}</div>
+      </div>`;
+    }else{
+      cells=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:10px 12px">${mk.items.map(it=>{
+        const L=EG.limits(e,cfg,it),od=EG.showOdds(e,cfg,it);
+        const live=c.state==='open'&&!L.paused&&!c.mine;
+        const k='CM|'+c.id+'|'+it.key;
+        return `<div class="oddcell${sel[k]?' sel':''}" id="cell-d-${k}" style="height:auto;padding:9px 4px;${live?'':'opacity:.45'}"
+          ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
+          <span class="lb">${it.name}</span><span class="v">${live?f2(od):'--'}</span></div>`}).join('')}</div>`;
+    }
+    return `<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
+      <div class="row" style="padding:11px 12px;background:#fff;border-bottom:1px solid #f4f4f4">
+        <span style="font-size:14px;font-weight:700;color:#222;cursor:pointer" class="grow"
+          onclick="cmDetailFold['${mk.key}']=!cmDetailFold['${mk.key}'];cmRenderDetail()">${mk.name}</span>
+
+        <span style="color:#bbb;font-size:14px;cursor:pointer"
+          onclick="cmDetailFold['${mk.key}']=!cmDetailFold['${mk.key}'];cmRenderDetail()">${open?'⌃':'⌄'}</span></div>
+      ${cells}
+    </div>`;
+  }).join('');
+  syncSpec('pg-cmdetail');
+}
+
+/* 选中 → 打开投注面板(私盘单独面板,不与官方购物车混用) */
+/* 选中自定义赛事投注项 → 加入原购物车(与官方盘一致) */
+function cmToggle(id,key){
+  const c=cmFind(id);
+  /* 禁止庄家在自己创建的盘上下注:避免先调水再自投的操纵路径,且赛果由庄家录入,存在利益冲突 */
+  if(c.mine)return toast('不能投注自己开的盘');
+  if(c.state!=='open')return toast('本场已封盘,不可投注');
+  const it=cmItem(c,key);
+  const L=EG.limits(c.eng,c.cfg,it);
+  const k='CM|'+id+'|'+key;
+  if(!sel[k]&&L.paused)
+    return toast(L.reason==='已达平台最低赔率'?'该投注项已达平台最低赔率,暂停买入':'当前可投额度不足,暂停买入');
+  sel[k]=!sel[k];
+  if(!sel[k])delete buyAmt[k];
+  renderHome();
+  if($('pg-cmdetail').classList.contains('active'))cmRenderDetail();
+  if(Object.keys(sel).some(x=>sel[x])){renderSlip();show('ov-slip')}else{hide('ov-slip')}
+  updBadge();
+}
+/* 购物车内的自定义赛事买入卡:做市试算 */
+let cmMinOdds={};   /* 玩家为每笔设定的最低接受赔率 */
+function cmBuyCard(k,ki){
+  const parts=k.split('|'), cid=parts[1], ikey=parts.slice(2).join('|');
+  ki=(ki===undefined?0:ki);
+  const c=cmFind(cid); if(!c)return '';
+  const e=c.eng,cfg=c.cfg,it=cmItem(c,ikey); if(!it)return '';
+  const L=EG.limits(e,cfg,it);
+  const amt=parseFloat(buyAmt[k])||0;
+  const use=Math.min(amt,L.max);
+  const sim=use>0?EG.buy(e,cfg,it,use):null;
+  const mk=e.mks.find(x=>x.items.some(y=>y.key===it.key));
+  /* 成交后赔率:本笔推动价格后该项的新赔率 */
+  let after=L.seen;
+  if(sim){const q0=e.q.slice();it.sidx.forEach(x=>e.q[x]+=sim.shares);after=EG.showOdds(e,cfg,it);e.q=q0}
+  const lowPct=(sim&&L.seen>0)?(1-sim.odds/L.seen)*100:0;
+  return `<div class="card" style="border-left:3px solid #FF8C00">
+    <div class="row">
+      <span style="font-size:15px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${it.name}</span>
+      <span style="font-size:15px;font-weight:800;color:#FF8C00;margin-left:8px" class="nowrap">@${f2(sim?sim.odds:L.seen)}${sim?`<span class="muted" style="font-size:11px;font-weight:400;margin-left:3px">${lowPct<0.05?'(持平)':'(低 '+lowPct.toFixed(1)+'%)'}</span>`:''}</span>
+      <span style="font-size:15px;color:#bbb;cursor:pointer;margin-left:10px" onclick="cmToggle('${cid}','${ikey}')">🗑</span></div>
+    <div class="muted" style="font-size:12px;margin-top:5px">${mk.name} · [欧洲盘]</div>
+    <div style="font-size:13px;color:#222;margin-top:4px">${c.home} VS ${c.away}</div>
+    <div style="font-size:12px;color:#FF8C00;margin-top:2px">足球 · ${c.league}</div>
+    <div class="row" style="margin-top:9px;font-size:12px">
+      <span class="muted nowrap">所见赔率 <b style="color:#666">${f2(L.seen)}</b></span>
+      <span class="grow"></span>
+      ${sim?`<span class="muted nowrap">成交后赔率 <b style="color:#666">${f2(after)}</b></span>`:''}</div>
+    <div style="position:relative;margin-top:7px">
+      <input readonly placeholder="限额 2.00-${f2(L.max)}" value="${buyAmt[k]||''}"
+        style="width:100%;height:38px;background:#fff;padding-right:48px" onclick="openKp('${k}')">
+      <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#999;font-size:12px">${CUR}</span>
+    </div>
+    ${kpKey===k?kpHtml(k):''}
+    ${sim?`<div style="margin-top:9px;padding-top:9px;border-top:1px dashed #f0f0f0">
+      <div class="row">
+        <span class="muted grow" style="font-size:12px">最低接受赔率</span>
+        <input id="cm-min-${ki}" inputmode="decimal" value="${cmMinOdds[k]!==undefined?cmMinOdds[k]:f2(after)}"
+          style="width:88px;height:32px;border:1px solid #e3e5e8;border-radius:8px;padding:0 10px;font-size:14px;text-align:right;outline:none;background:#fff"
+          oninput="cmMinOdds['${k}']=this.value;renderSlip();setTimeout(()=>{const i=$('cm-min-${ki}');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)"></div>
+      <div class="muted" style="font-size:11px;margin-top:4px;line-height:1.6">成交前赔率被别人推低到这个值以下,这笔会被拒绝</div>
+    </div>`:''}
+  </div>`;
+}
+
+function cmDoBet(){
+  const c=cmCur,e=c.eng,cfg=c.cfg,it=cmIt;
+  const L=EG.limits(e,cfg,it);
+  const amt=Math.min(parseFloat(cmAmt)||0,L.max);
+  if(amt<=0)return;
+  if(amt>balance)return toast('余额不足');
+  const r=EG.buy(e,cfg,it,amt);
+  EG.apply(e,cfg,it,amt,r.shares);
+  balance=+(balance-amt).toFixed(2); syncBal();
+  const mk=e.mks.find(x=>x.items.some(y=>y.key===it.key));
+  cmBets.push({cid:c.id,mk:mk.name,item:it.name,key:it.key,stake:amt,shares:r.shares,
+    odds:r.odds,fee:r.fee,sold:0,time:'12-2'+(3+cmBets.length%5)+' 1'+(cmBets.length%9)+':2'+(cmBets.length%6)});
+  hide('ov-cmbet');
+  renderHome(); if(document.getElementById('pg-cmdetail').classList.contains('active'))cmRenderDetail();
+  updBadge();
+  toast('投注成功,获得 '+r.shares.toFixed(4)+' 份');
+}
+let cmBets=[];
+
+/* ═════ 庄家控盘:调价 / 补充押金 / 封盘 / 录入赛果 ═════ */
+let cmAdjIt=null, cmAdjPt='';
+
+/* ═════ 开盘详情(庄家视角,从卖单进入)——版式对齐一期私盘开盘详情 ═════ */
+function cmRenderOwnDetail(){
+  const c=cmCur,e=c.eng,cfg=c.cfg;
+  cmSyncState(c);
+  const st=CM_ST[c.state];
+  $('co-state').textContent=st[0];$('co-state').className='tag '+st[1];
+  const rk=EG.risk(e,cfg), sold=e.cash||0;
+  const subs=cmBets.filter(b=>b.cid===c.id);
+  const done=c.state==='settled', closed=c.state==='closed';
+  const hitOf=it=>done&&it?it.hit(c.score[0],c.score[1]):false;
+  const S=cmSettle(c);
+  const stakeTot=S.stake, payTot=S.pay, netPL=done?S.net:0;
+
+  let html=`<div class="card" style="margin-bottom:10px">
+      <div style="font-size:15px;font-weight:700;color:#222">${c.home} vs ${c.away}</div>
+      <div style="font-size:12px;color:#FF8C00;margin-top:3px">${c.league} · ${c.time}</div>
+      <div class="muted" style="font-size:12px;margin-top:5px">开盘时间 ${c.created||c.time} · 两队场均进球 ${c.lH} / ${c.lA}</div>
+      <div class="muted" style="font-size:12px;margin-top:3px">自动封盘 ${cmSealMin(c)===0?'开赛时':'开赛前 '+cmSealMin(c)+' 分钟'}</div>
+      ${(c.state==='rejected'||c.state==='openRej')?`<div style="margin-top:9px;padding:9px 11px;background:#FDECEC;border-radius:8px">
+        <div style="font-size:12px;font-weight:700;color:#C0392B;margin-bottom:3px">${c.state==='rejected'?'赛果审核未通过':'开盘审核未通过'}</div>
+        <div style="font-size:12px;color:#C0392B;line-height:1.6">${c.rejectReason||'—'}</div></div>`:''}
+    </div>
+    ${done?`<div class="hint" style="margin-bottom:10px;background:#E8F7EF;color:#1D6E4E">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>。押金已全额解冻退回,盈亏已入账。</div>`:''}
+    ${closed?`<div class="hint" style="margin-bottom:10px;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销、投注金额原路退回,押金全额解冻,本场不计盈亏。</div>`:''}
+    ${c.state==='soldout'?`<div class="hint" style="margin-bottom:10px">押金占用已触顶,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
+    ${c.state==='sealed'?`<div class="hint" style="margin-bottom:10px;background:${c.autoSealed?'#FFF8EC':'#F2F3F5'}">${c.autoSealed
+      ?`已到自动封盘时点（开赛前 ${cmSealMin(c)} 分钟），盘口已停止收单。比赛结束后<b>请录入赛果</b>，提交后由运营审核，审核通过即正式结算。`
+      :'已停止收单。比赛结束后请录入赛果,提交后由运营审核,审核通过即正式结算。'}</div>`:''}
+    ${c.state==='pending'?`<div class="hint" style="margin-bottom:10px">赛果 <b>${c.score[0]}-${c.score[1]}</b> 已提交,等待运营审核。审核通过后正式结算并兑付。</div>`:''}
+    ${c.state==='auditing'?`<div class="hint" style="margin-bottom:10px">开盘申请已提交,等待运营审核。审核通过后自动上架并冻结押金。</div>`:''}
+    <div class="stat4" style="margin-bottom:10px">
+      <div><div class="l">总押金</div><div class="v nowrap">${curAmt(c.dep)}</div></div>
+      <div><div class="l">已收单</div><div class="v nowrap" style="color:#2E7BD6">${curAmt(sold)}</div></div>
+      <div><div class="l">子单数</div><div class="v nowrap">${subs.length} 笔</div></div>
+      <div><div class="l">${done?'净盈亏':'押金占用'}</div><div class="v nowrap ${done?(netPL>0?'win':(netPL<0?'lose':'')):(rk.use>0.85?'lose':'')}">${done?((netPL>0?'+':(netPL<0?'-':''))+curAmt(Math.abs(netPL))):(rk.use*100).toFixed(1)+'%'}</div></div>
+    </div>
+    ${done?`<div class="card" style="margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px">结算明细</div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">收到投注合计</span><span class="nowrap" style="font-size:12px">${curAmt(stakeTot)}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">命中兑付合计</span><span class="nowrap lose" style="font-size:12px">-${curAmt(payTot)}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">盈亏小计</span><span class="nowrap ${S.gross>0?'win':(S.gross<0?'lose':'')}" style="font-size:12px">${S.gross>0?'+':(S.gross<0?'-':'')}${curAmt(Math.abs(S.gross))}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">平台抽水（盈利部分 ${(CM_RAKE*100).toFixed(0)}%）</span><span class="nowrap ${S.rake>0?'lose':''}" style="font-size:12px">${S.rake>0?'-'+curAmt(S.rake):curAmt(0)}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">押金解冻退回</span><span class="nowrap" style="font-size:12px">${curAmt(c.dep)}</span></div>
+      <div class="row" style="margin-top:7px;padding-top:7px;border-top:1px dashed #f0f0f0">
+        <span class="grow" style="font-size:13px;font-weight:700">本场净盈亏</span>
+        <span class="nowrap ${netPL>0?'win':(netPL<0?'lose':'')}" style="font-size:16px;font-weight:800">${netPL>0?'+':(netPL<0?'-':'')}${curAmt(Math.abs(netPL))}</span></div>
+    </div>`:''}
+    <div class="row" style="margin-bottom:6px"><span class="muted grow">投注项庄单(${e.mks.reduce((a,x)=>a+x.items.length,0)})</span>
+      <span style="font-size:12px;color:#FF8C00;cursor:pointer" class="nowrap" onclick="cmAdjLogSheet()">调水记录${(()=>{const n=cmAdjLog.filter(x=>x.cid===c.id).length;return n?'('+n+')':''})()} ›</span></div>`;
+
+  e.mks.forEach(mk=>{
+    const sealed=cmSealed(c,mk.key);
+    mk.items.forEach(it=>{
+      const od=EG.showOdds(e,cfg,it);
+      const L=EG.limits(e,cfg,it);
+      const p=EG.itemPrice(e,cfg,it);
+      const open0=EG.init(Object.assign({},cfg));           /* 开盘初始赔率,用于对比价位偏离 */
+      let od0=od; try{const it0=open0.mks.flatMap(x=>x.items).find(x=>x.key===it.key); if(it0)od0=EG.showOdds(open0,cfg,it0)}catch(err){}
+      const drift=od0?((od-od0)/od0*100):0;
+      const hold=it.sidx.reduce((a,k)=>Math.max(a,e.hold[k]||0),0);
+      const mySubs=subs.filter(b=>b.key===it.key);
+      const got=mySubs.reduce((a,b)=>a+b.stake,0);
+      const sOpen=!!cmSubOpen[c.id+'#'+it.key];
+      const canOp=(c.state==='open'||c.state==='soldout')&&!sealed;
+      html+=`<div class="card" style="margin-bottom:10px">
+        <div class="row">
+          <span style="font-size:14px;font-weight:700;color:#222" class="grow">${mk.name} · ${it.name}</span>
+          ${done?`<span class="tag ${hitOf(it)?'tag-win':'tag-lose'}">${hitOf(it)?'赢':'未命中'}</span>`
+            :(sealed?'<span class="tag tag-sealed">已封盘</span>':'')}</div>
+        <div class="row" style="margin-top:6px;font-size:12px;gap:10px;flex-wrap:wrap">
+          <span class="nowrap">当前赔率 <b class="odds-g" style="font-size:14px">@${f2(od)}</b></span>
+          <span class="muted nowrap">开盘 @${f2(od0)}</span>
+          <span class="nowrap ${Math.abs(drift)<0.5?'muted':(drift<0?'lose':'win')}">${drift>0?'↑':(drift<0?'↓':'')}${Math.abs(drift).toFixed(1)}%</span></div>
+        <div class="row" style="margin-top:4px;font-size:12px;gap:10px;flex-wrap:wrap">
+          <span class="nowrap">已收 ${curAmt(got)}</span>
+          <span class="nowrap">命中需赔 ${curAmt(hold)}</span>
+          <span class="muted nowrap">本笔上限 ${curAmt(L.max)}</span></div>
+        ${L.paused&&canOp?'<div class="muted" style="font-size:11px;margin-top:4px;color:#E8850C">该项额度已触顶,暂停买入</div>':''}
+        ${canOp?`<div class="row" style="gap:6px;margin-top:9px">
+          <button class="btn btn-o btn-sm grow" onclick="cmAdjSheet('${mk.key}','${it.key}')">调水</button>
+          <button class="btn btn-ro btn-sm grow" onclick="cmSealMk('${mk.key}')">立即封盘</button>
+          ${got<=0?`<button class="btn btn-g btn-sm" style="flex:0 0 52px" onclick="cmRemoveMk('${mk.key}')">移除</button>`:''}
+          <span style="width:34px;height:32px;border-radius:8px;background:#F2F3F5;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" onclick="cmShareMk('${mk.key}')">
+            <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#FF8C00;fill:none;stroke-width:1.9">
+              <circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/>
+              <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></span></div>`:''}
+        ${mySubs.length?`<div class="row muted" style="margin-top:8px;cursor:pointer" onclick="cmSubOpen['${c.id}#${it.key}']=!cmSubOpen['${c.id}#${it.key}'];cmRenderOwnDetail()">
+            <span>子单数据(${mySubs.length})</span><span class="grow"></span>
+            <span style="color:#FF8C00;font-size:11px">${sOpen?'收起 ⌃':'展开 ⌄'}</span></div>
+          <div style="${sOpen?'':'display:none'}">${mySubs.map(b=>`<div class="sub">
+            <div class="row"><span class="tag tag-p2p" style="font-size:9px;padding:0 5px">会员</span>
+              <span style="font-size:12px;margin-left:6px">me***01</span><span class="grow"></span>
+              <span style="font-size:12px" class="nowrap">${curAmt(b.stake)} · ${b.shares.toFixed(4)} 份 @${f2(b.odds)}</span></div>
+            <div class="row" style="margin-top:3px"><span class="muted" style="font-size:11px">${b.time}</span>
+              <span class="grow"></span>
+              ${done?`<span class="nowrap ${hitOf(it)?'lose':'win'}" style="font-size:11px;font-weight:700">${hitOf(it)?'赔付 -'+curAmt(b.shares):'收 +'+curAmt(b.stake)}</span>`
+                :(closed?`<span class="nowrap muted" style="font-size:11px">已退回 ${curAmt(b.stake)}</span>`:'')}</div>
+          </div>`).join('')}</div>`
+        :'<div class="muted" style="margin-top:8px">子单数据(0):暂无成交</div>'}
+      </div>`;
+    });
+  });
+  $('co-body').innerHTML=html;
+  let fh='';
+  if(c.state==='open'||c.state==='soldout')fh=`<div class="row" style="gap:8px">
+    <button class="btn btn-o grow" onclick="cmTopupSheet()">补充押金</button>
+    <button class="btn btn-r grow" onclick="cmOffSheet()">赛事下架</button></div>`;
+  else if(c.state==='sealed')fh=`<button class="btn btn-p" style="width:100%" onclick="cmScoreSheet()">录入赛果</button>`;
+  else if(c.state==='rejected')fh=`<button class="btn btn-p" style="width:100%" onclick="cmScoreSheet()">重新录入赛果</button>`;
+  else if(c.state==='pending')fh=`<div class="hint">赛果 <b>${c.score[0]}-${c.score[1]}</b> 已提交,等待运营审核。</div>`;
+  $('co-footer').innerHTML=fh;
+  $('co-footer').style.display=fh?'block':'none';
+}
+/* 赛事下架:该自定义赛事不再在赛事列表展示,不可撮合下注 */
+function cmOffSheet(){
+  const c=cmCur;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">赛事下架</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:14px">
+      确认将「${c.home} vs ${c.away}」下架?<br>
+      下架后该赛事<b>不再在赛事列表展示,不可再撮合下注</b>;已成交的子单照常等待赛果结算,未消费押金结算后退回。<b>此操作不可撤销。</b></div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-r grow" onclick="cmDoOff()">确认下架</button></div>`);
+}
+function cmDoOff(){
+  cmCur.state='sealed'; cmCur.offShelf=true;
+  closeCfm(); cmRenderOwnDetail(); renderHome(); renderOrders();
+  toast('赛事已下架,等待录入赛果');
+}
+let cmOvFold=true, cmResFold=false, cmStFilter='all', cmLiveOn=false;
+/* 调水闸门:单次幅度上限(赔率增减量)、累计幅度上限(相对开盘赔率的偏离) */
+const ADJ_ONCE_MAX=0.05, ADJ_TOTAL_MAX=0.30;
+/* 调水操作日志:每次调水留痕,供运营核查 */
+let cmAdjLog=[
+  {cid:'CM001',key:'wdl_H',item:'主胜',mk:'全场 独赢',pt:-0.03,before:1.96,after:1.93,sold:50,use:1.5,by:'金刚庄',time:'12-26 15:20'},
+  {cid:'CM001',key:'ou2.5_O',item:'大 2.5',mk:'全场 大/小 2.5',pt:0.05,before:1.91,after:1.96,sold:50,use:1.5,by:'金刚庄',time:'12-26 16:05'},
+  {cid:'CM001',key:'wdl_A',item:'客胜',mk:'全场 独赢',pt:0.02,before:3.64,after:3.66,sold:0,use:0,by:'金刚庄',time:'12-26 17:42'},
+  {cid:'CM003',key:'wdl_A',item:'客胜',mk:'全场 独赢',pt:-0.04,before:2.18,after:2.14,sold:150,use:3.0,by:'金刚庄',time:'12-25 11:30'}
+];
+let cmSubOpen={}, cmSealedMk={};
+function cmSealed(c,mkKey){return !!(cmSealedMk[c.id]&&cmSealedMk[c.id][mkKey])}
+/* 封盘为玩法级:做市定价下同一玩法内各项共享价格曲线,单项封盘会破坏跨玩法同价 */
+function cmSealMk(mkKey){
+  const c=cmCur,mk=c.eng.mks.find(x=>x.key===mkKey);
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">立即封盘</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:14px">
+      确认对「${mk.name}」封盘?<br>
+      做市定价下同一玩法内各投注项共享同一条价格曲线,<b>封盘以玩法为单位</b>,该玩法全部投注项同时停止收单,已成交份额不受影响。此操作不可撤销。</div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-r grow" onclick="cmDoSealMk('${mkKey}')">确认封盘</button></div>`);
+}
+function cmDoSealMk(mkKey){
+  const c=cmCur;
+  cmSealedMk[c.id]=cmSealedMk[c.id]||{}; cmSealedMk[c.id][mkKey]=true;
+  closeCfm(); cmRenderOwnDetail(); renderHome();
+  toast('该玩法已封盘');
+}
+function cmRemoveMk(mkKey){
+  const c=cmCur,mk=c.eng.mks.find(x=>x.key===mkKey);
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">移除盘口</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:14px">
+      确认移除「${mk.name}」?<br>该玩法将从本场比赛中移除、不再展示与收单。<b>移除会改变比分状态的合并方式,其余玩法赔率将随之重算</b>,已成交份额按原成交赔率结算不受影响。</div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-r grow" onclick="toast('移除盘口(示意)');closeCfm()">确认移除</button></div>`);
+}
+function cmAddMkSheet(){
+  const c=cmCur;
+  const all=[['ah','让球(半球)'],['eh','欧洲让球'],['tg','主客队进球数']];
+  const closed=all.filter(([k])=>!c.cfg.mk[k]);
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">新增盘口</h3>
+    ${closed.length?`<div class="card">${closed.map(([k,n])=>`<div class="row" style="padding:9px 0;border-bottom:1px dashed #f0f0f0">
+      <span style="font-size:13px;font-weight:600;color:#222" class="grow">${n}</span>
+      <button class="btn btn-o btn-sm" style="flex:0 0 64px" onclick="toast('新增盘口(示意)');closeCfm()">新增</button></div>`).join('')}</div>
+      <div class="muted" style="font-size:11px;margin-top:9px;line-height:1.7">新增玩法会改变比分状态的合并方式,全部玩法赔率随之重算;已成交份额按原成交赔率结算不受影响。</div>`
+    :'<div class="muted" style="text-align:center;padding:24px">本场已开放全部可选玩法</div>'}
+    <button class="btn btn-g" style="width:100%;margin-top:12px" onclick="closeCfm()">关闭</button>`);
+}
+
+function cmAdjSheet(mkKey,itKey){
+  const c=cmCur; if(!c||c.state!=='open')return;
+  cmAdjIt=cmItem(c,itKey); cmAdjPt='';
+  cmRenderAdj(); show('ov-cfm');
+}
+function cmRenderAdj(){
+  const c=cmCur,e=c.eng,cfg=c.cfg,it=cmAdjIt;
+  const cur=EG.showOdds(e,cfg,it);
+  /* 开盘赔率:自定义赛事无官方盘可参照,用庄家自己设定的开盘价作基准 */
+  let open0=cur;
+  try{
+    const m0=EG.init(cfg);
+    const it0=m0.mks.flatMap(x=>x.items).find(x=>x.key===it.key);
+    if(it0)open0=EG.showOdds(m0,cfg,it0);
+  }catch(err){}
+  const drift=open0?((cur-open0)/open0*100):0;
+  /* 调整点位 = 赔率增减量(两位小数,可为负) */
+  const pt=parseFloat(cmAdjPt)||0;
+  const target=+(cur+pt).toFixed(2);
+  /* 二分求达到目标赔率所需的推动量,用于确认时落库 */
+  const shiftFor=tgt=>{
+    if(Math.abs(tgt-cur)<1e-6)return 0;
+    const q0=e.q.slice();
+    const oddsAt=d=>{const q=q0.slice();it.sidx.forEach(k=>q[k]+=d);
+      const bk=e.q;e.q=q;const o=EG.showOdds(e,cfg,it);e.q=bk;return o};
+    let lo=-e.b*4, hi=e.b*4;
+    for(let t=0;t<70;t++){const mid=(lo+hi)/2; oddsAt(mid)>tgt?lo=mid:hi=mid}
+    return (lo+hi)/2;
+  };
+  /* 累计调水幅度:本场该投注项历次调水的绝对值之和 */
+  const used=cmAdjLog.filter(x=>x.cid===c.id&&x.key===it.key).reduce((a,x)=>a+Math.abs(x.pt),0);
+  const left=+(ADJ_TOTAL_MAX-used).toFixed(2);
+  const inRange = pt!==0 && target>=cfg.minOdds && target<=(cfg.maxOdds||99);
+  const onceOk  = Math.abs(pt)<=ADJ_ONCE_MAX+1e-9;
+  const totalOk = Math.abs(pt)<=left+1e-9;
+  const okRange = inRange && onceOk && totalOk;
+  let warn='';
+  if(pt!==0&&!inRange) warn = target<cfg.minOdds?`新赔率低于平台最低赔率 ${f2(cfg.minOdds)}`:`新赔率超过赔率封顶 ${f2(cfg.maxOdds||99)}`;
+  else if(pt!==0&&!onceOk) warn = `单次调水幅度不得超过 ${ADJ_ONCE_MAX.toFixed(2)}`;
+  else if(pt!==0&&!totalOk) warn = `本项累计调水已用 ${used.toFixed(2)}，剩余额度 ${left.toFixed(2)}`;
+  const mk=e.mks.find(x=>x.items.some(y=>y.key===it.key));
+  const step=v=>`<span style="width:38px;height:38px;border:1px solid #e3e5e8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#666;cursor:pointer;flex-shrink:0;background:#fff;user-select:none"
+      onclick="cmAdjPt=(((parseFloat(cmAdjPt)||0)+(${v}))).toFixed(2);cmRenderAdj()">${v>0?'＋':'－'}</span>`;
+  $('cfm-body').innerHTML=`
+    <h3 style="font-size:15px;text-align:center;margin-bottom:14px">调水 · ${mk.name} · ${it.name}</h3>
+    <div class="row" style="margin-top:10px">
+      <span class="muted grow" style="font-size:13px">当前庄单赔率</span>
+      <span class="nowrap" style="font-size:15px;font-weight:700;color:#222">@${f2(cur)}</span></div>
+    <div class="row" style="margin-top:12px">
+      <span class="muted grow" style="font-size:13px">开盘赔率</span>
+      <span class="nowrap" style="font-size:14px;color:#9aa0a6">@${f2(open0)}（参考）${Math.abs(drift)>=0.5?`<span style="margin-left:5px;color:${drift>0?'#1D9E75':'#E24B4A'}">${drift>0?'↑':'↓'}${Math.abs(drift).toFixed(1)}%</span>`:''}</span></div>
+    <div class="row" style="margin-top:14px">
+      <span class="muted grow" style="font-size:13px">调整点位</span>
+      <div class="row" style="gap:0;flex-shrink:0">
+        ${step(-0.01)}
+        <input id="cm-adj" inputmode="decimal" value="${cmAdjPt||'0.00'}"
+          style="width:76px;height:38px;border:1px solid #e3e5e8;border-left:none;border-right:none;padding:0 6px;font-size:15px;font-weight:600;text-align:center;outline:none;background:#fff"
+          oninput="cmAdjPt=this.value;cmRenderAdj();setTimeout(()=>{const i=$('cm-adj');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)">
+        ${step(0.01)}
+      </div>
+      <span class="muted nowrap" style="font-size:11px;margin-left:8px">可为负，两位小数</span></div>
+    <div class="row" style="margin-top:6px">
+      <span class="grow"></span>
+      <span class="muted nowrap" style="font-size:11px">单次上限 ${ADJ_ONCE_MAX.toFixed(2)} · 本项累计剩余 ${left.toFixed(2)} / ${ADJ_TOTAL_MAX.toFixed(2)}</span></div>
+    <div class="row" style="margin-top:14px">
+      <span class="muted grow" style="font-size:13px">新庄单赔率</span>
+      <span class="nowrap" style="font-size:17px;font-weight:800;color:${okRange?'#1D9E75':(pt===0?'#9aa0a6':'#E24B4A')}">@${f2(pt===0?cur:target)}</span></div>
+    ${warn?`<div class="hint" style="margin-top:10px;background:#FDECEC;color:#C0392B">${warn}</div>`:''}
+    <div class="muted" style="font-size:11px;margin-top:12px;line-height:1.7">已成交子单按原赔率结算不受影响。调水会同步推动同玩法其他投注项的赔率反向变动。</div>
+    <div class="row" style="gap:10px;margin-top:16px">
+      <button class="btn btn-g grow" style="height:46px;font-size:15px" onclick="closeCfm()">取消</button>
+      <button class="btn btn-p grow" style="height:46px;font-size:15px" ${okRange?'':'disabled'} onclick="cmDoAdj(${shiftFor(target)})">确认调水</button></div>`;
+}
+
+function cmDoAdj(shift){
+  const c=cmCur,e=c.eng,it=cmAdjIt;
+  const before=EG.showOdds(e,c.cfg,it);
+  const rkBefore=EG.risk(e,c.cfg);
+  it.sidx.forEach(k=>e.q[k]+=shift);
+  const after=EG.showOdds(e,c.cfg,it);
+  /* 操作日志:时间、投注项、调整前后赔率、调整幅度、当时敞口,供运营事后核查 */
+  cmAdjLog.unshift({cid:c.id,key:it.key,item:it.name,
+    mk:(e.mks.find(x=>x.items.some(y=>y.key===it.key))||{}).name||'',
+    pt:+(after-before).toFixed(2), before:+before.toFixed(2), after:+after.toFixed(2),
+    sold:+(e.cash||0).toFixed(2), use:+(rkBefore.use*100).toFixed(1),
+    by:BANKER_NICK, time:new Date().toISOString().slice(5,16).replace('T',' ')});
+  closeCfm(); cmRenderOwnDetail(); renderHome();
+  toast('已调水,当前赔率 @'+f2(after));
+}
+/* 调水记录:开盘详情内查看 */
+function cmAdjLogSheet(){
+  const c=cmCur;
+  const rows=cmAdjLog.filter(x=>x.cid===c.id);
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">调水记录</h3>
+    ${rows.length?`<div style="max-height:320px;overflow-y:auto">${rows.map(r=>`
+      <div style="border-bottom:1px dashed #f0f0f0;padding:9px 0">
+        <div class="row"><span style="font-size:13px;font-weight:600;color:#222" class="grow">${r.mk} · ${r.item}</span>
+          <span class="nowrap" style="font-size:13px;font-weight:700;color:${r.pt>0?'#1D9E75':'#E24B4A'}">${r.pt>0?'+':''}${r.pt.toFixed(2)}</span></div>
+        <div class="row" style="margin-top:4px">
+          <span class="muted nowrap" style="font-size:12px">@${f2(r.before)} → @${f2(r.after)}</span>
+          <span class="grow"></span>
+          <span class="muted nowrap" style="font-size:11px">调水时已收 ${curAmt(r.sold)} · 占用 ${r.use}%</span></div>
+        <div class="row" style="margin-top:3px">
+          <span class="muted nowrap" style="font-size:11px">${r.by} · ${r.time}</span></div>
+      </div>`).join('')}</div>`
+    :'<div class="muted" style="text-align:center;padding:26px">本场暂无调水记录</div>'}
+    <button class="btn btn-g" style="width:100%;margin-top:12px" onclick="closeCfm()">关闭</button>`);
+}
+
+let cmTopup='';
+function cmTopupSheet(){cmTopup='';cmRenderTopup();show('ov-cfm')}
+function cmRenderTopup(){
+  const c=cmCur,e=c.eng,cfg=c.cfg;
+  const add=parseFloat(cmTopup)||0;
+  const rk=EG.risk(e,cfg);
+  $('cfm-body').innerHTML=`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">补充押金</h3>
+    <div class="card">
+      <div class="row"><span class="muted grow">当前押金</span><span class="nowrap"><b>${curAmt(c.dep)}</b></span></div>
+      <div class="row" style="margin-top:6px"><span class="muted grow">押金占用</span><span class="nowrap">${(rk.use*100).toFixed(1)}%</span></div>
+      <input class="inp" id="cm-top" inputmode="decimal" placeholder="追加金额" value="${cmTopup}"
+        style="width:100%;height:40px;border:1px solid #e3e5e8;border-radius:9px;padding:0 11px;font-size:14px;outline:none;margin-top:10px"
+        oninput="cmTopup=this.value;cmRenderTopup();setTimeout(()=>{const i=$('cm-top');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)">
+      <div class="row" style="gap:6px;margin-top:8px">
+        ${[500,1000,2000].map(v=>`<button class="btn btn-g grow" style="padding:7px;font-size:12px" onclick="cmTopup='${v}';cmRenderTopup()">+${v}</button>`).join('')}
+      </div>
+      ${add>0?`<div class="row" style="margin-top:10px"><span class="muted grow">追加后押金</span>
+        <span class="nowrap"><b class="win">${curAmt(c.dep+add)}</b></span></div>
+        <div class="row" style="margin-top:5px"><span class="muted grow">追加后占用</span>
+        <span class="nowrap">${(rk.maxLoss/(c.dep+add)*100).toFixed(1)}%</span></div>`:''}
+    </div>
+    <div class="muted" style="font-size:11px;margin-top:9px;line-height:1.7">追加押金后本场最大亏损上限提高,盘口流动性同步加深(同样金额对赔率的推动变小)。已成交子单不受影响。</div>
+    ${add>balance?`<div class="hint" style="margin-top:8px;background:#FDECEC;color:#C0392B">余额不足</div>`:''}
+    <div class="row" style="gap:8px;margin-top:12px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-p grow" ${add>0&&add<=balance?'':'disabled'} onclick="cmDoTopup()">确认追加</button></div>`;
+}
+function cmDoTopup(){
+  const c=cmCur,add=parseFloat(cmTopup)||0;
+  c.dep+=add; c.cfg.deposit=c.dep;
+  /* 押金提高 → 流动性参数 b 同步增大,价格保持不变 */
+  const e=c.eng, oldB=e.b, newB=c.dep/Math.log(e.states.length);
+  e.q=e.q.map(x=>x*newB/oldB); e.b=newB;
+  balance=+(balance-add).toFixed(2); syncBal();
+  closeCfm(); cmRenderOwnDetail(); renderHome();
+  toast('已追加 '+curAmt(add)+',押金 '+curAmt(c.dep));
+}
+
+function cmSealSheet(){
+  const c=cmCur;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">封盘</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:14px">
+      确认对「${c.home} vs ${c.away}」封盘?<br>
+      封盘后立即停止收单,已持有份额的玩家不可卖出,等待你录入赛果并由运营审核。<b>此操作不可撤销。</b></div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-r grow" onclick="cmDoSeal()">确认封盘</button></div>`);
+}
+function cmDoSeal(){
+  cmCur.state='sealed';
+  closeCfm(); cmRenderOwnDetail(); renderHome(); renderOrders();
+  toast('已封盘,请录入赛果');
+}
+
+let cmSH='',cmSA='';
+function cmScoreSheet(){cmSH='';cmSA='';cmRenderScore();show('ov-cfm')}
+function cmRenderScore(){
+  const c=cmCur;
+  const h=parseInt(cmSH),a=parseInt(cmSA);
+  const ok=Number.isInteger(h)&&Number.isInteger(a)&&h>=0&&a>=0;
+  /* 队名放在输入框上方,输入框只放比分数字,避免长队名撑破弹窗宽度 */
+  const inp=(id,v,team,fn)=>`<div style="flex:1 1 0;min-width:0;text-align:center">
+    <div class="muted" style="font-size:12px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${team}</div>
+    <input class="inp" id="${id}" inputmode="numeric" placeholder="0" value="${v}"
+      style="width:100%;height:46px;border:1px solid #e3e5e8;border-radius:9px;padding:0 6px;font-size:20px;font-weight:700;text-align:center;outline:none"
+      oninput="${fn}=this.value;cmRenderScore();setTimeout(()=>{const i=$('${id}');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)"></div>`;
+  $('cfm-body').innerHTML=`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">录入赛果</h3>
+    <div class="card">
+      <div class="row" style="gap:8px;align-items:flex-end">
+        ${inp('cm-sh',cmSH,c.home,'cmSH')}
+        <span style="font-size:18px;color:#9aa0a6;padding-bottom:12px;flex-shrink:0">:</span>
+        ${inp('cm-sa',cmSA,c.away,'cmSA')}
+      </div>
+      <div class="muted" style="font-size:11px;margin-top:9px;line-height:1.7">只计常规时间 90 分钟(含补时),不含加时赛与点球大战。</div>
+    </div>
+    <div class="hint" style="margin-top:10px">提交后进入<b>待审核</b>,由运营核对公开赛果,通过后正式结算。<b>审核通过前不发生任何资金兑付</b>;若被驳回,驳回原因会在本页展示,可按说明重新录入。</div>
+    <div class="row" style="gap:8px;margin-top:12px">
+      <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
+      <button class="btn btn-p grow" ${ok?'':'disabled'} onclick="cmDoScore()">提交审核</button></div>`;
+}
+function cmDoScore(){
+  const c=cmCur;
+  c.score=[parseInt(cmSH),parseInt(cmSA)];
+  c.state='pending';
+  /* 重新提交后清掉上一次的驳回信息 */
+  delete c.rejectReason; delete c.rejectBy; delete c.rejectTime;
+  closeCfm(); cmRenderOwnDetail(); renderHome(); renderOrders();
+  toast('赛果已提交,等待运营审核');
+}
+
+/* ═════ 我要开盘:创建自定义赛事 ═════ */
+let cmNew={}, cmTouched={}, cmSubmitTried=false;
+function cmCreateSheet(){
+  cmTouched={}; cmSubmitTried=false;
+  cmNew={home:'',away:'',time:'12-29 20:00',lH:'1.55',lA:'1.05',dep:'3000',
+    hLogo:'⚽',aLogo:'⚽',live:'',sealMin:10,
+    maxStake:'2000',W:'300',minOdds:'1.05',vig:3,csMax:3,auto:true,
+    mk:{wdl:true,ou:true,btts:true,cs:true,ah:false,eh:false,tg:false},
+    ouLines:[1.5,2.5,3.5],ahLines:[0.5],ehLines:[1]};
+  cmRenderNew();show('ov-cmnew');
+}
+function cmRenderNew(){
+  const lH=parseFloat(cmNew.lH)||0, lA=parseFloat(cmNew.lA)||0, dep=parseFloat(cmNew.dep)||0;
+  const sug=(lH>=0.1&&lA>=0.1)?EG.suggestLines(lH,lA):{ah:0.5,ouSet:[1.5,2.5,3.5]};
+  if(cmNew.auto){ cmNew.ahLines=[sug.ah]; cmNew.ouLines=sug.ouSet.slice(); }
+  const valid=cmNew.home.trim()&&cmNew.away.trim()&&lH>=0.1&&lH<=6&&lA>=0.1&&lA<=6&&dep>=100&&dep<=balance
+    &&Object.values(cmNew.mk).some(v=>v);
+  let prev='';
+  /* 必填校验:仅在该字段被动过(touched)或点过提交后才标红,避免一打开满屏红 */
+  const errOf=k=>{
+    if(!cmTouched[k]&&!cmSubmitTried)return '';
+    if(k==='home')return cmNew.home.trim()?'':'请输入主队名称';
+    if(k==='away')return cmNew.away.trim()?'':'请输入客队名称';
+    if(k==='lH')return (lH>=0.1&&lH<=6)?'':'请输入 0.1 ~ 6 之间的数值';
+    if(k==='lA')return (lA>=0.1&&lA<=6)?'':'请输入 0.1 ~ 6 之间的数值';
+    if(k==='dep')return (dep>=100)?(dep<=balance?'':'押金超出可用余额'):'押金不得低于 100';
+    if(k==='sealMin'){const v=parseInt(cmNew.sealMin);
+      return (Number.isInteger(v)&&v>=0&&v<=180)?'':'请输入 0 ~ 180 的整数';}
+    if(k==='time')return cmNew.time.trim()?'':'请选择开赛时间';
+    return '';
+  };
+  const fld=(k,label,ph,extra='')=>{const er=errOf(k);
+    return `<div style="margin-top:9px">
+    <div class="muted" style="margin-bottom:4px">${label}</div>
+    <input class="inp" id="cmn-${k}" placeholder="${ph}" value="${cmNew[k]}" ${extra}
+      style="width:100%;height:40px;border:1px solid ${er?'#E24B4A':'#e3e5e8'};border-radius:9px;padding:0 11px;font-size:14px;outline:none"
+      oninput="cmTouched['${k}']=1;cmNew.${k}=this.value;cmRenderNew();cmNewFocus('${k}')">
+    ${er?`<div style="font-size:11px;color:#E24B4A;margin-top:4px">${er}</div>`:''}</div>`;};
+  /* 开盘预览引擎:用于在每类玩法下方直接展示该类投注项的开盘赔率 */
+  let pvE=null,pvCfg=null;
+  if(lH>=0.1&&lH<=6&&lA>=0.1&&lA<=6&&dep>0&&Object.values(cmNew.mk).some(v=>v)){
+    pvCfg=Object.assign({},CM_CFG,{lH,lA,deposit:dep,mk:cmNew.mk,
+      ouLines:cmNew.ouLines,ahLines:cmNew.ahLines,ehLines:cmNew.ehLines,csMax:cmNew.csMax,
+      maxStake:parseFloat(cmNew.maxStake)||2000,
+      minOdds:parseFloat(cmNew.minOdds)||1.05});
+    try{pvE=EG.init(pvCfg)}catch(err){pvE=null}
+  }
+  /* 某类玩法的赔率行:key 前缀匹配 */
+  const oddsOf=pref=>{
+    if(!pvE)return '';
+    const mks=pvE.mks.filter(mk=>pref==='cs'?mk.key==='cs':(pref==='ou'?/^ou/.test(mk.key)
+      :(pref==='ah'?/^ah/.test(mk.key):(pref==='eh'?/^eh/.test(mk.key)
+      :(pref==='tg'?/^tg/.test(mk.key):mk.key===pref)))));
+    if(!mks.length)return '';
+    return mks.map(mk=>`<div style="margin-top:6px">
+      ${mks.length>1?`<div class="muted" style="font-size:10px;margin-bottom:3px">${mk.name}</div>`:''}
+      <div class="row" style="gap:5px;flex-wrap:wrap">${mk.items.map(it=>
+        `<div class="oddcell" style="flex:1 0 ${mk.key==='cs'?'21%':'30%'};opacity:1;height:auto;padding:6px 3px">
+          <span class="lb" style="font-size:10px">${it.name}</span>
+          <span class="v" style="font-size:12px">${f2(EG.showOdds(pvE,pvCfg,it))}</span></div>`).join('')}</div></div>`).join('');
+  };
+  const tgl=(k,label,note)=>`<div style="padding:9px 0;border-top:1px dashed #f0f0f0">
+    <div class="row">
+      <div class="grow" style="min-width:0">
+        <div style="font-size:13px;font-weight:600;color:#222">${label}</div>
+        ${note?`<div class="muted" style="font-size:11px;margin-top:2px">${note}</div>`:''}</div>
+      <span class="sw ${cmNew.mk[k]?'on':''}" onclick="cmNew.mk['${k}']=!cmNew.mk['${k}'];cmRenderNew()"><i></i></span></div>
+    ${cmNew.mk[k]?oddsOf(k):''}</div>`;
+  const lineBtns=(arr,all,field)=>`<div class="row" style="gap:5px;flex-wrap:wrap;margin-top:6px">
+    ${all.map(L=>`<span class="fpill ${arr.includes(L)?'on':''}" style="font-size:11px;padding:4px 10px"
+      onclick="cmNew.auto=false;cmToggleLine('${field}',${L});cmRenderNew()">${L>0&&field!=='ouLines'?'主 -'+L:(field==='ouLines'?L:'主 +'+Math.abs(L))}</span>`).join('')}</div>`;
+
+  $('cmnew-body').innerHTML=`
+    <div class="row" style="padding:12px 14px 10px;background:#fff;border-radius:14px 14px 0 0;position:sticky;top:0;z-index:2">
+      <span style="font-size:15px;font-weight:700;color:#222" class="grow">我要开盘 · 自定义赛事</span>
+      <span style="width:26px;height:26px;border-radius:50%;background:#F2F3F5;color:#8a8f96;display:flex;align-items:center;justify-content:center;cursor:pointer" onclick="hide('ov-cmnew')">×</span></div>
+    <div style="padding:0 12px 12px">
+      <div class="card">
+        <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:2px">赛事信息</div>
+        ${(()=>{const er=errOf('home');return `<div style="margin-top:9px">
+          <div class="muted" style="margin-bottom:4px">主队名称与队徽</div>
+          <div class="row" style="gap:8px">
+            <span style="width:42px;height:40px;border:1px solid #e3e5e8;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0"
+              onclick="cmPickLogo('hLogo')">${cmNew.hLogo}</span>
+            <input class="inp" id="cmn-home" placeholder="如 蓝鸟青年队" value="${cmNew.home}"
+              style="flex:1;height:40px;border:1px solid ${er?'#E24B4A':'#e3e5e8'};border-radius:9px;padding:0 11px;font-size:14px;outline:none"
+              oninput="cmTouched['home']=1;cmNew.home=this.value;cmRenderNew();cmNewFocus('home')"></div>
+          ${er?`<div style="font-size:11px;color:#E24B4A;margin-top:4px">${er}</div>`:''}</div>`})()}
+        ${(()=>{const er=errOf('away');return `<div style="margin-top:9px">
+          <div class="muted" style="margin-bottom:4px">客队名称与队徽</div>
+          <div class="row" style="gap:8px">
+            <span style="width:42px;height:40px;border:1px solid #e3e5e8;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;flex-shrink:0"
+              onclick="cmPickLogo('aLogo')">${cmNew.aLogo}</span>
+            <input class="inp" id="cmn-away" placeholder="如 红狼联队" value="${cmNew.away}"
+              style="flex:1;height:40px;border:1px solid ${er?'#E24B4A':'#e3e5e8'};border-radius:9px;padding:0 11px;font-size:14px;outline:none"
+              oninput="cmTouched['away']=1;cmNew.away=this.value;cmRenderNew();cmNewFocus('away')"></div>
+          ${er?`<div style="font-size:11px;color:#E24B4A;margin-top:4px">${er}</div>`:''}</div>`})()}
+        ${fld('time','开赛时间','MM-DD HH:mm')}
+        ${fld('live','赛事直播地址（选填）','填写后详情页展示直播入口')}
+        <div class="row" style="gap:8px">
+          <div class="grow">${fld('lH','主队场均进球 λ','0.1 ~ 6',"inputmode='decimal'")}</div>
+          <div class="grow">${fld('lA','客队场均进球 λ','0.1 ~ 6',"inputmode='decimal'")}</div>
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:5px">赔率完全由两队场均进球推导,平台不提供外部赔率参考。</div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div class="row" style="margin-bottom:2px">
+          <span style="font-size:13px;font-weight:700;color:#222" class="grow">开放玩法</span>
+          <span class="muted nowrap" style="font-size:11px">已选 ${Object.values(cmNew.mk).filter(v=>v).length} / 7 类</span></div>
+        ${tgl('wdl','全场 独赢','主胜 / 平局 / 客胜')}
+        ${tgl('ou','全场 大/小','可多选盘口线')}
+        ${cmNew.mk.ou?`<div style="padding:0 0 9px">${lineBtns(cmNew.ouLines,[0.5,1.5,2.5,3.5,4.5],'ouLines')}</div>`:''}
+        ${tgl('btts','双方进球','是 / 否')}
+        ${tgl('cs','全场 波胆','0~'+cmNew.csMax+' 球逐项 + 其他比分')}
+        ${tgl('ah','全场 让球','仅半球线,不产生走盘')}
+        ${cmNew.mk.ah?`<div style="padding:0 0 9px">${lineBtns(cmNew.ahLines,[-2.5,-1.5,-0.5,0.5,1.5,2.5],'ahLines')}</div>`:''}
+        ${tgl('eh','欧洲让球','让球后的独赢,三项')}
+        ${cmNew.mk.eh?`<div style="padding:0 0 9px">${lineBtns(cmNew.ehLines,[1,2],'ehLines')}</div>`:''}
+        ${tgl('tg','主客队进球数','0 / 1 / 2 / 3+ 球,主客各一组')}
+        <div class="row" style="padding:9px 0 0;border-top:1px dashed #f0f0f0">
+          <div class="grow"><div style="font-size:13px;font-weight:600;color:#222">按 λ 自动推荐盘口线</div>
+            <div class="muted" style="font-size:11px;margin-top:2px">让球 ${sug.ah>0?'主 -'+sug.ah:'主 +'+Math.abs(sug.ah)} · 大小球 ${sug.ouSet.join(' / ')}</div></div>
+          <span class="sw ${cmNew.auto?'on':''}" onclick="cmNew.auto=!cmNew.auto;cmRenderNew()"><i></i></span></div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:2px">押金与收单</div>
+        <div class="row" style="gap:8px">
+          <div class="grow">${fld('dep','押金金额','≥ 100',"inputmode='decimal'")}</div>
+          <div class="grow">${fld('maxStake','单笔最多收','默认 2000',"inputmode='decimal'")}</div>
+        </div>
+        <div style="margin-top:9px">
+          <div class="muted" style="margin-bottom:4px">自动封盘（开赛前多少分钟停止收单）</div>
+          <div class="row" style="gap:6px">
+            ${[0,5,10,15,30].map(v=>`<span class="fpill ${String(cmNew.sealMin)===String(v)?'on':''}" style="font-size:12px;padding:6px 10px;flex:1;text-align:center"
+              onclick="cmNew.sealMin=${v};cmRenderNew()">${v===0?'开赛时':v+' 分钟'}</span>`).join('')}
+          </div>
+          ${(()=>{const er=errOf('sealMin');return `
+          <input class="inp" id="cmn-sealMin" inputmode="numeric" placeholder="自定义分钟数，0 ~ 180" value="${cmNew.sealMin}"
+            style="width:100%;height:38px;border:1px solid ${er?'#E24B4A':'#e3e5e8'};border-radius:9px;padding:0 11px;font-size:14px;outline:none;margin-top:8px"
+            oninput="cmTouched['sealMin']=1;cmNew.sealMin=this.value;cmRenderNew();cmNewFocus('sealMin')">
+          ${er?`<div style="font-size:11px;color:#E24B4A;margin-top:4px">${er}</div>`:''}`})()}
+        </div>
+        <div class="muted" style="font-size:11px;margin-top:6px">押金是本场最大亏损上限:任何比分开出,亏损都不超过它。<br>自动封盘:到达设定时点后盘口停止收单、玩家不可再投注,比赛结束后由你录入赛果。</div>
+      </div>
+
+      <div class="hint" style="margin-top:10px">提交后需运营审核,通过才上架;<b>押金在审核通过时冻结</b>,未通过则不冻结,驳回原因可在「卖单 → 私盘」的盘详情中查看。</div>
+
+
+      ${(cmSubmitTried&&!Object.values(cmNew.mk).some(v=>v))?`<div style="font-size:11px;color:#E24B4A;margin-top:8px">请至少开放一类玩法</div>`:''}
+      <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="cmTrySubmit()">提交审核</button>
+    </div>`;
+}
+/* 队徽选择:原型用图标代表,正式版为图片上传 */
+const CM_LOGOS=['⚽','🔵','🔴','🟡','🟢','🟣','⚫','⚪','🦁','🐯','🦅','🐺','🐻','🐉','⭐','🛡️'];
+function cmPickLogo(field){
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">选择队徽</h3>
+    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px">
+      ${CM_LOGOS.map(g=>`<span style="height:46px;border:1px solid ${cmNew[field]===g?'#FF8C00':'#e3e5e8'};border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer"
+        onclick="cmNew['${field}']='${g}';closeCfm();cmRenderNew()">${g}</span>`).join('')}
+    </div>
+    <div class="muted" style="font-size:11px;margin-top:10px">原型以图标代替,正式版支持上传队徽图片。</div>
+    <button class="btn btn-g" style="width:100%;margin-top:12px" onclick="closeCfm()">取消</button>`);
+}
+function cmToggleLine(field,L){
+  const a=cmNew[field];
+  const i=a.indexOf(L);
+  if(i>=0){ if(a.length>1)a.splice(i,1); } else a.push(L);
+  a.sort((x,y)=>x-y);
+}
+function cmNewFocus(k){setTimeout(()=>{const i=$('cmn-'+k);if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)}
+/* 点提交:校验不过则标红全部问题字段并滚到第一个,通过才真正提交 */
+function cmTrySubmit(){
+  cmSubmitTried=true; cmRenderNew();
+  setTimeout(()=>{
+    const bad=document.querySelector('#cmnew-body input[style*="E24B4A"]');
+    if(bad){bad.scrollIntoView({block:'center',behavior:'smooth'});return}
+    const lH=parseFloat(cmNew.lH)||0,lA=parseFloat(cmNew.lA)||0,dep=parseFloat(cmNew.dep)||0;
+    const sm=parseInt(cmNew.sealMin);
+    const ok=cmNew.home.trim()&&cmNew.away.trim()&&cmNew.time.trim()
+      &&lH>=0.1&&lH<=6&&lA>=0.1&&lA<=6&&dep>=100&&dep<=balance
+      &&Number.isInteger(sm)&&sm>=0&&sm<=180
+      &&Object.values(cmNew.mk).some(v=>v);
+    if(ok)cmDoCreate();
+  },30);
+}
+function cmDoCreate(){
+  /* 开盘后立即在「卖单 → 私盘」生成该盘,状态为卖出中(演示:视为审核已通过) */
+  const lH=parseFloat(cmNew.lH)||1.5, lA=parseFloat(cmNew.lA)||1.1, dep=parseFloat(cmNew.dep)||1000;
+  const id='CM'+String(900+CM.length).slice(-3);
+  const sug=EG.suggestLines(lH,lA);
+  const nc={id,home:cmNew.home.trim(),away:cmNew.away.trim(),league:'自定义赛事',time:cmNew.time,
+    created:new Date().toISOString().slice(5,10).replace('-','-')+' '+new Date().toTimeString().slice(0,5),
+    banker:BANKER_NICK,mine:true,state:'open',lH,lA,dep,bucket:'today',
+    sealMin:Math.max(0,Math.min(180,parseInt(cmNew.sealMin)||0)),
+    hLogo:cmNew.hLogo,aLogo:cmNew.aLogo,live:cmNew.live.trim()};
+  nc.cfg=Object.assign({},CM_CFG,{lH,lA,deposit:dep,mk:Object.assign({},cmNew.mk),
+    ouLines:cmNew.ouLines.slice(),ahLines:cmNew.ahLines.slice(),ehLines:cmNew.ehLines.slice(),
+    csMax:cmNew.csMax,maxStake:parseFloat(cmNew.maxStake)||2000,
+    minOdds:parseFloat(cmNew.minOdds)||1.05});
+  try{nc.eng=EG.init(nc.cfg)}catch(err){nc.eng=EG.init(Object.assign({},CM_CFG,{lH,lA,deposit:dep}))}
+  CM.unshift(nc);
+  balance=+(balance-dep).toFixed(2); syncBal();
+  renderHome(); updBadge();
+  hide('ov-cmnew');
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">已提交审核</h3>
+    <div style="font-size:13px;color:#666;line-height:1.8;margin-bottom:14px">
+      比赛「${cmNew.home} vs ${cmNew.away}」已提交,运营审核通过后自动上架并冻结押金 ${money(parseFloat(cmNew.dep)||0)}。<br>
+      原型演示:已直接上架,可在「卖单 → 私盘」查看。<br>
+      ${cmNew.live?'已配置直播地址,上架后赛事详情页展示直播入口。<br>':''}
+      审核结果可在「我的卖出 → 私盘」查看;未通过则押金不冻结,驳回原因会在盘详情中展示。</div>
+    <button class="btn btn-p" style="width:100%" onclick="closeCfm()">知道了</button>`);
+}
+
 /* ═════ 私盘(复制比赛)模型 ═════ */
 let BANKER_NICK='金刚庄';
+/* 币种沿用既有会员币种机制(CUR / curSym / curAmt),默认 CNY,支持玩家切换 */
+
+/* ═══════════ 私盘(自定义赛事)═══════════
+   脱离 IM 的自定义足球比赛:庄家填两队名与两队场均进球 λ,
+   系统按 Poisson 比分模型生成全套盘口,按比分统一 LMSR 做市。
+   本期玩法:全场独赢 / 全场大小 1.5·2.5·3.5 / 双方进球 / 全场波胆 0-3 + 其他 */
+const CM_CFG={lH:1.55,lA:1.05,maxGoals:10,deposit:3000,W:300,vig:0.03,vigMode:'prob',
+  maxOdds:99,minOdds:1.05,maxStake:2000,maxSlip:0.05,coldPrice:0.20,coldMaxSlip:0.20,
+  csMax:3,mk:{wdl:1,ou:1,btts:1,cs:1,ah:1},ouLines:[1.5,2.5,3.5],ahLines:[0.5],ehLines:[1]};
+let CM=[
+  /* 演示数据:卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已关闭 各一条 */
+  {id:'CM001',home:'蓝鸟青年队',away:'红狼联队',league:'自定义赛事',time:'12-28 20:00',created:'12-26 14:02',
+   banker:'金刚庄',mine:true,state:'open',lH:1.55,lA:1.05,dep:3000,bucket:'today',sealMin:10,
+   hLogo:'🔵',aLogo:'🔴',live:'https://live.example.com/cm001'},
+  {id:'CM002',home:'东区制造厂',away:'西岸码头',league:'自定义赛事',time:'12-28 21:30',created:'12-26 15:10',
+   banker:'老王盘',mine:false,state:'open',lH:1.20,lA:1.40,dep:2000,bucket:'today',sealMin:5,hLogo:'🟡',aLogo:'🟣'},
+  /* 已售罄:押金小,少量成交即触顶 */
+  {id:'CM007',home:'河谷工匠',away:'石桥联',league:'自定义赛事',time:'12-28 19:00',created:'12-26 11:30',
+   banker:'金刚庄',mine:true,state:'soldout',lH:1.45,lA:1.15,dep:300,bucket:'today',sealMin:10,hLogo:'🐻',aLogo:'🦅'},
+  /* 比赛已结束,自动封盘,等待庄家录入赛果 */
+  {id:'CM003',home:'山城远征',away:'海港星辰',league:'自定义赛事',time:'12-27 19:00',created:'12-25 09:20',
+   banker:'金刚庄',mine:true,state:'sealed',kicked:true,autoSealed:true,lH:1.80,lA:0.90,dep:5000,bucket:'today',sealMin:15,hLogo:'🦁',aLogo:'🐯'},
+  {id:'CM006',home:'西岭先锋',away:'江城雄师',league:'自定义赛事',time:'12-27 17:00',created:'12-25 08:00',
+   banker:'金刚庄',mine:true,state:'pending',score:[1,1],lH:1.40,lA:1.30,dep:2500,bucket:'today',hLogo:'🐺',aLogo:'🐉'},
+  {id:'CM004',home:'北岭猎人',away:'南坡骑士',league:'自定义赛事',time:'12-26 20:00',created:'12-24 10:15',
+   banker:'金刚庄',mine:true,state:'settled',score:[2,1],lH:1.60,lA:1.10,dep:3000,bucket:'today',hLogo:'⭐',aLogo:'🛡️'},
+  {id:'CM005',home:'旧厂机械',away:'新港贸易',league:'自定义赛事',time:'12-25 20:00',created:'12-23 16:40',
+   banker:'金刚庄',mine:true,state:'closed',lH:1.30,lA:1.30,dep:1500,bucket:'today',hLogo:'⚫',aLogo:'⚪'},
+  /* 赛果被驳回:庄家填的比分与公开赛果不符,需重新录入 */
+  {id:'CM008',home:'青松体育',away:'白鹿联队',league:'自定义赛事',time:'12-27 15:00',created:'12-25 10:12',
+   banker:'金刚庄',mine:true,state:'rejected',score:[3,1],kicked:true,sealMin:10,
+   rejectReason:'提交比分与公开赛果不符（官方记录为 2-1），请核对后重新录入',
+   rejectBy:'运营 Sid',rejectTime:'12-27 21:40',
+   lH:1.50,lA:1.10,dep:2000,bucket:'today',hLogo:'🟢',aLogo:'⚪'},
+  /* 开盘被驳回:赛事信息不合规,押金未冻结 */
+  {id:'CM009',home:'测试队A',away:'测试队B',league:'自定义赛事',time:'12-30 20:00',created:'12-26 09:05',
+   banker:'金刚庄',mine:true,state:'openRej',sealMin:10,
+   rejectReason:'队伍名称无法核实，请填写真实参赛队伍名称',
+   rejectBy:'运营 Lucas',rejectTime:'12-26 11:20',
+   lH:1.40,lA:1.20,dep:1000,bucket:'today',hLogo:'🔵',aLogo:'🔴'},
+  /* 开盘审核中 */
+  {id:'CM010',home:'远山狼队',away:'近海鲨鱼',league:'自定义赛事',time:'12-30 18:00',created:'12-26 14:30',
+   banker:'金刚庄',mine:true,state:'auditing',sealMin:15,
+   lH:1.65,lA:1.25,dep:2500,bucket:'today',hLogo:'🐺',aLogo:'🦈'}
+];
+
+
+CM.forEach(c=>{
+  const sug=EG.suggestLines(c.lH,c.lA);
+  c.cfg=Object.assign({},CM_CFG,{lH:c.lH,lA:c.lA,deposit:c.dep,ahLines:[sug.ah]});
+  c.eng=EG.init(c.cfg);
+});
+/* 预置成交:已结算盘产生输赢,已售罄盘把押金吃满 */
+(function(){
+  const seed=(cid,key,amt)=>{
+    const c=cmFind(cid); if(!c)return;
+    const it=cmItem(c,key); if(!it)return;
+    const L=EG.limits(c.eng,c.cfg,it);
+    const a=Math.min(amt,L.max); if(a<=0)return;
+    const r=EG.buy(c.eng,c.cfg,it,a);
+    EG.apply(c.eng,c.cfg,it,a,r.shares);
+    const mk=c.eng.mks.find(x=>x.items.some(y=>y.key===it.key));
+    cmBets.push({cid,mk:mk.name,item:it.name,key,stake:a,shares:r.shares,odds:r.odds,fee:r.fee,sold:0,
+      time:c.created+' 1'+(cmBets.length%9)+':2'+(cmBets.length%6)});
+  };
+  seed('CM004','wdl_H',200); seed('CM004','ou2.5_U',120); seed('CM004','btts_N',80);
+  /* CM007:逐项买到各玩法全部暂停,整盘进入已售罄 */
+  (function(){
+    const c=cmFind('CM007'); if(!c)return;
+    for(let round=0;round<200;round++){
+      let any=false;
+      c.eng.mks.forEach(mk=>mk.items.forEach(it=>{
+        const L=EG.limits(c.eng,c.cfg,it);
+        if(!L.paused&&L.max>=5){seed('CM007',it.key,L.max);any=true}
+      }));
+      if(!any)break;
+    }
+  })();
+  seed('CM003','wdl_A',150); seed('CM006','wdl_D',100);
+
+})();
+/* 六状态:
+   open 卖出中 / soldout 已售罄(押金占用触顶,补充额度后恢复) / sealed 已封盘(主动停止收单,不可恢复)
+   pending 待审核 / settled 已结算 / closed 已关闭(作废原路退回) */
+const CM_ST={open:['卖出中','tag-open'],soldout:['已售罄','tag-soldout'],
+             sealed:['已封盘','tag-sealed'],pending:['待审核','tag-partial'],
+             /* 以下四种内部状态对外统一显示为「待审核」,驳回信息只在盘详情内展示 */
+             rejected:['待审核','tag-partial'],          /* 赛果审核未通过,庄家需重填 */
+             auditing:['待审核','tag-partial'],          /* 开盘提交后等待运营审核 */
+             openRej:['待审核','tag-partial'],           /* 开盘审核未通过 */
+             settled:['已结算','tag-settled'],closed:['已关闭','tag-closed']};
+/* 整盘是否售罄:全部开放投注项均已无可投额度(押金占用触顶) */
+function cmSoldOut(c){
+  if(c.state!=='open'&&c.state!=='soldout')return false;
+  const e=c.eng,cfg=c.cfg;
+  return e.mks.every(mk=>cmSealed(c,mk.key)||mk.items.every(it=>EG.limits(e,cfg,it).paused));
+}
+/* 是否已到自动封盘时点(演示:按 kicked 标记;正式版以服务端时间与「开赛时间 − 自动封盘时长」比较) */
+function cmKicked(c){return !!c.kicked}
+/* 自动封盘时长,默认开赛前 10 分钟 */
+/* 平台抽佣比例,由 APISYS 下发;仅对庄家盈利部分抽水 */
+const CM_RAKE=0.02;
+/* 统一的结算计算:收到投注、命中兑付、毛盈亏、抽水、净盈亏
+   口径:毛盈亏 = 收到投注合计 − 命中兑付合计;盈利时按 CM_RAKE 抽水,亏损不抽 */
+function cmSettle(c){
+  if(!c||!c.score)return {stake:0,pay:0,gross:0,rake:0,net:0,subs:[]};
+  const subs=cmBets.filter(b=>b.cid===c.id);
+  let stake=0,pay=0;
+  subs.forEach(b=>{
+    stake+=b.stake;
+    const it=cmItem(c,b.key);
+    if(it&&it.hit(c.score[0],c.score[1]))pay+=b.shares;
+  });
+  stake=+stake.toFixed(2); pay=+pay.toFixed(2);
+  const gross=+(stake-pay).toFixed(2);
+  const rake=gross>0?+(gross*CM_RAKE).toFixed(2):0;
+  const net=+(gross-rake).toFixed(2);
+  return {stake,pay,gross,rake,net,subs};
+}
+function cmSealMin(c){return (c.sealMin===undefined||c.sealMin===null)?10:c.sealMin}
+/* 每次渲染前同步状态:
+   1) 开赛时间到 → 自动封盘,停止收单,等待庄家录入赛果
+   2) 未开赛时按押金占用在 卖出中 / 已售罄 之间切换 */
+function cmSyncState(c){
+  if((c.state==='open'||c.state==='soldout')&&cmKicked(c)){c.state='sealed';c.autoSealed=true;return}
+  if(c.state==='open'&&cmSoldOut(c))c.state='soldout';
+  else if(c.state==='soldout'&&!cmSoldOut(c))c.state='open';
+}
+function cmFind(id){return CM.find(c=>c.id===id)}
+function cmItem(c,key){let r=null;c.eng.mks.forEach(mk=>mk.items.forEach(it=>{if(it.key===key)r=it}));return r}
+function cmLiveMine(){return CM.some(c=>c.mine&&(c.state==='open'||c.state==='sealed'))}
+/* 私盘是否可见:本期常开;后续可接商户开关 */
+function cmEnabled(){return true}
+let cmOnly=true;    /* 筛选行「自定义赛事」胶囊,今日/早盘默认选中 */
+let imFilter='';    /* 联赛 / 时间,与自定义赛事互斥,默认都不选中 */
+/* 仅今日盘与早盘展示自定义赛事与我要开盘;滚球等页签不展示 */
+function cmTabOk(){return homeTab==='today'||homeTab==='early'}
+
 let OTHER_MK=[{id:'OM77',nick:'财神爷',mid:'m2',dep:2000,items:[
   /* 独赢整列 + 让球一项 + 大小一项:赛事列表三列均有赔率 */
   {key:'m2_mw',odds:2.86,sold:0},{key:'m2_ma',odds:1.06,sold:0},{key:'m2_md',odds:2.80,sold:0},
@@ -1181,7 +2736,7 @@ let stFilter='all',tFilter='today',tDay='';   /* 状态默认全部,时间默认
 const $=id=>document.getElementById(id);
 const f2=n=>(+n).toFixed(2);
 const money=n=>(+n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const NAV_HIDDEN_PAGES=['pg-selldetail','pg-share','pg-detail'];
+const NAV_HIDDEN_PAGES=['pg-selldetail','pg-share','pg-detail','pg-cmown','pg-cmdetail'];
 function go(p){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   $(p).classList.add('active');
@@ -1201,7 +2756,7 @@ function syncSpec(p){
     const pages=(el.dataset.page||'').split(',').filter(Boolean);
     let on=pages.includes(cur);
     if(el.id==='spec-champ')on=champOn;
-    if(el.id==='spec-home')on=(cur==='pg-home'&&!champOn);
+    if(el.id==='spec-home')on=false;   /* 一期私盘标注随功能隐藏,赛事大厅由私盘标注接管 */
     el.style.display=on?'block':'none';
   });
 }
@@ -1237,6 +2792,7 @@ function validPt(v){return /^-?\d+(\.\d{1,2})?$/.test(String(v).trim())}
 let seenDots={},p2pDotSeen=false,matchDotSeen={};
 let p2pOnly=false;
 function toggleP2POnly(){
+  cmOnly=false;const _fm=$('fp-cm');if(_fm)_fm.classList.remove('on');
   p2pOnly=!p2pOnly;
   p2pDotSeen=true;                                  /* 点击后红点消失 */
   const d=$('fp-p2p-dot');if(d)d.style.display='none';
@@ -1282,6 +2838,16 @@ function toggleAll(){
   renderHome();
 }
 let cloneOnly=false;
+/* 自定义赛事与「联赛 / 时间」互斥:后者是 IM 数据源推送,前者是玩家自己开盘 */
+function toggleCmOnly(){
+  cmOnly=!cmOnly;
+  if(cmOnly){p2pOnly=false;cloneOnly=false;imFilter=''}
+  renderHome();
+}
+function toggleImFilter(which){
+  cmOnly=false; imFilter=(imFilter===which)?'':which;
+  renderHome();
+}
 function toggleCloneOnly(){cloneOnly=!cloneOnly;const el=$('fp-clone');if(el)el.classList.toggle('on',cloneOnly);renderHome()}
 function cloneToggle(k){if(!(k in buyAmt))buyAmt[k]='';if(slipIdx===2)slipIdx=0;toggleSel(k)}
 function cloneRowsHtml(mid){
@@ -1385,8 +2951,35 @@ function renderHome(){
   const champ=(homeTab==='champ');
   {const e=$('fp-p2p');if(e)e.style.display=(champ||!p2pEnabled())?'none':''}
   {const e=$('fp-clone');if(e)e.style.display=(champ||!marketEnabled())?'none':''}
+  /* 自定义赛事与我要开盘:仅今日盘 / 早盘展示 */
+  const cmShow=cmEnabled()&&cmTabOk()&&!champ;
+  if(!cmShow)cmOnly=false;
+  {const e=$('fp-cm');if(e){e.style.display=cmShow?'':'none';e.classList.toggle('on',cmOnly)}}
+  {const e=$('fp-newcm');if(e)e.style.display=cmShow?'':'none'}
+  {const e=$('fp-lg');if(e)e.classList.toggle('on',imFilter==='lg')}
+  {const e=$('fp-tm');if(e)e.classList.toggle('on',imFilter==='tm')}
   if(homeTab==='champ'){renderChamp();return}
-  $('home-list').innerHTML=LEAGUES.map((lg,li)=>{
+  /* 私盘分组:无 IM 母体,独立成一个联赛分组 */
+  const cmHtml=(()=>{
+    if(!cmEnabled()||champ)return '';
+    /* 已下架的赛事不在赛事列表展示 */
+    const arr=CM.filter(c=>(c.state==='open'||c.state==='soldout')&&!c.offShelf);
+    if(!arr.length)return '';
+    return `<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
+      <div class="row" style="padding:10px 12px;background:#FFF7ED;border-left:3px solid #FF8C00">
+        <span style="font-size:13px">🏟️</span>
+        <span style="font-size:13px;font-weight:600;color:#222" class="grow">自定义赛事(${arr.length})</span>
+        <span class="tag tag-p2p">私盘</span>
+        <span style="color:#FF8C00;cursor:pointer;padding:2px 4px;font-size:14px" onclick="cmFold=!cmFold;renderHome()">${cmFold?'⌄':'⌃'}</span>
+      </div>
+      ${cmFold?'':arr.map(c=>cmRowHtml(c)).join('')}
+    </div>`;
+  })();
+  if(cmOnly){
+    $('home-list').innerHTML=cmHtml||'<div class="muted" style="text-align:center;padding:40px">暂无私盘</div>';
+    return;
+  }
+  $('home-list').innerHTML=cmHtml+LEAGUES.map((lg,li)=>{
     const lgMids=p2pOnly?lg.mids.filter(x=>p2pCountOf(x)>0):lg.mids;
     if(!lgMids.length)return '';
     return `
@@ -1670,6 +3263,12 @@ function openKp(k){kpKey=(kpKey===k?null:k);renderSlip();
 const SYS_LIMIT={min:2,max:10100};
 /* 输入框最大值:未开启自动接受任何赔率 → 三方最大值与卖一可购额度取较小;已开启 → 三方最大值 */
 function betMax(k){
+  if(k.startsWith('CM|')){
+    /* 自定义赛事:本笔上限 = 做市单笔上限(单笔最多收 / 滑点上限 / 最低赔率限额 三者取最小) */
+    const pp=k.split('|'),c=cmFind(pp[1]); if(!c)return SYS_LIMIT.max;
+    const it=cmItem(c,pp.slice(2).join('|')); if(!it)return SYS_LIMIT.max;
+    return EG.limits(c.eng,c.cfg,it).max;
+  }
   if(k.startsWith('C|')){const r=cloneRefOf(k);return r?Math.min(r.remain,SYS_LIMIT.max):SYS_LIMIT.max}
   if(acceptAny)return SYS_LIMIT.max;
   const hk=officialHk[k];
@@ -1743,12 +3342,15 @@ function openBetConfirm(legs,tot,win){
       <span class="grow"></span>
       <span style="font-size:14px;color:#FF8C00;font-weight:700" class="nowrap">@${l.odds}</span></div>
     ${l.match?`<div style="font-size:13px;color:#222;margin-top:4px">${l.match}</div>`:''}
-    ${l.league?`<div style="font-size:12px;color:#FF8C00;margin-top:2px">足球 ${l.league}</div>`:''}
+    ${(l.league&&!l.cm)?`<div style="font-size:12px;color:#FF8C00;margin-top:2px">足球 ${l.league}</div>`:''}
+    ${l.cm?`<div class="row" style="margin-top:6px;padding-top:6px;border-top:1px dashed #f3f3f3">
+      <span class="muted grow" style="font-size:12px">获得份额</span>
+      <span class="nowrap" style="font-size:12px"><b>${l.shares.toFixed(4)}</b> 份</span></div>`:''}
   </div>`).join('');
   cfm(`<div id="bc-head" style="text-align:center;margin-bottom:12px">
       <span style="display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:#222">🕐 注单确认中</span></div>
     ${legHtml}
-    <div class="row" style="margin-top:10px"><span class="muted nowrap">投注金额: <b style="color:#222">${money(tot)} CNY</b></span>
+    <div class="row" style="margin-top:10px"><span class="muted nowrap">投注金额: <b style="color:#222">${money(tot)} ${CUR}</b></span>
       <span class="grow"></span><span class="muted nowrap">可赢金额: <b style="color:#222" id="bc-win">0.00 CNY</b></span></div>
     <div class="row" style="margin-top:8px;padding-top:8px;border-top:1px solid #f5f5f5"><span class="muted grow">注单号:</span>
       <span class="muted nowrap" style="font-size:11px" id="bc-oid">—</span></div>
@@ -1886,7 +3488,6 @@ function cloneBuyCard(k){
       <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#999;font-size:12px">CNY</span>
     </div>
     ${kpKey===k?kpHtml(k):''}
-    <div class="muted" style="margin-top:6px">私盘为庄家专属盘:按庄家赔率成交,售罄即止,无官方档位承接</div>
   </div>`;
 }
 function cardHead(k){
@@ -1927,9 +3528,11 @@ function renderSlip(){
   const _para=slipIdx===1;
   /* 私盘投注项不支持被其他会员卖出,选中私盘项时隐藏卖出页签 */
   const _hasClone=Object.keys(sel).some(x=>sel[x]&&x.startsWith('C|'));
-  if(_hasClone&&slipIdx===2)slipIdx=0;
+  /* 自定义赛事为做市成交,不支持被其他会员卖出,选中时隐藏卖出页签 */
+  const _hasCM=Object.keys(sel).some(x=>sel[x]&&x.startsWith('CM|'));
+  if((_hasClone||_hasCM)&&slipIdx===2)slipIdx=0;
   $('st-0').style.display=_para?'none':'block';       /* 串关模式仅保留串关 Tab */
-  $('st-2').style.display=(_para||_hasClone)?'none':'block';
+  $('st-2').style.display=(_para||_hasClone||_hasCM)?'none':'block';
   $('st-1').style.display=_para?'block':'none';
   if(_para&&!_canPara)slipIdx=0;
   ['st-0','st-1','st-2'].forEach((id,i)=>$(id).classList.toggle('on',i===slipIdx));
@@ -1937,7 +3540,7 @@ function renderSlip(){
   const keys=Object.keys(sel).filter(k=>sel[k]);
   if(!keys.length){$('slip-body').innerHTML='<div class="muted" style="text-align:center;padding:40px">请先在赛事列表选择投注项</div>';$('slip-footer').innerHTML='';return}
   if(slipIdx===0){
-    $('slip-body').innerHTML=keys.map((k,ki)=>k.startsWith('C|')?cloneBuyCard(k):`<div class="card" style="border-left:3px solid #FF8C00">
+    $('slip-body').innerHTML=keys.map((k,ki)=>k.startsWith('CM|')?cmBuyCard(k,ki):k.startsWith('C|')?cloneBuyCard(k):`<div class="card" style="border-left:3px solid #FF8C00">
       ${cardHead(k)}
       <div style="position:relative;margin-top:10px">
         <input readonly placeholder="${limitHint(k)}" value="${buyAmt[k]||''}" style="width:100%;height:38px;background:#fff;padding-right:48px" onclick="openKp('${k}')">
@@ -2008,7 +3611,7 @@ function renderSlip(){
       <div class="fldrow"><span class="nowrap">上浮点位</span>
         <span class="stepper"><button onclick="sellStep('${k}',-1)">−</button><input value="${f2(fm.pt)}" onchange="sellPt('${k}',this.value)"><button onclick="sellStep('${k}',1)">＋</button></span></div>
       <div class="fldrow"><span class="nowrap">卖出赔率</span><span class="nowrap"><b class="odds-g" style="font-size:15px">@${f2(odds)}</b><span class="muted">(港盘)</span>${odds<officialHk[k]?' <span class="low">低于官方</span>':''}</span></div>
-      <div class="fldrow" style="border:none"><span class="nowrap">预计可卖额度</span><span style="font-weight:600;color:#222" class="nowrap">${money(cap)} CNY</span></div>
+      <div class="fldrow" style="border:none"><span class="nowrap">预计可卖额度</span><span style="font-weight:600;color:#222" class="nowrap">${money(cap)} ${CUR}</span></div>
       <div class="muted" style="text-align:right">预计可卖额度=押金÷卖出赔率(港盘)</div>
     </div>`}).join('');
     $('sell-cnt').textContent=legacySells.filter(l=>l.state==='卖出中'||l.state==='已售罄').length;
@@ -2030,7 +3633,13 @@ function renderBuyFooter(){
   const keys=Object.keys(sel).filter(k=>sel[k]);
   let tot=0,win=0;
   keys.forEach(k=>{const a=parseFloat(buyAmt[k])||0;tot+=a;
-    if(k.startsWith('C|')){const r=cloneRefOf(k);if(r)win+=Math.min(a,r.remain)*r.odds}
+    if(k.startsWith('CM|')){
+      /* 自定义赛事:命中可得 = 份额(每份兑付 1),按实际成交赔率试算 */
+      const pp=k.split('|'),c=cmFind(pp[1]);
+      if(c){const it=cmItem(c,pp.slice(2).join('|'));
+        if(it&&a>0){const L=EG.limits(c.eng,c.cfg,it);win+=EG.buy(c.eng,c.cfg,it,Math.min(a,L.max)).shares}}
+    }
+    else if(k.startsWith('C|')){const r=cloneRefOf(k);if(r)win+=Math.min(a,r.remain)*r.odds}
     else win+=planBuy(k,a).win});
   const canPara=paraMatchCount()>=2;   /* 私盘不参与;同场不可互串,需 ≥2 场不同比赛 */
   $('slip-footer').innerHTML=`<div class="row" style="margin-bottom:9px">
@@ -2098,9 +3707,28 @@ function doBuy(){
     if(!r)return toast('该庄家盘口已下架');
     if(parseFloat(buyAmt[k])>r.remain)return toast('超出庄家剩余可卖额度 ¥'+money(r.remain));
   }
+  /* 自定义赛事:校验单笔上限,不走官方档位校验 */
+  for(const k of keys){
+    if(!k.startsWith('CM|'))continue;
+    const [,cid,ikey]=k.split('|');
+    const c=cmFind(cid); if(!c)return toast('该比赛已不可投注');
+    if(c.mine)return toast('不能投注自己开的盘');
+    if(c.state!=='open')return toast('该比赛已封盘');
+    const _it=cmItem(c,ikey);
+    const L=EG.limits(c.eng,c.cfg,_it);
+    if(L.paused)return toast('该投注项已暂停买入');
+    if(parseFloat(buyAmt[k])>L.max)return toast('超出本笔上限 '+f2(L.max));
+    /* 玩家设定的最低接受赔率:本笔成交赔率低于该值时拒绝 */
+    const _min=parseFloat(cmMinOdds[k]);
+    if(_min>0){
+      const _r=EG.buy(c.eng,c.cfg,_it,Math.min(parseFloat(buyAmt[k])||0,L.max));
+      if(_r.odds<_min)
+        return toast('本笔成交赔率 '+f2(_r.odds)+' 低于你设定的最低接受赔率 '+f2(_min)+',已拒绝');
+    }
+  }
   if(!acceptAny){
     for(const k of keys){
-      if(k.startsWith('C|'))continue;
+      if(k.startsWith('C|')||k.startsWith('CM|'))continue;
       const rows=bookRows(k),first=rows[0],amt=parseFloat(buyAmt[k]);
       if(first&&!first.off&&amt>first.amt){
         cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">温馨提示</h3>
@@ -2115,6 +3743,31 @@ function doBuy(){
   let win=0;const legs=[];
   keys.forEach(k=>{
     const amt=parseFloat(buyAmt[k]);
+    if(k.startsWith('CM|')){
+      /* 自定义赛事:做市成交,注单单独记录,不进官方注单列表 */
+      const pp=k.split('|'),cid=pp[1],ikey=pp.slice(2).join('|');
+      const c=cmFind(cid); if(!c)return;
+      const it=cmItem(c,ikey); if(!it)return;
+      const L=EG.limits(c.eng,c.cfg,it);
+      const a=Math.min(amt,L.max);
+      const r=EG.buy(c.eng,c.cfg,it,a);
+      EG.apply(c.eng,c.cfg,it,a,r.shares);
+      win+=r.shares;   /* 自定义赛事:可赢 = 份额(每份兑付 1) */
+      const mk=c.eng.mks.find(x=>x.items.some(y=>y.key===it.key));
+      legs.push({name:it.name,odds:f2(r.odds),amt:a,tag:'自定义',play:mk.name+' [欧洲盘]',
+        match:c.home+' vs '+c.away,league:c.league,shares:r.shares,cm:true});
+      cmBets.push({cid,mk:mk.name,item:it.name,key:ikey,stake:a,shares:r.shares,odds:r.odds,fee:r.fee,sold:0,
+        time:'12-2'+(3+cmBets.length%5)+' 1'+(cmBets.length%9)+':2'+(cmBets.length%6)});
+      /* 同步写入买单列表:自定义赛事注单,每份命中兑付 1,可赢 = 份额 */
+      buyOrders.unshift({type:'single',item:it.name,tag:'确认中',play:mk.name,odds:f2(r.odds),mk:'欧洲盘',confirmed:false,
+        match:c.home+' vs '+c.away,sport:'足球',league:c.league,cm:true,cid,shares:r.shares,
+        amt:+a.toFixed(2),win:+r.shares.toFixed(2),
+        oid:'0110000'+Date.now().toString().slice(-13)+'-1',
+        time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,8),
+        status:'unsettled',bucket:'today'});
+      buyAmt[k]='';
+      return;
+    }
     if(k.startsWith('C|')){
       const r=cloneRefOf(k);win+=amt*r.odds;
       legs.push({name:ITEMS[r.ik].label,odds:f2(r.odds),amt,tag:MATCHES[r.mid].tagTxt,play:ITEMS[r.ik].group+' [香港盘]',match:MATCHES[r.mid].home+' vs '+MATCHES[r.mid].away,league:MATCHES[r.mid].league});
@@ -2300,7 +3953,8 @@ function confirmOpen(){
 function openOrders(seg){setNav('sell');segIdx=Math.min(seg||0,1);renderOrders();go('pg-orders')}
 function segTab(i){
   segIdx=i;
-  ['seg-0','seg-1'].forEach(id=>$(id).classList.toggle('on',id==='seg-'+i));
+  if(i===2)cmStFilter='all'; else stFilter='all';   /* 切页签重置筛选,两个页签互不影响 */
+  ['seg-0','seg-1','seg-2'].forEach(id=>{const e=$(id);if(e)e.classList.toggle('on',id==='seg-'+i)});
   renderOrders();
 }
 /* 卖单列表的自定义时间区间 */
@@ -2479,6 +4133,7 @@ function rpCell(k,v,cls){return `<div style="padding:7px 0">
 function rpGrid(cells){return `<div style="display:grid;grid-template-columns:1fr 1fr;column-gap:14px;margin-top:2px">${cells.join('')}</div>`}
 function rpToggleDay(d){rpOpenDay=(rpOpenDay===d?'':d);renderReport()}
 function rpJumpBuy(d){btFilter='custom';btrS=d;btrE=d;openBuys();buyTabSel(1)}
+function rpGoCm(){openOrders(2);segTab(2);stFilter='all';renderOrders()}
 function rpJumpSell(d){tFilter='day';tDay=d;stFilter='all';openOrders(2)}
 function renderReport(){
   /* 时间筛选行:今天 / 昨天 / 本周 / 本月 + 自定义 */
@@ -2489,7 +4144,8 @@ function renderReport(){
 
   /* 按结算日期归集 */
   const D={};
-  const day=k=>D[k]||(D[k]={bc:0,ba:0,bp:0,bcomm:0,sc:0,sdep:0,ssold:0,ssub:0,scomm:0,sp:0});
+  const day=k=>D[k]||(D[k]={bc:0,ba:0,bp:0,bcomm:0,sc:0,sdep:0,ssold:0,ssub:0,scomm:0,sp:0,
+    cc:0,cdep:0,csold:0,csub:0,crake:0,cp:0});   /* c* 为私盘(自定义赛事)口径 */
   buyOrders.filter(o=>o.status==='settled'&&rpTimeOk(o)).forEach(o=>{
     const d=day(o.settleTime.slice(0,10));
     d.bc++; d.ba+=o.amt||0; d.bp+=o.profit||0; d.bcomm+=o.comm||0;
@@ -2499,13 +4155,24 @@ function renderReport(){
     d.sc++; d.sdep+=l.dep||0; d.ssold+=l.sold||0; d.ssub+=(l.subsList||[]).length;
     d.scomm+=lsComm(l); d.sp+=lsProfit(l);
   });
+  /* 私盘(自定义赛事)已结算:按结算口径归集,抽水单列 */
+  CM.filter(c=>c.state==='settled'&&c.mine).forEach(c=>{
+    const S=cmSettle(c);
+    /* 结算日期:优先用结算时间,演示数据无结算时间时按开赛日期补年份 */
+    const raw=c.settleTime||('2026-'+(c.time||'').slice(0,5));
+    const d=day(raw.slice(0,10));
+    d.cc++; d.cdep+=c.dep||0; d.csold+=S.stake; d.csub+=S.subs.length;
+    d.crake+=S.rake; d.cp+=S.net;
+  });
   const days=Object.keys(D).sort().reverse();
-  const T=days.reduce((a,k)=>{const v=D[k];a.bp+=v.bp;a.sp+=v.sp;return a},{bp:0,sp:0});
-  const bPnl=+T.bp.toFixed(2),sPnl=+T.sp.toFixed(2),tot=+(bPnl+sPnl).toFixed(2);
+  const T=days.reduce((a,k)=>{const v=D[k];a.bp+=v.bp;a.sp+=v.sp;a.cp+=v.cp;return a},{bp:0,sp:0,cp:0});
+  const bPnl=+T.bp.toFixed(2),sPnl=+T.sp.toFixed(2),cPnl=+T.cp.toFixed(2);
+  const tot=+(bPnl+sPnl+cPnl).toFixed(2);
 
   /* 当前快照:未结算与进行中,不参与时间筛选 */
   const bU=buyOrders.filter(o=>o.status==='unsettled');
   const sO=legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交');
+  const cO=CM.filter(c=>c.mine&&(c.state==='open'||c.state==='soldout'||c.state==='sealed'||c.state==='pending'));
 
   const cls=v=>v>0?'win':(v<0?'lose':'');
   const sg=v=>curSigned(v);
@@ -2514,10 +4181,11 @@ function renderReport(){
   const rows=days.map(k=>{
     const v=D[k],open=rpOpenDay===k;
     const line=`<div class="row" style="padding:11px 14px;border-top:1px dashed #f2f3f5;font-size:13px;color:#333;cursor:pointer" onclick="rpToggleDay('${k}')">
-        <span style="flex:1.15">${k.slice(5)} <span style="color:#c9ced6;font-size:11px">${open?'⌄':'›'}</span></span>
+        <span style="flex:1.1">${k.slice(5)} <span style="color:#c9ced6;font-size:11px">${open?'⌄':'›'}</span></span>
         <span style="flex:1;text-align:right">${cell(+v.bp.toFixed(2))}</span>
         <span style="flex:1;text-align:right">${cell(+v.sp.toFixed(2))}</span>
-        <span style="flex:1;text-align:right">${cell(+(v.bp+v.sp).toFixed(2))}</span>
+        <span style="flex:1;text-align:right">${cell(+v.cp.toFixed(2))}</span>
+        <span style="flex:1;text-align:right">${cell(+(v.bp+v.sp+v.cp).toFixed(2))}</span>
       </div>`;
     if(!open)return line;
     const g=(t,cells,btn,fn)=>`<div style="padding:8px 0">
@@ -2528,11 +4196,14 @@ function renderReport(){
         <div style="margin-top:7px;font-size:12px;color:#FF8C00;font-weight:600;cursor:pointer" onclick="${fn}('${k}')">${btn} ›</div>
       </div>`;
     /* 当日无买单或无卖单时,隐藏对应分组 */
+    const gc=v.cc?g('私盘(自定义赛事)',[['结算场次',v.cc+' 场'],['收到投注',curAmt(v.csold)],['平台抽水',curAmt(v.crake)],
+      ['押金合计',curAmt(v.cdep)],['子单笔数',v.csub+' 笔'],['本日盈亏',sg(+v.cp.toFixed(2))]],'查看私盘','rpGoCm'):'';
     const gb=v.bc?g('买单',[['买单笔数',v.bc+' 笔'],['投注金额',curAmt(v.ba)],['平台抽佣',curAmt(v.bcomm)]],'查看当日买单','rpJumpBuy'):'';
     const gs=v.sc?g('卖单',[['卖单笔数',v.sc+' 笔'],['已收单金额',curAmt(v.ssold)],['平台抽佣',curAmt(v.scomm)]],'查看当日卖单','rpJumpSell'):'';
-    const dv=(gb&&gs)?'<div style="border-top:1px dashed #eef0f2"></div>':'';
+    const dv1=(gb&&gs)?'<div style="border-top:1px dashed #eef0f2"></div>':'';
+    const dv2=((gb||gs)&&gc)?'<div style="border-top:1px dashed #eef0f2"></div>':'';
     return line+`<div style="background:#FAFBFC;padding:4px 14px 10px;border-top:1px dashed #f2f3f5">
-        ${gb}${dv}${gs}
+        ${gb}${dv1}${gs}${dv2}${gc}
       </div>`;
   }).join('');
 
@@ -2546,20 +4217,25 @@ function renderReport(){
         <div class="${cls(bPnl)}" style="font-size:15px;font-weight:700;margin-top:2px">${sg(bPnl)}</div>
       </div>
       <div style="width:1px;height:26px;background:#f0f0f0"></div>
-      <div style="flex:1;padding-left:14px">
+      <div style="flex:1;padding-left:12px">
         <div style="font-size:11px;color:#9aa0a6">卖单盈亏</div>
         <div class="${cls(sPnl)}" style="font-size:15px;font-weight:700;margin-top:2px">${sg(sPnl)}</div>
       </div>
+      <div style="width:1px;height:26px;background:#f0f0f0"></div>
+      <div style="flex:1;padding-left:12px">
+        <div style="font-size:11px;color:#9aa0a6">私盘盈亏</div>
+        <div class="${cls(cPnl)}" style="font-size:15px;font-weight:700;margin-top:2px">${sg(cPnl)}</div>
+      </div>
     </div>
     <div style="font-size:11px;color:#9aa0a6;margin-top:9px;border-top:1px dashed #f2f3f5;padding-top:8px">
-      待结算 ${bU.length} 笔 ${curAmt(bU.reduce((a,o)=>a+(o.amt||0),0))} · 进行中庄单 ${sO.length} 笔 冻结 ${curAmt(sO.reduce((a,l)=>a+(l.dep||0),0))}
+      待结算 ${bU.length} 笔 ${curAmt(bU.reduce((a,o)=>a+(o.amt||0),0))} · 进行中庄单 ${sO.length} 笔 冻结 ${curAmt(sO.reduce((a,l)=>a+(l.dep||0),0))} · 进行中私盘 ${cO.length} 场 冻结 ${curAmt(cO.reduce((a,c)=>a+(c.dep||0),0))}
     </div>
   </div>
 
   <div class="card" style="padding:0;margin-top:8px;overflow:hidden">
     <div class="row" style="padding:9px 14px;background:#FAFAFB;font-size:11px;color:#9aa0a6">
-      <span style="flex:1.15">日期</span><span style="flex:1;text-align:right">买单输赢</span>
-      <span style="flex:1;text-align:right">卖单盈亏</span><span style="flex:1;text-align:right">合计</span>
+      <span style="flex:1.1">日期</span><span style="flex:1;text-align:right">买单输赢</span>
+      <span style="flex:1;text-align:right">卖单盈亏</span><span style="flex:1;text-align:right">私盘盈亏</span><span style="flex:1;text-align:right">合计</span>
     </div>
     <div class="row" style="padding:10px 14px;border-top:1px solid #f2f3f5;font-size:13px;font-weight:700;color:#222">
       <span style="flex:1.15">合计</span>
@@ -2628,13 +4304,13 @@ function renderBuys(){
     const win=list.reduce((s,o)=>s+(o.win||0),0);
     $('buys-stats').innerHTML=`<div class="m3">
       <div class="c"><div class="l">总笔数</div><div class="v">${list.length}</div></div>
-      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} CNY</div></div>
-      <div class="c"><div class="l">总可赢</div><div class="v nowrap win" style="font-size:14px">${money(win)} CNY</div></div></div>`;
+      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} ${CUR}</div></div>
+      <div class="c"><div class="l">总可赢</div><div class="v nowrap win" style="font-size:14px">${money(win)} ${CUR}</div></div></div>`;
   }else{
     const pf=list.reduce((s,o)=>s+(o.profit||0),0);
     $('buys-stats').innerHTML=`<div class="m3">
       <div class="c"><div class="l">总笔数</div><div class="v">${list.length}</div></div>
-      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} CNY</div></div>
+      <div class="c"><div class="l">总投注</div><div class="v nowrap" style="font-size:14px">${money(tot)} ${CUR}</div></div>
       <div class="c"><div class="l">总输赢</div><div class="v nowrap ${pf>=0?'win':'lose'}" style="font-size:14px">${pf>=0?'+':'-'}${money(Math.abs(pf))} CNY</div></div></div>`;
   }
   /* 结算结果标签配色 */
@@ -2728,7 +4404,36 @@ function renderResults(){
   $('res-dates').innerHTML=RES_DATES.map(([v,d,w])=>`<div style="flex:0 0 auto;text-align:center;padding:5px 10px;border-radius:8px;cursor:pointer;${resDate===v?'background:#FF8C00;color:#fff':'background:#F5F6F8;color:#666'}" onclick="resDate='${v}';renderResults()">
     <div style="font-size:13px;font-weight:700">${d}</div><div style="font-size:10px;margin-top:1px;opacity:.9">${w}</div></div>`).join('');
   $('res-sports').innerHTML=RES_SPORTS.map((s,i)=>`<span style="flex:0 0 auto;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;cursor:pointer;${resSport===i?'background:#FF8C00':'background:#F5F6F8'}" onclick="resSport=${i};renderResults()">${s}</span>`).join('');
-  $('results-list').innerHTML=RESULTS.map((g,gi)=>`<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
+  /* 自定义赛事赛果:取已结算的私盘,比分为庄家录入并经运营审核的常规时间比分 */
+  /* 自定义赛事赛果:仅足球(resSport===0)展示,可展开收起,版式与 IM 赛果一致 */
+  const cmDone=(resSport===0)?CM.filter(c=>c.state==='settled'):[];
+  const cmHtml=cmDone.length?`<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
+    <div class="row" style="padding:10px 12px;background:#FFF7ED;border-left:3px solid #FF8C00;cursor:pointer" onclick="cmResFold=!cmResFold;renderResults()">
+      <span style="font-size:13px">🏟️</span>
+      <span style="font-size:13px;font-weight:600;color:#222;margin-left:6px" class="grow">自定义赛事(${cmDone.length})</span>
+      <span class="tag tag-p2p" style="margin-right:8px">私盘</span>
+      <span style="color:#FF8C00;font-size:14px">${cmResFold?'⌄':'⌃'}</span></div>
+    ${cmResFold?'':cmDone.map(c=>`<div style="padding:10px 12px;border-top:1px dashed #f2f2f2">
+      <div class="row" style="margin-bottom:5px">
+        <span class="muted nowrap" style="font-size:11px">${c.time}</span>
+        <span class="grow"></span>
+        <span class="muted nowrap" style="font-size:11px">庄家 ${c.banker}</span></div>
+      <div class="row">
+        <div class="grow" style="min-width:0">
+          <div class="row" style="margin-bottom:5px"><span style="font-size:14px">${c.hLogo||'⚽'}</span>
+            <span style="font-size:12px;color:#222;margin-left:6px;word-break:break-word" class="grow">${c.home}</span></div>
+          <div class="row"><span style="font-size:14px">${c.aLogo||'⚽'}</span>
+            <span style="font-size:12px;color:#222;margin-left:6px;word-break:break-word" class="grow">${c.away}</span></div>
+        </div>
+        <div style="text-align:center;width:52px;flex-shrink:0">
+          <div class="muted" style="font-size:10px">全场</div>
+          <div style="font-size:14px;font-weight:700;color:#222;margin-top:3px">${c.score[0]}</div>
+          <div style="font-size:14px;font-weight:700;color:#222;margin-top:5px">${c.score[1]}</div>
+        </div>
+      </div>
+    </div>`).join('')}
+  </div>`:'';
+  $('results-list').innerHTML=cmHtml+RESULTS.map((g,gi)=>`<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
     <div class="row" style="padding:10px 12px;background:#FAFBFC;cursor:pointer" onclick="resCollapse[${gi}]=!resCollapse[${gi}];renderResults()">
       <span style="font-size:13px">${g.flag}</span>
       <span style="font-size:13px;font-weight:600;color:#222;margin-left:6px" class="grow">${g.league}</span>
@@ -2829,8 +4534,11 @@ function renderOrders(){
   const _vis=marketVisible();
   const _mks=_vis?markets:[];
   const _sg=$('orders-seg');
-  if(_sg)_sg.style.display=_vis?'flex':'none';
-  if(!_vis)segIdx=1;
+  const _s0=$('seg-0'); if(_s0)_s0.style.display=_vis?'':'none';
+  const _s2=$('seg-2'); if(_s2)_s2.style.display=cmEnabled()?'':'none';
+  if(_sg)_sg.style.display=(_vis||cmEnabled())?'flex':'none';
+  if(!_vis&&segIdx===0)segIdx=1;
+  if(!cmEnabled()&&segIdx===2)segIdx=1;
   const totalCnt=_mks.length+legacySells.length;
   const running=_mks.filter(m=>m.status==='open'||m.status==='soldout').length
               +legacySells.filter(l=>l.state==='卖出中'||l.state==='部分成交').length;
@@ -2844,7 +4552,11 @@ function renderOrders(){
     <div><div class="l">进行中</div><div class="v">${running}</div></div>
     <div><div class="l">已消费</div><div class="v nowrap">¥${money(consumed)}</div></div>
     <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>0?'win':(profit<0?'lose':'')}">${profit>0?'+':(profit<0?'-':'')}¥${money(Math.abs(profit))}</div></div></div>`;
-  const sts=[['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
+  const sts=segIdx===2
+    ? [['all','全部'],['open','卖出中'],['soldout','已售罄'],['sealed','已封盘'],['pending','待审核'],['settled','已结算'],['closed','已关闭']]
+    : [['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
+  const curSt=segIdx===2?cmStFilter:stFilter;
+  const setSt=segIdx===2?'cmStFilter':'stFilter';
   const ts=[['today','今天'],['yesterday','昨天'],['7d','近7天'],['30d','近30天'],['day','自定义']];
   const lgList=legacySells.filter(l=>(stFilter==='all'||L_ST[l.state]===stFilter)&&sellTimeOk(l));
   const mkList=_mks.filter(m=>(stFilter==='all'||m.status===stFilter)&&sellTimeOk(m));
@@ -2856,9 +4568,51 @@ function renderOrders(){
     `<select style="${selStyle}" onchange="sellTimeChange(this.value)">`
       +ts.map(([v,t])=>`<option value="${v}" ${tFilter===v?'selected':''}>${v==='day'&&tLabel?tLabel:t}</option>`).join('')
     +`</select>`
-    +`<select style="${selStyle}" onchange="stFilter=this.value;renderOrders()">`
-      +sts.map(([v,t])=>`<option value="${v}" ${stFilter===v?'selected':''}>${t}</option>`).join('')
+    +`<select style="${selStyle}" onchange="${setSt}=this.value;renderOrders()">`
+      +sts.map(([v,t])=>`<option value="${v}" ${curSt===v?'selected':''}>${t}</option>`).join('')
     +`</select>`;
+  if(segIdx===2){
+    /* 私盘分段:本人创建的自定义赛事 */
+    CM.forEach(cmSyncState);
+    /* 私盘页签用独立筛选变量,不与投注项卖单共用,避免跨页互相影响 */
+    /* 待审核涵盖:开盘待审核 / 赛果待审核 / 开盘被驳回 / 赛果被驳回 */
+    const PEND=['pending','auditing','rejected','openRej'];
+    const arr=CM.filter(c=>c.mine).filter(c=>cmStFilter==='all'
+      ||(cmStFilter==='pending'?PEND.includes(c.state):cmStFilter===c.state));
+    $('orders-list').innerHTML=arr.length?arr.map(c=>{
+      const st=CM_ST[c.state], e=c.eng;
+      const sold=e.cash||0, pct=c.dep?Math.min(100,sold/c.dep*100):0;
+      const bar=c.state==='settled'?'#1D9E75':(c.state==='closed'?'#9aa0a6':'#2E7BD6');
+      const pf=(c.state==='settled')?cmSettle(c).net:0;
+      const pfHtml=c.state==='settled'
+        ?`<span class="nowrap ${pf>0?'win':(pf<0?'lose':'')}" style="font-size:14px;font-weight:800">${pf>0?'+':(pf<0?'-':'')}¥${money(Math.abs(pf))}</span>`:'';
+      return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="cmOpenOwn('${c.id}')">
+        <div class="row">
+          <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${c.league}</span>
+          ${pfHtml}<span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span>
+          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#FF8C00;fill:none;stroke-width:1.8;cursor:pointer;margin-left:10px;flex-shrink:0" onclick="event.stopPropagation();cmShareFrom('${c.id}')">
+            <circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/>
+            <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></div>
+        <div class="muted" style="margin:6px 0 4px">${c.home} vs ${c.away}</div>
+        ${c.state==='sealed'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">比赛已结束,请录入赛果</div>`:''}
+        ${c.state==='pending'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">赛果已提交,等待运营审核</div>`:''}
+        ${c.state==='rejected'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px;background:#FDECEC;color:#C0392B">赛果被驳回,请进入详情查看原因并重新录入</div>`:''}
+        ${c.state==='openRej'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px;background:#FDECEC;color:#C0392B">开盘被驳回,请进入详情查看原因</div>`:''}
+
+        <div class="row" style="font-size:12px;color:#666;gap:6px;margin-top:6px">
+          <span class="nowrap">盘号 ${c.id}</span>
+          <span class="nowrap">λ ${c.lH} / ${c.lA}</span>
+          <span style="background:#FFF3E5;color:#FF8C00;font-size:10px;padding:0 4px;border-radius:3px" class="nowrap">押</span>
+          <span class="nowrap">¥${money(c.dep)}</span>
+          <span class="grow"></span><span class="muted nowrap">${c.time}</span></div>
+        <div class="row" style="margin-top:8px">
+          <div class="prog grow" style="margin:0 8px 0 0"><i style="width:${pct}%;background:${bar}"></i></div>
+          <span class="muted nowrap">已收 ¥${money(sold)} / 抵押 ¥${money(c.dep)}</span>
+          <span style="font-size:12px;color:#666;margin-left:8px" class="nowrap">查看详情 ›</span></div>
+      </div>`;
+    }).join(''):'<div class="muted" style="text-align:center;padding:40px">暂无私盘</div>';
+    return;
+  }
   if(segIdx===0){
     /* 开盘分段:盘卡片 */
     $('orders-list').innerHTML=list.length?list.map(m=>{
@@ -2901,8 +4655,8 @@ function renderOrders(){
     return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openSellDetail(${idx})">
       <div class="row">
         <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${l.league}</span>
-        ${l.state==='卖出中'?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
-        <span class="tag ${L_TAG[l.state]}">${l.state}</span></div>
+        <span class="tag ${L_TAG[l.state]}">${l.state}</span>
+        ${l.state==='卖出中'?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-left:10px;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}</div>
       <div class="muted" style="margin:6px 0 4px">${l.home} VS ${l.away}</div>
       <div class="row" style="font-size:12px;color:#666;gap:6px">
         <span class="nowrap">${l.play.replace(' · ','')} ${l.item}</span>
@@ -2951,7 +4705,7 @@ function renderSellDetail(){
     </div>`:''}
     <div class="m3" style="margin-bottom:10px">
       <div class="c"><div class="l">剩余额度</div><div class="v nowrap" style="font-size:14px">${money(lsRemain(l))} CNY</div></div>
-      <div class="c"><div class="l">已收单</div><div class="v nowrap" style="font-size:14px;color:#FF8C00">${money(l.sold)} CNY</div></div>
+      <div class="c"><div class="l">已收单</div><div class="v nowrap" style="font-size:14px;color:#FF8C00">${money(l.sold)} ${CUR}</div></div>
       <div class="c"><div class="l">上浮点位</div><div class="v nowrap win" style="font-size:14px">+ ${f2(l.pt)}</div></div>
     </div>
     <div style="background:#fff;border-radius:12px;padding:14px;margin-bottom:10px">
@@ -2960,9 +4714,9 @@ function renderSellDetail(){
     </div>
     <div style="background:#fff;border-radius:12px;padding:4px 14px;margin-bottom:10px">
       <div class="kv"><span class="k">抵押类型</span><span class="v nowrap">💰 押金</span></div>
-      <div class="kv"><span class="k">抵押金额 <span style="color:#E24B4A;cursor:pointer" onclick="depHistory(${sdIdx})">❗</span></span><span class="v nowrap">${money(l.dep)} CNY</span></div>
+      <div class="kv"><span class="k">押金额 <span style="color:#E24B4A;cursor:pointer" onclick="depHistory(${sdIdx})">❗</span></span><span class="v nowrap">${money(l.dep)} ${CUR}</span></div>
       <div class="kv"><span class="k">卖出赔率(港盘)</span><span class="v nowrap win">@${f2(l.odds)}</span></div>
-      <div class="kv"><span class="k">总额度</span><span class="v nowrap">${money(l.cap)} CNY</span></div>
+      <div class="kv"><span class="k">总额度</span><span class="v nowrap">${money(l.cap)} ${CUR}</span></div>
       <div class="kv"><span class="k">子单数</span><span class="v nowrap">${(l.subsList||[]).length}笔</span></div>
       <div class="kv"><span class="k">卖出时间</span><span class="v nowrap">${l.time}</span></div>
     </div>
@@ -2972,7 +4726,7 @@ function renderSellDetail(){
         <div class="row">
           <span style="background:#FFF3E5;color:#FF8C00;font-size:11px;padding:1px 7px;border-radius:4px" class="nowrap">会员</span>
           <span style="font-size:13px;color:#222;margin-left:7px" class="grow nowrap">${s.u}</span>
-          <span style="font-size:13px;font-weight:600;color:#222" class="nowrap">${money(s.amt)} CNY</span></div>
+          <span style="font-size:13px;font-weight:600;color:#222" class="nowrap">${money(s.amt)} ${CUR}</span></div>
         <div class="row" style="margin-top:4px">
           <span class="muted grow nowrap" style="font-size:11px">${s.time}</span>
           <span class="nowrap ${settled?(s.settle>=0?'win':'lose'):'muted'}" style="font-size:13px;font-weight:600">${settled?((s.settle>=0?'':'')+money(s.settle)):'0.00'}</span></div>
@@ -2995,9 +4749,9 @@ function depHistory(idx){
   const l=legacySells[idx];
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">押金变动详情</h3>
     <div style="background:#FAFBFC;border-radius:8px;padding:12px">
-      <div class="row" style="padding:6px 0"><span class="muted grow">初始押金</span><span class="nowrap" style="font-weight:600">${money(l.dep0!==undefined?l.dep0:l.dep)} CNY</span></div>
-      ${(l.topups||[]).map(t=>`<div class="row" style="padding:6px 0;border-top:1px dashed #eee"><span class="muted grow">追加押金 ${t.time}</span><span class="win nowrap" style="font-weight:600">+${money(t.amt)} CNY</span></div>`).join('')}
-      <div class="row" style="padding:8px 0 2px;border-top:1px solid #eee;margin-top:4px"><span style="font-weight:600" class="grow">当前抵押金额</span><span class="nowrap" style="font-weight:800">${money(l.dep)} CNY</span></div>
+      <div class="row" style="padding:6px 0"><span class="muted grow">初始押金</span><span class="nowrap" style="font-weight:600">${money(l.dep0!==undefined?l.dep0:l.dep)} ${CUR}</span></div>
+      ${(l.topups||[]).map(t=>`<div class="row" style="padding:6px 0;border-top:1px dashed #eee"><span class="muted grow">追加押金 ${t.time}</span><span class="win nowrap" style="font-weight:600">+${money(t.amt)} ${CUR}</span></div>`).join('')}
+      <div class="row" style="padding:8px 0 2px;border-top:1px solid #eee;margin-top:4px"><span style="font-weight:600" class="grow">当前押金额</span><span class="nowrap" style="font-weight:800">${money(l.dep)} ${CUR}</span></div>
     </div>
     <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="closeCfm()">我知道了</button>`);
 }
@@ -3006,13 +4760,13 @@ function topupSell(){
   cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">补充押金</h3>
     <div class="muted" style="text-align:center;margin-bottom:12px">追加押金后总额度按卖出赔率同步扩大,卖出赔率与状态不变</div>
     <div style="background:#FAFBFC;border-radius:8px;padding:12px;margin-bottom:10px">
-      <div class="row"><span class="muted grow">当前抵押金额</span><span class="nowrap" style="font-weight:600">${money(l.dep)} CNY</span></div>
-      <div class="row" style="margin-top:5px"><span class="muted grow">当前总额度</span><span class="nowrap">${money(l.cap)} CNY</span></div>
+      <div class="row"><span class="muted grow">当前押金额</span><span class="nowrap" style="font-weight:600">${money(l.dep)} ${CUR}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow">当前总额度</span><span class="nowrap">${money(l.cap)} ${CUR}</span></div>
       <div class="row" style="margin-top:10px">
         <input type="number" id="ts-amt" placeholder="追加金额" style="flex:1;text-align:right" oninput="tsPrev()"><span class="muted">CNY</span></div>
       <div class="row" style="gap:6px;margin-top:6px">
         <span class="chip" onclick="tsAdd(50)">+50</span><span class="chip" onclick="tsAdd(100)">+100</span><span class="chip" onclick="tsAdd(500)">+500</span></div>
-      <div class="muted" style="margin-top:8px" id="ts-prev">追加后抵押金额 ${money(l.dep)} CNY · 新增额度 0.00 CNY</div>
+      <div class="muted" style="margin-top:8px" id="ts-prev">追加后押金额 ${money(l.dep)} ${CUR} · 新增额度 0.00 CNY</div>
     </div>
     <div class="row" style="gap:8px">
       <button class="btn btn-g grow" onclick="closeCfm()">取消</button>
@@ -3021,7 +4775,7 @@ function topupSell(){
 function tsAdd(v){const el=$('ts-amt');el.value=(parseFloat(el.value)||0)+v;tsPrev()}
 function tsPrev(){
   const l=legacySells[sdIdx],v=parseFloat(($('ts-amt')||{}).value)||0;
-  $('ts-prev').textContent=`追加后抵押金额 ${money(l.dep+v)} CNY · 新增额度 ${money(Math.floor(v/l.odds*100)/100)} CNY`;
+  $('ts-prev').textContent=`追加后押金额 ${money(l.dep+v)} ${CUR} · 新增额度 ${money(Math.floor(v/l.odds*100)/100)} CNY`;
 }
 function doTopupSell(){
   const l=legacySells[sdIdx],v=parseFloat(($('ts-amt')||{}).value)||0;
@@ -3325,10 +5079,28 @@ function shareSheet(i){
     <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
 }
 function shareLegacy(idx){
-  shareCtx={kind:'legacy',idx};
-  const d=shareResolve();
-  if(!d)return toast('该挂单已不存在');
-  shareOpenSheet();
+  /* 投注项卖单分享:与自定义赛事分享统一版式,仅「分享到金刚」 */
+  const l=legacySells[idx]; if(!l)return toast('该挂单已不存在');
+  const pct=l.cap?Math.min(100,l.sold/l.cap*100):0;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+    <div class="card" style="padding:12px">
+      <div class="row">
+        <span style="font-size:15px;font-weight:700;color:#222" class="grow">${l.play.replace('全场 · ','全场')} ${l.item}</span>
+        <span class="tag ${L_TAG[l.state]}" style="margin-left:8px">${l.state}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:7px;line-height:1.5">${l.home} VS ${l.away} ${l.league}</div>
+      <div class="row" style="margin-top:8px;font-size:12px">
+        <span style="background:#FFF3E5;color:#E8850C;font-size:10px;padding:1px 5px;border-radius:3px" class="nowrap">押金</span>
+        <span style="margin-left:6px" class="nowrap">${curAmt(l.dep)} @ ${f2(l.odds)} 港</span>
+        <span style="color:#1D9E75;margin-left:6px" class="nowrap">+${l.ptPct}%</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${l.time.slice(5)}</span></div>
+      <div class="row" style="margin-top:9px">
+        <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
+        <span class="muted nowrap" style="font-size:12px">${Math.round(l.sold)}/${Math.round(l.cap)}</span>
+        <span style="font-size:12px;color:#666;margin-left:10px;cursor:pointer" class="nowrap" onclick="closeCfm();openSellDetail(${idx})">查看详情 ›</span></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
+    <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
 }
 function shareOpenSheet(){
   const d=shareResolve();
@@ -3609,6 +5381,39 @@ function guideRender(){
   },260);
 }
 /* 新手引导默认不自动弹出;如需查看,走「我的 → 重看新手引导」 */
+
+/* 买单列表预置:自定义赛事各一条未结算与已结算(置于 buyOrders 声明之后) */
+  (function(){
+    const c4=cmFind('CM004'); if(!c4)return;
+    const it=cmItem(c4,'wdl_H');
+    const b=cmBets.find(x=>x.cid==='CM004'&&x.key==='wdl_H');
+    /* 已结算:CM004 赛果 2-1,主胜命中 → 赢,结算金额 = 份额(每份兑付 1) */
+    if(it&&b){
+      const hit=it.hit(c4.score[0],c4.score[1]);
+      buyOrders.unshift({type:'single',item:it.name,tag:'已确认',play:'全场 独赢',odds:b.odds.toFixed(2),mk:'欧洲盘',
+        confirmed:true,match:c4.home+' vs '+c4.away,sport:'足球',league:c4.league,cm:true,cid:'CM004',shares:b.shares,
+        amt:+b.stake.toFixed(2),win:+b.shares.toFixed(2),
+        result:hit?'赢':'输',
+        /* 输赢 = 命中兑付 − 投注额;未命中则亏掉投注额 */
+        profit:hit?+(b.shares-b.stake).toFixed(2):-(+b.stake.toFixed(2)),
+        score:c4.score[0]+'-'+c4.score[1],
+        oid:'0110000226112238451001-1',time:'2026-12-26 20:15:30',settleTime:'2026-12-26 22:10:00',
+        status:'settled',bucket:'today'});
+    }
+    const c1=cmFind('CM001'); const it1=c1&&cmItem(c1,'ou2.5_O');
+    if(c1&&it1){
+      const L=EG.limits(c1.eng,c1.cfg,it1);
+      const r=EG.buy(c1.eng,c1.cfg,it1,Math.min(50,L.max));
+      EG.apply(c1.eng,c1.cfg,it1,Math.min(50,L.max),r.shares);
+      const mk=c1.eng.mks.find(x=>x.items.some(y=>y.key===it1.key));
+      cmBets.push({cid:'CM001',mk:mk.name,item:it1.name,key:'ou2.5_O',stake:50,shares:r.shares,
+        odds:r.odds,fee:r.fee,sold:0,time:'12-26 18:40'});
+      buyOrders.unshift({type:'single',item:it1.name,tag:'已确认',play:mk.name,odds:r.odds.toFixed(2),mk:'欧洲盘',
+        confirmed:true,match:c1.home+' vs '+c1.away,sport:'足球',league:c1.league,cm:true,cid:'CM001',shares:r.shares,
+        amt:50,win:+r.shares.toFixed(2),oid:'0110000226112238451002-1',
+        time:'2026-12-26 18:40:12',status:'unsettled',bucket:'today'});
+    }
+  })();
 </script>
 </body>
 </html>
