@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.1 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.2 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -3517,7 +3517,7 @@ function doBuy(){
       cmBets.push({cid,mk:mk.name,item:it.name,key:ikey,stake:a,shares:r.shares,odds:r.odds,fee:r.fee,sold:0,
         time:'12-2'+(3+cmBets.length%5)+' 1'+(cmBets.length%9)+':2'+(cmBets.length%6)});
       /* 同步写入买单列表:自定义赛事注单,每份命中兑付 1,可赢 = 份额 */
-      buyOrders.unshift({type:'single',item:it.name,tag:'自定义',play:mk.name,odds:f2(r.odds),mk:'欧洲盘',confirmed:false,
+      buyOrders.unshift({type:'single',item:it.name,tag:'确认中',play:mk.name,odds:f2(r.odds),mk:'欧洲盘',confirmed:false,
         match:c.home+' vs '+c.away,sport:'足球',league:c.league,cm:true,cid,shares:r.shares,
         amt:+a.toFixed(2),win:+r.shares.toFixed(2),
         oid:'0110000'+Date.now().toString().slice(-13)+'-1',
@@ -4824,7 +4824,8 @@ function shareLegacy(idx){
         <span class="muted nowrap">${l.time.slice(5)}</span></div>
       <div class="row" style="margin-top:9px">
         <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
-        <span class="muted nowrap" style="font-size:12px">${Math.round(l.sold)}/${Math.round(l.cap)}</span></div>
+        <span class="muted nowrap" style="font-size:12px">${Math.round(l.sold)}/${Math.round(l.cap)}</span>
+        <span style="font-size:12px;color:#666;margin-left:10px;cursor:pointer" class="nowrap" onclick="closeCfm();openSellDetail(${idx})">查看详情 ›</span></div>
     </div>
     <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
     <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
@@ -5114,10 +5115,19 @@ function guideRender(){
     const c4=cmFind('CM004'); if(!c4)return;
     const it=cmItem(c4,'wdl_H');
     const b=cmBets.find(x=>x.cid==='CM004'&&x.key==='wdl_H');
-    if(it&&b) buyOrders.unshift({type:'single',item:it.name,tag:'自定义',play:'全场 独赢',odds:b.odds.toFixed(2),mk:'欧洲盘',
-      confirmed:true,match:c4.home+' vs '+c4.away,sport:'足球',league:c4.league,cm:true,cid:'CM004',shares:b.shares,
-      amt:+b.stake.toFixed(2),win:+b.shares.toFixed(2),settle:+b.shares.toFixed(2),
-      oid:'0110000226112238451001-1',time:'2026-12-26 20:15:30',status:'settled',bucket:'today'});
+    /* 已结算:CM004 赛果 2-1,主胜命中 → 赢,结算金额 = 份额(每份兑付 1) */
+    if(it&&b){
+      const hit=it.hit(c4.score[0],c4.score[1]);
+      buyOrders.unshift({type:'single',item:it.name,tag:'已确认',play:'全场 独赢',odds:b.odds.toFixed(2),mk:'欧洲盘',
+        confirmed:true,match:c4.home+' vs '+c4.away,sport:'足球',league:c4.league,cm:true,cid:'CM004',shares:b.shares,
+        amt:+b.stake.toFixed(2),win:+b.shares.toFixed(2),
+        result:hit?'赢':'输',
+        /* 输赢 = 命中兑付 − 投注额;未命中则亏掉投注额 */
+        profit:hit?+(b.shares-b.stake).toFixed(2):-(+b.stake.toFixed(2)),
+        score:c4.score[0]+'-'+c4.score[1],
+        oid:'0110000226112238451001-1',time:'2026-12-26 20:15:30',settleTime:'2026-12-26 22:10:00',
+        status:'settled',bucket:'today'});
+    }
     const c1=cmFind('CM001'); const it1=c1&&cmItem(c1,'ou2.5_O');
     if(c1&&it1){
       const L=EG.limits(c1.eng,c1.cfg,it1);
@@ -5126,7 +5136,7 @@ function guideRender(){
       const mk=c1.eng.mks.find(x=>x.items.some(y=>y.key===it1.key));
       cmBets.push({cid:'CM001',mk:mk.name,item:it1.name,key:'ou2.5_O',stake:50,shares:r.shares,
         odds:r.odds,fee:r.fee,sold:0,time:'12-26 18:40'});
-      buyOrders.unshift({type:'single',item:it1.name,tag:'自定义',play:mk.name,odds:r.odds.toFixed(2),mk:'欧洲盘',
+      buyOrders.unshift({type:'single',item:it1.name,tag:'已确认',play:mk.name,odds:r.odds.toFixed(2),mk:'欧洲盘',
         confirmed:true,match:c1.home+' vs '+c1.away,sport:'足球',league:c1.league,cm:true,cid:'CM001',shares:r.shares,
         amt:50,win:+r.shares.toFixed(2),oid:'0110000226112238451002-1',
         time:'2026-12-26 18:40:12',status:'unsettled',bucket:'today'});
