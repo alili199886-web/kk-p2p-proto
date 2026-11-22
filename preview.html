@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v19.2 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v19.3 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -881,7 +881,10 @@ input:focus{border-color:#FF8C00}
     <li><b>赛事信息卡</b>：主客队、联赛与开赛时间、开盘时间、两队场均进球 λ。</li>
     <li><b>状态提示条</b>：已售罄提示「押金占用已触顶，补充额度后可恢复收单」；已封盘、待审核、已结算、已关闭各有对应说明。</li>
     <li><b>四列汇总</b>：总押金 / 已收单 / 子单数 / 押金占用；已结算时第四格换为<b>本场净盈亏</b>。</li>
-    <li><b>结算明细</b>（仅已结算）：收到投注合计、命中兑付合计、押金解冻退回、本场净盈亏。</li>
+    <li><b>结算明细</b>（仅已结算）：收到投注合计、命中兑付合计、<b>盈亏小计</b>、<b>平台抽水</b>、押金解冻退回、本场净盈亏。
+      <br>· 计算链条：盈亏小计 = 收到投注合计 − 命中兑付合计；<b>抽水只对盈利部分收取</b>（比例由 APISYS 下发，演示按 2%），<b>亏损时不抽水</b>；本场净盈亏 = 盈亏小计 − 抽水。
+      <br>· 举例：收到投注 299.79、命中兑付 203.27 → 盈亏小计 +96.52 → 抽水 96.52 × 2% = 1.93 → 净盈亏 94.59。
+      <br>· <b>列表与详情必须同源</b>：卖单列表卡片上的本场净盈亏与详情的结算明细取同一个计算结果，不得各算各的。</li>
     <li><b>全盘赔率总览</b>（可折叠，默认收起）：按玩法铺开全部投注项的当前赔率，供整体判断价位是否偏离。</li>
     <li><b>投注项庄单卡片</b>：每个投注项一张。</li>
     <li><b>底部固定操作区</b>。</li>
@@ -1932,9 +1935,8 @@ function cmRenderOwnDetail(){
   const subs=cmBets.filter(b=>b.cid===c.id);
   const done=c.state==='settled', closed=c.state==='closed';
   const hitOf=it=>done&&it?it.hit(c.score[0],c.score[1]):false;
-  let payTot=0, stakeTot=0;
-  subs.forEach(b=>{stakeTot+=b.stake;const it=cmItem(c,b.key);if(hitOf(it))payTot+=b.shares});
-  const netPL=done?+(stakeTot-payTot).toFixed(2):0;
+  const S=cmSettle(c);
+  const stakeTot=S.stake, payTot=S.pay, netPL=done?S.net:0;
 
   let html=`<div class="card" style="margin-bottom:10px">
       <div style="font-size:15px;font-weight:700;color:#222">${c.home} vs ${c.away}</div>
@@ -1963,6 +1965,8 @@ function cmRenderOwnDetail(){
       <div style="font-size:13px;font-weight:700;color:#222;margin-bottom:6px">结算明细</div>
       <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">收到投注合计</span><span class="nowrap" style="font-size:12px">${curAmt(stakeTot)}</span></div>
       <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">命中兑付合计</span><span class="nowrap lose" style="font-size:12px">-${curAmt(payTot)}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">盈亏小计</span><span class="nowrap ${S.gross>0?'win':(S.gross<0?'lose':'')}" style="font-size:12px">${S.gross>0?'+':(S.gross<0?'-':'')}${curAmt(Math.abs(S.gross))}</span></div>
+      <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">平台抽水（盈利部分 ${(CM_RAKE*100).toFixed(0)}%）</span><span class="nowrap ${S.rake>0?'lose':''}" style="font-size:12px">${S.rake>0?'-'+curAmt(S.rake):curAmt(0)}</span></div>
       <div class="row" style="margin-top:5px"><span class="muted grow" style="font-size:12px">押金解冻退回</span><span class="nowrap" style="font-size:12px">${curAmt(c.dep)}</span></div>
       <div class="row" style="margin-top:7px;padding-top:7px;border-top:1px dashed #f0f0f0">
         <span class="grow" style="font-size:13px;font-weight:700">本场净盈亏</span>
@@ -2617,6 +2621,25 @@ function cmSoldOut(c){
 /* 是否已到自动封盘时点(演示:按 kicked 标记;正式版以服务端时间与「开赛时间 − 自动封盘时长」比较) */
 function cmKicked(c){return !!c.kicked}
 /* 自动封盘时长,默认开赛前 10 分钟 */
+/* 平台抽佣比例,由 APISYS 下发;仅对庄家盈利部分抽水 */
+const CM_RAKE=0.02;
+/* 统一的结算计算:收到投注、命中兑付、毛盈亏、抽水、净盈亏
+   口径:毛盈亏 = 收到投注合计 − 命中兑付合计;盈利时按 CM_RAKE 抽水,亏损不抽 */
+function cmSettle(c){
+  if(!c||!c.score)return {stake:0,pay:0,gross:0,rake:0,net:0,subs:[]};
+  const subs=cmBets.filter(b=>b.cid===c.id);
+  let stake=0,pay=0;
+  subs.forEach(b=>{
+    stake+=b.stake;
+    const it=cmItem(c,b.key);
+    if(it&&it.hit(c.score[0],c.score[1]))pay+=b.shares;
+  });
+  stake=+stake.toFixed(2); pay=+pay.toFixed(2);
+  const gross=+(stake-pay).toFixed(2);
+  const rake=gross>0?+(gross*CM_RAKE).toFixed(2):0;
+  const net=+(gross-rake).toFixed(2);
+  return {stake,pay,gross,rake,net,subs};
+}
 function cmSealMin(c){return (c.sealMin===undefined||c.sealMin===null)?10:c.sealMin}
 /* 每次渲染前同步状态:
    1) 开赛时间到 → 自动封盘,停止收单,等待庄家录入赛果
@@ -4515,7 +4538,7 @@ function renderOrders(){
       const st=CM_ST[c.state], e=c.eng;
       const sold=e.cash||0, pct=c.dep?Math.min(100,sold/c.dep*100):0;
       const bar=c.state==='settled'?'#1D9E75':(c.state==='closed'?'#9aa0a6':'#2E7BD6');
-      const pf=c.profit||0;
+      const pf=(c.state==='settled')?cmSettle(c).net:0;
       const pfHtml=c.state==='settled'
         ?`<span class="nowrap ${pf>0?'win':(pf<0?'lose':'')}" style="font-size:14px;font-weight:800">${pf>0?'+':(pf<0?'-':'')}¥${money(Math.abs(pf))}</span>`:'';
       return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="cmOpenOwn('${c.id}')">
