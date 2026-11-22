@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v17.9 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.0 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -1537,31 +1537,62 @@ function cmBack(){go('pg-home');renderHome();setNav('match')}
 /* 分享某个玩法的投注项(卖单进入详情时可用) */
 function cmShareMk(mkKey){
   const c=cmCur, mk=c.eng.mks.find(x=>x.key===mkKey);
-  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">分享玩法</h3>
-    <div class="card">
-      <div class="row"><span style="font-size:15px;font-weight:700;color:#222" class="grow">${mk.name}</span></div>
-      <div class="muted" style="margin-top:4px">${c.home} vs ${c.away}</div>
-      <div class="row" style="gap:5px;margin-top:9px;flex-wrap:wrap">
-        ${mk.items.slice(0,6).map(it=>`<div class="oddcell" style="flex:1 0 30%;opacity:1;height:auto;padding:7px 3px">
-          <span class="lb" style="font-size:10px">${it.name}</span><span class="v" style="font-size:13px">${f2(EG.showOdds(c.eng,c.cfg,it))}</span></div>`).join('')}</div>
-      <div class="muted" style="margin-top:7px;font-size:11px">接收方点击后进入本场赛事详情并定位到该玩法。</div>
+  const e=c.eng,cfg=c.cfg;
+  /* 该玩法的收单进度:已收 / 总额度 */
+  let got=0,cap=0;
+  mk.items.forEach(it=>{
+    got+=cmBets.filter(b=>b.cid===c.id&&b.key===it.key).reduce((a,b)=>a+b.stake,0);
+    cap+=EG.limits(e,cfg,it).max;
+  });
+  const tot=c.dep, pct=tot?Math.min(100,got/tot*100):0;
+  const first=mk.items[0];
+  const od=EG.showOdds(e,cfg,first);
+  const st=CM_ST[c.state];
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+    <div class="card" style="padding:12px">
+      <div class="row">
+        <span style="font-size:15px;font-weight:700;color:#222" class="grow">${mk.name} ${first.name}</span>
+        <span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:7px;line-height:1.5">${c.home} VS ${c.away}</div>
+      <div class="row" style="margin-top:8px;font-size:12px">
+        <span style="background:#FFF3E5;color:#E8850C;font-size:10px;padding:1px 5px;border-radius:3px" class="nowrap">押金</span>
+        <span style="margin-left:6px" class="nowrap">${curAmt(c.dep)} @ ${f2(od)}</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${c.time}</span></div>
+      <div class="row" style="margin-top:9px">
+        <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
+        <span class="muted nowrap" style="font-size:12px">${money(got)}/${money(c.dep)}</span>
+        <span style="font-size:12px;color:#666;margin-left:10px;cursor:pointer" class="nowrap" onclick="closeCfm()">查看详情 ›</span></div>
     </div>
-    <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
-    <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
+    <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
+    <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
 }
-/* 从卖单列表直接分享某场自定义赛事 */
+
 function cmShareFrom(id){const bak=cmCur;cmCur=cmFind(id);cmShareMatch();cmCur=bak||cmCur}
 function cmShareMatch(){
-  const c=cmCur;
-  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">分享赛事</h3>
-    <div class="card">
-      <div class="row"><span style="font-size:15px;font-weight:700;color:#222" class="grow">${c.home} vs ${c.away}</span></div>
-      <div class="muted" style="margin-top:4px">${c.league} · ${c.time} · 庄家 ${c.banker}</div>
-      <div class="muted" style="margin-top:6px;font-size:11px">接收方点击后直接进入本场赛事详情,不预选投注项。</div>
+  const c=cmCur, st=CM_ST[c.state];
+  const e=c.eng;
+  const got=cmBets.filter(b=>b.cid===c.id).reduce((a,b)=>a+b.stake,0);
+  const pct=c.dep?Math.min(100,got/c.dep*100):0;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+    <div class="card" style="padding:12px">
+      <div class="row">
+        <span style="font-size:15px;font-weight:700;color:#222" class="grow">${c.home} vs ${c.away}</span>
+        <span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:7px;line-height:1.5">${c.league} · 庄家 ${c.banker}</div>
+      <div class="row" style="margin-top:8px;font-size:12px">
+        <span style="background:#FFF3E5;color:#E8850C;font-size:10px;padding:1px 5px;border-radius:3px" class="nowrap">押金</span>
+        <span style="margin-left:6px" class="nowrap">${curAmt(c.dep)}</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${c.time}</span></div>
+      <div class="row" style="margin-top:9px">
+        <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
+        <span class="muted nowrap" style="font-size:12px">${money(got)}/${money(c.dep)}</span></div>
     </div>
-    <button class="btn btn-p" style="width:100%;margin-top:12px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
-    <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
+    <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
+    <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
 }
+
 /* 直播:播放庄家配置的直播地址 */
 function cmPlayLive(){
   const c=cmCur;
@@ -2458,7 +2489,7 @@ let stFilter='all',tFilter='today',tDay='';   /* 状态默认全部,时间默认
 const $=id=>document.getElementById(id);
 const f2=n=>(+n).toFixed(2);
 const money=n=>(+n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const NAV_HIDDEN_PAGES=['pg-selldetail','pg-share','pg-detail'];
+const NAV_HIDDEN_PAGES=['pg-selldetail','pg-share','pg-detail','pg-cmown','pg-cmdetail'];
 function go(p){
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   $(p).classList.add('active');
@@ -4339,8 +4370,8 @@ function renderOrders(){
     return `<div class="card" style="margin-bottom:10px;cursor:pointer" onclick="openSellDetail(${idx})">
       <div class="row">
         <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${l.league}</span>
-        ${l.state==='卖出中'?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-right:8px;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}
-        <span class="tag ${L_TAG[l.state]}">${l.state}</span></div>
+        <span class="tag ${L_TAG[l.state]}">${l.state}</span>
+        ${l.state==='卖出中'?`<svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:#FF8C00;fill:none;stroke-width:1.8;margin-left:10px;flex-shrink:0;cursor:pointer" onclick="event.stopPropagation();shareLegacy(${idx})"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}</div>
       <div class="muted" style="margin:6px 0 4px">${l.home} VS ${l.away}</div>
       <div class="row" style="font-size:12px;color:#666;gap:6px">
         <span class="nowrap">${l.play.replace(' · ','')} ${l.item}</span>
@@ -4763,10 +4794,28 @@ function shareSheet(i){
     <button class="btn btn-g" style="width:100%;margin-top:8px" onclick="closeCfm()">取消</button>`);
 }
 function shareLegacy(idx){
-  shareCtx={kind:'legacy',idx};
-  const d=shareResolve();
-  if(!d)return toast('该挂单已不存在');
-  shareOpenSheet();
+  /* 投注项卖单分享:与自定义赛事分享统一版式,仅「分享到金刚」 */
+  const l=legacySells[idx]; if(!l)return toast('该挂单已不存在');
+  const pct=l.cap?Math.min(100,l.sold/l.cap*100):0;
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+    <div class="card" style="padding:12px">
+      <div class="row">
+        <span style="font-size:15px;font-weight:700;color:#222" class="grow">${l.play.replace('全场 · ','全场')} ${l.item}</span>
+        <span class="tag ${L_TAG[l.state]}" style="margin-left:8px">${l.state}</span></div>
+      <div class="muted" style="font-size:13px;margin-top:7px;line-height:1.5">${l.home} VS ${l.away} ${l.league}</div>
+      <div class="row" style="margin-top:8px;font-size:12px">
+        <span style="background:#FFF3E5;color:#E8850C;font-size:10px;padding:1px 5px;border-radius:3px" class="nowrap">押金</span>
+        <span style="margin-left:6px" class="nowrap">${curAmt(l.dep)} @ ${f2(l.odds)} 港</span>
+        <span style="color:#1D9E75;margin-left:6px" class="nowrap">+${l.ptPct}%</span>
+        <span class="grow"></span>
+        <span class="muted nowrap">${l.time.slice(5)}</span></div>
+      <div class="row" style="margin-top:9px">
+        <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
+        <span class="muted nowrap" style="font-size:12px">${Math.round(l.sold)}/${Math.round(l.cap)}</span>
+        <span style="font-size:12px;color:#666;margin-left:10px;cursor:pointer" class="nowrap" onclick="closeCfm();openSellDetail(${idx})">查看详情 ›</span></div>
+    </div>
+    <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
+    <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
 }
 function shareOpenSheet(){
   const d=shareResolve();
