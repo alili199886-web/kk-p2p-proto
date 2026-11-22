@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.3 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.4 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -823,6 +823,14 @@ input:focus{border-color:#FF8C00}
     <li><b>最低接受赔率（玩家侧）</b>：输入金额后出现，默认填当前成交后赔率。从点击下注到真正成交之间，别人可能抢先买入把价格推高、赔率压低，<b>本笔成交赔率低于该值时直接拒绝本笔</b>，相当于限价单的保护价。这是玩家的滑点兜底；庄家侧「被压价到多少就停止收单」是另一回事，本期待定。</li>
   </ul>
 
+  <h4>调水与算法定价的关系</h4>
+  <ul>
+    <li><b>调水不会架空算法</b>。算法约束的不是赔率数值本身，而是赔率与风险敞口的绑定：赔率由持仓量决定，亏损上限由押金锁死。调水等效于庄家替市场推动了一次持仓，系统后续定价仍从新的持仓出发，<b>不穿仓、跨玩法同价、价格随资金移动</b>三条约束全部继续成立。</li>
+    <li><b>跨玩法同价自动维持</b>：调水改的是该投注项命中的全部比分状态，正确比分等相关玩法的价格会同步联动，不会出现「主胜调了、波胆没动」的套利缺口。这是按比分状态做市的结构性好处。</li>
+    <li><b>调水的真实作用是调节吸单速度与敞口</b>，不是绕过定价。实测：抬高赔率后玩家投入从 1675 增至 2175、押金占用从 16.7% 升到 49.3%；压低赔率则相反。庄家是在用押金使用效率换成交量。</li>
+    <li>因此<b>赛事列表的赔率跟随调水变化是正确的</b>——那就是当前真实可成交的价格。</li>
+  </ul>
+
   <h4>并发要求（必须写进研发需求）</h4>
   <ul>
     <li>每笔成交都移动价格，<b>同一场比赛的成交必须串行处理</b>，价格读取与扣减在同一事务内完成。否则份额算错、押金保护失效，平台亏损可能突破押金。</li>
@@ -888,7 +896,9 @@ input:focus{border-color:#FF8C00}
       <br>· <b>调整点位即赔率增减量</b>（两位小数、可为负），带 － / ＋ 步进按钮每次 0.01，输入后实时算出新庄单赔率并以绿色大字预览。
       <br>· <b>参考基准用开盘赔率</b>：自定义赛事没有官方盘可参照，开盘价是庄家自己设的起点，同时展示当前相对开盘的偏离百分比（涨绿跌红），便于判断该往哪调。
       <br>· 新赔率需落在平台最低赔率与赔率封顶之间，越界时提示原因并禁用确认按钮。
-      <br>· 做市定价下调水等效于庄家推动该投注项价格，<b>同玩法其他项赔率同步反向变动</b>；<b>已成交子单按原成交赔率结算，不受影响</b>。</li>
+      <br>· 做市定价下调水等效于庄家推动该投注项价格，<b>同玩法其他项赔率同步反向变动</b>；<b>已成交子单按原成交赔率结算，不受影响</b>。
+      <br>· <b>幅度闸门</b>：单次调水不超过 0.05，单个投注项累计调水（历次绝对值之和）不超过 0.30。弹窗实时显示「单次上限 0.05 · 本项累计剩余 X / 0.30」，超限时提示原因并禁用确认按钮。没有闸门时庄家可一次把赔率从 1.93 拉到 5.36，既不合理也容易被当成操纵。
+      <br>· <b>全部调水留痕</b>：每次调水写入操作日志，记录投注项、调整前后赔率、调整幅度、调水时的已收单金额与押金占用、操作人与时间；开盘详情「投注项庄单」标题右侧有「调水记录」入口可查，运营在后台也能核查。庄家可在自己盘上下注，存在「先低价买入再调高赔率诱多」的操纵路径，因此调水与庄家自投都必须留痕。</li>
     <li><b>立即封盘</b>：<b>以玩法为单位</b>。做市定价下同一玩法内各投注项共享同一条价格曲线，单独封掉其中一项会破坏跨玩法同价、产生套利空间，因此封盘必须整个玩法一起封。</li>
     <li><b>分享</b>：分享该玩法及其投注项赔率到金刚，接收方进入本场赛事详情并定位到该玩法。</li>
     <li><b>移除</b>：仅该玩法无任何成交时可移除。移除会改变比分状态的合并方式，其余玩法赔率随之重算；已成交份额按原成交赔率结算不受影响。</li>
@@ -1462,6 +1472,7 @@ const EG = (function(){
   }
   function apply(m,cfg,it,stake,shares){
     it.sidx.forEach(k=>{m.q[k]+=shares; m.hold[k]+=shares});
+    it.soldShares=(it.soldShares||0)+shares;   /* 该投注项累计售出份额,用于逐项累加兑付 */
     m.cash+=stake; m.vigFee+=stake*(cfg.W/10000);
   }
   /* 卖出 shares 份,回收额(已扣抽水) */
@@ -1477,10 +1488,19 @@ const EG = (function(){
      该比分开出时:平台兑付 = 命中该状态的全部投注项持仓份额之和
      平台亏损 = 兑付 − 累计净现金(含抽水) */
   function risk(m,cfg){
-    const loss=m.states.map((s,k)=>(m.hold[k]||0)-m.cash);
+    /* 某比分开出时,平台要兑付「全部命中该比分的投注项」的持仓份额之和。
+       同一个比分会被多个玩法同时命中(如 2:1 同时命中 主胜 / 大2.5 / 双方进球 / 波胆2:1),
+       因此必须按投注项逐一累加,不能只看单项 */
+    const payout=m.states.map(()=>0);
+    m.mks.forEach(mk=>mk.items.forEach(it=>{
+      const sold=it.soldShares||0;
+      if(sold<=0)return;
+      it.sidx.forEach(k=>{payout[k]+=sold});
+    }));
+    const loss=payout.map(v=>v-m.cash);
     const maxLoss=Math.max(0,...loss);
-    return {maxLoss,use:cfg.deposit?maxLoss/cfg.deposit:0,
-            perState:m.states.map((s,k)=>({p:s.p,payout:m.hold[k]||0,pl:m.cash-(m.hold[k]||0)}))};
+    return {maxLoss,use:cfg.deposit?maxLoss/cfg.deposit:0,payout,
+            perState:m.states.map((s,k)=>({p:s.p,payout:payout[k],pl:m.cash-payout[k]}))};
   }
 
   /* ═════ 单笔上限 = min(A 单笔最多收, B 滑点上限金额, C 最低赔率限额) ═════
@@ -1921,7 +1941,8 @@ function cmRenderOwnDetail(){
         <span class="grow" style="font-size:13px;font-weight:700">本场净盈亏</span>
         <span class="nowrap ${netPL>0?'win':(netPL<0?'lose':'')}" style="font-size:16px;font-weight:800">${netPL>0?'+':(netPL<0?'-':'')}${curAmt(Math.abs(netPL))}</span></div>
     </div>`:''}
-    <div class="row" style="margin-bottom:6px"><span class="muted grow">投注项庄单(${e.mks.reduce((a,x)=>a+x.items.length,0)})</span></div>`;
+    <div class="row" style="margin-bottom:6px"><span class="muted grow">投注项庄单(${e.mks.reduce((a,x)=>a+x.items.length,0)})</span>
+      <span style="font-size:12px;color:#FF8C00;cursor:pointer" class="nowrap" onclick="cmAdjLogSheet()">调水记录${(()=>{const n=cmAdjLog.filter(x=>x.cid===c.id).length;return n?'('+n+')':''})()} ›</span></div>`;
 
   e.mks.forEach(mk=>{
     const sealed=cmSealed(c,mk.key);
@@ -2002,6 +2023,10 @@ function cmDoOff(){
   toast('赛事已下架,等待录入赛果');
 }
 let cmOvFold=true, cmResFold=false, cmStFilter='all', cmLiveOn=false;
+/* 调水闸门:单次幅度上限(赔率增减量)、累计幅度上限(相对开盘赔率的偏离) */
+const ADJ_ONCE_MAX=0.05, ADJ_TOTAL_MAX=0.30;
+/* 调水操作日志:每次调水留痕,供运营核查 */
+let cmAdjLog=[];
 let cmSubOpen={}, cmSealedMk={};
 function cmSealed(c,mkKey){return !!(cmSealedMk[c.id]&&cmSealedMk[c.id][mkKey])}
 /* 封盘为玩法级:做市定价下同一玩法内各项共享价格曲线,单项封盘会破坏跨玩法同价 */
@@ -2072,10 +2097,17 @@ function cmRenderAdj(){
     for(let t=0;t<70;t++){const mid=(lo+hi)/2; oddsAt(mid)>tgt?lo=mid:hi=mid}
     return (lo+hi)/2;
   };
-  const okRange = pt!==0 && target>=cfg.minOdds && target<=(cfg.maxOdds||99);
-  const warn = pt!==0 && !okRange
-    ? (target<cfg.minOdds?`新赔率低于平台最低赔率 ${f2(cfg.minOdds)}`:`新赔率超过赔率封顶 ${f2(cfg.maxOdds||99)}`)
-    : '';
+  /* 累计调水幅度:本场该投注项历次调水的绝对值之和 */
+  const used=cmAdjLog.filter(x=>x.cid===c.id&&x.key===it.key).reduce((a,x)=>a+Math.abs(x.pt),0);
+  const left=+(ADJ_TOTAL_MAX-used).toFixed(2);
+  const inRange = pt!==0 && target>=cfg.minOdds && target<=(cfg.maxOdds||99);
+  const onceOk  = Math.abs(pt)<=ADJ_ONCE_MAX+1e-9;
+  const totalOk = Math.abs(pt)<=left+1e-9;
+  const okRange = inRange && onceOk && totalOk;
+  let warn='';
+  if(pt!==0&&!inRange) warn = target<cfg.minOdds?`新赔率低于平台最低赔率 ${f2(cfg.minOdds)}`:`新赔率超过赔率封顶 ${f2(cfg.maxOdds||99)}`;
+  else if(pt!==0&&!onceOk) warn = `单次调水幅度不得超过 ${ADJ_ONCE_MAX.toFixed(2)}`;
+  else if(pt!==0&&!totalOk) warn = `本项累计调水已用 ${used.toFixed(2)}，剩余额度 ${left.toFixed(2)}`;
   const mk=e.mks.find(x=>x.items.some(y=>y.key===it.key));
   const step=v=>`<span style="width:38px;height:38px;border:1px solid #e3e5e8;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;color:#666;cursor:pointer;flex-shrink:0;background:#fff;user-select:none"
       onclick="cmAdjPt=(((parseFloat(cmAdjPt)||0)+(${v}))).toFixed(2);cmRenderAdj()">${v>0?'＋':'－'}</span>`;
@@ -2097,6 +2129,9 @@ function cmRenderAdj(){
         ${step(0.01)}
       </div>
       <span class="muted nowrap" style="font-size:11px;margin-left:8px">可为负，两位小数</span></div>
+    <div class="row" style="margin-top:6px">
+      <span class="grow"></span>
+      <span class="muted nowrap" style="font-size:11px">单次上限 ${ADJ_ONCE_MAX.toFixed(2)} · 本项累计剩余 ${left.toFixed(2)} / ${ADJ_TOTAL_MAX.toFixed(2)}</span></div>
     <div class="row" style="margin-top:14px">
       <span class="muted grow" style="font-size:13px">新庄单赔率</span>
       <span class="nowrap" style="font-size:17px;font-weight:800;color:${okRange?'#1D9E75':(pt===0?'#9aa0a6':'#E24B4A')}">@${f2(pt===0?cur:target)}</span></div>
@@ -2109,9 +2144,38 @@ function cmRenderAdj(){
 
 function cmDoAdj(shift){
   const c=cmCur,e=c.eng,it=cmAdjIt;
+  const before=EG.showOdds(e,c.cfg,it);
+  const rkBefore=EG.risk(e,c.cfg);
   it.sidx.forEach(k=>e.q[k]+=shift);
+  const after=EG.showOdds(e,c.cfg,it);
+  /* 操作日志:时间、投注项、调整前后赔率、调整幅度、当时敞口,供运营事后核查 */
+  cmAdjLog.unshift({cid:c.id,key:it.key,item:it.name,
+    mk:(e.mks.find(x=>x.items.some(y=>y.key===it.key))||{}).name||'',
+    pt:+(after-before).toFixed(2), before:+before.toFixed(2), after:+after.toFixed(2),
+    sold:+(e.cash||0).toFixed(2), use:+(rkBefore.use*100).toFixed(1),
+    by:BANKER_NICK, time:new Date().toISOString().slice(5,16).replace('T',' ')});
   closeCfm(); cmRenderOwnDetail(); renderHome();
-  toast('已调水,当前赔率 @'+f2(EG.showOdds(e,c.cfg,it)));
+  toast('已调水,当前赔率 @'+f2(after));
+}
+/* 调水记录:开盘详情内查看 */
+function cmAdjLogSheet(){
+  const c=cmCur;
+  const rows=cmAdjLog.filter(x=>x.cid===c.id);
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">调水记录</h3>
+    ${rows.length?`<div style="max-height:320px;overflow-y:auto">${rows.map(r=>`
+      <div style="border-bottom:1px dashed #f0f0f0;padding:9px 0">
+        <div class="row"><span style="font-size:13px;font-weight:600;color:#222" class="grow">${r.mk} · ${r.item}</span>
+          <span class="nowrap" style="font-size:13px;font-weight:700;color:${r.pt>0?'#1D9E75':'#E24B4A'}">${r.pt>0?'+':''}${r.pt.toFixed(2)}</span></div>
+        <div class="row" style="margin-top:4px">
+          <span class="muted nowrap" style="font-size:12px">@${f2(r.before)} → @${f2(r.after)}</span>
+          <span class="grow"></span>
+          <span class="muted nowrap" style="font-size:11px">调水时已收 ${curAmt(r.sold)} · 占用 ${r.use}%</span></div>
+        <div class="row" style="margin-top:3px">
+          <span class="muted nowrap" style="font-size:11px">${r.by} · ${r.time}</span></div>
+      </div>`).join('')}</div>`
+    :'<div class="muted" style="text-align:center;padding:26px">本场暂无调水记录</div>'}
+    <div class="muted" style="font-size:11px;margin-top:10px;line-height:1.7">调水全部留痕,运营可在后台核查。庄家在自己盘上的投注会一并标注,供审核赛果时比对。</div>
+    <button class="btn btn-g" style="width:100%;margin-top:12px" onclick="closeCfm()">关闭</button>`);
 }
 
 let cmTopup='';
