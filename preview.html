@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.4 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.5 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -888,6 +888,17 @@ input:focus{border-color:#FF8C00}
     <li><b>赔率对比行</b>：当前赔率（绿色大字）、开盘赔率、<b>偏离百分比</b>（涨绿跌红）。调水要判断的是当前价位相对开盘偏了多少，直接给出幅度比让庄家自己换算更可用。</li>
     <li>已收、命中需赔、本笔上限；额度触顶时提示「该项额度已触顶，暂停买入」。</li>
     <li><b>子单数据默认收起</b>，点击标题行展开；每笔展示买家、金额、份额、成交赔率、成交时间；已结算时右侧展示该笔的赔付或收入，已作废时展示退回金额。</li>
+  </ul>
+
+  <h4>自定义赛事完整生命周期</h4>
+  <ul>
+    <li><b>① 庄家开盘</b>：填赛事信息、玩法与盘口线、押金，提交后进入<b>待审核</b>（后台运营审核）。审核通过才上架、押金此时才冻结；驳回不冻结并告知原因。</li>
+    <li><b>② 上架收单</b>：进入赛事列表，玩家可投注。盘状态在<b>卖出中</b>与<b>已售罄</b>之间自动切换（押金占用触顶即售罄，补充押金后恢复）。庄家可调水、补充押金、主动「赛事下架」。</li>
+    <li><b>③ 开赛自动封盘</b>：<b>开赛时间到，系统自动封盘</b>、停止收单，状态转为<b>已封盘</b>，已持有份额的玩家不可卖出。庄家主动下架也进入该状态。</li>
+    <li><b>④ 庄家录入赛果</b>：比赛结束后，庄家在开盘详情底部点「录入赛果」，填入常规时间 90 分钟（含补时）比分并提交，状态转为<b>待审核</b>。卖单列表该盘卡片上提示「比赛已结束，请录入赛果」。</li>
+    <li><b>⑤ 运营审核</b>：后台核对公开赛果，通过则正式结算、驳回则退回庄家重填并记录驳回原因。<b>审核通过前不发生任何资金兑付</b>。</li>
+    <li><b>⑥ 已结算</b>：按赛果兑付子单，押金解冻退回，盘详情展示结算明细与本场净盈亏。</li>
+    <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营作废，状态转为<b>已关闭</b>，全部成交撤销、投注金额原路退回、不计盈亏。撤销结算由庄家发起、运营审核。</li>
   </ul>
 
   <h4>控盘操作</h4>
@@ -1925,7 +1936,10 @@ function cmRenderOwnDetail(){
     ${done?`<div class="hint" style="margin-bottom:10px;background:#E8F7EF;color:#1D6E4E">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>。押金已全额解冻退回,盈亏已入账。</div>`:''}
     ${closed?`<div class="hint" style="margin-bottom:10px;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销、投注金额原路退回,押金全额解冻,本场不计盈亏。</div>`:''}
     ${c.state==='soldout'?`<div class="hint" style="margin-bottom:10px">押金占用已触顶,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
-    ${c.state==='pending'?`<div class="hint" style="margin-bottom:10px">赛果 <b>${c.score[0]}-${c.score[1]}</b> 已提交,等待运营审核。</div>`:''}
+    ${c.state==='sealed'?`<div class="hint" style="margin-bottom:10px;background:${c.autoSealed?'#FFF8EC':'#F2F3F5'}">${c.autoSealed
+      ?'比赛已结束,盘口已自动封盘停止收单。<b>请录入赛果</b>,提交后由运营审核,审核通过即正式结算。'
+      :'已停止收单。比赛结束后请录入赛果,提交后由运营审核,审核通过即正式结算。'}</div>`:''}
+    ${c.state==='pending'?`<div class="hint" style="margin-bottom:10px">赛果 <b>${c.score[0]}-${c.score[1]}</b> 已提交,等待运营审核。审核通过后正式结算并兑付。</div>`:''}
     <div class="stat4" style="margin-bottom:10px">
       <div><div class="l">总押金</div><div class="v nowrap">${curAmt(c.dep)}</div></div>
       <div><div class="l">已收单</div><div class="v nowrap" style="color:#2E7BD6">${curAmt(sold)}</div></div>
@@ -2026,7 +2040,12 @@ let cmOvFold=true, cmResFold=false, cmStFilter='all', cmLiveOn=false;
 /* 调水闸门:单次幅度上限(赔率增减量)、累计幅度上限(相对开盘赔率的偏离) */
 const ADJ_ONCE_MAX=0.05, ADJ_TOTAL_MAX=0.30;
 /* 调水操作日志:每次调水留痕,供运营核查 */
-let cmAdjLog=[];
+let cmAdjLog=[
+  {cid:'CM001',key:'wdl_H',item:'主胜',mk:'全场 独赢',pt:-0.03,before:1.96,after:1.93,sold:50,use:1.5,by:'金刚庄',time:'12-26 15:20'},
+  {cid:'CM001',key:'ou2.5_O',item:'大 2.5',mk:'全场 大/小 2.5',pt:0.05,before:1.91,after:1.96,sold:50,use:1.5,by:'金刚庄',time:'12-26 16:05'},
+  {cid:'CM001',key:'wdl_A',item:'客胜',mk:'全场 独赢',pt:0.02,before:3.64,after:3.66,sold:0,use:0,by:'金刚庄',time:'12-26 17:42'},
+  {cid:'CM003',key:'wdl_A',item:'客胜',mk:'全场 独赢',pt:-0.04,before:2.18,after:2.14,sold:150,use:3.0,by:'金刚庄',time:'12-25 11:30'}
+];
 let cmSubOpen={}, cmSealedMk={};
 function cmSealed(c,mkKey){return !!(cmSealedMk[c.id]&&cmSealedMk[c.id][mkKey])}
 /* 封盘为玩法级:做市定价下同一玩法内各项共享价格曲线,单项封盘会破坏跨玩法同价 */
@@ -2174,7 +2193,6 @@ function cmAdjLogSheet(){
           <span class="muted nowrap" style="font-size:11px">${r.by} · ${r.time}</span></div>
       </div>`).join('')}</div>`
     :'<div class="muted" style="text-align:center;padding:26px">本场暂无调水记录</div>'}
-    <div class="muted" style="font-size:11px;margin-top:10px;line-height:1.7">调水全部留痕,运营可在后台核查。庄家在自己盘上的投注会一并标注,供审核赛果时比对。</div>
     <button class="btn btn-g" style="width:100%;margin-top:12px" onclick="closeCfm()">关闭</button>`);
 }
 
@@ -2462,8 +2480,9 @@ let CM=[
   /* 已售罄:押金小,少量成交即触顶 */
   {id:'CM007',home:'河谷工匠',away:'石桥联',league:'自定义赛事',time:'12-28 19:00',created:'12-26 11:30',
    banker:'金刚庄',mine:true,state:'soldout',lH:1.45,lA:1.15,dep:300,bucket:'today',hLogo:'🐻',aLogo:'🦅'},
+  /* 比赛已结束,自动封盘,等待庄家录入赛果 */
   {id:'CM003',home:'山城远征',away:'海港星辰',league:'自定义赛事',time:'12-27 19:00',created:'12-25 09:20',
-   banker:'金刚庄',mine:true,state:'sealed',lH:1.80,lA:0.90,dep:5000,bucket:'today',hLogo:'🦁',aLogo:'🐯'},
+   banker:'金刚庄',mine:true,state:'sealed',kicked:true,autoSealed:true,lH:1.80,lA:0.90,dep:5000,bucket:'today',hLogo:'🦁',aLogo:'🐯'},
   {id:'CM006',home:'西岭先锋',away:'江城雄师',league:'自定义赛事',time:'12-27 17:00',created:'12-25 08:00',
    banker:'金刚庄',mine:true,state:'pending',score:[1,1],lH:1.40,lA:1.30,dep:2500,bucket:'today',hLogo:'🐺',aLogo:'🐉'},
   {id:'CM004',home:'北岭猎人',away:'南坡骑士',league:'自定义赛事',time:'12-26 20:00',created:'12-24 10:15',
@@ -2519,8 +2538,13 @@ function cmSoldOut(c){
   const e=c.eng,cfg=c.cfg;
   return e.mks.every(mk=>cmSealed(c,mk.key)||mk.items.every(it=>EG.limits(e,cfg,it).paused));
 }
-/* 每次渲染前同步售罄态 */
+/* 比赛是否已开赛(演示:按 kicked 标记;正式版以服务端时间与开赛时间比较) */
+function cmKicked(c){return !!c.kicked}
+/* 每次渲染前同步状态:
+   1) 开赛时间到 → 自动封盘,停止收单,等待庄家录入赛果
+   2) 未开赛时按押金占用在 卖出中 / 已售罄 之间切换 */
 function cmSyncState(c){
+  if((c.state==='open'||c.state==='soldout')&&cmKicked(c)){c.state='sealed';c.autoSealed=true;return}
   if(c.state==='open'&&cmSoldOut(c))c.state='soldout';
   else if(c.state==='soldout'&&!cmSoldOut(c))c.state='open';
 }
@@ -4421,7 +4445,9 @@ function renderOrders(){
             <circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/>
             <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></div>
         <div class="muted" style="margin:6px 0 4px">${c.home} vs ${c.away}</div>
-        <div class="row" style="font-size:12px;color:#666;gap:6px">
+        ${c.state==='sealed'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">比赛已结束,请录入赛果</div>`:''}
+        ${c.state==='pending'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">赛果已提交,等待运营审核</div>`:''}
+        <div class="row" style="font-size:12px;color:#666;gap:6px;margin-top:6px">
           <span class="nowrap">盘号 ${c.id}</span>
           <span class="nowrap">λ ${c.lH} / ${c.lA}</span>
           <span style="background:#FFF3E5;color:#FF8C00;font-size:10px;padding:0 4px;border-radius:3px" class="nowrap">押</span>
