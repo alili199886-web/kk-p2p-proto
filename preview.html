@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v19.1 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v19.2 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -858,7 +858,7 @@ input:focus{border-color:#FF8C00}
     <li>私盘页签<b>只展示本人创建</b>的盘，不会出现他人的盘。</li>
     <li>卡片字段：联赛、状态标签、主客队、盘号、两队 λ、押金、收单进度、开赛时间；已结算盘在状态标签左侧展示<b>本场净盈亏</b>（盈利绿、亏损红、不输不赢黑）。</li>
     <li><b>状态筛选为七项</b>：全部 / 卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已关闭。待审核涵盖开盘待审、赛果待审与两种被驳回的情形。</li>
-    <li>被驳回的盘在卡片上「待审核」标签旁加红色标识<b>「赛果被驳回」「开盘被驳回」</b>并提示进详情查看，<b>原因正文不在列表展示</b>。</li>
+    <li>被驳回的盘，状态标签仍为「待审核」，<b>卡片内给一行红色提示</b>说明是赛果被驳回还是开盘被驳回并引导进详情，<b>原因正文不在列表展示</b>。</li>
     <li>点击卡片进入<b>开盘详情</b>（庄家管理页），与赛事大厅进入的赛事详情是两个不同页面。</li>
   </ul>
 
@@ -903,7 +903,7 @@ input:focus{border-color:#FF8C00}
     <li><b>④ 庄家录入赛果</b>：比赛结束后，庄家在开盘详情底部点「录入赛果」，填入常规时间 90 分钟（含补时）比分并提交，状态转为<b>待审核</b>。卖单列表该盘卡片上提示「比赛已结束，请录入赛果」。</li>
     <li><b>⑤ 运营审核</b>：后台核对公开赛果，通过则正式结算；不通过时盘仍为<b>待审核</b>，底部按钮变为「重新录入赛果」，庄家按驳回说明改正后重新提交，重提后清除上一次的驳回信息。<b>审核通过前不发生任何资金兑付</b>。</li>
     <li><b>驳回原因的展示</b>：运营在后台驳回时填写原因，展示在<b>开盘详情的赛事信息卡内、队名下方</b>的红色区块里，只给标题（开盘审核未通过 / 赛果审核未通过）与原因正文，<b>不展示驳回人与驳回时间</b>。
-      <br><b>卖单列表卡片</b>在「待审核」标签旁加一枚红色标识「赛果被驳回」或「开盘被驳回」，并提示「请进入详情查看原因」，<b>但不展示原因正文</b>——列表只负责让庄家知道哪条需要处理，具体原因进详情看。不依赖客服通道。</li>
+      <br><b>卖单列表卡片</b>状态标签只显示「待审核」，不加驳回标识；在卡片内给一行红色提示「赛果被驳回，请进入详情查看原因并重新录入」或「开盘被驳回，请进入详情查看原因」，<b>不展示原因正文</b>——列表只负责让庄家知道哪条需要处理，具体原因进详情看。不依赖客服通道。</li>
     <li><b>状态对外收敛</b>：开盘待审核、赛果待审核、开盘被驳回、赛果被驳回四种内部情形，<b>对庄家统一显示为「待审核」</b>，筛选项里也只有一个「待审核」并涵盖这四种。区别只体现在详情页的驳回区块与底部按钮上。</li>
     <li><b>⑥ 已结算</b>：按赛果兑付子单，押金解冻退回，盘详情展示结算明细与本场净盈亏。</li>
     <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营作废，状态转为<b>已关闭</b>，全部成交撤销、投注金额原路退回、不计盈亏。撤销结算由庄家发起、运营审核。</li>
@@ -4522,7 +4522,6 @@ function renderOrders(){
         <div class="row">
           <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${c.league}</span>
           ${pfHtml}<span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span>
-          ${(c.state==='rejected'||c.state==='openRej')?`<span class="tag tag-closed" style="margin-left:6px">${c.state==='rejected'?'赛果被驳回':'开盘被驳回'}</span>`:''}
           <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#FF8C00;fill:none;stroke-width:1.8;cursor:pointer;margin-left:10px;flex-shrink:0" onclick="event.stopPropagation();cmShareFrom('${c.id}')">
             <circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/>
             <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></div>
