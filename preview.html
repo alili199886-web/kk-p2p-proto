@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.0 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v18.1 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -1561,8 +1561,7 @@ function cmShareMk(mkKey){
         <span class="muted nowrap">${c.time}</span></div>
       <div class="row" style="margin-top:9px">
         <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
-        <span class="muted nowrap" style="font-size:12px">${money(got)}/${money(c.dep)}</span>
-        <span style="font-size:12px;color:#666;margin-left:10px;cursor:pointer" class="nowrap" onclick="closeCfm()">查看详情 ›</span></div>
+        <span class="muted nowrap" style="font-size:12px">${money(got)}/${money(c.dep)}</span></div>
     </div>
     <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
     <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
@@ -1662,7 +1661,7 @@ function cmRowHtml(c){
 
 /* 盘口详情:四类玩法全量 */
 /* 赛事详情:赛事大厅 / 赛果页进入,纯投注视角 */
-function cmOpenDetail(id){const _t=$('cd-tabs');if(_t)_t.style.display='flex';cmCur=cmFind(id);cmDetailFold={};cdTab='all';go('pg-cmdetail');cmRenderDetail()}
+function cmOpenDetail(id){const _t=$('cd-tabs');if(_t)_t.style.display='flex';cmCur=cmFind(id);cmDetailFold={};cdTab='all';cmLiveOn=false;go('pg-cmdetail');cmRenderDetail()}
 /* 开盘详情:仅从卖单私盘页签进入,庄家管理视角 */
 function cmOpenOwn(id){cmCur=cmFind(id);cmSubOpen={};go('pg-cmown');cmRenderOwnDetail()}
 function cmRenderDetail(){
@@ -1686,8 +1685,14 @@ function cmRenderDetail(){
           <div style="width:52px;height:52px;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto">${c.aLogo||'⚽'}</div>
           <div style="font-size:12px;margin-top:6px;word-break:break-word;line-height:1.35">${c.away}</div></div>
       </div>
-      ${c.live?`<div style="text-align:center;margin-top:12px;position:relative">
-        <span style="background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:14px;cursor:pointer" onclick="cmPlayLive()">▦ 动画直播</span></div>`:''}
+      ${c.live?(cmLiveOn?`<div style="position:relative;margin-top:12px;background:#000;border-radius:10px;overflow:hidden;height:150px;display:flex;align-items:center;justify-content:center">
+          <div style="text-align:center;color:#8a8f96;font-size:12px;line-height:1.8">
+            <div style="font-size:26px">▦</div>动画直播播放中<br>
+            <span style="font-size:10px;opacity:.7;word-break:break-all;padding:0 12px;display:inline-block">${c.live}</span></div>
+          <span style="position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer" onclick="cmLiveOn=false;cmRenderDetail()">×</span>
+        </div>`
+        :`<div style="text-align:center;margin-top:12px;position:relative">
+          <span style="background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:14px;cursor:pointer" onclick="cmLiveOn=true;cmRenderDetail()">▦ 动画直播</span></div>`):''}
       <div style="text-align:center;margin-top:${c.live?'8':'12'}px;position:relative;font-size:11px;color:rgba(255,255,255,.72)">庄家 ${c.banker}</div>
     </div>
     ${c.state==='settled'?`<div class="hint" style="margin:8px 12px 0">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>(常规时间 90 分钟,不含加时与点球)</div>`:''}
@@ -1992,7 +1997,7 @@ function cmDoOff(){
   closeCfm(); cmRenderOwnDetail(); renderHome(); renderOrders();
   toast('赛事已下架,等待录入赛果');
 }
-let cmOvFold=true, cmResFold=false, cmStFilter='all';
+let cmOvFold=true, cmResFold=false, cmStFilter='all', cmLiveOn=false;
 let cmSubOpen={}, cmSealedMk={};
 function cmSealed(c,mkKey){return !!(cmSealedMk[c.id]&&cmSealedMk[c.id][mkKey])}
 /* 封盘为玩法级:做市定价下同一玩法内各项共享价格曲线,单项封盘会破坏跨玩法同价 */
@@ -2406,6 +2411,7 @@ CM.forEach(c=>{
     }
   })();
   seed('CM003','wdl_A',150); seed('CM006','wdl_D',100);
+
 })();
 /* 六状态:
    open 卖出中 / soldout 已售罄(押金占用触顶,补充额度后恢复) / sealed 已封盘(主动停止收单,不可恢复)
@@ -3510,6 +3516,13 @@ function doBuy(){
         match:c.home+' vs '+c.away,league:c.league,shares:r.shares,cm:true});
       cmBets.push({cid,mk:mk.name,item:it.name,key:ikey,stake:a,shares:r.shares,odds:r.odds,fee:r.fee,sold:0,
         time:'12-2'+(3+cmBets.length%5)+' 1'+(cmBets.length%9)+':2'+(cmBets.length%6)});
+      /* 同步写入买单列表:自定义赛事注单,每份命中兑付 1,可赢 = 份额 */
+      buyOrders.unshift({type:'single',item:it.name,tag:'自定义',play:mk.name,odds:f2(r.odds),mk:'欧洲盘',confirmed:false,
+        match:c.home+' vs '+c.away,sport:'足球',league:c.league,cm:true,cid,shares:r.shares,
+        amt:+a.toFixed(2),win:+r.shares.toFixed(2),
+        oid:'0110000'+Date.now().toString().slice(-13)+'-1',
+        time:new Date().toISOString().slice(0,10)+' '+new Date().toTimeString().slice(0,8),
+        status:'unsettled',bucket:'today'});
       buyAmt[k]='';
       return;
     }
@@ -4811,8 +4824,7 @@ function shareLegacy(idx){
         <span class="muted nowrap">${l.time.slice(5)}</span></div>
       <div class="row" style="margin-top:9px">
         <div class="prog grow" style="margin:0 10px 0 0"><i style="width:${pct}%;background:#FF8C00"></i></div>
-        <span class="muted nowrap" style="font-size:12px">${Math.round(l.sold)}/${Math.round(l.cap)}</span>
-        <span style="font-size:12px;color:#666;margin-left:10px;cursor:pointer" class="nowrap" onclick="closeCfm();openSellDetail(${idx})">查看详情 ›</span></div>
+        <span class="muted nowrap" style="font-size:12px">${Math.round(l.sold)}/${Math.round(l.cap)}</span></div>
     </div>
     <button class="btn btn-p" style="width:100%;margin-top:14px;height:46px;font-size:15px" onclick="closeCfm();toast('已分享到金刚')">分享到金刚</button>
     <button class="btn btn-g" style="width:100%;margin-top:10px;height:46px;font-size:15px" onclick="closeCfm()">取消</button>`);
@@ -5096,6 +5108,30 @@ function guideRender(){
   },260);
 }
 /* 新手引导默认不自动弹出;如需查看,走「我的 → 重看新手引导」 */
+
+/* 买单列表预置:自定义赛事各一条未结算与已结算(置于 buyOrders 声明之后) */
+  (function(){
+    const c4=cmFind('CM004'); if(!c4)return;
+    const it=cmItem(c4,'wdl_H');
+    const b=cmBets.find(x=>x.cid==='CM004'&&x.key==='wdl_H');
+    if(it&&b) buyOrders.unshift({type:'single',item:it.name,tag:'自定义',play:'全场 独赢',odds:b.odds.toFixed(2),mk:'欧洲盘',
+      confirmed:true,match:c4.home+' vs '+c4.away,sport:'足球',league:c4.league,cm:true,cid:'CM004',shares:b.shares,
+      amt:+b.stake.toFixed(2),win:+b.shares.toFixed(2),settle:+b.shares.toFixed(2),
+      oid:'0110000226112238451001-1',time:'2026-12-26 20:15:30',status:'settled',bucket:'today'});
+    const c1=cmFind('CM001'); const it1=c1&&cmItem(c1,'ou2.5_O');
+    if(c1&&it1){
+      const L=EG.limits(c1.eng,c1.cfg,it1);
+      const r=EG.buy(c1.eng,c1.cfg,it1,Math.min(50,L.max));
+      EG.apply(c1.eng,c1.cfg,it1,Math.min(50,L.max),r.shares);
+      const mk=c1.eng.mks.find(x=>x.items.some(y=>y.key===it1.key));
+      cmBets.push({cid:'CM001',mk:mk.name,item:it1.name,key:'ou2.5_O',stake:50,shares:r.shares,
+        odds:r.odds,fee:r.fee,sold:0,time:'12-26 18:40'});
+      buyOrders.unshift({type:'single',item:it1.name,tag:'自定义',play:mk.name,odds:r.odds.toFixed(2),mk:'欧洲盘',
+        confirmed:true,match:c1.home+' vs '+c1.away,sport:'足球',league:c1.league,cm:true,cid:'CM001',shares:r.shares,
+        amt:50,win:+r.shares.toFixed(2),oid:'0110000226112238451002-1',
+        time:'2026-12-26 18:40:12',status:'unsettled',bucket:'today'});
+    }
+  })();
 </script>
 </body>
 </html>
