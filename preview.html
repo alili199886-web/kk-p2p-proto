@@ -178,7 +178,7 @@ input:focus{border-color:#FF8C00}
 </style>
 </head>
 <body>
-<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v17.8 · 自定义赛事</div>
+<div style="position:fixed;left:12px;top:12px;z-index:9999;background:#E24B4A;color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:14px;box-shadow:0 2px 8px rgba(0,0,0,.2);font-family:-apple-system,sans-serif">预览版 v17.9 · 自定义赛事</div>
 
 <div class="phone" id="app">
 
@@ -815,9 +815,9 @@ input:focus{border-color:#FF8C00}
   <h4>购物车（沿用原有购物车，不另开面板）</h4>
   <ul>
     <li>选中自定义赛事投注项直接进原购物车；<b>卖出页签自动隐藏</b>，做市成交不支持被其他会员卖出。关闭按钮保留。</li>
-    <li>卡片右上角展示的是<b>实际成交赔率</b>，随输入金额实时变动；试算区第一行大号显示实际成交赔率，第二行对照展示赔率与滑点，下方为获得份额与命中可得。</li>
-    <li>未输金额时提示「当前展示赔率 @X，输入金额后按实际成交赔率计算」。</li>
-    <li><b>单笔上限</b> = 三项取最小：单笔最多收、滑点上限金额、最低赔率限额。冷门项（价格低于冷门线）滑点上限按比例放宽并提示。超额按上限试算，不直接拒绝。</li>
+    <li>卡片右上角是<b>本笔实际成交赔率</b>，随输入金额实时变动，后面紧跟「(低 X%)」说明相对所见赔率的差距；输入框上方一行对照展示<b>所见赔率</b>与<b>成交后赔率</b>。盘口类型标注为 <b>[欧洲盘]</b>。</li>
+    <li><b>三个赔率的关系恒为：所见赔率 &gt; 本笔实际赔率 &gt; 成交后赔率</b>。所见赔率是下单前该项的当前赔率；本笔实际赔率是这笔钱买到的平均赔率，投注额越大越低；成交后赔率是本笔推动价格后该项的新赔率，供玩家判断自己对盘口的影响。三者必须同口径（同样计入溢价与抽水），否则小额投注会算出「本笔高于所见」的矛盾结果。</li>
+    <li><b>单笔上限直接作为输入框的限额提示</b>（「限额 2.00-X」），不单独列字段；上限 = 三项取最小：单笔最多收、滑点上限金额、最低赔率限额。冷门项（价格低于冷门线）滑点上限按比例放宽。超额按上限试算，不直接拒绝。</li>
     <li>自定义赛事<b>不参与串关</b>。</li>
     <li><b>赢时可得不在购物车展示</b>，在投注成功后的注单确认弹窗中以「获得份额」与「可赢金额」呈现。</li>
     <li><b>最低接受赔率（玩家侧）</b>：输入金额后出现，默认填当前成交后赔率。从点击下注到真正成交之间，别人可能抢先买入把价格推高、赔率压低，<b>本笔成交赔率低于该值时直接拒绝本笔</b>，相当于限价单的保护价。这是玩家的滑点兜底；庄家侧「被压价到多少就停止收单」是另一回事，本期待定。</li>
@@ -1795,7 +1795,7 @@ function cmBuyCard(k,ki){
   return `<div class="card" style="border-left:3px solid #FF8C00">
     <div class="row">
       <span style="font-size:15px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${it.name}</span>
-      <span style="font-size:15px;font-weight:800;color:#FF8C00;margin-left:8px" class="nowrap">@${f2(sim?sim.odds:L.seen)}${sim?`<span class="muted" style="font-size:11px;font-weight:400;margin-left:3px">${Math.abs(lowPct)<0.05?'(持平)':(lowPct>0?'(低 '+lowPct.toFixed(1)+'%)':'(高 '+Math.abs(lowPct).toFixed(1)+'%)')}</span>`:''}</span>
+      <span style="font-size:15px;font-weight:800;color:#FF8C00;margin-left:8px" class="nowrap">@${f2(sim?sim.odds:L.seen)}${sim?`<span class="muted" style="font-size:11px;font-weight:400;margin-left:3px">${lowPct<0.05?'(持平)':'(低 '+lowPct.toFixed(1)+'%)'}</span>`:''}</span>
       <span style="font-size:15px;color:#bbb;cursor:pointer;margin-left:10px" onclick="cmToggle('${cid}','${ikey}')">🗑</span></div>
     <div class="muted" style="font-size:12px;margin-top:5px">${mk.name} · [欧洲盘]</div>
     <div style="font-size:13px;color:#222;margin-top:4px">${c.home} VS ${c.away}</div>
