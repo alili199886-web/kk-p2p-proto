@@ -410,6 +410,11 @@ div.spec-flow { display: flex; flex-direction: column; align-items: stretch; fon
 .kk-sum4 i { font-style:normal; font-size:11px; color:#909399; text-align:right; }
 .kk-cm-row { border-top:1px dashed #efeff5; padding:6px 0; }
 .kk-cm-row-hd { display:flex; align-items:center; gap:14px; font-size:12px; flex-wrap:wrap; }
+.logo-dark-cell { display:inline-flex; align-items:center; justify-content:center; width:96px; height:44px; background:#1f2328; border-radius:4px; }
+.logo-dark-cell img { width:72px; height:36px; object-fit:contain; }
+.logo-row-dark { background:#1f2328; padding:10px 12px; border-radius:6px; display:inline-flex; }
+.logo-row-dark .logo-box { background:#1f2328; border-color:#4a5058; color:#aab0b8; }
+.logo-row-dark .logo-caption { color:#d0d4da; }
 </style>
 <div id="app"></div>
 <script>/**
@@ -627,8 +632,10 @@ const MERCHANTS = [
   });
 });
 
-// 竞彩体育开关：无前置条件，任何商户都可开
-MERCHANTS.forEach((m, i) => { m.lotteryEnabled = i % 3 === 0 ? 1 : 0; });
+// 暗色 LOGO（选填，不传时 C 端自动回退到亮色）
+const LOGO_SVG_DARK =
+  'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="72" height="36"><rect width="72" height="36" rx="3" fill="#1f2328"/><text x="36" y="23" font-size="11" fill="#f5c26b" text-anchor="middle" font-family="Arial">DARK</text></svg>');
+MERCHANTS.forEach((m, i) => { m.logoH5Dark = i % 3 === 0 ? LOGO_SVG_DARK : ''; m.logoPcDark = i === 0 ? LOGO_SVG_DARK : ''; });
 // 私盘开关：仅转账钱包可开（演示：100022 / 100002 已开启）
 MERCHANTS.forEach((m) => { m.marketEnabled = [100022, 100002].includes(m.id) ? 1 : 0; });
 
@@ -737,12 +744,20 @@ const MerchantPage = {
       { title: '商户名称', key: 'merchantName', align: 'left', width: 120 },
       { title: '商户显示名称', key: 'merchantShowName', align: 'left', width: 200 },
       {
-        title: '商户显示LOGO(H5/APP)', key: 'logoH5', align: 'left', width: 220,
+        title: '商户显示LOGO(H5/APP·亮色)', key: 'logoH5', align: 'left', width: 230,
         render: (r) => (r.logoH5 ? h('img', { src: r.logoH5, style: 'width:72px;height:36px;object-fit:contain;' }) : '-'),
       },
       {
-        title: '商户显示LOGO(PC)', key: 'logoPc', align: 'left', width: 200,
+        title: '商户显示LOGO(PC·亮色)', key: 'logoPc', align: 'left', width: 200,
         render: (r) => (r.logoPc ? h('img', { src: r.logoPc, style: 'width:72px;height:36px;object-fit:contain;' }) : '-'),
+      },
+      {
+        title: '商户显示LOGO(H5/APP·暗色)', key: 'logoH5Dark', align: 'left', width: 230,
+        render: (r) => (r.logoH5Dark ? h('span', { class: 'logo-dark-cell' }, h('img', { src: r.logoH5Dark })) : '-'),
+      },
+      {
+        title: '商户显示LOGO(PC·暗色)', key: 'logoPcDark', align: 'left', width: 200,
+        render: (r) => (r.logoPcDark ? h('span', { class: 'logo-dark-cell' }, h('img', { src: r.logoPcDark })) : '-'),
       },
       { title: '钱包类型', key: 'walletType', align: 'left', width: 110, render: (r) => renderDict('wallet', r.walletType) },
       { title: '数据来源', key: 'dataSource', align: 'left', width: 110, render: (r) => renderDict('dataSource', r.dataSource) },
@@ -771,7 +786,7 @@ const MerchantPage = {
         },
       },
       {
-        title: '私盘功能', key: 'marketEnabled', align: 'left', width: 170,
+        title: '自定义赛事', key: 'marketEnabled', align: 'left', width: 170,
         render(r) {
           if (r.walletType !== 2) return h('span', { style: 'color:#999;font-size:12px;' }, '无缝钱包不支持');
           const globalOn = cfgVal('p2p_enabled') === 1;
@@ -780,7 +795,7 @@ const MerchantPage = {
             r.marketEnabled = v ? 1 : 0;
             const src = MERCHANTS.find((m) => m.id === r.id);
             if (src) src.marketEnabled = r.marketEnabled;
-            message.success(v ? '已开启私盘（自定义赛事）' : '已关闭私盘，存量盘继续执行至结算');
+            message.success(v ? '已开启自定义赛事' : '已关闭自定义赛事，C 端入口已隐藏');
           };
           return h('div', { style: 'display:flex;align-items:center;gap:8px;' }, [
             h(naive.NSwitch, {
@@ -790,8 +805,8 @@ const MerchantPage = {
                 const live = CMARKETS.filter((m) => m.merchantId === r.id && isLiveMk(m)).length;
                 if (!v && live > 0) {
                   dialog.warning({
-                    title: '关闭私盘',
-                    content: `该商户有 ${live} 场进行中的自定义赛事（含待审核）。关闭后不可新开盘、补充押金，赛事从列表隐藏；存量盘照常录入赛果、审核与结算。确认关闭？`,
+                    title: '关闭自定义赛事',
+                    content: `该商户有 ${live} 场进行中的自定义赛事（含待审核）。关闭后 C 端开盘入口、自定义赛事列表、卖单私盘页签与赛果页自定义赛事均不展示。确认关闭？`,
                     positiveText: '确认关闭', negativeText: '取消',
                     onPositiveClick: () => apply(false),
                   });
@@ -800,22 +815,6 @@ const MerchantPage = {
             }),
             h('span', { style: `font-size:12px;color:${stText[1]};white-space:nowrap;` }, stText[0]),
           ]);
-        },
-      },
-      {
-        title: '竞彩体育', key: 'lotteryEnabled', align: 'left', width: 140,
-        render(r) {
-          return h(naive.NSwitch, {
-            value: r.lotteryEnabled === 1,
-            // 永久停用的商户不允许再改竞彩体育配置
-            disabled: r.status === 4,
-            'onUpdate:value': (v) => {
-              r.lotteryEnabled = v ? 1 : 0;
-              const src = MERCHANTS.find((m) => m.id === r.id);
-              if (src) src.lotteryEnabled = r.lotteryEnabled;
-              message.success(r.lotteryEnabled === 1 ? '已开启竞彩体育' : '已关闭竞彩体育');
-            },
-          });
         },
       },
       { title: '修改人', key: 'updatedBy', align: 'left', width: 110, render: (r) => (r.updatedBySumma ? r.updatedBySumma.realName || r.updatedBySumma.username : '') },
@@ -927,9 +926,9 @@ const MerchantEdit = {
     const formRef = ref(null);
     const model = reactive({
       id: 0, merchantName: '', merchantShowName: '', walletType: 1, p2pEnabled: 0,
-      lotteryEnabled: 0, marketEnabled: 0,
+      marketEnabled: 0,
       dataSource: 'IMSB', currencyList: ['USDT', 'CNY', 'KVND'], status: 1,
-      whiteIps: '', specifyEventName: '', remark: '', logoH5: '', logoPc: '',
+      whiteIps: '', specifyEventName: '', remark: '', logoH5: '', logoPc: '', logoH5Dark: '', logoPcDark: '',
     });
 
     watch(() => model.walletType, (v) => { if (v !== 2) { model.p2pEnabled = 0; model.marketEnabled = 0; } });
@@ -950,9 +949,9 @@ const MerchantEdit = {
       if (!row) {
         Object.assign(model, {
           id: 0, merchantName: '', merchantShowName: '', walletType: 1, p2pEnabled: 0,
-          lotteryEnabled: 0, marketEnabled: 0,
+          marketEnabled: 0,
           dataSource: 'IMSB', currencyList: ['USDT', 'CNY', 'KVND'], status: 1,
-          whiteIps: '', specifyEventName: '', remark: '', logoH5: '', logoPc: '',
+          whiteIps: '', specifyEventName: '', remark: '', logoH5: '', logoPc: '', logoH5Dark: '', logoPcDark: '',
         });
       } else {
         Object.assign(model, JSON.parse(JSON.stringify(row)));
@@ -982,7 +981,7 @@ const MerchantEdit = {
 
     function pickLogo(field) {
       // 原型里用占位图模拟上传结果
-      model[field] = field === 'logoH5' ? LOGO_SVG : LOGO_SVG_PC;
+      model[field] = field.endsWith('Dark') ? LOGO_SVG_DARK : field === 'logoH5' ? LOGO_SVG : LOGO_SVG_PC;
       message.success('已选择图片（原型用占位图代替真实上传）');
     }
 
@@ -995,10 +994,10 @@ const MerchantEdit = {
       statusOptions: getOption('merchantStatus').filter((o) => o.value !== -1),
       permLabel: getLabel('merchantStatus', 4),
       marketHint: computed(() => {
-        if (model.walletType !== 2) return '只有转账钱包(钱包类型=转账)才能开启私盘';
-        if (model.status === 4) return '商户已永久停用，不可修改私盘配置';
+        if (model.walletType !== 2) return '只有转账钱包(钱包类型=转账)才能开启自定义赛事';
+        if (model.status === 4) return '商户已永久停用，不可修改自定义赛事配置';
         if (cfgVal('p2p_enabled') !== 1) return '全局 P2P 已关闭，保存后待全局开启才生效';
-        return '与 P2P 功能相互独立；本期控制自定义赛事，关闭后不可新开盘，存量盘继续执行至结算';
+        return '开启后 C 端展示开盘入口、自定义赛事列表、卖单私盘页签与赛果页自定义赛事；关闭后均不展示';
       }),
       close: () => { show.value = false; },
     };
@@ -1018,6 +1017,7 @@ const MerchantEdit = {
           <n-form-item label="商户显示LOGO" :show-feedback="false" required>
             <div>
               <div style="font-size:12px;color:#999;margin-bottom:8px">支持格式：PNG、JPEG、JPG、SVG，大小不超过5MB</div>
+              <div style="font-size:12px;color:#515a6e;margin-bottom:6px">亮色模式</div>
               <div class="logo-row">
                 <div class="logo-slot">
                   <div class="logo-box" @click="pickLogo('logoH5')">
@@ -1029,6 +1029,23 @@ const MerchantEdit = {
                 <div class="logo-slot">
                   <div class="logo-box" @click="pickLogo('logoPc')">
                     <img v-if="model.logoPc" :src="model.logoPc" />
+                    <span v-else>＋<br/>上传图片</span>
+                  </div>
+                  <span class="logo-caption">PC</span>
+                </div>
+              </div>
+              <div style="font-size:12px;color:#515a6e;margin:12px 0 6px">暗色模式 <span style="color:#999">选填，不传时自动回退到亮色</span></div>
+              <div class="logo-row logo-row-dark">
+                <div class="logo-slot">
+                  <div class="logo-box" @click="pickLogo('logoH5Dark')">
+                    <img v-if="model.logoH5Dark" :src="model.logoH5Dark" />
+                    <span v-else>＋<br/>上传图片</span>
+                  </div>
+                  <span class="logo-caption">H5/APP</span>
+                </div>
+                <div class="logo-slot">
+                  <div class="logo-box" @click="pickLogo('logoPcDark')">
+                    <img v-if="model.logoPcDark" :src="model.logoPcDark" />
                     <span v-else>＋<br/>上传图片</span>
                   </div>
                   <span class="logo-caption">PC</span>
@@ -1046,17 +1063,10 @@ const MerchantEdit = {
               @update:value="(v) => model.p2pEnabled = v ? 1 : 0" />
             <span style="margin-left:12px;font-size:12px;color:#999">只有转账钱包(钱包类型=转账)才能开启 P2P</span>
           </n-form-item>
-          <n-form-item label="私盘功能" path="marketEnabled">
+          <n-form-item label="自定义赛事" path="marketEnabled">
             <n-switch :value="model.marketEnabled === 1" :disabled="model.walletType !== 2 || model.status === 4"
               @update:value="(v) => model.marketEnabled = v ? 1 : 0" />
             <span style="margin-left:12px;font-size:12px;color:#999">{{ marketHint }}</span>
-          </n-form-item>
-          <n-form-item label="竞彩体育" path="lotteryEnabled">
-            <n-switch :value="model.lotteryEnabled === 1" :disabled="model.status === 4"
-              @update:value="(v) => model.lotteryEnabled = v ? 1 : 0" />
-            <span style="margin-left:12px;font-size:12px;color:#999">
-              {{ model.status === 4 ? '商户已永久停用，不可修改竞彩体育配置' : '关闭后该商户不可使用竞彩体育' }}
-            </span>
           </n-form-item>
           <n-form-item label="数据来源" path="dataSource">
             <n-radio-group v-model:value="model.dataSource">
@@ -1121,7 +1131,7 @@ const MerchantView = {
           <n-descriptions-item label="状态">
             <n-tag :type="getTagType('merchantStatus', row.status)" size="small">{{ getLabel('merchantStatus', row.status) }}</n-tag>
           </n-descriptions-item>
-          <n-descriptions-item label="私盘功能">
+          <n-descriptions-item label="自定义赛事">
             {{ row.walletType !== 2 ? '无缝钱包不支持' : (row.marketEnabled === 1 ? '开启' : '关闭') }}
           </n-descriptions-item>
           <n-descriptions-item label="白名单">{{ row.whiteIps }}</n-descriptions-item>
@@ -1690,7 +1700,7 @@ const MENU_OPTIONS = [
     children: [{ label: '商户列表', key: 'merchant-index' }],
   },
   { label: '配置管理', key: 'config', children: [{ label: '全局配置', key: 'config-global' }], icon: menuIcon('M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 3h-5l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h5l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6c.1-.3.1-.7.1-1z') },
-  { label: '用户管理', key: 'user', children: [{ label: '会员列表', key: 'user-member' }], icon: menuIcon('M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.9') },
+  { label: '用户管理', key: 'user', icon: menuIcon('M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.9') },
   { label: '风控管理', key: 'risk', icon: menuIcon('M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z') },
   {
     label: '数据管理', key: 'data', icon: menuIcon('M3 3v18h18M7 15l3-3 3 3 5-6'),
@@ -1719,7 +1729,7 @@ const App = {
     const activeKey = ref('merchant-index');
     const activeTab = ref('merchant-index');
     const TAB_LABEL = {
-      'merchant-index': '商户列表', 'config-global': '全局配置', 'audit-index': '私盘审核', 'user-member': '会员列表',
+      'merchant-index': '商户列表', 'config-global': '全局配置', 'audit-index': '私盘审核',
       'bets-index': '投注记录', 'member-log': '用户帐变记录', 'banker-index': '坐庄管理', 'tradelog-index': '操盘日志',
     };
     const tabs = ref(['merchant-index', 'config-global', 'audit-index', 'banker-index', 'tradelog-index'].map((k) => ({ key: k, label: TAB_LABEL[k] })));
@@ -1738,7 +1748,6 @@ const App = {
       'tradelog-index': ['数据管理', '操盘日志'],
       'config-global': ['配置管理', '全局配置'],
       'audit-index': ['数据管理', '私盘审核'],
-      'user-member': ['用户管理', '会员列表'],
       'member-log': ['数据管理', '用户帐变记录'],
     };
     const breadcrumb = computed(() => BREADCRUMB[activeTab.value] || []);
@@ -1780,7 +1789,7 @@ const App = {
         </div>
         <n-menu :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="18"
           :theme-overrides="menuThemeOverrides"
-          :options="menuOptions" :value="activeKey" :default-expanded-keys="['merchant','data','config','user']"
+          :options="menuOptions" :value="activeKey" :default-expanded-keys="['merchant','data','config']"
           @update:value="onMenuSelect" />
       </n-layout-sider>
 
@@ -1827,7 +1836,6 @@ const App = {
               <banker-page v-else-if="activeTab === 'banker-index'" />
               <config-page v-else-if="activeTab === 'config-global'" />
               <audit-page v-else-if="activeTab === 'audit-index'" />
-              <member-page v-else-if="activeTab === 'user-member'" />
               <account-log-page v-else-if="activeTab === 'member-log'" />
               <trade-log-page v-else />
             </div>
@@ -1942,7 +1950,7 @@ const GLOBAL_CFG = reactive([
   { key: 'cm_longshot_cap', value: 20, desc: '冷门封顶：放宽后的滑点上限最大值', kind: 'dec', dec: 2, min: 0.1, max: 50, def: 20, unit: '%', isNew: true },
   { key: 'cm_adjust_step_max', value: 0.05, desc: '调水单次上限（赔率增减量绝对值）', kind: 'dec', dec: 2, min: 0.01, max: 1, def: 0.05, isNew: true },
   { key: 'cm_adjust_total_max', value: 0.3, desc: '单个投注项累计调水上限（历次绝对值之和）', kind: 'dec', dec: 2, min: 0.01, max: 5, def: 0.3, isNew: true },
-  { key: 'cm_void_wait_hours', value: 48, desc: '作废等待时长：延期或腰斩超过 N 小时未恢复，运营可作废', kind: 'int', min: 1, max: 720, def: 48, unit: '小时', isNew: true },
+  { key: 'cm_void_wait_hours', value: 48, desc: '异常等待时长：延期或腰斩超过 N 小时未恢复，运营可强制下架', kind: 'int', min: 1, max: 720, def: 48, unit: '小时', isNew: true },
 ]);
 const cfgVal = (key) => { const c = GLOBAL_CFG.find((x) => x.key === key); return c ? c.value : null; };
 
@@ -2106,7 +2114,7 @@ const CM_ST = {
   pending_result: { label: '赛果待审', color: ORANGE, ext: '待审核' },
   rejected_result: { label: '赛果已驳回', type: 'error', ext: '待审核' },
   settled: { label: '已结算', color: PURPLE, ext: '已结算' },
-  voided: { label: '已关闭', type: 'default', ext: '已关闭' },
+  closed: { label: '已关闭', type: 'default', ext: '已关闭' },
 };
 /* 投注项卖出（已上线 P2P）沿用既有状态 */
 const BANKER_ST = {
@@ -2123,14 +2131,14 @@ const tagOf = (dict, key) => {
   if (s.color) props.color = s.color; else props.type = s.type;
   return h(naive.NTag, props, () => s.label);
 };
-const SEAL_BY = { auto: '自动封盘', banker: '庄家赛事下架', ops: '运营强制下架' };
+const SEAL_BY = { auto: '自动封盘', banker: '庄家赛事下架' };
 const APISYS_RATE = 0.02;
 
 /* 驳回 / 作废 预设原因 */
-const OPEN_REJECT = ['队名或队徽违规', '赛事信息不实', '直播地址违规', '余额不足以冻结押金', '开赛前未完成审核', '其他'];
+const OPEN_REJECT = ['队名或队徽违规', '赛事信息不实', '直播地址违规', '开赛前未完成审核', '其他'];
 const RESULT_REJECT = ['比分与公开赛果不符', '比赛未结束', '其他'];
-const VOID_REASONS = ['比赛取消', '延期超过 48 小时', '腰斩后 48 小时未恢复'];
-const FORCE_REASONS = ['疑似操纵赔率', '疑似自买自卖', '赛事信息存疑', '其他'];
+/* 强制下架：赛事异常与风险处置共用 */
+const FORCE_REASONS = ['比赛取消', '延期超过 48 小时', '腰斩后 48 小时未恢复', '疑似操纵赔率', '疑似自买自卖', '赛事信息存疑', '其他'];
 
 /* ---------- 盘数据（mock） ---------- */
 const cmId = (off, n) => { const d = dayOf(off); return 'CM' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + n; };
@@ -2210,8 +2218,7 @@ const CMARKETS = reactive([
   {
     id: cmId(-2, '07'), merchantId: 100022, merchant: 'kksport', uid: '100920', acc: 'ace_m', nick: 'Ace',
     home: '海鸥', away: '山猫', kickoff: dAt(1, '22:00'), created: dAt(-2, '18:00'), submitted: dFull(-2, '18:00:00'),
-    lamH: 1.3, lamA: 1.6, live: '', auto: 10, maxBet: 2000, dep: 2000, extra: 0, occ: 900, status: 'sealed', sealBy: 'ops',
-    sealReason: '疑似操纵赔率：短时间内连续调水后关联账号集中买入',
+    lamH: 1.3, lamA: 1.6, live: '', auto: 10, maxBet: 2000, dep: 2000, extra: 0, occ: 900, status: 'sealed', sealBy: 'banker',
     openReview: { status: 'approved', reviewer: 'audit_zhang', rAt: dFull(-2, '18:20:00') },
     plays: [{ name: '全场独赢', items: [
       it('客胜', 2.40, 2.70, 500, [sb('0110000142611190701-1', '100921', 'ace_m2', 500, 486.00, 2.62, dAt(-1, '09:10'), null, ['同设备'])], [
@@ -2262,8 +2269,8 @@ const CMARKETS = reactive([
   {
     id: cmId(-6, '11'), merchantId: 100024, merchant: 'kksport3', uid: '101033', acc: 'blue_s', nick: '蓝调',
     home: '旋风', away: '巨浪', kickoff: dAt(-4, '20:00'), created: dAt(-6, '10:00'), submitted: dFull(-6, '10:00:00'),
-    lamH: 1.2, lamA: 1.2, live: '', auto: 10, maxBet: 2000, dep: 1000, extra: 0, occ: 0, status: 'voided', sealBy: 'auto',
-    voidReason: { preset: '比赛取消', reason: '主办方公告因场地原因取消比赛', by: 'admin', at: dFull(-4, '21:00:00') },
+    lamH: 1.2, lamA: 1.2, live: '', auto: 10, maxBet: 2000, dep: 1000, extra: 0, occ: 0, status: 'closed', sealBy: 'auto',
+    closeReason: { preset: '比赛取消', reason: '主办方公告因场地原因取消比赛', by: 'admin', at: dFull(-4, '21:00:00') },
     openReview: { status: 'approved', reviewer: 'audit_zhang', rAt: dFull(-6, '10:20:00') },
     plays: [{ name: '全场独赢', items: [
       it('主胜', 2.50, 2.50, 200, [sb('0110000142611151101-1', '100252', 'kk_wang88', 200, 194.00, 2.52, dAt(-5, '11:00'), 0)]),
@@ -2296,7 +2303,7 @@ const cmSettle = (m) => {
   return { received: m.settle.received, payout: m.settle.payout, sub, comm, net: +(sub - comm).toFixed(2), settledAt: m.settle.settledAt };
 };
 const sgn = (v) => (v >= 0 ? '+' : '−') + '¥' + money(Math.abs(v));
-const isLiveMk = (m) => !['settled', 'voided', 'rejected_open'].includes(m.status);
+const isLiveMk = (m) => !['settled', 'closed', 'rejected_open'].includes(m.status);
 const lastResult = (m) => (m.results && m.results.length ? m.results[m.results.length - 1] : null);
 /* 等待时长：开盘审核从提交算起，赛果审核从最近一次录入算起 */
 const waitText = (full) => {
@@ -2310,12 +2317,10 @@ const bankerHistory = (uid) => {
   return {
     total: mine.length,
     settled: mine.filter((m) => m.status === 'settled').length,
-    voided: mine.filter((m) => m.status === 'voided').length,
+    closed: mine.filter((m) => m.status === 'closed').length,
     rejected: mine.filter((m) => m.status === 'rejected_open').length,
   };
 };
-/* 演示：庄家余额（审核通过时校验能否冻结押金） */
-const BALANCE = { '100460': 12000, '100612': 300, '100577': 8000, '100990': 500 };
 
 /* ---------- 操盘日志 ---------- */
 const TRADE_LOGS = reactive([]);
@@ -2329,13 +2334,12 @@ const pushLog = (l) => TRADE_LOGS.unshift(Object.assign({ module: '坐庄管理'
     { channel: 'C端H5', merchant: 'kksport', func: '调水', cat: '投注项【全场独赢 · 主胜 赔率】', user: 'tiger_88', obj: M('04').id, from: '2.33', to: '2.28', time: dFull(-1, '12:30:10') },
     { channel: 'C端PC', merchant: 'kksport', func: '补充押金', cat: '盘【押金】', user: 'tiger_88', obj: M('04').id, from: '¥3,000.00', to: '¥4,000.00', time: dFull(-1, '16:00:00') },
     { channel: 'C端H5', merchant: 'kksport', func: '封盘', cat: '玩法【主客队进球数 · 主 1.5 收单状态】', user: 'tiger_88', obj: M('04').id, from: '卖出中', to: '已封盘', time: dFull(-1, '16:10:00') },
-    { channel: '后台', merchant: 'kksport', func: '强制下架', cat: '盘【状态】', user: 'admin', obj: M('07').id, from: '卖出中', to: '已封盘', reason: M('07').sealReason, time: dFull(-1, '09:30:00') },
+    { channel: 'C端H5', merchant: 'kksport', func: '赛事下架', cat: '盘【状态】', user: 'ace_m', obj: M('07').id, from: '卖出中', to: '已封盘', time: dFull(-1, '09:30:00') },
     { channel: 'system', merchant: 'kksport', func: '自动封盘', cat: '盘【状态】', user: 'system', obj: M('06').id, from: '卖出中', to: '已封盘', reason: '庄家预设开赛前 10 分钟自动封盘', time: dFull(-1, '00:50:00') },
     { channel: 'C端H5', merchant: 'kksport', func: '录入赛果', cat: '盘【赛果】', user: 'fjord_w', obj: M('08').id, from: '已封盘', to: '赛果待审 2:1', time: dFull(-1, '22:05:00') },
     { channel: '后台', module: '私盘审核', merchant: '转账钱包测试商户', func: '赛果审核', cat: '盘【状态】', user: 'audit_zhang', obj: M('09').id, from: '赛果待审 1:0', to: '赛果已驳回', reason: '比分与公开赛果不符：直播回放显示终场比分为 1:1，请核对后重新录入', time: dFull(-2, '22:10:00') },
     { channel: '后台', module: '私盘审核', merchant: 'kksport', func: '赛果审核', cat: '盘【状态】', user: 'audit_li', obj: M('10').id, from: '赛果待审 1:1', to: '已结算', time: dFull(-3, '22:30:00') },
-    { channel: '后台', merchant: 'kksport3', func: '作废', cat: '盘【状态】', user: 'admin', obj: M('11').id, from: '已封盘', to: '已关闭', reason: '比赛取消：主办方公告因场地原因取消比赛', time: dFull(-4, '21:00:00') },
-    { channel: '后台', module: '会员管理', merchant: 'kksport', func: '坐庄权限', cat: '会员【坐庄权限】', user: 'admin', obj: '100990', from: '开启', to: '关闭', reason: '多次开盘冒用官方队名', time: dFull(-1, '16:00:00') },
+    { channel: '后台', merchant: 'kksport3', func: '强制下架', cat: '盘【状态】', user: 'admin', obj: M('11').id, from: '已封盘', to: '已关闭', reason: '比赛取消：主办方公告因场地原因取消比赛', time: dFull(-4, '21:00:00') },
   ].sort((a, b) => tsOf(a.time) - tsOf(b.time)).forEach(pushLog);
 })();
 
@@ -2456,25 +2460,15 @@ const AuditPage = {
 
     /* 开盘审核 */
     function approveOpen(m) {
-      const bal = BALANCE[m.uid] ?? 99999;
-      if (bal < m.dep) {
-        dialog.error({
-          title: '余额不足，无法通过',
-          content: `庄家当前余额 ¥${money(bal)}，不足以冻结押金 ¥${money(m.dep)}。请驳回该开盘。`,
-          positiveText: '去驳回', negativeText: '取消',
-          onPositiveClick: () => rejectOpen(m, '余额不足以冻结押金'),
-        });
-        return;
-      }
       dialog.success({
         title: '通过开盘审核',
-        content: `通过后立即冻结押金 ¥${money(m.dep)} 并上架，赛事进入「卖出中」。确认通过？`,
+        content: `押金 ¥${money(m.dep)} 已在庄家提交时冻结。通过后赛事立即上架，进入「卖出中」。确认通过？`,
         positiveText: '确认通过', negativeText: '取消',
         onPositiveClick: () => {
           m.status = 'open';
           m.openReview = { status: 'approved', reviewer: 'audit_li', rAt: nowFull() };
           pushLog({ channel: '后台', module: '私盘审核', merchant: m.merchant, func: '开盘审核', cat: '盘【状态】', user: 'audit_li', obj: m.id, from: '开盘待审', to: '卖出中', time: nowFull() });
-          message.success('已通过，押金已冻结，赛事已上架');
+          message.success('已通过，赛事已上架');
           det.show = false; query();
         },
       });
@@ -2482,7 +2476,7 @@ const AuditPage = {
     function rejectOpen(m, prefill) {
       reasonRef.value.open({
         title: '驳回开盘 · ' + cmName(m), okText: '确认驳回', danger: true, presets: OPEN_REJECT, prefill,
-        tips: ['驳回即终止该开盘：押金不冻结，庄家需重新开一场。', 'C 端仍显示「待审核」，驳回原因展示在开盘详情的队名下方。'],
+        tips: ['驳回即终止该开盘：提交时冻结的押金立即释放，庄家需重新开一场（重新提交时再次冻结）。', 'C 端仍显示「待审核」，驳回原因展示在开盘详情的队名下方。'],
         payload: { kind: 'open', m },
       });
     }
@@ -2521,7 +2515,7 @@ const AuditPage = {
         m.status = 'rejected_open';
         m.openReview = { status: 'rejected', preset, reason: text, reviewer: 'audit_li', rAt: nowFull() };
         pushLog({ channel: '后台', module: '私盘审核', merchant: m.merchant, func: '开盘审核', cat: '盘【状态】', user: 'audit_li', obj: m.id, from: '开盘待审', to: '开盘已驳回', reason, time: nowFull() });
-        message.success('已驳回，押金不冻结');
+        message.success('已驳回，押金已释放');
       } else {
         const r = lastResult(m);
         Object.assign(r, { status: 'rejected', preset, reason: text, reviewer: 'audit_li', rAt: nowFull() });
@@ -2572,7 +2566,7 @@ const AuditPage = {
     return {
       tab, form, rows, loading, openCols, resultCols, query, det, reasonRef, onReason,
       approveOpen, rejectOpen, approveResult, rejectResult, previewSettle, lastResult, bankerHistory, cmName, money, f2,
-      openReviewSt, resultReviewSt, itemHit, icons: ICONS, BALANCE,
+      openReviewSt, resultReviewSt, itemHit, icons: ICONS,
       merchantOptions: getOption('merchantOption'),
       stOptions: [{ label: '全部', value: 'all' }, { label: '待审核', value: 'pending' }, { label: '已通过', value: 'approved' }, { label: '已驳回', value: 'rejected' }],
       reset: () => { Object.assign(form, { merchantId: null, uid: '', st: 'pending' }); query(); },
@@ -2626,12 +2620,13 @@ const AuditPage = {
             <n-descriptions-item label="两队场均进球 λ"><span class="kk-mono">{{ det.m.lamH }} / {{ det.m.lamA }}</span></n-descriptions-item>
             <n-descriptions-item label="押金 / 单笔最多收"><span class="kk-mono">¥{{ money(det.m.dep) }} / ¥{{ money(det.m.maxBet) }}</span></n-descriptions-item>
             <n-descriptions-item label="自动封盘">{{ det.m.auto ? '开赛前 ' + det.m.auto + ' 分钟' : '开赛时' }}</n-descriptions-item>
-            <n-descriptions-item v-if="tab === 'open'" label="庄家余额">
-              <span class="kk-mono" :style="(BALANCE[det.m.uid] ?? 99999) < det.m.dep ? 'color:#e24b4a' : ''">¥{{ money(BALANCE[det.m.uid] ?? 99999) }}</span>
-              <span v-if="(BALANCE[det.m.uid] ?? 99999) < det.m.dep" style="color:#e24b4a">（不足以冻结押金）</span>
+            <n-descriptions-item v-if="tab === 'open'" label="押金状态">
+              <span v-if="det.m.status === 'pending_open'" style="color:#d97706">已冻结（提交时）</span>
+              <span v-else-if="det.m.status === 'rejected_open'" style="color:#909399">已释放（驳回时）</span>
+              <span v-else>已冻结</span>
             </n-descriptions-item>
             <n-descriptions-item v-if="tab === 'open'" label="庄家历史开盘">
-              共 {{ bankerHistory(det.m.uid).total }} 场 · 已结算 {{ bankerHistory(det.m.uid).settled }} · 作废 {{ bankerHistory(det.m.uid).voided }} · 开盘被驳回 {{ bankerHistory(det.m.uid).rejected }}
+              共 {{ bankerHistory(det.m.uid).total }} 场 · 已结算 {{ bankerHistory(det.m.uid).settled }} · 被强制下架 {{ bankerHistory(det.m.uid).closed }} · 开盘被驳回 {{ bankerHistory(det.m.uid).rejected }}
             </n-descriptions-item>
             <n-descriptions-item label="提交时间">{{ det.m.submitted }}</n-descriptions-item>
           </n-descriptions>
@@ -2721,8 +2716,8 @@ const progressBar = (pct) =>
     h('span', { class: 'kk-prog' }, h('i', { style: `width:${pct}%` })),
     h('span', { style: 'color:#909399;font-size:12px;' }, `${Math.round(pct)}%`),
   ]);
-const CAN_FORCE = ['open', 'soldout'];
-const CAN_VOID = ['open', 'soldout', 'sealed', 'pending_result', 'rejected_result'];
+/* 强制下架：已上架且未结算的盘均可；开盘待审 / 已驳回由私盘审核处理 */
+const CAN_FORCE = ['open', 'soldout', 'sealed', 'pending_result', 'rejected_result'];
 
 function bankerRows() {
   const rows = [];
@@ -2790,7 +2785,8 @@ const BankerPage = {
         title: '已收单 / 押金占用', key: 'sold', width: 200, align: 'right',
         render(r) {
           if (r.mode !== 'custom') return monoR(`¥${money(r.sold)} / —`);
-          if (r.st === 'pending_open' || r.st === 'rejected_open') return h('span', { style: 'color:#909399' }, '未上架 · 押金未冻结');
+          if (r.st === 'pending_open') return h('span', { style: 'color:#d97706' }, '未上架 · 押金已冻结');
+          if (r.st === 'rejected_open') return h('span', { style: 'color:#909399' }, '已驳回 · 押金已释放');
           return monoR(`¥${money(r.sold)} / ¥${money(r.occ)}`);
         },
       },
@@ -2798,7 +2794,7 @@ const BankerPage = {
         title: '收单进度', key: 'progress', width: 130,
         render(r) {
           if (r.mode !== 'custom') { const cap = floor2((r.dep + r.extra) / r.odds); return progressBar(cap ? Math.min(100, r.sold / cap * 100) : 0); }
-          if (['pending_open', 'rejected_open', 'settled', 'voided'].includes(r.st)) return dash();
+          if (['pending_open', 'rejected_open', 'settled', 'closed'].includes(r.st)) return dash();
           return progressBar(Math.min(100, r.occ / (r.dep + r.extra) * 100));
         },
       },
@@ -2827,12 +2823,11 @@ const BankerPage = {
       },
       { title: '开盘时间', key: 'created', width: 120, render: (r) => h('span', { style: 'color:#909399' }, r.created) },
       {
-        title: '操作', key: 'action', width: 240, fixed: ACTION_FIXED,
+        title: '操作', key: 'action', width: 190, fixed: ACTION_FIXED,
         render(r) {
           if (r.mode !== 'custom') return h(naive.NButton, { size: 'small', type: 'primary', onClick: () => window.$message.info('投注项卖出庄单详情（既有弹窗，本期不动）') }, () => '详情');
           const b = [h(naive.NButton, { size: 'small', type: 'primary', class: 'mx-1', onClick: () => detailRef.value?.open(r.id) }, () => '盘详情')];
-          if (CAN_FORCE.includes(r.st)) b.push(h(naive.NButton, { size: 'small', type: 'warning', ghost: true, class: 'mx-1', onClick: () => detailRef.value?.act(r.id, 'force') }, () => '强制下架'));
-          if (CAN_VOID.includes(r.st)) b.push(h(naive.NButton, { size: 'small', type: 'error', ghost: true, class: 'mx-1', onClick: () => detailRef.value?.act(r.id, 'void') }, () => '作废'));
+          if (CAN_FORCE.includes(r.st)) b.push(h(naive.NButton, { size: 'small', type: 'error', ghost: true, class: 'mx-1', onClick: () => detailRef.value?.act(r.id) }, () => '强制下架'));
           return h('div', { class: 'table-action' }, b);
         },
       },
@@ -2892,46 +2887,32 @@ const MarketDetail = {
     const openAdj = reactive({});
     const openSubs = reactive({});
     function open(id) { cur.value = CMARKETS.find((m) => m.id === id) || null; show.value = !!cur.value; }
-    function act(id, kind) {
+    function act(id) {
       const m = CMARKETS.find((x) => x.id === id);
       if (!m) return;
       cur.value = m;
-      if (kind === 'force') {
-        reasonRef.value.open({
-          title: '强制下架 · ' + cmName(m), okText: '确认下架', presets: FORCE_REASONS,
-          tips: ['赛事立即从赛事列表下架、停止收单，状态进入「已封盘」，与庄家「赛事下架」效果一致；', '已成交子单照常等待赛果：庄家录入赛果 → 运营审核 → 结算，未消费押金结算后退回；', '此操作不可撤销，庄家将收到站内信通知。'],
-          payload: { kind, m },
-        });
-      } else {
-        reasonRef.value.open({
-          title: '作废 · ' + cmName(m), okText: '确认作废', danger: true, presets: VOID_REASONS,
-          tips: ['全部成交撤销，玩家投注金额全额原路退回（含成交时的玩家侧抽水）；', '庄家押金全额解冻，不计盈亏、不抽庄家的水；状态转为「已关闭」；', '此操作不可逆，庄家将收到站内信通知。'],
-          payload: { kind, m },
-        });
-      }
+      reasonRef.value.open({
+        title: '强制下架 · ' + cmName(m), okText: '确认下架', danger: true, presets: FORCE_REASONS,
+        tips: ['赛事立即从 C 端赛事列表、赛果页消失，庄家在卖单「私盘」页签中看到状态为「已关闭」；', '全部成交撤销，玩家投注金额全额原路退回（含成交时的玩家侧抽水）；庄家押金全额释放，不计盈亏、不抽庄家的水；', '此操作不可逆，庄家将收到站内信通知。'],
+        payload: { m },
+      });
     }
     function onReason({ reason, preset, text, payload }) {
-      const { kind, m } = payload;
+      const { m } = payload;
       const from = CM_ST[m.status].label;
-      if (kind === 'force') {
-        m.status = 'sealed'; m.sealBy = 'ops'; m.sealReason = reason;
-        pushLog({ channel: '后台', merchant: m.merchant, func: '强制下架', cat: '盘【状态】', user: 'admin', obj: m.id, from, to: '已封盘', reason, time: nowFull() });
-        message.success('已强制下架，赛事进入已封盘，已站内信通知庄家');
-      } else {
-        m.status = 'voided'; m.occ = 0;
-        m.voidReason = { preset, reason: text, by: 'admin', at: nowFull() };
-        allItems(m).forEach((x) => x.subs.forEach((y) => { y.settle = 0; }));
-        if (lastResult(m) && lastResult(m).status === 'pending') lastResult(m).status = 'rejected';
-        pushLog({ channel: '后台', merchant: m.merchant, func: '作废', cat: '盘【状态】', user: 'admin', obj: m.id, from, to: '已关闭', reason, time: nowFull() });
-        message.success('已作废，投注全额原路退回，押金已解冻');
-      }
+      m.status = 'closed'; m.occ = 0;
+      m.closeReason = { preset, reason: text, by: 'admin', at: nowFull() };
+      allItems(m).forEach((x) => x.subs.forEach((y) => { y.settle = 0; }));
+      if (lastResult(m) && lastResult(m).status === 'pending') lastResult(m).status = 'rejected';
+      pushLog({ channel: '后台', merchant: m.merchant, func: '强制下架', cat: '盘【状态】', user: 'admin', obj: m.id, from, to: '已关闭', reason, time: nowFull() });
+      message.success('已强制下架，投注全额原路退回，押金已释放');
       emit('changed');
     }
     const settle = computed(() => (cur.value ? cmSettle(cur.value) : null));
     const dev = (x) => ((x.odds - x.open) / x.open * 100);
     expose({ open, act });
     return { sgn,
-      show, cur, reasonRef, onReason, act, settle, openAdj, openSubs, dev, money, f2, cmName, cmSold, cmSubs, CM_ST, SEAL_BY, CAN_FORCE, CAN_VOID,
+      show, cur, reasonRef, onReason, act, settle, openAdj, openSubs, dev, money, f2, cmName, cmSold, cmSubs, CM_ST, SEAL_BY, CAN_FORCE,
       lastResult, needPay: (x) => x.subs.reduce((s, y) => s + y.shares, 0),
       st: (k) => { const s = CM_ST[k]; return { label: s.label, type: s.type || 'default', color: s.color, ext: s.ext }; },
       jumpSub: (s) => goPage('bets-index', { orderNo: s.oid }),
@@ -2941,13 +2922,11 @@ const MarketDetail = {
     <n-modal v-model:show="show" preset="card" :style="{ width: '1000px', maxWidth: '96vw' }" :title="cur ? '盘详情 · ' + cur.id : '盘详情'">
       <template #header-extra>
         <n-space v-if="cur">
-          <n-button v-if="CAN_FORCE.includes(cur.status)" size="small" type="warning" ghost @click="act(cur.id, 'force')">强制下架</n-button>
-          <n-button v-if="CAN_VOID.includes(cur.status)" size="small" type="error" ghost @click="act(cur.id, 'void')">作废</n-button>
+          <n-button v-if="CAN_FORCE.includes(cur.status)" size="small" type="error" ghost @click="act(cur.id)">强制下架</n-button>
         </n-space>
       </template>
       <n-scrollbar v-if="cur" style="max-height:72vh" class="pr-5">
-        <n-alert v-if="cur.status === 'sealed' && cur.sealBy === 'ops'" type="warning" :bordered="false" style="margin-bottom:12px">运营强制下架：{{ cur.sealReason }}</n-alert>
-        <n-alert v-if="cur.status === 'voided'" type="default" :bordered="false" style="margin-bottom:12px">已作废 · {{ cur.voidReason.preset }}：{{ cur.voidReason.reason }}（{{ cur.voidReason.by }} · {{ cur.voidReason.at }}）；投注全额原路退回，押金已解冻</n-alert>
+        <n-alert v-if="cur.status === 'closed'" type="error" :bordered="false" style="margin-bottom:12px">运营强制下架 · {{ cur.closeReason.preset }}：{{ cur.closeReason.reason }}（{{ cur.closeReason.by }} · {{ cur.closeReason.at }}）；投注全额原路退回，押金已释放</n-alert>
         <n-alert v-if="cur.status === 'rejected_open'" type="error" :bordered="false" style="margin-bottom:12px">开盘已驳回 · {{ cur.openReview.preset }}：{{ cur.openReview.reason }}</n-alert>
         <n-alert v-if="cur.status === 'rejected_result'" type="error" :bordered="false" style="margin-bottom:12px">赛果 {{ lastResult(cur).score }} 已驳回 · {{ lastResult(cur).preset }}：{{ lastResult(cur).reason }}；等待庄家重新录入</n-alert>
 
@@ -3032,7 +3011,7 @@ const MarketDetail = {
                 <td class="kk-mono" style="text-align:right">{{ f2(s.odds) }}</td>
                 <td style="color:#909399">{{ s.time }}</td>
                 <td style="text-align:right">
-                  <span v-if="cur.status === 'voided'" style="color:#909399">已退款</span>
+                  <span v-if="cur.status === 'closed'" style="color:#909399">已退款</span>
                   <span v-else-if="s.settle != null" :class="s.settle > 0 ? 'kk-win' : s.settle < 0 ? 'kk-lose' : ''">{{ s.settle === 0 ? '¥0.00' : sgn(s.settle) }}</span>
                   <span v-else style="color:#909399">未结算</span>
                 </td>
@@ -3054,7 +3033,7 @@ const MarketDetail = {
 };
 
 /* ---------- 操盘日志 ---------- */
-const LOG_FUNCS = ['开盘提交', '开盘审核', '调水', '封盘', '移除盘口', '补充押金', '赛事下架', '自动封盘', '录入赛果', '赛果审核', '强制下架', '作废', '坐庄权限'];
+const LOG_FUNCS = ['开盘提交', '开盘审核', '调水', '封盘', '移除盘口', '补充押金', '赛事下架', '自动封盘', '录入赛果', '赛果审核', '强制下架'];
 const LOG_CHANNELS = ['C端H5', 'C端PC', '后台', 'system'];
 
 const TradeLogPage = {
@@ -3130,7 +3109,7 @@ const TradeLogPage = {
             <n-gi><n-form-item label="变更人"><n-input v-model:value="searchForm.user" placeholder="账号，模糊查询" clearable /></n-form-item></n-gi>
             <n-gi><n-form-item label="渠道"><n-select v-model:value="searchForm.channel" :options="channelOptions" /></n-form-item></n-gi>
             <n-gi><n-form-item label="功能"><n-select v-model:value="searchForm.func" :options="funcOptions" /></n-form-item></n-gi>
-            <n-gi><n-form-item label="变更对象"><n-input v-model:value="searchForm.obj" placeholder="盘ID / 会员ID" clearable /></n-form-item></n-gi>
+            <n-gi><n-form-item label="变更对象"><n-input v-model:value="searchForm.obj" placeholder="盘ID" clearable /></n-form-item></n-gi>
             <n-gi :span="2"><n-form-item label="时间">
               <n-date-picker v-model:value="searchForm.time" type="daterange" clearable style="width:100%" />
             </n-form-item></n-gi>
@@ -3253,14 +3232,17 @@ const ACC_TYPES = {
 const ACC_LOGS = (() => {
   const M = (n) => CMARKETS.find((m) => m.id.endsWith(n));
   const rows = [
-    ['tiger_88', 'kksport', '庄单押金扣款', 9000, -3000, M('04').id, dFull(-1, '10:45:00')],
+    ['tiger_88', 'kksport', '庄单押金扣款', 9000, -3000, M('04').id, dFull(-1, '10:20:00')],
+    ['kg_lucky7', 'kksport', '庄单押金扣款', 20000, -3000, M('01').id, dFull(0, '09:12:30')],
+    ['hot_deal', 'kksport', '庄单押金扣款', 1500, -1000, M('03').id, dFull(-1, '15:00:00')],
+    ['hot_deal', 'kksport', '庄单押金退回', 500, 1000, M('03').id, dFull(-1, '15:40:12')],
     ['tiger_88', 'kksport', '追加押金扣款', 6000, -1000, M('04').id, dFull(-1, '16:00:00')],
     ['kk_wang88', 'kksport', '下注', 3000, -400, '0110000142611200401-1', dFull(-1, '12:05:00')],
-    ['kg_lucky7', 'kksport', '庄单押金扣款', 15000, -3000, M('10').id, dFull(-5, '10:20:00')],
+    ['kg_lucky7', 'kksport', '庄单押金扣款', 15000, -3000, M('10').id, dFull(-5, '10:00:00')],
     ['kg_lucky7', 'kksport', '庄单结算', 12000, 94.57, M('10').id, dFull(-3, '22:30:05')],
     ['kg_lucky7', 'kksport', '庄单押金退回', 12094.57, 3000, M('10').id, dFull(-3, '22:30:06')],
     ['feima2020', 'kksport', '派彩', 800, 203.29, '0110000142611161002-1', dFull(-3, '22:30:05')],
-    ['blue_s', 'kksport3', '庄单押金扣款', 4000, -1000, M('11').id, dFull(-6, '10:20:00')],
+    ['blue_s', 'kksport3', '庄单押金扣款', 4000, -1000, M('11').id, dFull(-6, '10:00:00')],
     ['kk_wang88', 'kksport3', '庄单子单退款', 2600, 200, '0110000142611151101-1', dFull(-4, '21:00:01')],
     ['blue_s', 'kksport3', '庄单押金退回', 3000, 1000, M('11').id, dFull(-4, '21:00:02')],
   ];
@@ -3352,46 +3334,272 @@ const C_SPEC = {
   'merchant-index-cm': [
     {
       type: 'new', title: '背景与目标',
-      list: ['本期自定义赛事坐庄沿用「私盘」命名与入口，由商户私盘开关控制是否可用，用于灰度与风险商户隔离；下期的已有赛事私盘上线后共用同一开关。'],
+      list: ['本期自定义赛事坐庄需要按商户控制是否开放，用于灰度放量与风险商户隔离。商户列表新增「自定义赛事」开关。'],
     },
     {
-      type: 'flow', title: '自定义赛事可用判定（C 端读取）',
+      type: 'flow', title: 'C 端可用判定',
       flow: [
-        { t: '全局 p2p_enabled = 1？', k: 'judge', side: '否：投注项卖出与自定义赛事入口全部隐藏' },
-        { t: '商户钱包类型 = 转账钱包？', k: 'judge', side: '否：不可用' },
-        { t: '商户私盘开关 = 开？', k: 'judge', side: '否：「我要开盘」与自定义赛事分组隐藏，存量盘软关闭' },
-        { t: '可用（开盘还需会员坐庄权限）', k: 'end' },
+        { t: '全局 p2p_enabled = 1？', k: 'judge', side: '否：投注项卖出与自定义赛事全部不展示' },
+        { t: '商户钱包类型 = 转账钱包？', k: 'judge', side: '否：开关置灰，自定义赛事不可用' },
+        { t: '商户「自定义赛事」开关 = 开？', k: 'judge', side: '否：下列四处入口均不展示' },
+        { t: '展示：我要开盘入口 / 自定义赛事列表 / 卖单「私盘」页签 / 赛果页自定义赛事', k: 'end' },
       ],
     },
     {
-      type: 'new', title: '私盘功能开关（与私盘 B 端原型共用）',
+      type: 'new', title: '新增：自定义赛事开关',
       rows: [
-        ['位置', '表格「P2P 功能」列之后新增「私盘功能」列；编辑弹窗与详情抽屉同步'],
-        ['层级', '与商户 P2P 开关平级、互相独立：P2P 开关只控制投注项卖出；私盘开关本期控制自定义赛事，下期同时控制已有赛事私盘'],
-        ['钱包', '仅转账钱包可开；无缝钱包显示「无缝钱包不支持」并置灰'],
-        ['停用', '「永久停用」商户开关置灰'],
-        ['状态文案', '全局关闭显示「全局已关」；全局开启显示「生效中」或「未开启」'],
+        ['位置', '表格「P2P 功能」列之后新增「自定义赛事」列；编辑弹窗中排在「P2P 功能」之后；详情抽屉同步新增一行'],
+        ['字段', '0 = 关闭，1 = 开启；新建商户默认 0'],
+        ['开启效果', 'C 端展示：「我要开盘」入口、赛事列表中的自定义赛事、卖单列表「私盘」页签、赛果页「自定义赛事」'],
+        ['关闭效果', '上述四处在 C 端均不展示'],
+        ['钱包', '仅转账钱包可开；无缝钱包显示「无缝钱包不支持」，编辑弹窗中开关置灰'],
+        ['停用', '「永久停用」商户开关置灰不可操作'],
+        ['状态文案', '全局 p2p_enabled = 0 时显示「全局已关」；全局开启时显示「生效中」或「未开启」'],
+        ['与 P2P 开关', '互相独立：P2P 开关只控制投注项卖出'],
+        ['二次确认', '该商户存在进行中的自定义赛事（含待审核）时，关闭前弹窗提示数量'],
       ],
     },
     {
-      type: 'rule', title: '关闭私盘（软关闭）',
+      type: 'keep', title: '沿用线上：商户显示 LOGO 亮色 / 暗色',
       list: [
-        '关闭后 C 端即时隐藏：「我要开盘」入口、赛事列表「自定义赛事」分组与筛选胶囊；不可新开盘、补充押金。',
-        '存量盘继续执行：卖出中的盘停止在列表展示但已成交子单照常等待赛果；庄家仍可录入赛果，运营照常审核与结算；开盘待审中的盘由运营继续审核，通过后不上架展示。',
-        '该商户存在进行中的自定义赛事（含待审核）时，关闭前二次确认并展示数量。',
+        '列表展示 4 列 LOGO：H5/APP·亮色、PC·亮色、H5/APP·暗色、PC·暗色；暗色 LOGO 在深色底上预览。',
+        '编辑弹窗分「亮色模式」「暗色模式」两组上传；暗色选填，不传时自动回退到亮色；支持 PNG、JPEG、JPG、SVG，不超过 5MB。',
+        '本期不改动 LOGO 规则，原型仅为与线上保持一致。',
       ],
     },
-    { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['私盘功能开关', '可编辑', '需授权']] } },
-    { type: 'log', title: '操作日志口径', list: ['写入商户管理操作日志：渠道 = PC、模块 = 商户管理、功能 = 商户列表、操作 = 更新、变更类别 = `商户【私盘功能】`、变更人、变更对象 = 商户ID、原始值 / 变更值。'] },
+    { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['自定义赛事开关', '可编辑', '需授权']] } },
+    { type: 'log', title: '操作日志口径', list: ['写入商户管理操作日志：渠道 = PC、模块 = 商户管理、功能 = 商户列表、操作 = 更新、变更类别 = `商户【自定义赛事】`、变更人 = 操作账号、变更对象 = 商户ID、原始值 / 变更值 = 开启 / 关闭。'] },
     {
       type: 'ac', title: '验收标准',
       list: [
-        'Given 转账钱包商户、全局开启；When 打开私盘开关；Then C 端该商户今日 / 早盘出现「我要开盘」与自定义赛事分组。',
-        'Given 商户有 2 场进行中的自定义赛事；When 关闭私盘开关；Then 二次确认提示 2 场，确认后入口隐藏，存量盘照常录入赛果与结算。',
+        'Given 转账钱包商户、全局开启；When 打开「自定义赛事」开关；Then C 端出现「我要开盘」入口、自定义赛事列表、卖单「私盘」页签与赛果页「自定义赛事」。',
+        'Given 开关已开启；When 关闭；Then 上述四处在 C 端均不展示。',
+        'Given 无缝钱包商户；When 打开编辑弹窗；Then 「自定义赛事」开关置灰，列表显示「无缝钱包不支持」。',
+        'Given 商户有 2 场进行中的自定义赛事；When 关闭开关；Then 二次确认提示 2 场。',
+      ],
+    },
+    {
+      type: 'todo', title: '待确认',
+      list: [
+        '开关是否沿用「仅转账钱包可开、受全局 p2p_enabled 约束」（原型按沿用实现，因押金冻结与结算依赖转账钱包账变）。',
+        '关闭开关时已有进行中的自定义赛事：卖单「私盘」页签隐藏后，庄家无法录入赛果，买家也看不到注单状态。建议存量盘的卖单「私盘」页签与赛果页记录保留至全部结算或关闭后再隐藏，仅隐藏开盘入口与赛事列表。',
       ],
     },
   ],
 
+  'audit-index': {
+    page: '数据管理 / 私盘审核', status: TODO_STATUS,
+    blocks: [
+      {
+        type: 'new', title: '背景与目标',
+        list: [
+          '自定义赛事没有外部数据源：赛事信息由庄家填写、赛果由庄家录入，平台必须在「上架前」和「兑付前」各把一道关。',
+          '成功标准：运营在一个页面内完成开盘审核与赛果审核；赛果审核通过前不发生任何资金兑付。',
+        ],
+      },
+      {
+        type: 'flow', title: '开盘审核',
+        flow: [
+          '庄家提交开盘申请，押金立即冻结，盘进入「开盘待审」',
+          { t: '开赛时间已到仍未审核？', k: 'judge', side: '是：系统自动驳回，原因「开赛前未完成审核」，押金释放' },
+          { t: '运营核对赛事信息、玩法、押金', k: 'judge', side: '驳回：选原因类型 + 补充说明，开盘终止，押金释放' },
+          { t: '通过：赛事上架进入卖出中（押金保持冻结）', k: 'end' },
+        ],
+      },
+      {
+        type: 'flow', title: '赛果审核',
+        flow: [
+          '庄家封盘后录入 90 分钟比分，盘进入「赛果待审」',
+          '运营核对公开赛果，查看按该比分的预估结算',
+          { t: '比分正确？', k: 'judge', side: '否：驳回（原因必填），盘进入「赛果已驳回」，庄家重新录入后再次进入待审' },
+          { t: '通过：按比分正式结算，押金解冻退回，不可撤销', k: 'end' },
+        ],
+      },
+      {
+        type: 'new', title: '页面结构',
+        rows: [
+          ['页签', '开盘审核 / 赛果审核'],
+          ['筛选', '商户、庄家会员ID、审核状态（全部 / 待审核 / 已通过 / 已驳回，默认待审核）'],
+          ['开盘审核列', '盘ID、商户、庄家、赛事、开赛时间、押金、玩法数、提交时间、距开赛、审核状态、审核人'],
+          ['赛果审核列', '盘ID、商户、庄家、赛事、开赛时间、录入比分、录入次数、已收单 / 子单、录入时间、已等待、审核状态'],
+          ['排序', '开盘审核按开赛时间升序（临近开赛的优先）；赛果审核按最近一次录入时间升序（等待最久的优先）'],
+          ['开盘审核详情', '主客队名与队徽、开赛时间、直播地址（可点开预览）、λ、已开玩法与盘口线及开盘赔率、押金与押金状态（已冻结 / 已释放）、单笔最多收、自动封盘、庄家历史开盘（总场次 / 已结算 / 被强制下架 / 开盘被驳回）'],
+          ['赛果审核详情', '比分横幅、直播地址、按录入比分的逐项命中与预估结算（收到投注 / 命中兑付 / 盈亏小计 / 平台抽水 / 本场净盈亏）、历次录入与审核记录'],
+        ],
+      },
+      {
+        type: 'rule', title: '押金规则',
+        list: [
+          '庄家提交开盘申请即冻结押金（C 端提交时校验余额，不足不可提交），审核期间保持冻结。',
+          '开盘被驳回（含系统自动驳回）：押金立即释放；该开盘终止，庄家需重新开一场，重新提交时再次冻结。',
+          '开盘审核通过：押金保持冻结，直至结算后解冻退回或被强制下架时释放。',
+        ],
+      },
+      {
+        type: 'rule', title: '业务规则',
+        list: [
+          '开盘驳回即终止，C 端仍显示「待审核」，驳回原因在开盘详情队名下方展示（不展示审核人与时间）。',
+          '开赛时间到达仍为「开盘待审」：系统自动驳回，审核人记为 system。',
+          '赛果审核只有「通过」「驳回」，运营不能修改比分；驳回原因必填，庄家可无限次重新录入，每次录入形成一条记录；赛果驳回不释放押金。',
+          '赛果审核不设系统时限；通过即正式结算、不可撤销（本期不做撤销结算）。',
+          '驳回原因 = 原因类型（下拉）+ 补充说明（必填 1 ~ 200 字）。开盘原因类型：队名或队徽违规、赛事信息不实、直播地址违规、开赛前未完成审核、其他；赛果原因类型：比分与公开赛果不符、比赛未结束、其他。',
+          '并发：同一盘同一时刻只能由一名运营完成审核，后提交者提示「该盘已被审核」并刷新。',
+          '赛果待审期间运营判定赛事异常时，在坐庄管理执行「强制下架」，待审记录随之失效。',
+        ],
+      },
+      { type: 'rule', title: '计算举例', list: ['赛果 1:1 预估：收到投注 299.79，命中「平」的子单份额 = 59.79 × 3.40 = 203.29；盈亏小计 = 96.50；平台抽水 = 96.50 × 2% = 1.93；本场净盈亏 = 94.57。'] },
+      { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['查看私盘审核', '可见', '可见'], ['开盘审核（通过 / 驳回）', '可编辑', '可编辑'], ['赛果审核（通过 / 驳回）', '可编辑', '需授权']] } },
+      { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台（自动驳回为 system）、模块 = 私盘审核、功能 = 开盘审核 / 赛果审核、操作 = 更新、变更类别 = `盘【状态】`、变更人 = 审核人、变更对象 = 盘ID、原始值 / 变更值（如 开盘待审 → 卖出中、赛果待审 2:1 → 已结算）、原因。'] },
+      {
+        type: 'ac', title: '验收标准',
+        list: [
+          'Given 庄家提交开盘申请；Then 账变产生「庄单押金扣款」，盘为开盘待审。',
+          'Given 开盘待审；When 运营通过；Then 盘变为卖出中、C 端赛事列表出现该赛事，不再产生押金扣款。',
+          'Given 开盘待审；When 驳回并填写原因；Then 盘变为开盘已驳回，账变产生「庄单押金退回」，C 端显示待审核与驳回原因。',
+          'Given 开赛时间已到且仍为开盘待审；Then 系统自动驳回并释放押金，审核人为 system。',
+          'Given 赛果待审 2:1；When 运营通过；Then 按 2:1 结算，子单兑付、押金退回、盘变为已结算，金额与预估一致。',
+          'Given 赛果待审；When 驳回；Then 盘变为赛果已驳回，押金保持冻结，庄家 C 端按钮变为「重新录入赛果」。',
+          'Given 驳回弹窗补充说明为空；When 确认；Then 提示必填，不执行驳回。',
+        ],
+      },
+    ],
+  },
+
+  'banker-index': {
+    page: '数据管理 / 坐庄管理', status: TODO_STATUS,
+    blocks: [
+      { type: 'new', title: '背景与目标', list: ['运营按「盘」监控自定义赛事：查看玩法、赔率偏离、调水记录、子单与关联标记，并在赛事异常或盘口风险时强制下架。', '投注项卖出（已上线 P2P）沿用既有展示；已有赛事私盘本期隐藏。'] },
+      {
+        type: 'flow', title: '运营处置',
+        flow: [
+          '按状态 / 庄家 / 疑似自成交筛选，进入盘详情',
+          { t: '赛事异常（取消 / 延期或腰斩超 48 小时）或盘口存在操纵等风险？', k: 'judge', side: '否：继续观察' },
+          '强制下架：选原因类型 + 补充说明，二次确认',
+          { t: '盘关闭，投注全额退回、押金释放，写日志并站内信通知庄家', k: 'end' },
+        ],
+      },
+      {
+        type: 'rule', title: '状态口径（B 端 9 个 / C 端 6 个）',
+        table: {
+          head: ['B 端状态', 'C 端显示', '运营可操作'],
+          rows: [
+            ['开盘待审', '待审核', '在私盘审核处理'],
+            ['开盘已驳回', '待审核', '仅查看'],
+            ['卖出中', '卖出中', '强制下架'],
+            ['已售罄', '已售罄', '强制下架'],
+            ['已封盘', '已封盘', '强制下架'],
+            ['赛果待审', '待审核', '强制下架（审核在私盘审核处理）'],
+            ['赛果已驳回', '待审核', '强制下架'],
+            ['已结算', '已结算', '仅查看'],
+            ['已关闭', '已关闭', '仅查看'],
+          ],
+        },
+      },
+      {
+        type: 'new', title: '列表',
+        rows: [
+          ['行粒度', '自定义赛事按盘一行；投注项卖出按庄单一行（既有）'],
+          ['筛选', '商户、庄家会员ID、盘 / 庄单ID、坐庄模式（全部 / 自定义赛事 / 投注项卖出）、状态（9 个）、关联标记、开盘时间'],
+          ['列', '盘ID / 庄单ID（黑色、不可点击）、坐庄模式、商户、庄家会员ID、庄家昵称、赛事、玩法 / 投注项（「N 类玩法 · M 项」）、押金（初始 / 补充）、已收单 / 押金占用、收单进度、盈亏 / 抽水、关联标记、状态、开盘时间、操作'],
+          ['未上架', '开盘待审显示「未上架 · 押金已冻结」；开盘已驳回显示「已驳回 · 押金已释放」；收单进度为 —'],
+          ['收单进度', '押金占用 ÷ (初始押金 + 补充押金)；已结算、已关闭为 —'],
+          ['盈亏 / 抽水', '已结算显示本场净盈亏 / 平台抽水，与盘详情结算明细同源'],
+          ['状态列', '标签下方灰字：已封盘标注来源（自动封盘 / 庄家赛事下架）；与 C 端不一致的状态标注「C 端显示：待审核」'],
+          ['操作', '盘详情；卖出中、已售罄、已封盘、赛果待审、赛果已驳回加「强制下架」'],
+          ['排序', '开盘时间降序'],
+        ],
+      },
+      {
+        type: 'new', title: '盘详情',
+        rows: [
+          ['横幅', '主客队（队徽）、比分（已录入时）、开赛时间'],
+          ['信息区', '盘状态（含 C 端显示）、商户、庄家、λ、开盘时间、自动封盘、单笔最多收、直播地址、开盘审核结果、赛果审核结果与录入次数'],
+          ['四列汇总', '总押金 / 已收单 / 子单数 / 押金占用；已结算时第四格为本场净盈亏'],
+          ['结算明细', '已结算时展示：收到投注合计、命中兑付合计、盈亏小计、平台抽水、押金解冻退回、本场净盈亏'],
+          ['玩法与投注项', '按玩法分组；玩法封盘时标「玩法已封盘」；每个投注项展示当前赔率、开盘赔率、偏离百分比、已收、命中需赔，可展开调水记录与子单'],
+          ['调水记录', '调整前后赔率、幅度、当时已收单、当时押金占用、操作人、时间'],
+          ['子单', '子单号（可跳转投注记录）、买家、投注金额、份额、成交赔率、成交时间、结算（庄家视角）、关联标记'],
+          ['操作', '右上角「强制下架」，可用状态同列表'],
+        ],
+      },
+      {
+        type: 'rule', title: '强制下架',
+        list: [
+          '适用：比赛取消、延期超过 48 小时、腰斩后 48 小时未恢复等赛事异常，以及疑似操纵赔率、疑似自买自卖、赛事信息存疑等盘口风险。',
+          '效果：赛事立即从 C 端赛事列表与赛果页消失；庄家在卖单「私盘」页签中看到该场状态为「已关闭」；全部成交撤销，玩家投注金额全额原路退回（含玩家侧抽水）；押金全额释放，不计盈亏、不抽庄家的水；不可逆。',
+          '赛果待审中被强制下架：待审记录失效，不再结算。',
+          '开盘待审、开盘已驳回不可强制下架（未上架、无成交），由私盘审核驳回处理。',
+          '必须选择原因类型并填写补充说明（1 ~ 200 字），写入操盘日志并推送站内信。原因类型：比赛取消、延期超过 48 小时、腰斩后 48 小时未恢复、疑似操纵赔率、疑似自买自卖、赛事信息存疑、其他。',
+          '后台不提供作废、调水、封盘、修改赔率；运营唯一处置为强制下架。',
+          '疑似自成交：子单买家与庄家同 IP 或同设备即标记，仅提示不拦截；C 端已禁止庄家在自己的盘下注。',
+        ],
+      },
+      { type: 'rule', title: '计算举例', list: ['押金 ¥3,000 + 补充 ¥1,000，押金占用 ¥1,180 → 收单进度 = 1180 ÷ 4000 = 30%。投注项主胜开盘 2.35、当前 2.28 → 偏离 = (2.28 − 2.35) ÷ 2.35 = −3.0%。', '强制下架：该盘已收单 ¥1,070.00 全额退回 4 名买家，押金 ¥4,000.00 全额释放给庄家。'] },
+      { type: 'keep', title: '本期不做', list: ['已有赛事私盘（复制 IM 赛事）的列表与盘详情，下期启用（见私盘 B 端原型 v0.7）。', '作废、后台调水、封盘、修改赔率、撤销结算。'] },
+      { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['列表 / 盘详情', '可见', '可见'], ['强制下架', '可编辑', '需授权']] } },
+      { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台、模块 = 坐庄管理、功能 = 强制下架、变更类别 = `盘【状态】`、变更对象 = 盘ID、原始值 / 变更值（如 卖出中 → 已关闭）、原因。'] },
+      {
+        type: 'ac', title: '验收标准',
+        list: [
+          'Given 盘为卖出中；When 强制下架并填写原因；Then 状态变为已关闭，C 端赛事列表与赛果页不再展示，庄家卖单「私盘」页签显示已关闭，账变产生子单退款与押金退回，操盘日志新增一条。',
+          'Given 盘为赛果待审；When 强制下架；Then 状态变为已关闭，待审记录失效，不发生结算。',
+          'Given 盘为开盘待审；Then 列表只有「盘详情」，无强制下架。',
+          'Given 任意盘；Then 列表与盘详情均无「作废」按钮。',
+          'Given 盘已结算；Then 列表盈亏 / 抽水与盘详情结算明细一致。',
+        ],
+      },
+      { type: 'todo', title: '待确认', list: ['强制下架后按「已关闭」处理为全额退款、押金全额释放、不结算（与 C 端已关闭状态的口径一致）。若强制下架后仍需按赛果结算，请告知。'] },
+    ],
+  },
+
+  'tradelog-index': {
+    page: '数据管理 / 操盘日志', status: TODO_STATUS,
+    blocks: [
+      { type: 'keep', title: '与私盘 B 端原型共用', list: ['字段口径（渠道、模块、功能、操作、变更类别、变更人、变更对象、原始值 / 变更值、原因、商户、时间）、筛选与排序与私盘 B 端原型一致。'] },
+      {
+        type: 'new', title: '本期功能类型（11 类）',
+        table: {
+          head: ['功能', '来源', '变更类别示例'],
+          rows: [
+            ['开盘提交', '庄家', '盘【状态】— → 开盘待审'],
+            ['开盘审核', '运营 / system', '盘【状态】开盘待审 → 卖出中 / 开盘已驳回'],
+            ['调水', '庄家', '投注项【玩法 · 投注项 赔率】'],
+            ['封盘', '庄家', '玩法【玩法名 收单状态】'],
+            ['移除盘口', '庄家', '盘【已开玩法】'],
+            ['补充押金', '庄家', '盘【押金】'],
+            ['赛事下架', '庄家', '盘【状态】→ 已封盘'],
+            ['自动封盘', 'system', '盘【状态】→ 已封盘'],
+            ['录入赛果', '庄家', '盘【赛果】已封盘 → 赛果待审 比分'],
+            ['赛果审核', '运营', '盘【状态】赛果待审 → 已结算 / 赛果已驳回'],
+            ['强制下架', '运营', '盘【状态】→ 已关闭'],
+          ],
+        },
+      },
+      { type: 'rule', title: '规则', list: ['模块：私盘审核的两类记为「私盘审核」，其余记为「坐庄管理」。', '默认按时间倒序；只读不可删除。'] },
+      { type: 'ac', title: '验收标准', list: ['Given 运营驳回赛果；Then 新增模块 = 私盘审核、功能 = 赛果审核、原因为「原因类型：补充说明」的记录。'] },
+    ],
+  },
+
+  'member-log': {
+    page: '数据管理 / 用户帐变记录', status: TODO_STATUS,
+    blocks: [
+      {
+        type: 'new', title: '改动点',
+        rows: [
+          ['类型', '不新增账变类型，沿用既有 9 种'],
+          ['庄单押金扣款', '庄家提交开盘申请时产生，关联盘ID'],
+          ['追加押金扣款', '庄家补充押金时产生，关联盘ID'],
+          ['庄单结算', '赛果审核通过时按盘产生一条，金额 = 本场净盈亏（已扣平台抽水），关联盘ID'],
+          ['庄单押金退回', '开盘被驳回、结算或强制下架时押金释放，关联盘ID'],
+          ['下注 / 派彩', '玩家侧沿用；派彩金额 = 份额（成交金额 × 成交赔率）'],
+          ['庄单子单退款', '强制下架时按子单逐条退回玩家投注金额，关联子单号'],
+          ['关联单号', '以 CM 开头的盘ID 标注「盘ID」，点击打开盘详情'],
+        ],
+      },
+      { type: 'rule', title: '计算举例', list: ['提交开盘冻结押金 ¥1,000（−1,000）→ 开盘被驳回，押金退回 +1,000，庄家余额复原。', '押金 ¥3,000 提交时冻结；结算时庄单结算 +94.57、押金退回 +3,000；庄家较开盘前 +94.57。'] },
+      { type: 'rule', title: '展示条件', list: ['沿用既有：仅转账钱包商户展示本菜单；金额列右对齐；默认按账变时间降序。'] },
+    ],
+  },
   'config-global': {
     page: '配置管理 / 全局配置', status: TODO_STATUS,
     blocks: [
@@ -3431,7 +3639,7 @@ const C_SPEC = {
           '`cm_max_bet_default` 不得大于 `cm_max_bet_limit`；`cm_auto_seal_default` 不得大于 `cm_auto_seal_max`；保存时校验，不满足则提示并不保存。',
           '定价类（玩家侧抽水、溢价、赔率封顶、最低赔率、暂停阈值、滑点三项）：对修改后发生的成交即时生效；已成交的份额与赔率不变。溢价按开盘概率分摊，只影响修改后开出的盘。',
           '调水两项：对修改后的调水请求即时生效；累计额度按投注项历次调水绝对值之和计算，调低上限后已超出的投注项不可再调水，不回滚已调整的赔率。',
-          '`cm_void_wait_hours`：仅作为运营作废的判定口径与弹窗提示，不触发系统自动作废。',
+          '`cm_void_wait_hours`：仅作为运营强制下架的判定口径，不触发系统自动下架。',
           '庄家侧抽水以 APISYS 下发为准，不在本页配置。',
           '列表数字列右对齐；默认按配置创建时间升序。',
         ],
@@ -3458,237 +3666,6 @@ const C_SPEC = {
     ],
   },
 
-  'user-member': {
-    page: '用户管理 / 会员列表', status: TODO_STATUS,
-    blocks: [
-      { type: 'keep', title: '与私盘 B 端原型共用', list: ['坐庄权限开关、原因必填、写入操盘日志的规则与私盘 B 端原型一致，本期作用对象为自定义赛事开盘与投注项卖出。'] },
-      {
-        type: 'rule', title: '业务规则',
-        list: [
-          '关闭后：C 端不展示「我要开盘」，不可发起新的自定义赛事开盘与投注项卖出；存量盘与已挂出的卖单继续执行至结算。',
-          '关闭时该会员仍有「开盘待审」的盘：不自动驳回，运营照常审核。',
-          '「进行中自定义赛事」= 除已结算、已关闭、开盘已驳回外的盘数（含待审核）；> 0 时可点击跳转坐庄管理。',
-          '开、关均需填写原因（1 ~ 200 字），不推送站内信。',
-        ],
-      },
-      { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['查看坐庄权限', '可见', '可见'], ['修改坐庄权限', '可编辑', '需授权']] } },
-      { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台、模块 = 会员管理、功能 = 坐庄权限、变更对象 = 会员ID、原始值 / 变更值、原因。'] },
-      { type: 'ac', title: '验收标准', list: ['Given 会员有 1 场开盘待审；When 关闭坐庄权限；Then 该盘仍在私盘审核中可被通过或驳回，会员 C 端无「我要开盘」入口。'] },
-    ],
-  },
-
-  'audit-index': {
-    page: '数据管理 / 私盘审核', status: TODO_STATUS,
-    blocks: [
-      {
-        type: 'new', title: '背景与目标',
-        list: [
-          '自定义赛事没有外部数据源：赛事信息由庄家填写、赛果由庄家录入，平台必须在「上架前」和「兑付前」各把一道关。',
-          '成功标准：运营在一个页面内完成开盘审核与赛果审核；审核通过前不冻结押金（开盘）/ 不发生资金兑付（赛果）。',
-        ],
-      },
-      {
-        type: 'flow', title: '开盘审核',
-        flow: [
-          '庄家提交开盘，盘进入「开盘待审」，押金不冻结',
-          { t: '开赛时间已到仍未审核？', k: 'judge', side: '是：系统自动驳回，原因「开赛前未完成审核」' },
-          { t: '运营核对赛事信息、玩法、押金', k: 'judge', side: '驳回：选原因类型 + 补充说明，开盘终止' },
-          { t: '庄家余额足以冻结押金？', k: 'judge', side: '否：不可通过，引导驳回并预填「余额不足以冻结押金」' },
-          { t: '通过：冻结押金，赛事上架进入卖出中', k: 'end' },
-        ],
-      },
-      {
-        type: 'flow', title: '赛果审核',
-        flow: [
-          '庄家封盘后录入 90 分钟比分，盘进入「赛果待审」',
-          '运营核对公开赛果，查看按该比分的预估结算',
-          { t: '比分正确？', k: 'judge', side: '否：驳回（原因必填），盘进入「赛果已驳回」，庄家重新录入后再次进入待审' },
-          { t: '通过：按比分正式结算，押金解冻退回，不可撤销', k: 'end' },
-        ],
-      },
-      {
-        type: 'new', title: '页面结构',
-        rows: [
-          ['页签', '开盘审核 / 赛果审核'],
-          ['筛选', '商户、庄家会员ID、审核状态（全部 / 待审核 / 已通过 / 已驳回，默认待审核）'],
-          ['开盘审核列', '盘ID、商户、庄家、赛事、开赛时间、押金、玩法数、提交时间、距开赛、审核状态、审核人'],
-          ['赛果审核列', '盘ID、商户、庄家、赛事、开赛时间、录入比分、录入次数、已收单 / 子单、录入时间、已等待、审核状态'],
-          ['排序', '开盘审核按开赛时间升序（临近开赛的优先）；赛果审核按最近一次录入时间升序（等待最久的优先）'],
-          ['开盘审核详情', '主客队名与队徽、开赛时间、直播地址（可点开预览）、λ、已开玩法与盘口线及开盘赔率、押金、单笔最多收、自动封盘、庄家当前余额、庄家历史开盘（总场次 / 已结算 / 作废 / 开盘被驳回）'],
-          ['赛果审核详情', '比分横幅、直播地址、按录入比分的逐项命中与预估结算（收到投注 / 命中兑付 / 盈亏小计 / 平台抽水 / 本场净盈亏）、历次录入与审核记录'],
-        ],
-      },
-      {
-        type: 'rule', title: '业务规则',
-        list: [
-          '开盘驳回即终止：押金本就未冻结，庄家需重新开一场；C 端仍显示「待审核」，驳回原因在开盘详情队名下方展示（不展示审核人与时间）。',
-          '开盘审核通过时校验庄家余额；不足则不可通过，只能驳回。',
-          '开赛时间到达仍为「开盘待审」：系统自动驳回，审核人记为 system，原因类型「开赛前未完成审核」。',
-          '赛果审核只有「通过」「驳回」，运营不能修改比分；驳回原因必填，庄家可无限次重新录入，每次录入形成一条记录。',
-          '赛果审核不设系统时限；通过即正式结算、不可撤销（本期不做撤销结算）。',
-          '驳回原因 = 原因类型（下拉）+ 补充说明（必填 1 ~ 200 字）。开盘原因类型：队名或队徽违规、赛事信息不实、直播地址违规、余额不足以冻结押金、开赛前未完成审核、其他；赛果原因类型：比分与公开赛果不符、比赛未结束、其他。',
-          '并发：同一盘同一时刻只能由一名运营完成审核，后提交者提示「该盘已被审核」并刷新。',
-          '赛果待审期间运营判定赛事异常（取消、延期或腰斩超时）时，在坐庄管理执行「作废」，待审记录随之失效。',
-        ],
-      },
-      {
-        type: 'rule', title: '计算举例',
-        list: ['赛果 1:1 预估：收到投注 299.79，命中「平」的子单份额 = 59.79 × 3.40 = 203.29；盈亏小计 = 96.50；平台抽水 = 96.50 × 2% = 1.93；本场净盈亏 = 94.57。'],
-      },
-      { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['查看私盘审核', '可见', '可见'], ['开盘审核（通过 / 驳回）', '可编辑', '可编辑'], ['赛果审核（通过 / 驳回）', '可编辑', '需授权']] } },
-      { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台（自动驳回为 system）、模块 = 私盘审核、功能 = 开盘审核 / 赛果审核、操作 = 更新、变更类别 = `盘【状态】`、变更人 = 审核人、变更对象 = 盘ID、原始值 / 变更值（如 开盘待审 → 卖出中、赛果待审 2:1 → 已结算）、原因。'] },
-      {
-        type: 'ac', title: '验收标准',
-        list: [
-          'Given 开盘待审且庄家余额充足；When 运营点「通过」并确认；Then 押金冻结、盘变为卖出中、C 端赛事列表出现该赛事，操盘日志新增一条。',
-          'Given 庄家余额 ¥300、押金 ¥500；When 点「通过」；Then 提示余额不足不可通过，点「去驳回」后原因类型预填「余额不足以冻结押金」。',
-          'Given 开盘待审；When 驳回并填写原因；Then 盘变为开盘已驳回，C 端显示待审核与驳回原因，押金未冻结。',
-          'Given 开赛时间已到且仍为开盘待审；Then 系统自动驳回，审核人为 system。',
-          'Given 赛果待审 2:1；When 运营通过；Then 按 2:1 结算，子单兑付、押金退回、盘变为已结算，金额与预估一致。',
-          'Given 赛果待审；When 驳回；Then 盘变为赛果已驳回，记录追加一条，庄家 C 端按钮变为「重新录入赛果」。',
-          'Given 驳回弹窗补充说明为空；When 确认；Then 提示必填，不执行驳回。',
-        ],
-      },
-    ],
-  },
-
-  'banker-index': {
-    page: '数据管理 / 坐庄管理', status: TODO_STATUS,
-    blocks: [
-      { type: 'new', title: '背景与目标', list: ['运营按「盘」监控自定义赛事：查看玩法、赔率偏离、调水记录、子单与关联标记，并在异常时强制下架或作废。', '投注项卖出（已上线 P2P）沿用既有展示；已有赛事私盘本期隐藏。'] },
-      {
-        type: 'flow', title: '运营处置',
-        flow: [
-          '按状态 / 庄家 / 疑似自成交筛选，进入盘详情',
-          { t: '赛事本身是否异常（取消 / 延期或腰斩超 48 小时）？', k: 'judge', side: '是：作废，全额退回，状态已关闭' },
-          { t: '盘口是否存在操纵等风险？', k: 'judge', side: '否：继续观察' },
-          '强制下架：停止收单进入已封盘，照常录入赛果与审核结算',
-          { t: '写操盘日志，站内信通知庄家', k: 'end' },
-        ],
-      },
-      {
-        type: 'rule', title: '状态口径（B 端 9 个 / C 端 6 个）',
-        table: {
-          head: ['B 端状态', 'C 端显示', '运营可操作'],
-          rows: [
-            ['开盘待审', '待审核', '在私盘审核处理'],
-            ['开盘已驳回', '待审核', '仅查看'],
-            ['卖出中', '卖出中', '强制下架、作废'],
-            ['已售罄', '已售罄', '强制下架、作废'],
-            ['已封盘', '已封盘', '作废'],
-            ['赛果待审', '待审核', '作废（审核在私盘审核处理）'],
-            ['赛果已驳回', '待审核', '作废'],
-            ['已结算', '已结算', '仅查看'],
-            ['已关闭', '已关闭', '仅查看'],
-          ],
-        },
-      },
-      {
-        type: 'new', title: '列表',
-        rows: [
-          ['行粒度', '自定义赛事按盘一行；投注项卖出按庄单一行（既有）'],
-          ['筛选', '商户、庄家会员ID、盘 / 庄单ID、坐庄模式（全部 / 自定义赛事 / 投注项卖出）、状态（9 个）、关联标记、开盘时间'],
-          ['列', '盘ID / 庄单ID（黑色、不可点击）、坐庄模式、商户、庄家会员ID、庄家昵称、赛事、玩法 / 投注项（「N 类玩法 · M 项」）、押金（初始 / 补充）、已收单 / 押金占用、收单进度、盈亏 / 抽水、关联标记、状态、开盘时间、操作'],
-          ['未上架', '开盘待审与开盘已驳回显示「未上架 · 押金未冻结」，收单进度为 —'],
-          ['收单进度', '押金占用 ÷ (初始押金 + 补充押金)；已结算、已关闭为 —'],
-          ['盈亏 / 抽水', '已结算显示本场净盈亏 / 平台抽水，与盘详情结算明细同源'],
-          ['状态列', '标签下方灰字：已封盘标注来源（自动封盘 / 庄家赛事下架 / 运营强制下架）；与 C 端不一致的状态标注「C 端显示：待审核」'],
-          ['操作', '盘详情；卖出中与已售罄加「强制下架」；卖出中、已售罄、已封盘、赛果待审、赛果已驳回加「作废」'],
-          ['排序', '开盘时间降序'],
-        ],
-      },
-      {
-        type: 'new', title: '盘详情',
-        rows: [
-          ['横幅', '主客队（队徽）、比分（已录入时）、开赛时间'],
-          ['信息区', '盘状态（含 C 端显示）、商户、庄家、λ、开盘时间、自动封盘、单笔最多收、直播地址、开盘审核结果、赛果审核结果与录入次数'],
-          ['四列汇总', '总押金 / 已收单 / 子单数 / 押金占用；已结算时第四格为本场净盈亏'],
-          ['结算明细', '已结算时展示：收到投注合计、命中兑付合计、盈亏小计、平台抽水、押金解冻退回、本场净盈亏'],
-          ['玩法与投注项', '按玩法分组；玩法封盘时标「玩法已封盘」；每个投注项展示当前赔率、开盘赔率、偏离百分比、已收、命中需赔，可展开调水记录与子单'],
-          ['调水记录', '调整前后赔率、幅度、当时已收单、当时押金占用、操作人、时间'],
-          ['子单', '子单号（可跳转投注记录）、买家、投注金额、份额、成交赔率、成交时间、结算（庄家视角）、关联标记'],
-        ],
-      },
-      {
-        type: 'rule', title: '强制下架与作废',
-        list: [
-          '强制下架：卖出中、已售罄可用；赛事立即下架、停止收单，状态进入「已封盘（运营强制下架）」，与庄家「赛事下架」效果一致；之后照常由庄家录入赛果、运营审核结算；不可撤销。',
-          '作废：用于比赛取消、延期超过 48 小时、腰斩后 48 小时未恢复，由运营人工判断，系统不自动触发；卖出中、已售罄、已封盘、赛果待审、赛果已驳回可用；全部成交撤销，投注金额全额原路退回（含玩家侧抽水），押金全额解冻，不计盈亏、不抽庄家的水，状态转为「已关闭」，不可逆。',
-          '开盘待审、开盘已驳回不可作废（未上架、无成交、押金未冻结），由私盘审核驳回处理。',
-          '两者都需选择原因类型并填写补充说明（1 ~ 200 字），写入操盘日志并推送站内信。强制下架原因类型：疑似操纵赔率、疑似自买自卖、赛事信息存疑、其他；作废原因类型：比赛取消、延期超过 48 小时、腰斩后 48 小时未恢复。',
-          '疑似自成交：子单买家与庄家同 IP 或同设备即标记，仅提示不拦截；C 端已禁止庄家在自己的盘下注。',
-        ],
-      },
-      {
-        type: 'rule', title: '计算举例',
-        list: ['押金 ¥3,000 + 补充 ¥1,000，押金占用 ¥1,180 → 收单进度 = 1180 ÷ 4000 = 30%。投注项主胜开盘 2.35、当前 2.28 → 偏离 = (2.28 − 2.35) ÷ 2.35 = −3.0%。'],
-      },
-      { type: 'keep', title: '本期不做', list: ['已有赛事私盘（复制 IM 赛事）的列表、盘详情与强制下架规则，下期启用（见私盘 B 端原型 v0.7）。', '后台调水、封盘、修改赔率：运营无控盘能力，唯一处置为强制下架与作废。', '撤销结算。'] },
-      { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['列表 / 盘详情', '可见', '可见'], ['强制下架', '可编辑', '需授权'], ['作废', '可编辑', '需授权']] } },
-      { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台、模块 = 坐庄管理、功能 = 强制下架 / 作废、变更类别 = `盘【状态】`、变更对象 = 盘ID、原始值 / 变更值、原因。'] },
-      {
-        type: 'ac', title: '验收标准',
-        list: [
-          'Given 盘为卖出中；When 强制下架并填写原因；Then 状态变为已封盘（运营强制下架），C 端赛事从列表消失，庄家可录入赛果，操盘日志新增一条。',
-          'Given 盘为赛果待审；When 作废；Then 状态变为已关闭，待审记录失效，玩家投注全额退回，庄家押金解冻，账变产生子单退款与押金退回。',
-          'Given 盘为开盘待审；Then 列表只有「盘详情」，无强制下架与作废。',
-          'Given 盘已结算；Then 列表盈亏 / 抽水与盘详情结算明细的本场净盈亏、平台抽水一致。',
-          'Given 子单买家与庄家同设备；Then 子单标记疑似自成交，列表关联标记显示笔数。',
-        ],
-      },
-    ],
-  },
-
-  'tradelog-index': {
-    page: '数据管理 / 操盘日志', status: TODO_STATUS,
-    blocks: [
-      { type: 'keep', title: '与私盘 B 端原型共用', list: ['字段口径（渠道、模块、功能、操作、变更类别、变更人、变更对象、原始值 / 变更值、原因、商户、时间）、筛选与排序与私盘 B 端原型一致。'] },
-      {
-        type: 'new', title: '本期功能类型（13 类）',
-        table: {
-          head: ['功能', '来源', '变更类别示例'],
-          rows: [
-            ['开盘提交', '庄家', '盘【状态】— → 开盘待审'],
-            ['开盘审核', '运营 / system', '盘【状态】开盘待审 → 卖出中 / 开盘已驳回'],
-            ['调水', '庄家', '投注项【玩法 · 投注项 赔率】'],
-            ['封盘', '庄家', '玩法【玩法名 收单状态】'],
-            ['移除盘口', '庄家', '盘【已开玩法】'],
-            ['补充押金', '庄家', '盘【押金】'],
-            ['赛事下架', '庄家', '盘【状态】→ 已封盘'],
-            ['自动封盘', 'system', '盘【状态】→ 已封盘'],
-            ['录入赛果', '庄家', '盘【赛果】已封盘 → 赛果待审 比分'],
-            ['赛果审核', '运营', '盘【状态】赛果待审 → 已结算 / 赛果已驳回'],
-            ['强制下架', '运营', '盘【状态】→ 已封盘'],
-            ['作废', '运营', '盘【状态】→ 已关闭'],
-            ['坐庄权限', '运营', '会员【坐庄权限】'],
-          ],
-        },
-      },
-      { type: 'rule', title: '规则', list: ['模块：私盘审核的两类记为「私盘审核」，坐庄权限记为「会员管理」，其余记为「坐庄管理」。', '默认按时间倒序；只读不可删除。'] },
-      { type: 'ac', title: '验收标准', list: ['Given 运营驳回赛果；Then 新增模块 = 私盘审核、功能 = 赛果审核、原因为「原因类型：补充说明」的记录。'] },
-    ],
-  },
-
-  'member-log': {
-    page: '数据管理 / 用户帐变记录', status: TODO_STATUS,
-    blocks: [
-      {
-        type: 'new', title: '改动点',
-        rows: [
-          ['类型', '不新增账变类型，沿用既有 9 种'],
-          ['庄单押金扣款', '开盘审核通过时产生（不是提交时），关联盘ID'],
-          ['追加押金扣款', '庄家补充押金时产生，关联盘ID'],
-          ['庄单结算', '赛果审核通过时按盘产生一条，金额 = 本场净盈亏（已扣平台抽水），关联盘ID'],
-          ['庄单押金退回', '结算或作废时押金解冻退回，关联盘ID'],
-          ['下注 / 派彩', '玩家侧沿用；派彩金额 = 份额（成交金额 × 成交赔率）'],
-          ['庄单子单退款', '作废时按子单逐条退回玩家投注金额，关联子单号'],
-          ['关联单号', '以 CM 开头的盘ID 标注「盘ID」，点击打开盘详情'],
-        ],
-      },
-      { type: 'rule', title: '计算举例', list: ['押金 ¥3,000 于审核通过时冻结（−3,000）；结算时庄单结算 +94.57、押金退回 +3,000；庄家较开盘前 +94.57。'] },
-      { type: 'rule', title: '展示条件', list: ['沿用既有：仅转账钱包商户展示本菜单；金额列右对齐；默认按账变时间降序。'] },
-    ],
-  },
 };
 
 const BETS_CM_BLOCK = {
@@ -3697,7 +3674,7 @@ const BETS_CM_BLOCK = {
     '注单来源新增「私盘注单」：玩家购买自定义赛事产生，来源订单号 = 盘ID，筛选「注单来源」新增该选项。',
     '赔率类型为欧洲盘（含本金）；投注金额为玩家实付金额；预计盈利 = 份额 − 投注金额。',
     '玩家抽水列显示「—」：自定义赛事玩家侧抽水在成交时以压低赔率方式收取，无单独扣款。',
-    '作废的赛事：注单结算状态为取消，盈利金额 0，投注金额全额退回。',
+    '被强制下架的赛事：注单结算状态为取消，盈利金额 0，投注金额全额退回。',
     '明细：玩法 + 投注项 + @赔率，赛事名显示「主队 vs 客队 ｜ 自定义赛事」。',
   ],
 };
@@ -3708,7 +3685,7 @@ const BETS_CM_TODO = { type: 'todo', title: '待确认', list: ['注单来源新
   const src = BETS.find((b) => b.betSourceType === 0 && b.wagerType === 1) || BETS[0];
   let n = 0;
   CMARKETS.forEach((m) => m.plays.forEach((p) => p.items.forEach((x) => x.subs.forEach((s) => {
-    const settled = m.status === 'settled', voided = m.status === 'voided';
+    const settled = m.status === 'settled', voided = m.status === 'closed';
     BETS.unshift(Object.assign(JSON.parse(JSON.stringify(src)), {
       betId: 99993001 + n++, parentBetId: 0, orderNo: s.oid, sourceOrderNo: m.id, betSourceType: 2, isShadowBet: 0,
       gameType: 1, username: s.acc, memberId: Number(s.u), merchantId: m.merchantId, betAmount: s.amt,
@@ -3724,17 +3701,13 @@ const BETS_CM_TODO = { type: 'todo', title: '待确认', list: ['注单来源新
 /* ---------------- 挂载 ---------------- */
 Object.assign(SPEC, {
   'config-global': C_SPEC['config-global'],
-  'user-member': C_SPEC['user-member'],
   'audit-index': C_SPEC['audit-index'],
   'banker-index': C_SPEC['banker-index'],
   'tradelog-index': C_SPEC['tradelog-index'],
   'member-log': C_SPEC['member-log'],
 });
 SPEC['merchant-index'].status = TODO_STATUS;
-SPEC['merchant-index'].blocks = C_SPEC['merchant-index-cm'].concat(
-  [{ type: 'keep', title: '以下为上一期（竞彩体育）已确认内容', list: ['不在本期范围，保留供查阅。'] }],
-  SPEC['merchant-index'].blocks
-);
+SPEC['merchant-index'].blocks = C_SPEC['merchant-index-cm'];
 SPEC['bets-index'].status = TODO_STATUS;
 SPEC['bets-index'].blocks = [BETS_CM_BLOCK, BETS_CM_TODO].concat(SPEC['bets-index'].blocks);
 
@@ -3764,7 +3737,6 @@ app.component('reason-dialog', ReasonDialog);
 app.component('config-page', ConfigPage);
 app.component('league-page', { template: '<div></div>' });
 app.component('audit-page', AuditPage);
-app.component('member-page', MemberPage);
 app.component('account-log-page', AccountLogPage);
 app.mount('#app');
 </script>
