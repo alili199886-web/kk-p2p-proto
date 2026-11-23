@@ -1937,7 +1937,6 @@ const GLOBAL_CFG = reactive([
   { key: 'p2p_enabled', value: 1, desc: 'P2P 全局总开关，优先级最高；0 = 全部关闭（投注项卖出与自定义赛事均不可用），1 = 按商户开关独立控制', kind: 'bool', def: 1, isNew: false, by: 'admin', at: dFull(-30, '09:12:40') },
   { key: 'cm_min_deposit', value: 100, desc: '开盘押金下限（整场一笔）', kind: 'dec', dec: 2, min: 1, max: 1000000, def: 100, unit: '元', isNew: true },
   { key: 'cm_max_bet_default', value: 2000, desc: '单笔最多收：开盘弹窗默认值（庄家可改）', kind: 'dec', dec: 2, min: 2, max: 10000000, def: 2000, unit: '元', isNew: true },
-  { key: 'cm_max_bet_limit', value: 100000, desc: '单笔最多收上限：庄家开盘时可设置的最大值（单笔最多收 = 买家在该场单笔投注的最高金额）', kind: 'dec', dec: 2, min: 2, max: 10000000, def: 100000, unit: '元', isNew: true },
   { key: 'cm_auto_seal_default', value: 10, desc: '自动封盘时长默认值（开赛前 N 分钟，0 = 开赛时封盘）', kind: 'int', min: 0, max: 180, def: 10, unit: '分钟', isNew: true },
   { key: 'cm_auto_seal_max', value: 180, desc: '自动封盘时长可设置上限', kind: 'int', min: 0, max: 1440, def: 180, unit: '分钟', isNew: true },
   { key: 'cm_player_rake', value: 300, desc: '玩家侧抽水：每万收 N，成交时以压低赔率方式收取', kind: 'int', min: 0, max: 2000, def: 300, unit: '/万', isNew: true },
@@ -2003,7 +2002,7 @@ const ConfigPage = {
       clampVal();
       const c = edit.row;
       if (c.value === edit.val) { edit.show = false; return; }
-      const pair = { cm_max_bet_default: ['cm_max_bet_limit', 1], cm_max_bet_limit: ['cm_max_bet_default', -1], cm_auto_seal_default: ['cm_auto_seal_max', 1], cm_auto_seal_max: ['cm_auto_seal_default', -1] }[c.key];
+      const pair = { cm_auto_seal_default: ['cm_auto_seal_max', 1], cm_auto_seal_max: ['cm_auto_seal_default', -1] }[c.key];
       if (pair) {
         const other = cfgVal(pair[0]);
         if ((pair[1] === 1 && edit.val > other) || (pair[1] === -1 && edit.val < other)) {
@@ -3388,16 +3387,6 @@ const C_SPEC = {
     },
     { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['自定义赛事开关', '可编辑', '需授权']] } },
     { type: 'log', title: '操作日志口径', list: ['写入商户管理操作日志：渠道 = PC、模块 = 商户管理、功能 = 商户列表、操作 = 更新、变更类别 = `商户【自定义赛事】`、变更人 = 操作账号、变更对象 = 商户ID、原始值 / 变更值 = 开启 / 关闭。'] },
-    {
-      type: 'ac', title: '验收标准',
-      list: [
-        'Given 转账钱包商户、全局开启；When 打开「自定义赛事」开关；Then C 端出现「我要开盘」入口、自定义赛事列表、卖单「私盘」页签与赛果页「自定义赛事」。',
-        'Given 开关已开启且会员 A 无存量盘；When 关闭；Then 会员 A 的开盘入口、自定义赛事列表、卖单「私盘」页签、赛果页自定义赛事均不展示。',
-        'Given 会员 B 有 1 场卖出中的自定义赛事；When 关闭开关；Then 会员 B 无开盘入口与自定义赛事列表，但卖单「私盘」页签与赛果页仍展示该场，结算后隐藏。',
-        'Given 无缝钱包商户；When 打开编辑弹窗；Then 「自定义赛事」开关置灰，列表显示「无缝钱包不支持」。',
-        'Given 商户有 2 场进行中的自定义赛事；When 关闭开关；Then 二次确认提示 2 场。',
-      ],
-    },
   ],
 
   'audit-index': {
@@ -3463,18 +3452,6 @@ const C_SPEC = {
       { type: 'rule', title: '计算举例', list: ['赛果 1:1 预估：收到投注 299.79，命中「平」的子单份额 = 59.79 × 3.40 = 203.29；盈亏小计 = 96.50；平台抽水 = 96.50 × 2% = 1.93；本场净盈亏 = 94.57。'] },
       { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['查看私盘审核', '可见', '可见'], ['开盘审核（通过 / 驳回）', '可编辑', '可编辑'], ['赛果审核（通过 / 驳回）', '可编辑', '需授权']] } },
       { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台（自动驳回为 system）、模块 = 私盘审核、功能 = 开盘审核 / 赛果审核、操作 = 更新、变更类别 = `盘【状态】`、变更人 = 审核人、变更对象 = 盘ID、原始值 / 变更值（如 开盘待审 → 卖出中、赛果待审 2:1 → 已结算）、原因。'] },
-      {
-        type: 'ac', title: '验收标准',
-        list: [
-          'Given 庄家提交开盘申请；Then 账变产生「庄单押金扣款」，盘为开盘待审。',
-          'Given 开盘待审；When 运营通过；Then 盘变为卖出中、C 端赛事列表出现该赛事，不再产生押金扣款。',
-          'Given 开盘待审；When 驳回并填写原因；Then 盘变为开盘已驳回，账变产生「庄单押金退回」，C 端显示待审核与驳回原因。',
-          'Given 开赛时间已到且仍为开盘待审；Then 系统自动驳回并释放押金，审核人为 system。',
-          'Given 赛果待审 2:1；When 运营通过；Then 按 2:1 结算，子单兑付、押金退回、盘变为已结算，金额与预估一致。',
-          'Given 赛果待审；When 驳回；Then 盘变为赛果已驳回，押金保持冻结，庄家 C 端按钮变为「重新录入赛果」。',
-          'Given 驳回弹窗补充说明为空；When 确认；Then 提示必填，不执行驳回。',
-        ],
-      },
     ],
   },
 
@@ -3551,16 +3528,6 @@ const C_SPEC = {
       { type: 'keep', title: '本期不做', list: ['已有赛事私盘（复制 IM 赛事）的列表与盘详情，下期启用（见私盘 B 端原型 v0.7）。', '作废、后台调水、封盘、修改赔率、撤销结算。'] },
       { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['列表 / 盘详情', '可见', '可见'], ['强制下架', '可编辑', '需授权']] } },
       { type: 'log', title: '操作日志口径', list: ['写入操盘日志：渠道 = 后台、模块 = 坐庄管理、功能 = 强制下架、变更类别 = `盘【状态】`、变更对象 = 盘ID、原始值 / 变更值（如 卖出中 → 已关闭）、原因。'] },
-      {
-        type: 'ac', title: '验收标准',
-        list: [
-          'Given 盘为卖出中；When 强制下架并填写原因；Then 状态变为已关闭，C 端赛事列表与赛果页不再展示，庄家卖单「私盘」页签显示已关闭，账变产生子单退款与押金退回，操盘日志新增一条。',
-          'Given 盘为赛果待审；When 强制下架；Then 状态变为已关闭，待审记录失效，不发生结算。',
-          'Given 盘为开盘待审；Then 列表只有「盘详情」，无强制下架。',
-          'Given 任意盘；Then 列表与盘详情均无「作废」按钮。',
-          'Given 盘已结算；Then 列表盈亏 / 抽水与盘详情结算明细一致。',
-        ],
-      },
     ],
   },
 
@@ -3588,7 +3555,6 @@ const C_SPEC = {
         },
       },
       { type: 'rule', title: '规则', list: ['模块：私盘审核的两类记为「私盘审核」，其余记为「坐庄管理」。', '默认按时间倒序；只读不可删除。'] },
-      { type: 'ac', title: '验收标准', list: ['Given 运营驳回赛果；Then 新增模块 = 私盘审核、功能 = 赛果审核、原因为「原因类型：补充说明」的记录。'] },
     ],
   },
 
@@ -3621,13 +3587,12 @@ const C_SPEC = {
         flow: ['运营点击某行「编辑」', { t: '输入新值，失焦校验', k: 'judge', side: '超限：自动更正为最近边界并 toast' }, '保存，即时生效，写入全局配置操作日志', { t: '按生效规则作用于新开盘 / 新成交', k: 'end' }],
       },
       {
-        type: 'new', title: '新增 16 项配置（输入约束）',
+        type: 'new', title: '新增 15 项配置（输入约束）',
         table: {
           head: ['key', '类型 · 范围', '默认'],
           rows: [
             ['cm_min_deposit', '2 位小数 · 1 ~ 1,000,000 元', '100'],
             ['cm_max_bet_default', '2 位小数 · 2 ~ 10,000,000 元', '2000'],
-            ['cm_max_bet_limit', '2 位小数 · 2 ~ 10,000,000 元', '100000'],
             ['cm_auto_seal_default', '非负整数 · 0 ~ 180 分钟', '10'],
             ['cm_auto_seal_max', '非负整数 · 0 ~ 1440 分钟', '180'],
             ['cm_player_rake', '非负整数 · 0 ~ 2000 /万', '300'],
@@ -3647,9 +3612,9 @@ const C_SPEC = {
       {
         type: 'rule', title: '生效规则',
         list: [
-          '开盘类（押金下限、单笔最多收默认值与上限、自动封盘默认值与上限）：只约束修改后提交的开盘；已提交或已上架的盘不回溯，例如上限从 100,000 调为 50,000，已以 80,000 开出的盘照常收单。',
-          '单笔最多收上限：庄家在 C 端开盘弹窗填写的「单笔最多收」超过 `cm_max_bet_limit` 时，提交被拦截并提示「单笔最多收不能超过 X」（C 端开盘弹窗需配合增加该校验）。',
-          '`cm_max_bet_default` 不得大于 `cm_max_bet_limit`；`cm_auto_seal_default` 不得大于 `cm_auto_seal_max`；保存时校验，不满足则提示并不保存。',
+          '开盘类（押金下限、单笔最多收默认值、自动封盘默认值与上限）：只约束修改后提交的开盘；已提交或已上架的盘不回溯。',
+          '单笔最多收：本期只配置开盘弹窗默认值，庄家可改为任意金额，不设上限。',
+          '`cm_auto_seal_default` 不得大于 `cm_auto_seal_max`；保存时校验，不满足则提示并不保存。',
           '定价类（玩家侧抽水、溢价、赔率封顶、最低赔率、暂停阈值、滑点三项）：对修改后发生的成交即时生效；已成交的份额与赔率不变。溢价按开盘概率分摊，只影响修改后开出的盘。',
           '调水两项：对修改后的调水请求即时生效；累计额度按投注项历次调水绝对值之和计算，调低上限后已超出的投注项不可再调水，不回滚已调整的赔率。',
           '`cm_void_wait_hours`：仅作为运营强制下架的判定口径，不触发系统自动下架。',
@@ -3664,18 +3629,10 @@ const C_SPEC = {
           '调水闸门 0.05 / 0.30：某投注项已调水 +0.05、+0.05、−0.05（累计 0.15），本次再调 +0.05 → 累计 0.20 允许；若已累计 0.30，任何方向的调水均被拦截。',
         ],
       },
+      { type: 'keep', title: '二期规划', list: ['单笔最多收上限 `cm_max_bet_limit`：限制庄家开盘时可设置的「单笔最多收」最大值。需 C 端开盘弹窗配合增加校验，因此放到二期。'] },
       { type: 'keep', title: '本期不做', list: ['不展示已有赛事私盘的配置项（开盘押金下限 1000、最少盘口数、开赛前禁开、单场展示上限、港盘调水上限等），下期上线时再启用。', '不做 `p2p_commission_rate`。'] },
       { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['查看', '可见', '可见'], ['编辑新增项', '可编辑', '不可编辑']] } },
       { type: 'log', title: '操作日志口径', list: ['写入全局配置操作日志：渠道 = PC、模块 = 全局配置、功能 = 全局配置、操作 = 更新、变更类别 = `配置【key】`、原始值 / 变更值。'] },
-      {
-        type: 'ac', title: '验收标准',
-        list: [
-          'Given 编辑 cm_min_odds；When 输入 0.9 并失焦；Then 自动更正为 1.01 并提示。',
-          'Given cm_max_bet_limit = 100000；When 把 cm_max_bet_default 改为 200000；Then 保存时提示「默认值不得大于 cm_max_bet_limit」，不保存。',
-          'Given cm_max_bet_limit = 100000；When 庄家在 C 端开盘时把单笔最多收填为 150000；Then 提交被拦截并提示上限。',
-          'Given 某盘已上架；When 修改 cm_min_deposit；Then 该盘不受影响，新开盘按新值校验。',
-        ],
-      },
     ],
   },
 
