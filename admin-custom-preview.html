@@ -1936,8 +1936,7 @@ const GLOBAL_CFG = reactive([
   { key: 'nio03', value: 3, desc: '示例配置项', kind: 'int', min: 0, max: 99999, def: 3, isNew: false, by: 'admin', at: dFull(-60, '10:00:00') },
   { key: 'p2p_enabled', value: 1, desc: 'P2P 全局总开关，优先级最高；0 = 全部关闭（投注项卖出与自定义赛事均不可用），1 = 按商户开关独立控制', kind: 'bool', def: 1, isNew: false, by: 'admin', at: dFull(-30, '09:12:40') },
   { key: 'cm_min_deposit', value: 100, desc: '开盘押金下限（整场一笔）', kind: 'dec', dec: 2, min: 1, max: 1000000, def: 100, unit: '元', isNew: true },
-  { key: 'cm_max_bet_default', value: 2000, desc: '单笔最多收：开盘弹窗默认值（庄家可改）', kind: 'dec', dec: 2, min: 2, max: 100000, def: 2000, unit: '元', isNew: true },
-  { key: 'cm_max_bet_limit', value: 100000, desc: '单笔最多收：庄家可设置的上限', kind: 'dec', dec: 2, min: 2, max: 10000000, def: 100000, unit: '元', isNew: true },
+  { key: 'cm_max_bet_default', value: 2000, desc: '单笔最多收：开盘弹窗默认值（庄家可改，本期不设上限）', kind: 'dec', dec: 2, min: 2, max: 10000000, def: 2000, unit: '元', isNew: true },
   { key: 'cm_auto_seal_default', value: 10, desc: '自动封盘时长默认值（开赛前 N 分钟，0 = 开赛时封盘）', kind: 'int', min: 0, max: 180, def: 10, unit: '分钟', isNew: true },
   { key: 'cm_auto_seal_max', value: 180, desc: '自动封盘时长可设置上限', kind: 'int', min: 0, max: 1440, def: 180, unit: '分钟', isNew: true },
   { key: 'cm_player_rake', value: 300, desc: '玩家侧抽水：每万收 N，成交时以压低赔率方式收取', kind: 'int', min: 0, max: 2000, def: 300, unit: '/万', isNew: true },
@@ -2003,7 +2002,7 @@ const ConfigPage = {
       clampVal();
       const c = edit.row;
       if (c.value === edit.val) { edit.show = false; return; }
-      const pair = { cm_max_bet_default: ['cm_max_bet_limit', 1], cm_max_bet_limit: ['cm_max_bet_default', -1], cm_auto_seal_default: ['cm_auto_seal_max', 1], cm_auto_seal_max: ['cm_auto_seal_default', -1] }[c.key];
+      const pair = { cm_auto_seal_default: ['cm_auto_seal_max', 1], cm_auto_seal_max: ['cm_auto_seal_default', -1] }[c.key];
       if (pair) {
         const other = cfgVal(pair[0]);
         if ((pair[1] === 1 && edit.val > other) || (pair[1] === -1 && edit.val < other)) {
@@ -3328,7 +3327,7 @@ const AccountLogPage = {
 
 /* ═══════════════ 右侧需求说明（自定义赛事坐庄 · 本期） ═══════════════ */
 const ROLE_HEAD = ['功能', '管理员', '运营'];
-const TODO_STATUS = '预览 v1.0 · 含待确认项，确认后再开发';
+const TODO_STATUS = '需求点已全部确认，可直接开发';
 
 const C_SPEC = {
   'merchant-index-cm': [
@@ -3621,13 +3620,12 @@ const C_SPEC = {
         flow: ['运营点击某行「编辑」', { t: '输入新值，失焦校验', k: 'judge', side: '超限：自动更正为最近边界并 toast' }, '保存，即时生效，写入全局配置操作日志', { t: '按生效规则作用于新开盘 / 新成交', k: 'end' }],
       },
       {
-        type: 'new', title: '新增 16 项配置（输入约束）',
+        type: 'new', title: '新增 15 项配置（输入约束）',
         table: {
           head: ['key', '类型 · 范围', '默认'],
           rows: [
             ['cm_min_deposit', '2 位小数 · 1 ~ 1,000,000 元', '100'],
-            ['cm_max_bet_default', '2 位小数 · 2 ~ 100,000 元', '2000'],
-            ['cm_max_bet_limit', '2 位小数 · 2 ~ 10,000,000 元', '100000'],
+            ['cm_max_bet_default', '2 位小数 · 2 ~ 10,000,000 元', '2000'],
             ['cm_auto_seal_default', '非负整数 · 0 ~ 180 分钟', '10'],
             ['cm_auto_seal_max', '非负整数 · 0 ~ 1440 分钟', '180'],
             ['cm_player_rake', '非负整数 · 0 ~ 2000 /万', '300'],
@@ -3647,8 +3645,9 @@ const C_SPEC = {
       {
         type: 'rule', title: '生效规则',
         list: [
-          '开盘类（押金下限、单笔最多收默认值与上限、自动封盘默认值与上限）：只约束修改后提交的开盘；已提交或已上架的盘不回溯。',
-          '`cm_max_bet_default` 不得大于 `cm_max_bet_limit`；`cm_auto_seal_default` 不得大于 `cm_auto_seal_max`；保存时校验，不满足则提示并不保存。',
+          '开盘类（押金下限、单笔最多收默认值、自动封盘默认值与上限）：只约束修改后提交的开盘；已提交或已上架的盘不回溯。',
+          '单笔最多收：本期只配置开盘弹窗默认值，庄家可改为任意金额，不设上限（上限配置规划到二期）。',
+          '`cm_auto_seal_default` 不得大于 `cm_auto_seal_max`；保存时校验，不满足则提示并不保存。',
           '定价类（玩家侧抽水、溢价、赔率封顶、最低赔率、暂停阈值、滑点三项）：对修改后发生的成交即时生效；已成交的份额与赔率不变。溢价按开盘概率分摊，只影响修改后开出的盘。',
           '调水两项：对修改后的调水请求即时生效；累计额度按投注项历次调水绝对值之和计算，调低上限后已超出的投注项不可再调水，不回滚已调整的赔率。',
           '`cm_void_wait_hours`：仅作为运营强制下架的判定口径，不触发系统自动下架。',
@@ -3670,11 +3669,11 @@ const C_SPEC = {
         type: 'ac', title: '验收标准',
         list: [
           'Given 编辑 cm_min_odds；When 输入 0.9 并失焦；Then 自动更正为 1.01 并提示。',
-          'Given cm_max_bet_limit = 100000；When 把 cm_max_bet_default 改为 200000；Then 失焦更正为上限 100000（字段范围）并提示，同时保存校验通过。',
+          'Given cm_auto_seal_max = 180；When 把 cm_auto_seal_default 改为 200；Then 失焦更正为 180 并提示，保存校验通过。',
           'Given 某盘已上架；When 修改 cm_min_deposit；Then 该盘不受影响，新开盘按新值校验。',
         ],
       },
-      { type: 'todo', title: '待确认', list: ['`cm_max_bet_limit`：庄家开盘时可设置的「单笔最多收」上限（单笔最多收 = 买家在该场单笔投注的最高金额，由庄家设置），需求文档未给值，原型暂定 100,000。'] },
+      { type: 'keep', title: '二期规划', list: ['单笔最多收上限 `cm_max_bet_limit`：限制庄家开盘时可设置的「单笔最多收」最大值（单笔最多收 = 买家在该场单笔投注的最高金额）。本期不限制。'] },
     ],
   },
 
@@ -3690,7 +3689,6 @@ const BETS_CM_BLOCK = {
     '明细：玩法 + 投注项 + @赔率，赛事名显示「主队 vs 客队 ｜ 自定义赛事」。',
   ],
 };
-const BETS_CM_TODO = { type: 'todo', title: '待确认', list: ['注单来源新增「私盘注单」这一取值与命名（原型实现，原方案只写了「新增自定义赛事注单口径」）。', '玩家抽水列对自定义赛事显示「—」，不展示成交时隐含收取的 3%。'] };
 
 /* 私盘注单写入投注记录演示数据 */
 (() => {
