@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v22.6（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v22.7（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -750,7 +750,7 @@ input:focus{border-color:#FF8C00}
   <h4>入口与筛选</h4>
   <ul>
     <li><b>独立联赛分组</b>：自定义赛事没有 IM 母体，不挂在任何原比赛下方，在赛事列表顶部独立成「自定义赛事」分组，右侧带「私盘」标识，可折叠。</li>
-    <li><b>「我要开盘」入口在「我的」页，位于「我的卖单」上方</b>，不放在赛事列表的筛选行。</li>
+    <li><b>「我要开盘」入口在「我的」页，位于「我的卖单」上方</b>，不放在赛事列表的筛选行；开盘弹窗的完整需求见「我的」页标注。</li>
     <li><b>自定义赛事常驻置顶</b>：不做「只看」开关、不占筛选行。分组固定在赛事列表顶部，带「私盘」标识、可折叠，下方接 IM 赛事，想看 IM 赛事往下滑即可。仅今日盘与早盘展示（自定义赛事只做赛前盘），且<b>只有足球有</b>，切到其他球类不展示。</li>
     <li><b>顶部区域</b>：球类只留图标（不展示名称与数量），赛事数量移到盘口页签下方，并随当前选中球类变化。</li>
     <li><b>列表展示窗口</b>：只显示<b>已到开盘时间</b>的赛事；开赛后继续展示 <b>90 分钟</b>，此时赛事已封盘，玩家仍可在列表找到并进入详情，但不能投注。超过 90 分钟从列表移除，庄家仍可在「卖单 → 私盘」管理。</li>
@@ -777,26 +777,7 @@ input:focus{border-color:#FF8C00}
     <li><b>已售罄是动态状态，不是终态</b>：押金占用取决于「最坏比分下的赔付」，当玩家买入<b>反方向</b>的投注项时，原本最危险的那个比分的净敞口被对冲、最大亏损下降，押金随之被释放，<b>整盘可自动从已售罄回到卖出中</b>，无需庄家补充押金。因此售罄后仍需持续计算敞口，不能简单锁死。补充押金同样可解除售罄。</li>
   </ul>
 
-  <h4>我要开盘</h4>
-  <ul>
-    <li>入口在<b>「我的」页、我的卖单上方</b>。</li>
-    <li><b>赛事信息</b>：赛事名称（必填）、主队名与队徽、客队名与队徽、<b>开赛时间与开盘时间</b>（并排，均必填）、赛事直播地址（选填）。</li>
-    <li><b>封盘时间写死为开赛前 5 分钟</b>，系统自动执行，庄家不可配置，弹窗不展示该说明。</li>
-    <li><b>赔率生成方式</b>：开关「按实力值自动生成赔率」并入赛事信息卡，ⓘ 图标紧跟开关、点击弹出举例说明。
-      <br>· <b>开启</b>：填两队<b>实力值</b>（该队预计进球数，0.1~6），系统算出全部赔率；下方一行展示<b>最热比分</b>前三项（单一比分，不合并）与「更多 ›」，点击弹出 7×7 的比分概率<b>表格块</b>。
-      <br>· <b>关闭</b>：所有赔率由庄家手动填写，每个投注项一个输入框；此时不按比分状态做市，<b>赔率不随成交变动</b>，押金按最大赔付敞口占用。</li>
-    <li><b>开放玩法（8 类）</b>：全场独赢、全场让球、全场大/小、双重机会、双方进球、全场波胆、欧洲让球、主客队进球数。玩法行不展示投注项副标题。<b>前三类必开</b>，开关置灰并标「必开」。</li>
-    <li><b>盘口线配置放在该玩法赔率格上方</b>，形式为「已选项 + 最多 3 个快捷项 + ＋添加」，点添加才展开输入框（回车或点确定提交）：
-      <br>· 让球线、大小球线：只接受半球线（0.5 / 1.5 / 2.5…），整数线会被拦下——整数线要走盘退本金，与按比分做市的结构冲突。
-      <br>· 欧洲让球：1~5 的整数。
-      <br>· 全场波胆：逐项列出到几球，<b>互斥单选</b>，默认 0~6 球。
-      <br>· 主客队进球数：进球档位<b>可多选</b>，默认 0 / 1 / 2，最后一档自动变成「N+ 球」。
-      <br>· <b>每类至少保留一项</b>，最后一项不可取消，如需关闭请关闭该玩法。
-      <br>· 盘口线配置<b>与实力值开关无关</b>：它决定「开哪些投注项」，赔率怎么生成是另一回事，自动模式下照常为新增的线生成赔率。</li>
-    <li><b>押金与收单</b>（同一张卡，不设小标题）：押金金额（≥100）、单笔最多收（默认 2000）、最低赔率（默认 1.05）、最高赔率（默认 99）、抽水（每万，默认 0）。</li>
-    <li>必填校验<b>按字段就地提示</b>：刚打开不标红；字段被编辑过或点过提交后，不合法字段边框变红、下方给一行红色说明。</li>
-    <li>底部说明：提交后需运营审核，通过才上架；<b>押金在提交时冻结</b>，未通过则退回。</li>
-  </ul>
+
 </div>
 
 <!-- ═════════ 右侧标注:私盘 · 盘口详情与投注 ═════════ -->
@@ -960,7 +941,28 @@ input:focus{border-color:#FF8C00}
 
 <div class="spec" id="spec-me" data-page="pg-me" style="display:none">
   <h3>我的 · 需求标注</h3>
-  <p class="sub">本期与自定义赛事相关的改动集中在「汇总报表」入口，其余分组沿用既有实现。</p>
+  <p class="sub">本期与自定义赛事相关的改动有两处：<b>「我要开盘」入口</b>（位于「我的卖单」上方）与<b>汇总报表的统计范围</b>。其余分组沿用既有实现。</p>
+
+  <h4>我要开盘（入口在本页，位于「我的卖单」上方）</h4>
+  <ul>
+    <li>入口在<b>「我的」页、我的卖单上方</b>。</li>
+    <li><b>赛事信息</b>：赛事名称（必填）、主队名与队徽、客队名与队徽、<b>开赛时间与开盘时间</b>（并排，均必填）、赛事直播地址（选填）。</li>
+    <li><b>封盘时间写死为开赛前 5 分钟</b>，系统自动执行，庄家不可配置，弹窗不展示该说明。</li>
+    <li><b>赔率生成方式</b>：开关「按实力值自动生成赔率」并入赛事信息卡，ⓘ 图标紧跟开关、点击弹出举例说明。
+      <br>· <b>开启</b>：填两队<b>实力值</b>（该队预计进球数，0.1~6），系统算出全部赔率；下方一行展示<b>最热比分</b>前三项（单一比分，不合并）与「更多 ›」，点击弹出 7×7 的比分概率<b>表格块</b>。
+      <br>· <b>关闭</b>：所有赔率由庄家手动填写，每个投注项一个输入框；此时不按比分状态做市，<b>赔率不随成交变动</b>，押金按最大赔付敞口占用。</li>
+    <li><b>开放玩法（8 类）</b>：全场独赢、全场让球、全场大/小、双重机会、双方进球、全场波胆、欧洲让球、主客队进球数。玩法行不展示投注项副标题。<b>前三类必开</b>，开关置灰并标「必开」。</li>
+    <li><b>盘口线配置放在该玩法赔率格上方</b>，形式为「已选项 + 最多 3 个快捷项 + ＋添加」，点添加才展开输入框（回车或点确定提交）：
+      <br>· 让球线、大小球线：只接受半球线（0.5 / 1.5 / 2.5…），整数线会被拦下——整数线要走盘退本金，与按比分做市的结构冲突。
+      <br>· 欧洲让球：1~5 的整数。
+      <br>· 全场波胆：逐项列出到几球，<b>互斥单选</b>，默认 0~6 球。
+      <br>· 主客队进球数：进球档位<b>可多选</b>，默认 0 / 1 / 2，最后一档自动变成「N+ 球」。
+      <br>· <b>每类至少保留一项</b>，最后一项不可取消，如需关闭请关闭该玩法。
+      <br>· 盘口线配置<b>与实力值开关无关</b>：它决定「开哪些投注项」，赔率怎么生成是另一回事，自动模式下照常为新增的线生成赔率。</li>
+    <li><b>押金与收单</b>（同一张卡，不设小标题）：押金金额（≥100）、单笔最多收（默认 2000）、最低赔率（默认 1.05）、最高赔率（默认 99）、抽水（每万，默认 0）。</li>
+    <li>必填校验<b>按字段就地提示</b>：刚打开不标红；字段被编辑过或点过提交后，不合法字段边框变红、下方给一行红色说明。</li>
+    <li>底部说明：提交后需运营审核，通过才上架；<b>押金在提交时冻结</b>，未通过则退回。</li>
+  </ul>
 
   <h4>汇总报表需包含私盘数据</h4>
   <ul>
@@ -1585,16 +1587,17 @@ function cmRowHtml(c){
     const mk=e.mks.find(x=>x.key===mkKey); if(!mk)return null;
     return mk.items.find(x=>x.key===itKey)||null;
   };
+  const locked=['sealed','pending','settled','closed','openRej'].includes(c.state);
   const cell=(it,label)=>{
     if(!it)return `<div class="oddcell" style="opacity:.4"><span class="lb">${label}</span><span class="v">--</span></div>`;
     const L=EG.limits(e,cfg,it), od=EG.showOdds(e,cfg,it);
-    /* 自己开的盘不可投注,赔率照常展示但不可点 */
     const live=can&&!L.paused;
     const k='CM|'+c.id+'|'+it.key;
+    /* 已封盘及之后的赛事 → 🔒;该投注项额度触顶(已售罄) → -;其余照常展示赔率 */
+    const vTxt=locked?'🔒':(L.paused?'-':f2(od));
     return `<div class="oddcell${sel[k]?' sel':''}" id="cell-${k}" style="${live?'':'opacity:.5'}"
       ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
-      <span class="lb">${label}</span><span class="v">${f2(od)}</span>
-      ${can&&L.paused?'<span style="position:absolute;right:3px;top:2px;font-size:8px;color:#bbb">暂停</span>':''}
+      <span class="lb">${label}</span><span class="v">${vTxt}</span>
     </div>`;
   };
   const itemCnt=e.mks.reduce((a,x)=>a+x.items.length,0);
@@ -1708,6 +1711,8 @@ function cmRenderDetail(){
   /* 赛事详情无底部操作区 */
   $('cd-footer').innerHTML='';
   $('cd-footer').style.display='none';
+  /* 已封盘及之后的状态,赔率格展示 🔒 */
+  const dLocked=(c.state==='sealed'||c.state==='pending'||c.state==='settled'||c.state==='closed'||c.state==='openRej');
   $('cd-body').innerHTML=bankerHtml+e.mks.filter(mk=>cdTab==='all'||cdTab===mk.key).map(mk=>{
     const open=!cmDetailFold[mk.key];
     const cols=mk.key==='cs'?3:mk.items.length;
@@ -1717,11 +1722,11 @@ function cmRenderDetail(){
       const L=EG.limits(e,cfg,it),od=EG.showOdds(e,cfg,it);
       const live=c.state==='open'&&!L.paused;
       const k='CM|'+c.id+'|'+it.key;
+      const vTxt=dLocked?'🔒':(L.paused?'-':f2(od));
       return `<div class="row" id="cell-d-${k}" style="background:${sel[k]?'linear-gradient(180deg,#FFA33A,#FF8C00)':'#F7F8FA'};border-radius:8px;padding:11px 12px;margin-bottom:7px;cursor:${live?'pointer':'default'};${live?'':'opacity:.45'}"
         ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
         <span style="font-size:12px;color:${sel[k]?'rgba(255,255,255,.9)':'#9aa0a6'}" class="grow nowrap">${it.name}</span>
-        <span style="font-size:15px;font-weight:700;color:${sel[k]?'#fff':'#222'}" class="nowrap">${live?f2(od):'--'}</span>
-        ${c.state==='open'&&L.paused?'<span style="font-size:9px;color:#bbb;margin-left:4px">暂停</span>':''}
+        <span style="font-size:15px;font-weight:700;color:${sel[k]?'#fff':'#222'}" class="nowrap">${vTxt}</span>
       </div>`;
     };
     let cells='';
@@ -1754,9 +1759,10 @@ function cmRenderDetail(){
         const L=EG.limits(e,cfg,it),od=EG.showOdds(e,cfg,it);
         const live=c.state==='open'&&!L.paused;
         const k='CM|'+c.id+'|'+it.key;
+        const vTxt=dLocked?'🔒':(L.paused?'-':f2(od));
         return `<div class="oddcell${sel[k]?' sel':''}" id="cell-d-${k}" style="height:auto;padding:9px 4px;${live?'':'opacity:.45'}"
           ${live?`onclick="cmToggle('${c.id}','${it.key}')"`:''}>
-          <span class="lb">${it.name}</span><span class="v">${live?f2(od):'--'}</span></div>`}).join('')}</div>`;
+          <span class="lb">${it.name}</span><span class="v">${vTxt}</span></div>`}).join('')}</div>`;
     }
     return `<div style="background:#fff;border-radius:12px;overflow:hidden;margin-bottom:10px">
       <div class="row" style="padding:11px 12px;background:#fff;border-bottom:1px solid #f4f4f4">
