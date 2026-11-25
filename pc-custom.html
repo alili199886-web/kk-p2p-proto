@@ -1259,6 +1259,26 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 /* ⓘ 紧跟字段名，不另起一行 */
 .cm-grid2 .lb,.cm-grid3 .lb{display:flex;align-items:center;gap:2px}
 .cm-grid2 .lb .cm-tip,.cm-grid3 .lb .cm-tip{margin-left:2px}
+/* 开盘弹窗：赔率生成方式用开关，不用复选框 */
+.cm-swrow{display:flex;align-items:center;gap:9px;margin:14px 0 10px}
+.cm-swrow .sw{cursor:pointer}
+.cm-swrow b{font-size:13px;color:var(--ink-strong);font-weight:600}
+/* 可点击的入口常显橙色：操盘日志、子单数据 */
+.cm-act{color:var(--accent)!important;border-color:rgba(255,140,0,.45)!important}
+.cm-act:hover{background:rgba(255,140,0,.08)}
+.cm-items2 .oit-subh:not(.none){color:var(--accent)}
+.cm-items2 .oit-subh:not(.none) .ar{color:var(--accent)}
+.cm-items2 .oit-subh:not(.none):hover{text-decoration:underline}
+.cm-subsum{font-size:12px;color:var(--ink-mute);padding:0 0 10px}
+/* 开盘详情：同一玩法下的投注项并排排列，宽度够就排 2~3 列 */
+.cm-items2{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));
+  gap:0 20px;align-items:start}
+.cm-items2 .cm-mkh{grid-column:1/-1;border-bottom:0}
+.cm-items2 .oit{padding:11px 0;border-top:1px solid var(--line);min-width:0}
+.cm-items2 .oit.sep{border-top:1px solid var(--line)}
+.cm-items2 .oit-od-row{gap:8px}
+.cm-items2 .oit-amts{gap:10px;font-size:11.5px}
+.cm-items2 .sub-r1{flex-wrap:wrap}
 .cm-lock{font-style:normal;font-size:11px;opacity:.65}
 .bt-grph{font-size:12.5px;color:var(--ink-strong);font-weight:600;margin:14px 0 8px;display:flex;align-items:center;gap:10px}
 .bt-grph i{font-style:normal;font-weight:400;font-size:11px;color:var(--ink-mute)}
@@ -2871,7 +2891,7 @@ $("#langBtn").onclick=e=>{e.stopPropagation();
   $("#langBtn").innerHTML=`${S.lang} <span class="caret">▼</span>`;};
 
 /* ============ 侧栏 ============ */
-const PRIMARY=[["滚球","🎯","live"],["热门赛事","🏆","hot"],["冠军","🥇","champion"],["我的关注","⭐","fav"],["我的买单","🧾","mybuy"],["我要开盘","➕","cmnew"],["我的卖单","🏷","sell"],["汇总报表","📈","report"]];
+const PRIMARY=[["滚球","🎯","live"],["热门赛事","🏆","hot"],["冠军","🥇","champion"],["我的关注","⭐","fav"],["我要开盘","➕","cmnew"],["我的买单","🧾","mybuy"],["我的卖单","🏷","sell"],["汇总报表","📈","report"]];
 function renderSide(){
   const s=$("#side");s.innerHTML="";
   if(S.sideMode==="slip"||S.ticket){
@@ -5876,7 +5896,6 @@ function cmRenderNew(){
   let eng=null;try{eng=EG.init(cfg)}catch(err){}
   const mbad=cmNewManualBad();
   body.innerHTML=`
-    <div class="cm-sec">赛事信息</div>
     <div class="cm-grid2">
       <label class="wide">赛事名称${inp("title","例：周末友谊赛 第 3 轮")}</label>
       <label>主队${badge("hImg","hLogo")}${inp("home","主队名称")}</label>
@@ -5886,17 +5905,15 @@ function cmRenderNew(){
       <label class="wide">赛事直播地址（选填）${inp("live","https://")}</label>
     </div>
 
-    <div class="cm-sec">赔率生成方式</div>
-    <label class="cm-auto"><input type="checkbox" id="cm-auto" ${cmNew.auto?"checked":""}>按均进球数自动生成赔率${tip("auto")}</label>
+    <div class="cm-swrow"><i class="sw${cmNew.auto?" on":""}" id="cm-auto"></i>
+      <b>按均进球数自动生成赔率</b>${tip("auto")}</div>
     ${cmNew.auto?`<div class="cm-grid2">
       <label><span class="lb">主队均进球数${tip("lam")}</span>${inp("lH","0.1 ~ 6",'inputmode="decimal"')}</label>
       <label>客队均进球数${inp("lA","0.1 ~ 6",'inputmode="decimal"')}</label>
     </div>
     <div id="cm-hot"></div>`
-    :`<div class="cm-note">已关闭自动生成：全部赔率由你在下方逐项填写，赔率不随成交变动。<br>
-       提交时按玩法校验隐含概率之和 Σ(1÷赔率) ≥ ${CM_MIN_EDGE.toFixed(2)}；每笔成交前再按最坏比分核一次押金硬上限。手动定价不提供波胆玩法。</div>`}
+    :`<div class="cm-note">已关闭自动生成：全部赔率由你在下方逐项填写，赔率不随成交变动。</div>`}
 
-    <div class="cm-sec">赔率限制与抽水 · 押金与收单</div>
     <div class="cm-card2">
       <div class="cm-grid3">
         <label><span class="lb">最低赔率${tip("minOdds")}</span>${inp("minOdds","1.05",'inputmode="decimal"')}</label>
@@ -5907,8 +5924,6 @@ function cmRenderNew(){
         <label><span class="lb">押金金额（≥100）${tip("dep")}</span>${inp("dep","≥100",'inputmode="decimal"')}</label>
         <label><span class="lb">单笔最多收${tip("maxStake")}</span>${inp("maxStake","默认 2000",'inputmode="decimal"')}</label>
       </div>
-      <div class="cm-note" style="margin-top:8px">押金是本场最大亏损上限：任何比分开出，亏损都不超过它。<br>
-        自动封盘：到达开赛前 ${CM_SEAL_MIN} 分钟后盘口停止收单，比赛结束后由你录入赛果。</div>
     </div>
 
     <div class="cm-sec">开放玩法<i class="cm-sub2">前三类必开</i></div>
@@ -6023,8 +6038,8 @@ function cmRenderNew(){
   body.querySelectorAll("[data-tip]").forEach(s=>s.onclick=()=>{
     const t=CM_TIPS[s.dataset.tip];if(t)cmTipBox(t[0],t[1])});
   const au=$("#cm-auto",body);
-  if(au)au.onchange=()=>{
-    cmNew.auto=au.checked;
+  if(au)au.onclick=()=>{
+    cmNew.auto=!cmNew.auto;
     /* 从自动切到手动时若已勾选波胆则自动关闭并提示；切回自动时波胆恢复可选 */
     if(!cmNew.auto&&cmNew.mk.cs){cmNew.mk.cs=0;toast("手动定价不支持波胆，已关闭")}
     cmRenderNew();
@@ -6150,7 +6165,7 @@ function renderCmOwn(m){
   const b=el("div","bar");
   b.innerHTML=`<button class="icon-btn" id="back">↩</button>
     <div class="bar-title" style="margin:0 auto">开盘详情</div>
-    <div class="bar-right"><button class="mini" id="oplog">操盘日志</button></div>`;
+    <div class="bar-right"><button class="mini cm-act" id="oplog">操盘日志 ›</button></div>`;
   $("#back",b).onclick=()=>{S.page="history";S.histSide="卖单";S.sellSeg="私盘";render()};
   $("#oplog",b).onclick=()=>cmOpLog(c);
   m.appendChild(b);
@@ -6218,7 +6233,9 @@ function renderCmOwn(m){
   tabs.appendChild(sc);m.appendChild(tabs);
 
   e.mks.filter(mk=>S.cmOwnTab==="全部"||cmCat(mk)===S.cmOwnTab).forEach(mk=>{
-    const wrap=el("div","card om-items");
+    /* 投注项并排排列：两项玩法各占一半、三项及以上排三列，整行铺满不留空白 */
+    const wrap=el("div","card om-items cm-items2");
+    wrap.style.gridTemplateColumns=`repeat(${Math.min(mk.items.length,3)},minmax(0,1fr))`;
     wrap.id="mkblk-"+cssId(mk.key);
     wrap.appendChild(el("div","cm-mkh",`<span>${esc(mk.name)}</span>`));
     const sealed=cmSealedMk(c,mk);
@@ -6263,21 +6280,13 @@ function renderCmOwn(m){
         $(".cmo-p",cell).onclick=()=>cmSetOdds(c,mk,it,+(cur+0.01).toFixed(2));
         $(".cmo-seal",cell).onclick=()=>cmSealMk(c,mk);
       }
-      const sid=c.id+":"+it.key, open=S.cmSubOpen.has(sid), has=subs.length>0;
+      /* 子单数据不做展开收起，点击直接弹窗展示该投注项的全部子单 */
+      const has=subs.length>0;
       const sh=el("div","oit-subh"+(has?"":" none"),
-        has?`<span>子单数据(${subs.length})</span><span class="ar">${open?"收起 ⌃":"展开 ⌄"}</span>`
+        has?`<span>子单数据(${subs.length})</span><span class="ar">查看 ›</span>`
            :`<span>子单数据(0)：暂无成交</span>`);
-      if(has)sh.onclick=()=>{open?S.cmSubOpen.delete(sid):S.cmSubOpen.add(sid);render()};
+      if(has)sh.onclick=()=>cmItemSubs(c,mk,it,subs,hit);
       cell.appendChild(sh);
-      if(has&&open){
-        const sb=el("div","oit-subs");
-        subs.forEach(f=>sb.appendChild(el("div","sub-i",
-          `<div class="sub-r1"><span class="sub-m">${f.mine?"我":"会员"}</span><span>${esc(f.u)}</span>
-             <span class="num">¥${money(f.amt)}</span><span class="num">${f.shares.toFixed(2)} 份</span><span class="num">@${f.odds.toFixed(2)}</span></div>
-           <div class="sub-r2"><span>${esc(f.time)}</span>${c.state==="settled"
-             ?`<span class="${hit?"g":"r"}">${hit?"赢 +¥"+money(f.shares-f.amt):"输 −¥"+money(f.amt)}</span>`:""}</div>`)));
-        cell.appendChild(sb);
-      }
       wrap.appendChild(cell);
     });
     m.appendChild(wrap);
@@ -6385,6 +6394,22 @@ function cmOpLog(c){
     body:rows?`<div class="cm-log">${rows}</div>`:`<div class="cm-note">本场暂无操盘记录。</div>`});
 }
 
+/* 单个投注项的子单：点「子单数据」直接弹窗，不在卡片内展开
+   子单列表站买家（玩家）立场，与本场全部子单弹窗口径一致 */
+function cmItemSubs(c,mk,it,subs,hit){
+  const done=c.state==="settled";
+  const rows=subs.map(f=>`<div class="cl-i">
+      <div class="cl-r1"><span class="sub-m">${f.mine?"我":"会员"}</span><span class="cl-d">${esc(f.u)}</span>
+        <b class="g">@${f.odds.toFixed(2)}</b></div>
+      <div class="cl-r2"><span>${esc(f.time)}　${f.shares.toFixed(2)} 份</span>
+        <span>¥${money(f.amt)}${done?(hit?`　<b class="g">赢 +¥${money(f.shares-f.amt)}</b>`
+                                          :`　<b class="r">输 −¥${money(f.amt)}</b>`):""}</span></div>
+    </div>`).join("");
+  const sold=subs.reduce((a,f)=>a+f.amt,0);
+  cmConfirm({title:`${mk.name} · ${it.name}`,okText:"关闭",hideCancel:true,wide:true,onOk:()=>{},
+    body:`<div class="cm-subsum">共 ${subs.length} 笔　已收 ¥${money(sold)}　命中需赔 ¥${money(it.soldShares||0)}</div>
+      <div class="cm-log" style="max-height:62vh;overflow:auto">${rows}</div>`});
+}
 /* 本场全部子单：每页 20 条，滚到底加载下一页 */
 let cmSubsPage=1;
 function cmAllSubs(c){
