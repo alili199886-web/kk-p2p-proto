@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.0（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.1（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -981,12 +981,12 @@ input:focus{border-color:#FF8C00}
       <br>· <b>关闭</b>：所有赔率由庄家手动填写，赔率不随成交变动。此模式脱离做市模型，需要两层独立风控，见下条。</li>
     <li><b>手动定价模式的风控（两层，缺一不可）</b>：自动模式下由做市结构自动成立的三条保证——同玩法价格和恒等、跨玩法不套利、亏损不超押金——在手动模式下全部失效。
       <br>· <b>第一层，提交开盘时的静态校验</b>：同玩法各项赔率的隐含概率之和（Σ 1÷赔率）必须 ≥ <b>1.02</b>，低于此值说明这组赔率对庄家不利到可被玩家全买套利，拦截提交并指出是哪个玩法、当前和值多少。填写过程中实时标红提示。
-      <br>· <b>玩法互斥</b>：手动模式下<b>禁止波胆与其他玩法同开</b>。波胆是最细粒度玩法，其他玩法都能用它的组合复制，同开会产生跨玩法套利；界面上勾选其一则另一方开关置灰。严格的等价组合校验实现成本过高，用这条限制以很小代价消掉绝大部分套利面。
+      <br>· <b>手动模式不提供波胆</b>：玩法列表里直接不展示，从 8 类减为 7 类。波胆是最细粒度玩法，其他玩法都能用它的组合复制；自动模式下所有赔率来自同一张比分概率表、无套利是算出来的，手动模式下庄家逐项填赔率、系统无从保证自洽。又因独赢/让球/大小球三类必开、在手动模式下一定存在，波胆与它们同开必然冲突、等于永远开不了，所以直接不展示而非置灰。从自动切到手动时若已勾选波胆则自动关闭并提示。
       <br>· <b>押金下限</b>：押金 ÷ 该盘最大赔率 ≥ 2 元，确保押金不至于小到开不了盘。
       <br>· <b>第二层，每笔成交前的押金硬上限</b>：枚举主客各 0~6 球加「其他比分」共 50 个状态，算出最坏赔付（Σ 命中该比分的投注项的 已售份额 × 赔率），净敞口 = 最坏赔付 − 已收投注总额；<b>净敞口超过押金即拒绝本笔</b>。拒单时不直接拒绝，反推出恰好不突破押金的最大金额并提示，玩家可改小。
       <br>· 举例：押金 1000、主胜赔率 2.5，该项单笔上限为 666.66——买满后最坏赔付 1666.65、已收 666.66、净敞口 999.99，恰好不超押金；此时该项自动暂停买入。
       <br>· <b>单笔上限</b>在手动模式下为两项取最小：单笔最多收、押金硬上限（赔率固定，无滑点与最低赔率限额）。<b>已售罄判定</b>改为全部投注项的押金硬上限都不足 5 元。<b>调水</b>语义变为直接改该项赔率，改完需重算最坏赔付，若导致已有持仓突破押金则拒绝调整并提示先补充押金。
-      <br>· <b>残留风险</b>：跨玩法套利仅靠波胆互斥规避，属经验性限制而非数学保证；若后续放开该限制，需补完整的等价组合校验。</li>
+      <br>· <b>残留风险</b>：跨玩法套利仅靠「手动模式不提供波胆」规避，属经验性限制而非数学保证——其他玩法之间仍可能存在局部等价关系。若后续要放开波胆，须先补完整的等价组合校验。</li>
     <li><b>赔率限制与抽水</b>（紧接均进球数下方）：最低赔率、最高赔率、抽水三项并排，<b>每个字段名后各带一个 ⓘ</b>，分别说明——最低赔率是压价保护线（触及该值该项自动暂停收单）、最高赔率是冷门项的展示上限、抽水是每万抽多少且不从投注额扣而是少给份额。</li>
     <li><b>开放玩法（8 类）</b>：全场独赢、全场让球、全场大/小、双重机会、双方进球、全场波胆、欧洲让球、主客队进球数。
       <br>· <b>前三类必开</b>：不给开关，原开关位置直接显示橙色「必开」二字。
@@ -2565,6 +2565,13 @@ function cmHeatAll(){
 let cmOwnTab='all';
 
 
+/* 切换定价方式:转手动时自动关掉波胆(手动模式不提供波胆) */
+function cmToggleAuto(){
+  cmNew.auto=!cmNew.auto;
+  if(!cmNew.auto&&cmNew.mk.cs){cmNew.mk.cs=false;toast('手动定价不支持波胆，已关闭')}
+  if(!cmNew.auto&&cmNewTab==='cs')cmNewTab='all';
+  cmRenderNew();
+}
 /* ══════════ 手动定价模式的风控 ══════════
    自动模式下三条保证由 LMSR 结构成立;手动模式全部失效,需显式校验 */
 const MAN_MIN_VIG=0.02;      /* 同玩法隐含概率和的最低溢价 */
@@ -2752,15 +2759,11 @@ function cmRenderNew(){
             oninput="cmNew.manual['${it.key}']=this.value;cmRenderNew();setTimeout(()=>{const i=$('mo-${it.key}');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)"></div>`).join('')}</div></div>`).join('');
   };
 
-  /* 手动定价下波胆与其他玩法互斥:波胆是最细粒度玩法,其他玩法都能用波胆组合复制 */
-  const manBlocked=k=>{
-    if(cmNew.auto)return false;
-    const on=Object.keys(cmNew.mk).filter(x=>cmNew.mk[x]);
-    if(k==='cs')return on.some(x=>x!=='cs');
-    return cmNew.mk.cs;
-  };
   /* 玩法开关行:必开玩法不可关闭 */
   const tgl=(k,label)=>{
+    /* 手动定价下不提供波胆:独赢/让球/大小球是必开玩法,波胆与它们同开会产生跨玩法套利
+       (波胆是最细粒度,其他玩法都能用它的组合复制),既然必开项一定存在,波胆就永远开不了,直接不展示 */
+    if(!cmNew.auto&&k==='cs')return '';
     if(cmNewTab!=='all'&&cmNewTab!==k)return '';   /* tab 分页:只展示选中的玩法 */
     const must=CM_MUST.includes(k);
     return `<div id="mkblk-${k}" style="padding:9px 0;border-top:1px dashed #f0f0f0">
@@ -2768,8 +2771,7 @@ function cmRenderNew(){
       <div class="grow" style="min-width:0">
         <div style="font-size:13px;font-weight:600;color:#222">${label}</div></div>
       ${must?'<span style="font-size:11px;color:#E8850C;font-weight:600;flex-shrink:0">必开</span>'
-            :`<span class="sw ${cmNew.mk[k]?'on':''}${manBlocked(k)?' dis':''}" style="${manBlocked(k)?'opacity:.4;cursor:not-allowed':''}"
-                onclick="${manBlocked(k)?`toast('手动定价下，波胆不可与其他玩法同开')`:`cmNew.mk['${k}']=!cmNew.mk['${k}'];cmRenderNew()`}"><i></i></span>`}
+            :`<span class="sw ${cmNew.mk[k]?'on':''}" onclick="cmNew.mk['${k}']=!cmNew.mk['${k}'];cmRenderNew()"><i></i></span>`}
     </div>
     ${cmNew.mk[k]?(lineOf(k)+oddsOf(k)):''}</div>`;
   };
@@ -2834,7 +2836,7 @@ function cmRenderNew(){
           <span style="font-size:13px;font-weight:600;color:#222">按均进球数自动生成赔率</span>
           <span style="margin-left:5px;cursor:pointer;color:#FF8C00;font-size:15px" onclick="cmLambdaTip()">ⓘ</span>
           <span class="grow"></span>
-          <span class="sw ${cmNew.auto?'on':''}" onclick="cmNew.auto=!cmNew.auto;cmRenderNew()"><i></i></span></div>
+          <span class="sw ${cmNew.auto?'on':''}" onclick="cmToggleAuto()"><i></i></span></div>
         ${cmNew.auto?`
         <div class="row" style="gap:8px;align-items:flex-end">
           <div class="grow">${fld('lH','主队均进球数','0.1 ~ 6',"inputmode='decimal'")}</div>
@@ -2855,7 +2857,7 @@ function cmRenderNew(){
             <b>以下玩法的赔率组合会被套利</b>（各项隐含概率之和需 ≥ 1.02）：<br>
             ${bad.map(x=>`· ${x.mk}：当前 ${x.sum.toFixed(3)}，需调低赔率`).join('<br>')}</div>`:''}
           ${miss?`<div class="hint" style="margin-top:6px">还有 ${miss} 个玩法的赔率未填完。</div>`:''}
-          ${cmNew.mk.cs?`<div class="hint" style="margin-top:6px;background:#FFF3E0;color:#E65C00">手动定价下<b>波胆不可与其他玩法同开</b>——波胆是最细粒度玩法，其他玩法都能用它的组合复制，同开会产生跨玩法套利。</div>`:''}`;
+`;
         })()}
         <div class="row" style="gap:8px;align-items:flex-end;margin-top:4px">
           <div class="grow">${fld('minOdds','最低赔率','1.05',"inputmode='decimal'",'cmMinOddsTip')}</div>
@@ -2873,7 +2875,8 @@ function cmRenderNew(){
         <div class="row"><span style="font-size:13px;font-weight:700;color:#222" class="grow">开放玩法</span>
           <span class="muted" style="font-size:11px">已选 ${Object.values(cmNew.mk).filter(Boolean).length} / 8 类</span></div>
         <div class="row" style="gap:5px;flex-wrap:nowrap;overflow-x:auto;margin-top:8px;padding-bottom:3px">
-          ${[['all','全部']].concat([['wdl','独赢'],['ah','让球'],['ou','大/小'],['dc','双重机会'],['btts','双方进球'],['cs','波胆'],['eh','欧洲让球'],['tg','进球数']])
+          ${[['all','全部']].concat([['wdl','独赢'],['ah','让球'],['ou','大/小'],['dc','双重机会'],['btts','双方进球'],['cs','波胆'],['eh','欧洲让球'],['tg','进球数']]
+              .filter(([k])=>cmNew.auto||k!=='cs'))
             .map(([k,n])=>`<span class="fpill ${cmNewTab===k?'on':''}" style="font-size:11px;padding:4px 10px;flex-shrink:0"
               onclick="cmNewTab='${k}';cmRenderNew()">${n}</span>`).join('')}
         </div>
@@ -3121,8 +3124,6 @@ function cmTrySubmit(){
     if(!ok)return;
     /* 手动定价模式:提交前做第一层静态校验 */
     if(!cmNew.auto){
-      if(!manCheckExclusive(cmNew.mk))
-        return toast('手动定价下，波胆不可与其他玩法同开');
       const groups=[];
       Object.keys(cmNew.mk).filter(k=>cmNew.mk[k]).forEach(k=>cmManualItems(k).forEach(g=>{
         groups.push({name:g.name||({wdl:'全场 独赢',dc:'双重机会',btts:'双方进球',cs:'全场 波胆'}[k]||k),items:g.items});
