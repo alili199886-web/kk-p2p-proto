@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v24.4（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v24.2（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -761,7 +761,7 @@ input:focus{border-color:#FF8C00}
     <li><b>排序</b>：按<b>开赛时间正序</b>排列。</li>
     <li>比赛行三列固定，与官方盘一致：<b>全场独赢 / 全场让球 / 全场大/小</b>；完整玩法进赛事详情查看，入口为队名下方的「全部 N▸」。<b>列表行不展示比赛状态</b>。</li>
     <li>行首结构：<b>收藏 ☆ 在赛事名称左侧，开赛时间在赛事名称下方</b>。赛事名称为庄家开盘时填写的名称。</li>
-    <li>已售罄、已封盘的赛事<b>赔率照常展示</b>，只是置灰不可点击。</li>
+    <li><b>赔率格展示规则</b>：整盘已售罄或单个投注项额度触顶显示「<b>-</b>」；已封盘及之后的状态（待审核 / 已结算 / 已关闭）显示<b>锁图标</b>；卖出中正常显示赔率。列表与详情一致，均置灰不可点击。</li>
   </ul>
 
   <h4>比赛状态（六个）</h4>
@@ -843,7 +843,6 @@ input:focus{border-color:#FF8C00}
     <li>赔率旁的差值<b>以数值呈现</b>（如「(低 0.15)」），不用百分比。</li>
     <li><b>玩家侧「最低接受赔率」本期去掉</b>，购物车不再提供该输入框，相关文案一并移除。</li>
     <li><b>买单列表不与官方注单统一展示</b>：官方注单是固定赔率、字段为「投注金额 / 最高可赢」；自定义赛事是做市成交、额外有「获得份额」，两者各按自己的口径展示，不合并成同一种卡片。已结算时自定义赛事同样展示输赢与比分，格式与官方注单一致。</li>
-    <li><b>最低接受赔率（玩家侧）</b>：输入金额后出现，默认填当前成交后赔率。从点击下注到真正成交之间，别人可能抢先买入把价格推高、赔率压低，<b>本笔成交赔率低于该值时直接拒绝本笔</b>，相当于限价单的保护价。这是玩家的滑点兜底；庄家侧「被压价到多少就停止收单」是另一回事，本期不做。</li>
   </ul>
 
   <h4>调水与算法定价的关系</h4>
