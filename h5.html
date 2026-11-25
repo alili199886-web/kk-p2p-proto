@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v24.5（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v24.2（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -978,7 +978,15 @@ input:focus{border-color:#FF8C00}
       <br>· <b>开启</b>：填两队<b>均进球数</b>（该队在这场预计能进几个球，0.1~6）。ⓘ 里重点解释<b>为什么可以是小数</b>——它不是「这场一定进几个」，而是平均下来能进几个；足球进球少，一两个球的差别对赔率影响很大，必须用小数才描述得准。下方一行展示<b>最热比分</b>前三项与「更多 ›」，点击弹出 7×7 <b>比分概率分布</b>表格块。
       <br>· <b>这张表是概率占比，不是投注金额</b>：格子里的数字是该比分出现的可能性（单位 %，全表合计约 100%），颜色越深越可能出现。它回答的是「按我填的均进球数，这场最可能踢成几比几」。
       <br>· 弹窗结构：标题「比分概率分布」+ 副标题「均进球数 X / Y · 单位 %」+ 7×7 表格（行为主队进球数、列为客队进球数，最后一档为 6+）。
-      <br>· <b>关闭</b>：所有赔率由庄家手动填写，赔率不随成交变动，押金按最大赔付敞口占用。</li>
+      <br>· <b>关闭</b>：所有赔率由庄家手动填写，赔率不随成交变动。此模式脱离做市模型，需要两层独立风控，见下条。</li>
+    <li><b>手动定价模式的风控（两层，缺一不可）</b>：自动模式下由做市结构自动成立的三条保证——同玩法价格和恒等、跨玩法不套利、亏损不超押金——在手动模式下全部失效。
+      <br>· <b>第一层，提交开盘时的静态校验</b>：同玩法各项赔率的隐含概率之和（Σ 1÷赔率）必须 ≥ <b>1.02</b>，低于此值说明这组赔率对庄家不利到可被玩家全买套利，拦截提交并指出是哪个玩法、当前和值多少。填写过程中实时标红提示。
+      <br>· <b>玩法互斥</b>：手动模式下<b>禁止波胆与其他玩法同开</b>。波胆是最细粒度玩法，其他玩法都能用它的组合复制，同开会产生跨玩法套利；界面上勾选其一则另一方开关置灰。严格的等价组合校验实现成本过高，用这条限制以很小代价消掉绝大部分套利面。
+      <br>· <b>押金下限</b>：押金 ÷ 该盘最大赔率 ≥ 2 元，确保押金不至于小到开不了盘。
+      <br>· <b>第二层，每笔成交前的押金硬上限</b>：枚举主客各 0~6 球加「其他比分」共 50 个状态，算出最坏赔付（Σ 命中该比分的投注项的 已售份额 × 赔率），净敞口 = 最坏赔付 − 已收投注总额；<b>净敞口超过押金即拒绝本笔</b>。拒单时不直接拒绝，反推出恰好不突破押金的最大金额并提示，玩家可改小。
+      <br>· 举例：押金 1000、主胜赔率 2.5，该项单笔上限为 666.66——买满后最坏赔付 1666.65、已收 666.66、净敞口 999.99，恰好不超押金；此时该项自动暂停买入。
+      <br>· <b>单笔上限</b>在手动模式下为两项取最小：单笔最多收、押金硬上限（赔率固定，无滑点与最低赔率限额）。<b>已售罄判定</b>改为全部投注项的押金硬上限都不足 5 元。<b>调水</b>语义变为直接改该项赔率，改完需重算最坏赔付，若导致已有持仓突破押金则拒绝调整并提示先补充押金。
+      <br>· <b>残留风险</b>：跨玩法套利仅靠波胆互斥规避，属经验性限制而非数学保证；若后续放开该限制，需补完整的等价组合校验。</li>
     <li><b>赔率限制与抽水</b>（紧接均进球数下方）：最低赔率、最高赔率、抽水三项并排，<b>每个字段名后各带一个 ⓘ</b>，分别说明——最低赔率是压价保护线（触及该值该项自动暂停收单）、最高赔率是冷门项的展示上限、抽水是每万抽多少且不从投注额扣而是少给份额。</li>
     <li><b>开放玩法（8 类）</b>：全场独赢、全场让球、全场大/小、双重机会、双方进球、全场波胆、欧洲让球、主客队进球数。
       <br>· <b>前三类必开</b>：不给开关，原开关位置直接显示橙色「必开」二字。
@@ -1817,10 +1825,11 @@ function cmToggle(id,key){
   const c=cmFind(id);
   if(c.state!=='open')return toast('本场已封盘,不可投注');
   const it=cmItem(c,key);
-  const L=EG.limits(c.eng,c.cfg,it);
+  const L=cmLimitOf(c,it);
   const k='CM|'+id+'|'+key;
   if(!sel[k]&&L.paused)
-    return toast(L.reason==='已达平台最低赔率'?'该投注项已达平台最低赔率,暂停买入':'当前可投额度不足,暂停买入');
+    return toast(c.auto===false?'押金已接近上限,该投注项暂停买入'
+      :(L.reason==='已达平台最低赔率'?'该投注项已达平台最低赔率,暂停买入':'当前可投额度不足,暂停买入'));
   sel[k]=!sel[k];
   if(!sel[k])delete buyAmt[k];
   renderHome();
@@ -2556,6 +2565,109 @@ function cmHeatAll(){
 let cmOwnTab='all';
 
 
+/* ══════════ 手动定价模式的风控 ══════════
+   自动模式下三条保证由 LMSR 结构成立;手动模式全部失效,需显式校验 */
+const MAN_MIN_VIG=0.02;      /* 同玩法隐含概率和的最低溢价 */
+const MAN_MIN_STAKE=2;       /* 最小可成交额 */
+
+/* 手动模式下某玩法的全部投注项清单(key → 赔率) */
+function manOdds(c){ return c.manual||{} }
+/* 手动模式投注项清单:带命中判定,由玩法配置直接生成(手动模式不建引擎) */
+function manBuildItems(mk,cfg){
+  const out=[];
+  const push=(key,name,hit)=>out.push({key,name,hit});
+  if(mk.wdl){push('wdl_H','主胜',(i,j)=>i>j);push('wdl_D','平局',(i,j)=>i===j);push('wdl_A','客胜',(i,j)=>i<j)}
+  if(mk.dc){push('dc_HD','主或平',(i,j)=>i>=j);push('dc_HA','主或客',(i,j)=>i!==j);push('dc_DA','平或客',(i,j)=>i<=j)}
+  if(mk.btts){push('btts_Y','是',(i,j)=>i>0&&j>0);push('btts_N','否',(i,j)=>!(i>0&&j>0))}
+  (mk.ou?(cfg.ouLines||[]):[]).forEach(L=>{
+    push('ou'+L+'_O','大 '+L,(i,j)=>i+j>L); push('ou'+L+'_U','小 '+L,(i,j)=>i+j<L)});
+  (mk.ah?(cfg.ahLines||[]):[]).forEach(L=>{
+    push('ah'+L+'_H','主',(i,j)=>(i-j)-L>0); push('ah'+L+'_A','客',(i,j)=>(i-j)-L<0)});
+  (mk.eh?(cfg.ehLines||[]):[]).forEach(L=>{
+    push('eh'+L+'_H','主胜',(i,j)=>(i-j)-L>0); push('eh'+L+'_D','平局',(i,j)=>(i-j)-L===0);
+    push('eh'+L+'_A','客胜',(i,j)=>(i-j)-L<0)});
+  if(mk.tg){
+    const TG=(cfg.tgSet&&cfg.tgSet.length)?cfg.tgSet.slice().sort((a,b)=>a-b):[0,1,2];
+    const last=TG[TG.length-1];
+    [['h',0],['a',1]].forEach(([s,idx])=>{
+      TG.forEach(n=>{ if(n<last)push('tg'+s+'_'+n,n+' 球',((v,x)=>(i,j)=>(x===0?i:j)===v)(n,idx)) });
+      push('tg'+s+'_'+last,last+'+ 球',((v,x)=>(i,j)=>(x===0?i:j)>=v)(last,idx));
+    });
+  }
+  if(mk.cs){
+    const M=cfg.csMax||6;
+    for(let a=0;a<=M;a++)for(let b2=0;b2<=M;b2++)
+      push('cs_'+a+'_'+b2,a+':'+b2,((x,y)=>(i,j)=>i===x&&j===y)(a,b2));
+    push('cs_other','其他',((M2)=>(i,j)=>i>M2||j>M2)(M));
+  }
+  return out;
+}
+
+/* 第一层:同玩法赔率组合校验 返回 [{mk,sum,ok}] */
+function manCheckVig(mkList,manual){
+  return mkList.map(g=>{
+    const vals=g.items.map(it=>parseFloat(manual[it.key])).filter(v=>v>0);
+    if(vals.length<g.items.length)return {mk:g.name,sum:0,ok:false,miss:true};
+    const sum=vals.reduce((a,v)=>a+1/v,0);
+    return {mk:g.name,sum:+sum.toFixed(4),ok:sum>=1+MAN_MIN_VIG};
+  });
+}
+/* 第一层:玩法互斥 —— 波胆不可与其他玩法同开 */
+function manCheckExclusive(mk){
+  const on=Object.keys(mk).filter(k=>mk[k]);
+  return !(on.includes('cs')&&on.length>1);
+}
+/* 第二层:最坏比分下的赔付,比分空间 0~6 + 其他 */
+function manWorstPayout(c){
+  const man=manOdds(c), sold=c.manSold||{};
+  let worst=0;
+  for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){
+    let pay=0;
+    (c.manItems||[]).forEach(it=>{
+      const sh=sold[it.key]||0;
+      if(sh>0&&it.hit(i,j))pay+=sh*(parseFloat(man[it.key])||0);
+    });
+    if(pay>worst)worst=pay;
+  }
+  return +worst.toFixed(2);
+}
+/* 第二层:该投注项还能接多少 —— 恰好不突破押金的最大金额 */
+function manMaxStake(c,itKey){
+  const man=manOdds(c), od=parseFloat(man[itKey])||0;
+  if(od<=0)return 0;
+  const cash=c.manCash||0, dep=c.dep||0;
+  /* 二分:找到使 净敞口 = 最坏赔付 − 已收 恰好等于押金 的投注额 */
+  const sold=Object.assign({},c.manSold||{});
+  const test=amt=>{
+    const s2=Object.assign({},sold); s2[itKey]=(s2[itKey]||0)+amt;
+    let worst=0;
+    for(let i=0;i<=6;i++)for(let j=0;j<=6;j++){
+      let pay=0;
+      (c.manItems||[]).forEach(it=>{
+        const sh=s2[it.key]||0;
+        if(sh>0&&it.hit(i,j))pay+=sh*(parseFloat(man[it.key])||0);
+      });
+      if(pay>worst)worst=pay;
+    }
+    return worst-(cash+amt);
+  };
+  if(test(MAN_MIN_STAKE)>dep)return 0;
+  let lo=MAN_MIN_STAKE, hi=dep*2;
+  if(test(hi)<=dep)return +hi.toFixed(2);
+  for(let t=0;t<40;t++){const mid=(lo+hi)/2; test(mid)<=dep?lo=mid:hi=mid}
+  return +(Math.floor(lo*100)/100).toFixed(2);
+}
+/* 统一取限额入口:自动模式走引擎,手动模式走押金硬上限 */
+function cmLimitOf(c,it){
+  if(c.auto===false)return manLimit(c,it.key);
+  return EG.limits(c.eng,c.cfg,it);
+}
+/* 手动模式单笔上限:两项取最小 */
+function manLimit(c,itKey){
+  const a=parseFloat(c.cfg&&c.cfg.maxStake)||2000;
+  const b=manMaxStake(c,itKey);
+  return {max:+Math.min(a,b).toFixed(2), paused:Math.min(a,b)<5};
+}
 /* ═════ 我要开盘:创建自定义赛事 ═════ */
 let cmNew={}, cmTouched={}, cmSubmitTried=false;
 function cmCreateSheet(){
@@ -2640,6 +2752,13 @@ function cmRenderNew(){
             oninput="cmNew.manual['${it.key}']=this.value;cmRenderNew();setTimeout(()=>{const i=$('mo-${it.key}');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)"></div>`).join('')}</div></div>`).join('');
   };
 
+  /* 手动定价下波胆与其他玩法互斥:波胆是最细粒度玩法,其他玩法都能用波胆组合复制 */
+  const manBlocked=k=>{
+    if(cmNew.auto)return false;
+    const on=Object.keys(cmNew.mk).filter(x=>cmNew.mk[x]);
+    if(k==='cs')return on.some(x=>x!=='cs');
+    return cmNew.mk.cs;
+  };
   /* 玩法开关行:必开玩法不可关闭 */
   const tgl=(k,label)=>{
     if(cmNewTab!=='all'&&cmNewTab!==k)return '';   /* tab 分页:只展示选中的玩法 */
@@ -2649,7 +2768,8 @@ function cmRenderNew(){
       <div class="grow" style="min-width:0">
         <div style="font-size:13px;font-weight:600;color:#222">${label}</div></div>
       ${must?'<span style="font-size:11px;color:#E8850C;font-weight:600;flex-shrink:0">必开</span>'
-            :`<span class="sw ${cmNew.mk[k]?'on':''}" onclick="cmNew.mk['${k}']=!cmNew.mk['${k}'];cmRenderNew()"><i></i></span>`}
+            :`<span class="sw ${cmNew.mk[k]?'on':''}${manBlocked(k)?' dis':''}" style="${manBlocked(k)?'opacity:.4;cursor:not-allowed':''}"
+                onclick="${manBlocked(k)?`toast('手动定价下，波胆不可与其他玩法同开')`:`cmNew.mk['${k}']=!cmNew.mk['${k}'];cmRenderNew()`}"><i></i></span>`}
     </div>
     ${cmNew.mk[k]?(lineOf(k)+oddsOf(k)):''}</div>`;
   };
@@ -2721,7 +2841,22 @@ function cmRenderNew(){
           <div class="grow">${fld('lA','客队均进球数','0.1 ~ 6',"inputmode='decimal'")}</div>
         </div>
         ${cmNewHeat(pvE,pvCfg)}`
-        :`<div class="hint" style="margin-top:9px">所有赔率由你手动填写，赔率不随成交变动；押金按最大赔付敞口占用。</div>`}
+        :(()=>{
+          /* 手动模式:实时展示同玩法隐含概率和的校验结果 */
+          const groups=[];
+          Object.keys(cmNew.mk).filter(k=>cmNew.mk[k]).forEach(k=>cmManualItems(k).forEach(g=>{
+            groups.push({name:g.name||({wdl:'全场 独赢',dc:'双重机会',btts:'双方进球',cs:'全场 波胆'}[k]||k),items:g.items});
+          }));
+          const chk=manCheckVig(groups,cmNew.manual);
+          const bad=chk.filter(x=>!x.ok&&!x.miss);
+          const miss=chk.filter(x=>x.miss).length;
+          return `<div class="hint" style="margin-top:9px">所有赔率由你手动填写，赔率不随成交变动。<b>每笔成交前系统会校验最坏比分下的赔付是否突破押金</b>，突破则拒绝该笔。</div>
+          ${bad.length?`<div class="hint" style="margin-top:6px;background:#FDECEC;color:#C0392B">
+            <b>以下玩法的赔率组合会被套利</b>（各项隐含概率之和需 ≥ 1.02）：<br>
+            ${bad.map(x=>`· ${x.mk}：当前 ${x.sum.toFixed(3)}，需调低赔率`).join('<br>')}</div>`:''}
+          ${miss?`<div class="hint" style="margin-top:6px">还有 ${miss} 个玩法的赔率未填完。</div>`:''}
+          ${cmNew.mk.cs?`<div class="hint" style="margin-top:6px;background:#FFF3E0;color:#E65C00">手动定价下<b>波胆不可与其他玩法同开</b>——波胆是最细粒度玩法，其他玩法都能用它的组合复制，同开会产生跨玩法套利。</div>`:''}`;
+        })()}
         <div class="row" style="gap:8px;align-items:flex-end;margin-top:4px">
           <div class="grow">${fld('minOdds','最低赔率','1.05',"inputmode='decimal'",'cmMinOddsTip')}</div>
           <div class="grow">${fld('maxOdds','最高赔率','99',"inputmode='decimal'",'cmMaxOddsTip')}</div>
@@ -2983,7 +3118,25 @@ function cmTrySubmit(){
       &&dep>=100&&dep<=balance
       &&mn>=1.01&&mn<=50&&mx>mn&&mx<=999&&W>=0&&W<=2000
       &&Object.values(cmNew.mk).some(v=>v);
-    if(ok)cmDoCreate();
+    if(!ok)return;
+    /* 手动定价模式:提交前做第一层静态校验 */
+    if(!cmNew.auto){
+      if(!manCheckExclusive(cmNew.mk))
+        return toast('手动定价下，波胆不可与其他玩法同开');
+      const groups=[];
+      Object.keys(cmNew.mk).filter(k=>cmNew.mk[k]).forEach(k=>cmManualItems(k).forEach(g=>{
+        groups.push({name:g.name||({wdl:'全场 独赢',dc:'双重机会',btts:'双方进球',cs:'全场 波胆'}[k]||k),items:g.items});
+      }));
+      const chk=manCheckVig(groups,cmNew.manual);
+      const miss=chk.find(x=>x.miss);
+      if(miss)return toast('请先填完「'+miss.mk+'」的全部赔率');
+      const bad=chk.find(x=>!x.ok);
+      if(bad)return toast('「'+bad.mk+'」赔率组合会被套利:隐含概率和 '+bad.sum.toFixed(3)+'，需 ≥ 1.02');
+      const maxOd=Math.max(...Object.values(cmNew.manual).map(v=>parseFloat(v)||0));
+      if(maxOd>0&&dep/maxOd<2)
+        return toast('押金过低:按最大赔率 '+f2(maxOd)+' 计算，单笔最小可成交额不足 2 元');
+    }
+    cmDoCreate();
   },30);
 }
 function cmDoCreate(){
@@ -3005,6 +3158,11 @@ function cmDoCreate(){
   nc.title=cmNew.title.trim();
   nc.auto=cmNew.auto;
   nc.manual=Object.assign({},cmNew.manual);
+  /* 手动模式:记录投注项清单与成交累计,供押金硬上限试算 */
+  if(!cmNew.auto){
+    nc.manItems=manBuildItems(nc.cfg.mk,nc.cfg);
+    nc.manSold={}; nc.manCash=0;
+  }
   try{nc.eng=EG.init(nc.cfg)}catch(err){nc.eng=EG.init(Object.assign({},CM_CFG,{lH,lA,deposit:dep}))}
   CM.unshift(nc);
   balance=+(balance-dep).toFixed(2); syncBal();
@@ -4205,9 +4363,12 @@ function doBuy(){
     const c=cmFind(cid); if(!c)return toast('该比赛已不可投注');
     if(c.state!=='open')return toast('该比赛已封盘');
     const _it=cmItem(c,ikey);
-    const L=EG.limits(c.eng,c.cfg,_it);
-    if(L.paused)return toast('该投注项已暂停买入');
-    if(parseFloat(buyAmt[k])>L.max)return toast('超出本笔上限 '+f2(L.max));
+    const L=cmLimitOf(c,_it);
+    if(L.paused)return toast(c.auto===false?'押金已接近上限,该投注项暂停买入':'该投注项已暂停买入');
+    if(parseFloat(buyAmt[k])>L.max)
+      return toast(c.auto===false
+        ? '超出押金可承受的上限 '+curAmt(L.max)+',再多会导致最坏比分下赔付突破押金'
+        : '超出本笔上限 '+f2(L.max));
 
   }
   if(!acceptAny){
@@ -4232,10 +4393,19 @@ function doBuy(){
       const pp=k.split('|'),cid=pp[1],ikey=pp.slice(2).join('|');
       const c=cmFind(cid); if(!c)return;
       const it=cmItem(c,ikey); if(!it)return;
-      const L=EG.limits(c.eng,c.cfg,it);
+      const L=cmLimitOf(c,it);
       const a=Math.min(amt,L.max);
-      const r=EG.buy(c.eng,c.cfg,it,a);
-      EG.apply(c.eng,c.cfg,it,a,r.shares);
+      let r;
+      if(c.auto===false){
+        /* 手动模式:赔率固定,份额 = 金额 × 赔率;累计持仓供押金硬上限试算 */
+        const od=parseFloat((c.manual||{})[ikey])||0;
+        r={odds:od,shares:+(a*od).toFixed(4),fee:0};
+        c.manSold=c.manSold||{}; c.manSold[ikey]=(c.manSold[ikey]||0)+a;
+        c.manCash=+((c.manCash||0)+a).toFixed(2);
+      }else{
+        r=EG.buy(c.eng,c.cfg,it,a);
+        EG.apply(c.eng,c.cfg,it,a,r.shares);
+      }
       win+=r.shares;   /* 自定义赛事:可赢 = 份额(每份兑付 1) */
       const mk=c.eng.mks.find(x=>x.items.some(y=>y.key===it.key));
       legs.push({name:it.name,odds:f2(r.odds),amt:a,tag:'自定义',play:mk.name+' [欧洲盘]',
