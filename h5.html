@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.1（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.2（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -2843,22 +2843,7 @@ function cmRenderNew(){
           <div class="grow">${fld('lA','客队均进球数','0.1 ~ 6',"inputmode='decimal'")}</div>
         </div>
         ${cmNewHeat(pvE,pvCfg)}`
-        :(()=>{
-          /* 手动模式:实时展示同玩法隐含概率和的校验结果 */
-          const groups=[];
-          Object.keys(cmNew.mk).filter(k=>cmNew.mk[k]).forEach(k=>cmManualItems(k).forEach(g=>{
-            groups.push({name:g.name||({wdl:'全场 独赢',dc:'双重机会',btts:'双方进球',cs:'全场 波胆'}[k]||k),items:g.items});
-          }));
-          const chk=manCheckVig(groups,cmNew.manual);
-          const bad=chk.filter(x=>!x.ok&&!x.miss);
-          const miss=chk.filter(x=>x.miss).length;
-          return `<div class="hint" style="margin-top:9px">所有赔率由你手动填写，赔率不随成交变动。<b>每笔成交前系统会校验最坏比分下的赔付是否突破押金</b>，突破则拒绝该笔。</div>
-          ${bad.length?`<div class="hint" style="margin-top:6px;background:#FDECEC;color:#C0392B">
-            <b>以下玩法的赔率组合会被套利</b>（各项隐含概率之和需 ≥ 1.02）：<br>
-            ${bad.map(x=>`· ${x.mk}：当前 ${x.sum.toFixed(3)}，需调低赔率`).join('<br>')}</div>`:''}
-          ${miss?`<div class="hint" style="margin-top:6px">还有 ${miss} 个玩法的赔率未填完。</div>`:''}
-`;
-        })()}
+        :`<div class="hint" style="margin-top:9px">所有赔率由你手动填写，赔率不随成交变动；押金按最大赔付敞口占用。</div>`}
         <div class="row" style="gap:8px;align-items:flex-end;margin-top:4px">
           <div class="grow">${fld('minOdds','最低赔率','1.05',"inputmode='decimal'",'cmMinOddsTip')}</div>
           <div class="grow">${fld('maxOdds','最高赔率','99',"inputmode='decimal'",'cmMaxOddsTip')}</div>
