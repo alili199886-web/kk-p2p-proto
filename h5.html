@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.3（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.4（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -981,7 +981,8 @@ input:focus{border-color:#FF8C00}
       <br>· 弹窗结构：标题「比分概率分布」+ 副标题「均进球数 X / Y · 单位 %」+ 7×7 表格（行为主队进球数、列为客队进球数，最后一档为 6+）。
       <br>· <b>关闭</b>：所有赔率由庄家手动填写，赔率不随成交变动。此模式脱离做市模型，需要两层独立风控，见下条。</li>
     <li><b>手动定价模式的风控（两层，缺一不可）</b>：自动模式下由做市结构自动成立的三条保证——同玩法价格和恒等、跨玩法不套利、亏损不超押金——在手动模式下全部失效。
-      <br>· <b>第一层，提交开盘时的静态校验</b>：同玩法各项赔率的隐含概率之和（Σ 1÷赔率）必须 ≥ <b>1.02</b>，低于此值说明这组赔率对庄家不利到可被玩家全买套利，拦截提交并指出是哪个玩法、当前和值多少。填写过程中实时标红提示。
+      <br>· <b>第一层，提交开盘时的静态校验</b>：同玩法各项赔率的隐含概率之和（Σ 1÷赔率）必须 ≥ <b>覆盖重数 ×（1 + 最低溢价 2%）</b>，低于此值说明这组赔率对庄家不利到可被玩家全买套利，拦截提交并指出是哪个玩法、当前和值多少、要求达到多少。
+      <br>· <b>覆盖重数</b> = 每个赛果同时被该玩法的几个投注项覆盖。独赢、让球、大小球、波胆、欧洲让球、进球数、双方进球都是互斥穷尽，重数 1、阈值 <b>1.02</b>；<b>双重机会</b>的三项（主或平、主或客、平或客）中每个赛果被其中两项覆盖，重数 2、阈值 <b>2.04</b>。若对双重机会沿用 1.02，校验等于没做——它的和值本来就在 2 左右，任何填法都能通过。
       <br>· <b>手动模式不提供波胆</b>：玩法列表里直接不展示，从 8 类减为 7 类。波胆是最细粒度玩法，其他玩法都能用它的组合复制；自动模式下所有赔率来自同一张比分概率表、无套利是算出来的，手动模式下庄家逐项填赔率、系统无从保证自洽。又因独赢/让球/大小球三类必开、在手动模式下一定存在，波胆与它们同开必然冲突、等于永远开不了，所以直接不展示而非置灰。从自动切到手动时若已勾选波胆则自动关闭并提示。
       <br>· <b>押金下限</b>：押金 ÷ 该盘最大赔率 ≥ 2 元，确保押金不至于小到开不了盘。
       <br>· <b>第二层，每笔成交前的押金硬上限</b>：枚举主客各 0~6 球加「其他比分」共 50 个状态，算出最坏赔付（Σ 命中该比分的投注项的 已售份额 × 赔率），净敞口 = 最坏赔付 − 已收投注总额；<b>净敞口超过押金即拒绝本笔</b>。拒单时不直接拒绝，反推出恰好不突破押金的最大金额并提示，玩家可改小。
@@ -2611,13 +2612,21 @@ function manBuildItems(mk,cfg){
   return out;
 }
 
-/* 第一层:同玩法赔率组合校验 返回 [{mk,sum,ok}] */
+/* 玩法的「覆盖重数」:每个赛果同时被该玩法的几个投注项覆盖
+   独赢/大小/让球/波胆/进球数等互斥穷尽玩法为 1;
+   双重机会三项(主或平/主或客/平或客)中每个赛果被两项覆盖,为 2 */
+function manCover(key){ return key==='dc'?2:1 }
+/* 第一层:同玩法赔率组合校验
+   阈值按覆盖重数折算 —— Σ(1/赔率) ≥ 重数 × (1 + 最低溢价)
+   否则双重机会的和值天然在 2 附近,用 1.02 判等于没校验 */
 function manCheckVig(mkList,manual){
   return mkList.map(g=>{
     const vals=g.items.map(it=>parseFloat(manual[it.key])).filter(v=>v>0);
-    if(vals.length<g.items.length)return {mk:g.name,sum:0,ok:false,miss:true};
+    const cov=g.cover||1;
+    const need=+(cov*(1+MAN_MIN_VIG)).toFixed(4);
+    if(vals.length<g.items.length)return {mk:g.name,sum:0,need,cover:cov,ok:false,miss:true};
     const sum=vals.reduce((a,v)=>a+1/v,0);
-    return {mk:g.name,sum:+sum.toFixed(4),ok:sum>=1+MAN_MIN_VIG};
+    return {mk:g.name,sum:+sum.toFixed(4),need,cover:cov,ok:sum>=need};
   });
 }
 /* 第一层:玩法互斥 —— 波胆不可与其他玩法同开 */
@@ -3112,13 +3121,14 @@ function cmTrySubmit(){
     if(!cmNew.auto){
       const groups=[];
       Object.keys(cmNew.mk).filter(k=>cmNew.mk[k]).forEach(k=>cmManualItems(k).forEach(g=>{
-        groups.push({name:g.name||({wdl:'全场 独赢',dc:'双重机会',btts:'双方进球',cs:'全场 波胆'}[k]||k),items:g.items});
+        groups.push({name:g.name||({wdl:'全场 独赢',dc:'双重机会',btts:'双方进球',cs:'全场 波胆'}[k]||k),
+          items:g.items, cover:manCover(k)});
       }));
       const chk=manCheckVig(groups,cmNew.manual);
       const miss=chk.find(x=>x.miss);
       if(miss)return toast('请先填完「'+miss.mk+'」的全部赔率');
       const bad=chk.find(x=>!x.ok);
-      if(bad)return toast('「'+bad.mk+'」赔率组合会被套利:隐含概率和 '+bad.sum.toFixed(3)+'，需 ≥ 1.02');
+      if(bad)return toast('「'+bad.mk+'」赔率组合会被套利:隐含概率和 '+bad.sum.toFixed(3)+'，需 ≥ '+bad.need.toFixed(2));
       const maxOd=Math.max(...Object.values(cmNew.manual).map(v=>parseFloat(v)||0));
       if(maxOd>0&&dep/maxOd<2)
         return toast('押金过低:按最大赔率 '+f2(maxOd)+' 计算，单笔最小可成交额不足 2 元');
