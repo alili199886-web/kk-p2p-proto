@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.4（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.5（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -793,6 +793,7 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li><b>横幅</b>：球场背景，圆形队徽、队名、比赛状态与开赛时间；已结算 / 待审核时展示比分；配置了直播地址时展示「▦ 动画直播」，点击后在横幅内播放、可关闭；<b>底部为赛事名称</b>（不是庄家昵称）。</li>
     <li><b>顶栏右上角只有分享按钮</b>，<b>不展示盘状态</b>（状态在横幅内已有）。分享只有「分享到金刚」，不含 TG 与复制链接，分享的是整场赛事，接收方进入本场详情、不预选投注项。</li>
+    <li><b>分享按钮仅在「卖出中」与「已售罄」展示</b>，其余状态（已封盘、待审核、已结算、已关闭）隐藏——分享的目的是拉人来投注，封盘后已不可投，分享没有意义；已售罄保留是因为它可能因补充押金恢复收单。<b>卖单私盘卡片上的分享按钮同此规则</b>。弹窗标题为<b>「分享自定义赛事」</b>。</li>
     <li><b>分享卡片不展示押金</b>（押金是庄家的资金信息，不对外），改为展示<b>单笔限额</b>与当前赔率；整场分享展示全场最高单笔限额。<b>开盘详情内不再提供投注项级分享</b>，只保留赛事分享。</li>
     <li><b>玩法 Tab</b>：全部 / 各玩法分类，左侧带折叠箭头。</li>
     <li><b>赔率区</b>：按主客两列并排，列头为带橙色竖条的队名（大小球为「大球 / 小球」，双方进球为「是 / 否」）；正确比分等多项玩法用三列网格。</li>
@@ -874,7 +875,7 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li>页签：<b>投注项卖单</b>与<b>私盘</b>。本期私盘承载自定义赛事；第二期的「复制 IM 赛事坐庄」同样归入此页签，本期其数据整体隐藏。。<b>从底部导航点「卖单」进入时默认落在「投注项卖单」页签</b>。</li>
     <li>私盘页签<b>只展示本人创建</b>的盘，不会出现他人的盘。</li>
-    <li>卡片字段：联赛、状态标签、分享按钮（靠最右）、主客队、<b>「自定义赛事 · 赛事名称」一行</b>、盘号、押金、收单进度、开赛时间（<b>不展示均进球数</b>）；进度条右侧文案为「已收 X / <b>押金</b> Y」（不用「抵押」）；已结算盘在状态标签左侧展示<b>本场净盈亏</b>（盈利绿、亏损红、不输不赢黑）。</li>
+    <li>卡片字段：联赛、状态标签、分享按钮（靠最右，<b>仅卖出中与已售罄展示</b>）、主客队、<b>「自定义赛事 · 赛事名称」一行</b>、盘号、押金、收单进度、开赛时间（<b>不展示均进球数</b>）；进度条右侧文案为「已收 X / <b>押金</b> Y」（不用「抵押」）；已结算盘在状态标签左侧展示<b>本场净盈亏</b>（盈利绿、亏损红、不输不赢黑）。</li>
     <li><b>状态筛选为七项</b>：全部 / 卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已关闭。<b>待审核</b>涵盖开盘待审、赛果待审、赛果被驳回；<b>开盘被驳回归入已关闭</b>。</li>
     <li><b>赛果被驳回</b>的盘，状态标签仍为「待审核」，卡片内给一行红色提示「赛果被驳回，请进入详情查看原因并重新录入」，<b>原因正文不在列表展示</b>。</li>
     <li><b>开盘被驳回</b>的盘状态标签为「<b>已关闭</b>」（不在待审核里），卡片内红色提示「开盘未通过审核，本场已关闭，如需继续请重新开盘」。</li>
@@ -1574,7 +1575,7 @@ function cmShareMk(mkKey){
   const od=EG.showOdds(e,cfg,first);
   const cap=EG.limits(e,cfg,first).max;   /* 该投注项当前单笔限额 */
   const st=CM_ST[c.state];
-  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享自定义赛事</h3>
     <div class="card" style="padding:12px">
       <div class="row">
         <span style="font-size:15px;font-weight:700;color:#222" class="grow">${mk.name} ${first.name}</span>
@@ -1597,7 +1598,7 @@ function cmShareMatch(){
   /* 本场各投注项当前单笔限额的最大值 */
   let capMax=0;
   e.mks.forEach(mk=>mk.items.forEach(it=>{capMax=Math.max(capMax,EG.limits(e,c.cfg,it).max)}));
-  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享 P2P 卖单</h3>
+  cfm(`<h3 style="font-size:15px;text-align:center;margin-bottom:12px">分享自定义赛事</h3>
     <div class="card" style="padding:12px">
       <div class="row">
         <span style="font-size:15px;font-weight:700;color:#222" class="grow">${c.home} vs ${c.away}</span>
@@ -1728,7 +1729,8 @@ function cmRenderDetail(){
     +tabs.map(([k,t])=>
     `<span style="padding:11px 12px 9px;font-size:14px;flex-shrink:0;cursor:pointer;white-space:nowrap;${cdTab===k?'color:#222;font-weight:700;border-bottom:2px solid #FF8C00':'color:#8a8f96'}"
       onclick="cdTab='${k}';cmRenderDetail()">${t}</span>`).join('');
-  $('cd-share').style.display=(c.state==='open'||c.state==='sealed')?'':'none';
+  /* 分享仅在可投注时提供:卖出中与已售罄(已售罄仍可能因补充押金恢复收单) */
+  $('cd-share').style.display=(c.state==='open'||c.state==='soldout')?'':'none';
   /* 赛事详情为纯投注视角:不展示庄家风险区与控盘操作(庄家管理走「卖单 → 私盘 → 开盘详情」) */
   cmSyncState(c);
   const mine=false;
@@ -5250,9 +5252,9 @@ function renderOrders(){
         <div class="row">
           <span style="font-size:14px;font-weight:700;color:#222;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" class="grow">${c.league}</span>
           ${pfHtml}<span class="tag ${st[1]}" style="margin-left:8px">${st[0]}</span>
-          <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#FF8C00;fill:none;stroke-width:1.8;cursor:pointer;margin-left:10px;flex-shrink:0" onclick="event.stopPropagation();cmShareFrom('${c.id}')">
+          ${(c.state==='open'||c.state==='soldout')?`<svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:#FF8C00;fill:none;stroke-width:1.8;cursor:pointer;margin-left:10px;flex-shrink:0" onclick="event.stopPropagation();cmShareFrom('${c.id}')">
             <circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/>
-            <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg></div>
+            <path d="M8.3 10.8l7.4-4.3M8.3 13.2l7.4 4.3"/></svg>`:''}</div>
         <div class="muted" style="margin:6px 0 4px">${c.home} vs ${c.away}</div>
         ${c.state==='sealed'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">比赛已结束,请录入赛果</div>`:''}
         ${c.state==='pending'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">赛果已提交,等待运营审核</div>`:''}
