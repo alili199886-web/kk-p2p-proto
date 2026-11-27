@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.5（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.6（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -897,8 +897,9 @@ input:focus{border-color:#FF8C00}
     <li><b>赛事信息卡</b>：主客队 +<b>盘状态标签（在队名右侧）</b>、<b>赛事名称</b>与开赛时间、开盘时间与封盘规则、两队均进球数、<b>「本场全部注单」入口</b>。被驳回时在队名下方展示红色驳回区块（只给标题与原因正文，不展示驳回人与时间）。
       <br>· <b>开盘时未开启「按均进球数自动生成赔率」的盘，详情页不展示均进球数</b>——手动定价的盘没有这个参数，展示出来会误导。
       <br>· <b>均进球数仅在卖出中与已售罄可编辑</b>，其余状态只读展示数值。改动后<b>重算未成交部分的赔率</b>，已成交子单按原成交赔率结算、不受影响。
-      <br>· 「本场全部注单」点击进二级弹窗，<b>不设标题与说明文案</b>，直接列出投注项、成交赔率、会员名、下注时间、下注金额（已结算时标明收入或赔付）；每页 20 条，<b>下拉到底自动加载下一页</b>，区域约占屏高 62%。</li>
-    <li><b>三列汇总</b>：总押金 / 已收单 / 子单数；已结算时增加第四格<b>本场净盈亏</b>。<b>不展示「押金占用」</b>——该值依赖最坏比分试算，对庄家不直观。汇总区紧贴赛事信息卡，减少顶部占位。</li>
+      <br>· 「本场全部注单」点击进二级弹窗，<b>不设标题与说明文案</b>，直接列出投注项、成交赔率、会员名、下注时间、下注金额；每页 20 条，<b>下拉到底自动加载下一页</b>，区域约占屏高 62%。
+      <br>· 庄单卡片内展开的子单，每笔只展示<b>会员、成交金额、成交赔率、时间</b>与已结算时的输赢，<b>不展示份额</b>——份额是做市的内部口径，庄家关心的是收了多少钱、按什么价成交。</li>
+    <li><b>三列汇总</b>：总押金 / 已收单 / 子单数；已结算时增加第四格<b>本场净盈亏</b>。<b>全局不展示「押金占用」百分比</b>——该值依赖最坏比分试算、对庄家不直观，赛事详情的风险区与补充押金弹窗里也一并去掉。已售罄的提示改为「押金已接近上限，暂时无法接受新注」。汇总区紧贴赛事信息卡，减少顶部占位。</li>
     <li><b>子单数做成超链接</b>（橙色带下划线），点击弹出本场全部子单；不再单独设「本场全部注单」入口行。</li>
     <li><b>不单独设结算明细区块</b>——已结算时顶部汇总的第四格已展示本场净盈亏，再列一遍收到投注、命中兑付是重复信息；明细口径仍为「收到投注合计 − 命中兑付合计 = 本场净盈亏」，押金全额解冻退回，本期不计平台抽水。</li>
     <li><b>比分风险分布</b>：一行标签展示「风险最高」前 3 项 +「更多 ›」，点击弹出 7×7 表格块。<b>仅卖出中与已售罄展示</b>，其余状态不展示（已不能调水，看风险分布无意义）。
@@ -1745,12 +1746,11 @@ function cmRenderDetail(){
       <div class="m3" style="margin-top:9px">
         <div class="c"><div class="l">押金</div><div class="v nowrap">${curAmt(c.dep)}</div></div>
         <div class="c"><div class="l">已收单</div><div class="v nowrap">${curAmt(sold)}</div></div>
-        <div class="c"><div class="l">押金占用</div><div class="v nowrap ${rk.use>0.85?'lose':''}">${(rk.use*100).toFixed(1)}%</div></div>
       </div>
       <div class="row" style="margin-top:8px"><span class="muted grow" style="font-size:12px">全场最大亏损</span>
         <span class="nowrap" style="font-size:12px"><b>${curAmt(rk.maxLoss)}</b> / 上限 ${curAmt(c.dep)}</span></div>
       <div class="muted" style="font-size:11px;margin-top:5px;line-height:1.6">最大亏损按各比分逐一试算后取最差值,任何比分开出都不会超过押金。</div>
-      ${c.state==='soldout'?`<div class="hint" style="margin-top:8px">押金占用已触顶,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
+      ${c.state==='soldout'?`<div class="hint" style="margin-top:8px">押金已接近上限,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
     </div>`;
   }
   /* 底部固定操作区:仅本人的盘展示,按状态变化(与一期私盘详情一致) */
@@ -1950,7 +1950,7 @@ function cmRenderOwnDetail(){
     </div>
     ${done?`<div class="hint" style="margin-bottom:10px;background:#E8F7EF;color:#1D6E4E">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>。押金已全额解冻退回,盈亏已入账。</div>`:''}
     ${closed?`<div class="hint" style="margin-bottom:10px;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销、投注金额原路退回,押金全额解冻,本场不计盈亏。</div>`:''}
-    ${c.state==='soldout'?`<div class="hint" style="margin-bottom:10px">押金占用已触顶,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
+    ${c.state==='soldout'?`<div class="hint" style="margin-bottom:10px">押金已接近上限,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
     ${c.state==='sealed'?`<div class="hint" style="margin-bottom:10px;background:${c.autoSealed?'#FFF8EC':'#F2F3F5'}">${c.autoSealed
       ?`已到自动封盘时点（开赛前 ${cmSealMin(c)} 分钟），盘口已停止收单。比赛结束后<b>请录入赛果</b>，提交后由运营审核，审核通过即正式结算。`
       :'已停止收单。比赛结束后请录入赛果,提交后由运营审核,审核通过即正式结算。'}</div>`:''}
@@ -1969,7 +1969,7 @@ function cmRenderOwnDetail(){
         <span class="muted nowrap" style="font-size:11px;flex-shrink:0">风险最高</span>
         ${hs.slice(0,3).map(h=>`<span style="font-size:11px;background:${h.pl<0?'#FDECEC':'#FFF3E5'};color:${h.pl<0?'#C0392B':'#E8850C'};padding:3px 7px;border-radius:11px;white-space:nowrap;flex-shrink:0">${h.label} ${h.pl>=0?'+':'-'}${money(Math.abs(h.pl))}</span>`).join('')}
         <span class="grow"></span>
-        <span style="font-size:11px;color:#FF8C00;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="cmHeatAll()">更多 ›</span></div>`:''})()}
+        <span style="font-size:11px;color:#FF8C00;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="cmHeatAll()">更多</span></div>`:''})()}
 
     <div class="row" style="gap:6px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px">
       ${(()=>{
@@ -2036,7 +2036,7 @@ function cmRenderOwnDetail(){
           <div style="${sOpen?'':'display:none'}">${mySubs.map(b=>`<div class="sub">
             <div class="row"><span class="tag tag-p2p" style="font-size:9px;padding:0 5px">会员</span>
               <span style="font-size:12px;margin-left:6px">me***01</span><span class="grow"></span>
-              <span style="font-size:12px" class="nowrap">${curAmt(b.stake)} · ${b.shares.toFixed(4)} 份 @${f2(b.odds)}</span></div>
+              <span style="font-size:12px" class="nowrap">${curAmt(b.stake)} @${f2(b.odds)}</span></div>
             <div class="row" style="margin-top:3px"><span class="muted" style="font-size:11px">${b.time}</span>
               <span class="grow"></span>
               ${done?`<span class="nowrap ${hitOf(it)?'win':'lose'}" style="font-size:11px;font-weight:700">${hitOf(it)?'赢 +'+curAmt(b.shares-b.stake):'输 -'+curAmt(b.stake)}</span>`
@@ -2228,7 +2228,7 @@ function cmRenderTopup(){
   $('cfm-body').innerHTML=`<h3 style="font-size:15px;text-align:center;margin-bottom:10px">补充押金</h3>
     <div class="card">
       <div class="row"><span class="muted grow">当前押金</span><span class="nowrap"><b>${curAmt(c.dep)}</b></span></div>
-      <div class="row" style="margin-top:6px"><span class="muted grow">押金占用</span><span class="nowrap">${(rk.use*100).toFixed(1)}%</span></div>
+
       <input class="inp" id="cm-top" inputmode="decimal" placeholder="追加金额" value="${cmTopup}"
         style="width:100%;height:40px;border:1px solid #e3e5e8;border-radius:9px;padding:0 11px;font-size:14px;outline:none;margin-top:10px"
         oninput="cmTopup=this.value;cmRenderTopup();setTimeout(()=>{const i=$('cm-top');if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}},0)">
@@ -2972,7 +2972,7 @@ function cmNewHeat(pvE,pvCfg){
       <span class="muted nowrap" style="font-size:11px;flex-shrink:0">最热比分</span>
       ${top.map(h=>`<span style="font-size:11px;background:#FFF3E5;color:#E8850C;padding:3px 7px;border-radius:11px;white-space:nowrap;flex-shrink:0">${h.label} ${(h.p*100).toFixed(1)}%</span>`).join('')}
       <span class="grow"></span>
-      <span style="font-size:11px;color:#FF8C00;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="cmNewHeatAll()">更多 ›</span></div>`;
+      <span style="font-size:11px;color:#FF8C00;cursor:pointer;white-space:nowrap;flex-shrink:0" onclick="cmNewHeatAll()">更多</span></div>`;
   }catch(e){return ''}
 }
 /* 全部比分的热力分布:表格块形式 */
@@ -5071,7 +5071,7 @@ function renderResults(){
       <div class="row" style="margin-bottom:5px">
         <span class="muted nowrap" style="font-size:11px">${c.time}</span>
         <span class="grow"></span>
-        <span class="muted nowrap" style="font-size:11px">庄家 ${c.banker}</span></div>
+        <span class="muted nowrap" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;max-width:60%">${c.title||c.league}</span></div>
       <div class="row">
         <div class="grow" style="min-width:0">
           <div class="row" style="margin-bottom:5px"><span style="font-size:14px">${c.hLogo||'⚽'}</span>
