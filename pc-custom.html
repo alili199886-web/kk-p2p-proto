@@ -1279,14 +1279,35 @@ table.res.rep .sumrow td{background:var(--surface-3);font-weight:600}
 .cm-items2 .oit-od-row{gap:8px}
 .cm-items2 .oit-amts{gap:10px;font-size:11.5px}
 .cm-items2 .sub-r1{flex-wrap:wrap}
+/* 右侧栏 · 自定义赛事：球场底的赛事信息区 */
+.cmvp-hero{position:relative;overflow:hidden;padding:18px 12px 14px;color:#fff}
+.cmvp-grass{position:absolute;inset:0;background:
+  repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 26px,transparent 26px 52px),
+  linear-gradient(180deg,#1f6b3a,#14502b)}
+.cmvp-hero>*:not(.cmvp-grass){position:relative}
+.cmvp-row{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px}
+.cmvp-t{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;min-width:0}
+.cmvp-t b{font-size:12.5px;color:#fff;font-weight:600;line-height:1.3;word-break:break-all}
+.cmvp-lg{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.92);
+  display:grid;place-items:center;font-size:19px;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.cmvp-mid{display:flex;flex-direction:column;align-items:center;gap:5px}
+.cmvp-st{font-size:11px;padding:1px 8px;border-radius:9px;background:rgba(255,255,255,.92);font-weight:600}
+.cmvp-time{font-size:14px;font-weight:700;color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.cmvp-foot{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px}
+.cmvp-anim{height:26px;padding:0 14px;border-radius:13px;border:1px solid rgba(255,255,255,.55);
+  background:rgba(255,255,255,.14);color:#fff;font-size:11.5px;cursor:pointer;white-space:nowrap}
+.cmvp-anim.on,.cmvp-anim:hover{border-color:#fff;background:rgba(255,255,255,.28)}
+.cmvp-title{font-size:11.5px;color:rgba(255,255,255,.82)}
+.cmvp-play{position:relative;height:120px;margin:12px 0 0;border-radius:8px;overflow:hidden;
+  background:linear-gradient(180deg,#17643a,#0e4525)}
+.cmvp-play .cmh-close{position:absolute;right:8px;bottom:8px;height:24px;padding:0 10px;border-radius:6px;
+  border:0;background:rgba(0,0,0,.45);color:#fff;font-size:11px;cursor:pointer}
+.cmvp-row.vmk-row{display:grid;gap:6px;grid-template-columns:repeat(3,1fr)}
+.cmvp .vmk-b{padding:6px 12px 10px}
 .cm-lock{font-style:normal;font-size:11px;opacity:.65}
 .bt-grph{font-size:12.5px;color:var(--ink-strong);font-weight:600;margin:14px 0 8px;display:flex;align-items:center;gap:10px}
 .bt-grph i{font-style:normal;font-weight:400;font-size:11px;color:var(--ink-mute)}
 .cm-buys{margin-bottom:4px}
-.slip-tools{margin-left:auto;display:flex;align-items:center;gap:6px}
-.slip-tools button{height:22px;padding:0 8px;border:1px solid var(--line-2);border-radius:5px;
-  background:none;color:var(--ink-mute);font-size:11.5px;cursor:pointer}
-.slip-tools button:hover{border-color:var(--accent);color:var(--accent)}
 .cm-lgimg{width:1.1em;height:1.1em;border-radius:50%;object-fit:cover;vertical-align:-2px}
 .av .cm-lgimg,.cmh-logo .cm-lgimg{width:100%;height:100%;display:block}
 .cm-mo{width:62px;height:24px;border:1px solid var(--line-2);border-radius:5px;text-align:center;
@@ -1878,7 +1899,15 @@ const EG = (function(){
     return {ah:+ah.toFixed(1), ou:+ou.toFixed(1),
             ouSet:[+(ou-1).toFixed(1),+ou.toFixed(1),+(ou+1).toFixed(1)].filter(x=>x>0)};
   }
-  return {suggestLines,build,init,prices,itemPrice,rawOdds,showOdds,buy,apply,risk,markets,priceCap,limits};
+  /* 份额 → 投注额（与 buy 同口径，含溢价与抽水），押金硬上限的二分用它 */
+  function costOf(m,cfg,it,d){
+    const b=m.b, c0=Csum(m.q,b);
+    const q=m.q.slice(); it.sidx.forEach(k=>q[k]+=d);
+    const vigMul=(cfg.vigMode==="flat")?1:(1+cfg.vig);
+    const net=(Csum(q,b)-c0)*vigMul;
+    return net/(1-cfg.W/10000);
+  }
+  return {suggestLines,build,init,prices,itemPrice,rawOdds,showOdds,buy,apply,risk,markets,priceCap,limits,costOf};
 })();
 
 /* ════════════ 自定义赛事 · 数据模型（字段与 H5 一致） ════════════ */
@@ -1902,8 +1931,8 @@ const CM_ST={open:["卖出中","var(--accent)","rgba(255,140,0,.1)"],
              sealed:["已封盘","#2f7bd8","rgba(47,123,216,.12)"],
              pending:["待审核","#e8a33d","rgba(232,163,61,.14)"],
              settled:["已结算","var(--green)","rgba(23,162,90,.12)"],
-             closed:["已关闭","var(--ink-mute)","var(--surface-2)"]};
-const CM_STATES=["全部","卖出中","已售罄","已封盘","待审核","已结算","已关闭"];
+             closed:["已撤销","var(--ink-mute)","var(--surface-2)"]};
+const CM_STATES=["全部","卖出中","已售罄","已封盘","待审核","已结算","已撤销"];
 const BANKER_NICK="金刚庄";
 /* 庄家侧抽水由 APISYS 下发，本期为 0；启用后仅对盈利部分收取 */
 const CM_COMMISSION=0;
@@ -1950,7 +1979,24 @@ let CM=[
           "ah0.5_H":1.88,"ah0.5_A":2.02,
           "ou2.5_O":1.95,"ou2.5_U":1.93,
           dc_HD:1.28,dc_HA:1.34,dc_DA:1.72,
-          btts_Y:1.80,btts_N:2.05}}
+          btts_Y:1.80,btts_N:2.05}},
+  /* ── 今日盘：再加一场可投注的自定义赛事 ── */
+  {id:"CM012",title:"铁道杯 小组赛",home:"铁道机车",away:"云岭竹海",league:"自定义赛事",time:"09-24 23:00",created:"09-22 10:20",
+   banker:"老王盘",mine:false,state:"open",lH:1.35,lA:1.25,dep:2600,bucket:"today",hLogo:"🟣",aLogo:"🟢",
+   mk:{wdl:1,ah:1,ou:1,dc:1,btts:1,cs:0,eh:0,tg:0},ouLines:[2.5,3.5],ahLines:[0.5]},
+  /* ── 早盘：开赛日期在今天之后，全部可投注 ── */
+  {id:"CM013",title:"星港联赛 第 5 轮",home:"星港远航",away:"铁岭钢铁",league:"自定义赛事",time:"09-25 19:30",created:"09-23 09:40",
+   banker:BANKER_NICK,mine:true,state:"open",lH:1.70,lA:1.00,dep:4000,bucket:"today",hLogo:"🔵",aLogo:"⚫",
+   mk:{wdl:1,ah:1,ou:1,dc:1,btts:1,cs:1,eh:0,tg:0},ouLines:[1.5,2.5,3.5],ahLines:[0.5,-0.5],csMax:3},
+  {id:"CM014",title:"长堤杯 四分之一决赛",home:"长堤联队",away:"银松体育",league:"自定义赛事",time:"09-25 21:00",created:"09-23 11:05",
+   banker:"阿强庄",mine:false,state:"open",lH:1.15,lA:1.45,dep:2200,bucket:"today",hLogo:"🟡",aLogo:"⚪",
+   mk:{wdl:1,ah:1,ou:1,dc:0,btts:1,cs:0,eh:1,tg:0},ouLines:[2.5],ahLines:[-0.5],ehLines:[1]},
+  {id:"CM015",title:"雪原挑战赛 第 3 轮",home:"雪原飞鹰",away:"林海猛虎",league:"自定义赛事",time:"09-26 20:00",created:"09-24 09:00",
+   banker:BANKER_NICK,mine:true,state:"open",lH:1.50,lA:1.50,dep:3500,bucket:"today",hLogo:"🦅",aLogo:"🐯",
+   mk:{wdl:1,ah:1,ou:1,dc:1,btts:1,cs:1,eh:0,tg:1},ouLines:[2.5,3.5],ahLines:[0.5],tgSet:[0,1,2,3]},
+  {id:"CM016",title:"海湾德比",home:"南湾水手",away:"北崖矿工",league:"自定义赛事",time:"09-27 19:45",created:"09-24 10:30",
+   banker:"老王盘",mine:false,state:"open",lH:1.25,lA:1.20,dep:3000,bucket:"today",hLogo:"🔴",aLogo:"🟤",
+   mk:{wdl:1,ah:1,ou:1,dc:1,btts:1,cs:0,eh:0,tg:0},ouLines:[2.5],ahLines:[0.5]}
 ];
 
 /* 每个盘惰性初始化做市引擎；演示数据预置若干成交，盘口才有深度 */
@@ -1962,7 +2008,12 @@ const CM_SEED={CM001:[["wdl_H",260],["ou2.5_O",180],["cs_1_1",60],["btts_Y",120]
                CM004:[["wdl_H",180],["ou2.5_O",90],["cs_2_1",30]],
                CM008:[["wdl_H",260],["ou2.5_U",140]],
                CM005:[["wdl_A",120]],
-               CM011:[["wdl_H",300],["ou2.5_O",200],["btts_Y",150]]};
+               CM011:[["wdl_H",300],["ou2.5_O",200],["btts_Y",150]],
+               CM012:[["wdl_D",120],["ou2.5_U",160]],
+               CM013:[["wdl_H",340],["ou2.5_O",220],["cs_2_0",80],["btts_N",140]],
+               CM014:[["wdl_A",180],["ou2.5_O",120]],
+               CM015:[["wdl_D",150],["ou3.5_U",200],["tgh_2",90]],
+               CM016:[["wdl_H",110]]};
 function cmCfg(c){
   return Object.assign({},CM_CFG,{lH:c.lH,lA:c.lA,deposit:c.dep+(c.topup||0),
     mk:Object.assign({},CM_CFG.mk,c.mk||{}),
@@ -2068,13 +2119,50 @@ function cmHardCap(c,it){
   let mx=0; it.sidx.forEach(k=>{if(pay[k]>mx)mx=pay[k]});
   return Math.max(0,Math.floor(((D+e.cash-mx)/(o-1))*100)/100);
 }
-/* 单笔上限：自动 = 三项取最小；手动 = 单笔最多收与押金硬上限两项取最小 */
+/* ── 押金守卫：调过价的盘逐笔校验 ──
+   做市盘的「任何比分亏损都不超押金」是靠开盘缩放保证的。调水是直接平移持仓、
+   庄家不付成本，改均进球数是重建引擎后搬运已售份额，两者都绕过了这个缩放，
+   保证随之失效。因此一旦某盘调过价就打标记，此后每笔成交前都要枚举比分算最坏赔付。
+   没调过价的盘不做这层校验，额外枚举只是白白增加开销。 */
+const cmPriced=c=>!!c.priced;
+function cmMarkPriced(c){c.priced=true}
+/* 自动盘的押金硬上限：对份额二分，反推出「恰好不突破押金」的最大投注额 */
+function cmHardCapAuto(c,it){
+  const e=cmEng(c), cfg=c.cfg, D=c.dep+(c.topup||0);
+  const pay=cmPayoutVec(c), inS=new Set(it.sidx);
+  let maxIn=0,maxOut=0;
+  for(let k=0;k<pay.length;k++){
+    const v=pay[k];
+    if(inS.has(k)){if(v>maxIn)maxIn=v}else if(v>maxOut)maxOut=v;
+  }
+  const ok=d=>{
+    const st=EG.costOf(e,cfg,it,d);
+    return (Math.max(maxIn+d,maxOut)-(e.cash+st))<=D+1e-9;
+  };
+  if(!ok(0))return 0;
+  let hi=1;
+  while(ok(hi)){ hi*=2; if(EG.costOf(e,cfg,it,hi)>cfg.maxStake*4)return cfg.maxStake; }
+  let lo=hi/2;
+  for(let t=0;t<60;t++){const mid=(lo+hi)/2; ok(mid)?lo=mid:hi=mid}
+  return Math.max(0,Math.floor(EG.costOf(e,cfg,it,lo)*100)/100);
+}
+/* 单笔上限：
+   自动盘 = 单笔最多收 / 滑点上限金额 / 最低赔率限额 三项取最小；
+   调过价的自动盘再加押金硬上限，四项取最小；
+   手动盘 = 单笔最多收与押金硬上限两项取最小（赔率固定，无滑点与最低赔率限额）。 */
 function cmLimits(c,it){
   const e=cmEng(c);
-  if(cmAuto(c))return EG.limits(e,c.cfg,it);
-  const max=Math.floor(Math.min(c.cfg.maxStake,cmHardCap(c,it))*100)/100;
-  return {max,seen:cmOddsRaw(c,it),slipCap:0,paused:max<5,
-          reason:max<5?"押金硬上限不足，暂停买入":""};
+  if(!cmAuto(c)){
+    const max=Math.floor(Math.min(c.cfg.maxStake,cmHardCap(c,it))*100)/100;
+    return {max,seen:cmOddsRaw(c,it),slipCap:0,paused:max<5,
+            reason:max<5?"押金硬上限不足，暂停买入":""};
+  }
+  const L=EG.limits(e,c.cfg,it);
+  if(!cmPriced(c))return L;
+  const hard=cmHardCapAuto(c,it);
+  const max=Math.floor(Math.min(L.max,hard)*100)/100;
+  return Object.assign({},L,{max,guard:true,paused:L.paused||max<5,
+    reason:L.paused?L.reason:(max<5?"押金硬上限不足，暂停买入":"")});
 }
 /* 试算一笔：手动模式无滑点，份额 = 投注额 × 固定赔率 */
 function cmBuyQuote(c,it,stake){
@@ -2090,15 +2178,21 @@ function cmApplyBuy(c,it,stake,shares){
   it.soldShares=(it.soldShares||0)+shares;
   e.cash+=stake;
 }
-/* 第一层静态校验：同玩法隐含概率之和 Σ(1÷赔率) ≥ 1.02，否则可被玩家全买套利 */
-const CM_MIN_EDGE=1.02;
+/* 第一层静态校验：同玩法隐含概率之和 Σ(1÷赔率) ≥ 覆盖重数 ×（1 + 最低溢价）。
+   覆盖重数 = 每个赛果同时被该玩法的几个投注项覆盖：
+   独赢 / 让球 / 大小球 / 波胆 / 欧洲让球 / 进球数 / 双方进球 互斥穷尽，重数 1、阈值 1.02；
+   双重机会的三项中每个赛果被其中两项覆盖，重数 2、阈值 2.04 —— 沿用 1.02 等于没校验。 */
+const CM_MIN_EDGE=0.02;
+const cmCover=mk=>mk.key==="dc"?2:1;
+const cmEdgeOf=mk=>+(cmCover(mk)*(1+CM_MIN_EDGE)).toFixed(4);
 function cmManualBad(mks,odds){
   const out=[];
   mks.forEach(mk=>{
     let s=0, ok=true;
     mk.items.forEach(it=>{const o=parseFloat(odds[it.key]);if(!(o>1)){ok=false}else s+=1/o});
-    if(!ok)out.push({mk,sum:0,bad:"odds"});
-    else if(s<CM_MIN_EDGE-1e-9)out.push({mk,sum:s,bad:"edge"});
+    const need=cmEdgeOf(mk);
+    if(!ok)out.push({mk,sum:0,need,bad:"odds"});
+    else if(s<need-1e-9)out.push({mk,sum:s,need,bad:"edge"});
   });
   return out;
 }
@@ -2120,7 +2214,11 @@ function cmInWindow(c){
   return now<=cmMin(c.time)+CM_SHOW_AFTER;
 }
 /* 列表只展示上架中的盘，按开赛时间正序 */
-const cmListed=()=>CM.filter(c=>["open","soldout","sealed"].includes(c.state)&&cmInWindow(c))
+/* 今日盘 / 早盘：按开赛日期归集。自定义赛事只做赛前盘，两个盘口都展示 */
+const cmDay=v=>String(v||"").slice(0,5);
+const cmPeriodOf=c=>cmDay(c.time)===cmDay(CM_NOW)?"今日":"早盘";
+const cmListed=(period)=>CM.filter(c=>["open","soldout","sealed"].includes(c.state)&&cmInWindow(c)
+    &&(!period||cmPeriodOf(c)===period))
   .sort((a,b)=>cmMin(a.time)-cmMin(b.time));
 const cmMine=()=>CM.filter(c=>c.mine);
 
@@ -2751,7 +2849,8 @@ const S={
   detailPriv:null, omDetailOpened:null,
   /* 自定义赛事坐庄 */
   cmFilter:"自定义赛事", cmCur:null, cmFrom:"sport", cmTab:"全部", cmFold:new Set(),
-  cmLive:false, cmOwn:null, cmSubOpen:new Set(), cmState:"全部",
+  cmLive:false, cmOwn:null, cmSubOpen:new Set(), cmState:"全部", resSport:"全部运动",
+  vpCm:null, vpCmFold:new Set(),
   cmMinOdds:{}, cmBets:[
     /* 演示：一笔未结算（CM001 卖出中）、一笔已结算（CM004 赛果 2:1，主胜命中） */
     {no:"CM2609221431001",time:"2026-09-22 14:31:08 (GMT+8)",cmId:"CM001",league:"自定义赛事",
@@ -2960,18 +3059,8 @@ function renderSlip(s){
   const br=el("div","bal-row");
   br.innerHTML=`<div class="bal">¥ ${money(S.balance)} <span>👁</span></div><button class="icon-btn">⟳</button>`;
   s.appendChild(br);
-  /* 右上角：清空按钮在关闭按钮左侧，点击直接清空全部选项并关闭面板 */
-  const top=el("div","slip-top",
-    `<span class="slip-back">↩</span><span class="slip-back">返回菜单导航</span>
-     <span class="slip-tools"><button class="slip-clr" title="清空投注单">清空</button><button class="slip-cls" title="关闭">✕</button></span>`);
-  top.querySelectorAll(".slip-back").forEach(x=>{
-    x.style.cursor="pointer";x.onclick=()=>{S.sideMode="menu";renderSide()};
-  });
-  $(".slip-clr",top).onclick=()=>{
-    if(!S.slip.length)return toast("投注单已是空的");
-    S.slip=[];S.stakes={};S.sideMode="menu";render();toast("已清空投注单");
-  };
-  $(".slip-cls",top).onclick=()=>{S.sideMode="menu";renderSide()};
+  const top=el("div","slip-top",`<span>↩</span><span>返回菜单导航</span>`);
+  top.style.cursor="pointer";top.onclick=()=>{S.sideMode="menu";renderSide()};
   s.appendChild(top);
   const tabs=el("div","slip-tabs");
   /* 整场互斥：购物车里有私盘投注项时，不出卖出入口 */
@@ -3378,8 +3467,8 @@ function renderMain(){
     m.appendChild(bar(`<span>${early?"📅":"📆"}</span><span class="crumb">${S.period} › <b>${S.sport}</b></span>`,{filter:1,odds:1,sort:1}));
     /* 自定义赛事常驻置顶：不做「只看」开关、不占筛选行；仅今日盘与早盘、仅足球 */
     if(S.sport==="足球"){
-      m.appendChild(groupHead("自定义赛事 ("+cmListed().length+")","cm"));
-      if(!S.collapsed.has("G:cm"))m.appendChild(cmGroupCard());
+      m.appendChild(groupHead("自定义赛事 ("+cmListed(S.period).length+")","cm"));
+      if(!S.collapsed.has("G:cm"))m.appendChild(cmGroupCard(S.period));
     }
     if(early){
       const chips=el("div","chips");
@@ -3870,6 +3959,15 @@ function renderVideo(){
   v.innerHTML="";
   v.style.display=VP_PAGES.includes(S.page)?"":"none";
   if(!VP_PAGES.includes(S.page))return;
+  /* 自定义赛事：右侧只展示该场的赛事信息（队徽、队名、开赛时间、私盘与盘状态、
+     填了直播地址才出动画按钮），下方只列各玩法与投注项，不要 TV 条、比分板与赛事分析 */
+  const onFoot=S.page==="sport"&&S.sport==="足球";
+  let cmv=S.vpCm?CM.find(x=>x.id===S.vpCm):null;
+  if(cmv&&!cmInWindow(cmv)){cmv=null;S.vpCm=null}
+  /* 足球盘口下默认就展示自定义赛事，不需要先点列表 */
+  if(!cmv&&onFoot)cmv=cmListed(S.period).find(x=>x.state==="open")||cmListed(S.period)[0]||null;
+  if(cmv){v.appendChild(cmVideoCard(cmv));return}
+
   const M=VP_MATCH, pre=!!M.pre;   /* pre = 未开赛 */
 
   const card=el("div","rp-card");
@@ -3935,6 +4033,8 @@ function renderVideo(){
   }
 
   /* 投注 / 赛事分析 */
+  /* IM 赛事（滚球 / 热门 / 盘口详情等）保留投注与赛事分析两个页签；
+     只有自定义赛事的右栏不展示赛事分析 */
   const tabs=el("div","rp-tabs");
   ["投注","赛事分析"].forEach(t=>{
     const b=el("button",S.vpTab===t?"on":"",t);
@@ -4626,15 +4726,26 @@ function reportExpand(d){
 }
 
 /* ============ 其他顶部页面 ============ */
+const RES_SPORTS=["全部运动","足球","篮球","网球","乒乓球","排球","羽毛球","冰球","斯诺克"];
 function renderResults(m){
-  /* 赛果页仅在足球下展示自定义赛事，独立分组置顶、可展开收起，不提供点击进详情 */
-  m.appendChild(cmResultsGroup());
-  const box=el("div","simple");
-  box.innerHTML=`<div class="filters">
-    <div class="fbox" style="width:220px">全部运动 <span class="caret" style="margin-left:auto">▼</span></div>
+  /* 筛选区置顶；自定义赛事赛果放在筛选区下方，独立分组、可展开收起、不提供点击进详情，
+     且仅在「全部运动」或「足球」下展示 —— 自定义赛事只有足球 */
+  const top=el("div","simple");
+  const f=el("div","filters");
+  f.innerHTML=`<div class="fbox" style="width:220px">
+      <select id="resSport" style="border:0;background:none;color:inherit;font:inherit;outline:0;width:100%">
+        ${RES_SPORTS.map(s=>`<option${S.resSport===s?" selected":""}>${s}</option>`).join("")}
+      </select></div>
     <div class="fbox grow">全部 <span style="margin-left:auto;color:var(--accent)">🔍</span></div>
     <div class="fbox">📅 2026/09/12 － 2026/09/18</div>
-    <button class="btn-q" style="margin-left:auto">查询</button></div>`;
+    <button class="btn-q" style="margin-left:auto">查询</button>`;
+  $("#resSport",f).onchange=ev=>{S.resSport=ev.target.value;render();toast("赛果筛选："+S.resSport)};
+  top.appendChild(f);
+  m.appendChild(top);
+
+  if(["全部运动","足球"].includes(S.resSport))m.appendChild(cmResultsGroup());
+
+  const box=el("div","simple");
   const wrap=el("div");wrap.style.cssText="overflow-x:auto";
   const t=el("table","res");
   t.innerHTML=`<thead><tr><th style="text-align:left;padding-left:16px">TT Cup CHS</th><th></th><th>第1局</th><th>第2局</th><th>第3局</th><th>第4局</th><th>得分</th></tr></thead>
@@ -5458,7 +5569,7 @@ function cmBetBtn(c,mk,it){
   const sealed=cmSealedMk(c,mk)||c.state==="sealed";
   if(sealed)lim={paused:true,reason:"该玩法已封盘"};
   /* 赔率格展示规则：
-     已封盘及之后的状态（已封盘 / 待审核 / 已结算 / 已关闭）→ 锁图标
+     已封盘及之后的状态（已封盘 / 待审核 / 已结算 / 已撤销）→ 锁图标
      整盘已售罄或单个投注项额度触顶 → 「-」
      卖出中 → 正常展示赔率；三者均与赛事列表、赛事详情保持一致 */
   const locked=sealed||["pending","settled","closed"].includes(c.state);
@@ -5473,6 +5584,7 @@ function cmBetBtn(c,mk,it){
   }
   /* 允许庄家在自己创建的盘上下注，与普通玩家无差别，界面不做任何提示或限制 */
   b.onclick=()=>{
+    S.vpCm=c.id;                      /* 右侧栏切到这场自定义赛事 */
     const i=S.slip.findIndex(x=>x.key===key);
     if(i>=0){S.slip.splice(i,1);delete S.stakes[key]}
     else S.slip.push({key,cm:true,cmId:c.id,itemKey:it.key,mid:"cm_"+c.id,
@@ -5485,8 +5597,8 @@ function cmBetBtn(c,mk,it){
   };
   return b;
 }
-function cmGroupCard(){
-  const list=cmListed();
+function cmGroupCard(period){
+  const list=cmListed(period);
   const c0=el("div","card");
   const open=!S.collapsed.has("自定义赛事");
   const h=el("div","lg",`<span class="flag">🛠</span><span class="lg-name">自定义赛事</span><span class="p2p priv">私盘</span>`);
@@ -5495,7 +5607,8 @@ function cmGroupCard(){
   h.onclick=()=>{open?S.collapsed.add("自定义赛事"):S.collapsed.delete("自定义赛事");render()};
   c0.appendChild(h);
   if(!open)return c0;
-  if(!list.length){c0.appendChild(el("div","mk2-empty","暂无自定义赛事，点左上「＋ 我要开盘」创建"));return c0}
+  if(!list.length){c0.appendChild(el("div","mk2-empty",
+    `${period==="早盘"?"早盘":"今日盘"}暂无自定义赛事，点左侧导航「我要开盘」创建`));return c0}
   const tbl=el("div","tbl"), sc=el("div","scroller");
   const head=el("div","thead");head.innerHTML=`<div class="t-left"></div>`;
   const hc=el("div","t-cols");CM_COLS.forEach(n=>hc.appendChild(el("div","th",n)));
@@ -5516,7 +5629,12 @@ function cmGroupCard(){
     /* 列表行不展示比赛状态 */
     teams.innerHTML=`<div class="team"><span class="av">${cmLg(c,"h")}</span><span class="nm">${esc(c.home)}</span></div>
       <div class="team"><span class="av">${cmLg(c,"a")}</span><span class="nm">${esc(c.away)}</span></div>`;
-    left.appendChild(teams);row.appendChild(left);
+    /* 点队名区域：右侧栏切到这场自定义赛事，不跳转页面 */
+    left.appendChild(teams);
+    teams.style.cursor="pointer";
+    teams.title="在右侧查看该场赛事信息与全部玩法";
+    teams.onclick=()=>{S.vpCm=c.id;S.cmLive=false;render()};
+    row.appendChild(left);
     const cols=el("div","t-cols");
     [[L.wdl,["wdl_H","wdl_A","wdl_D"]],
      [L.ah,L.ah?[L.ah.items[0].key,L.ah.items[1].key,null]:[null,null,null]],
@@ -5549,6 +5667,63 @@ function cmGroupCard(){
 }
 function cmOpen(id){S.cmFrom=S.page;S.page="cmdetail";S.cmCur=id;S.cmTab="全部";S.heroOpen=true;render()}
 
+/* ---- 右侧栏：自定义赛事的赛事信息 + 全部玩法 ---- */
+function cmVideoCard(c){
+  const e=cmEng(c), st=CM_ST[c.state];
+  const card=el("div","rp-card cmvp");
+  /* 赛事信息：球场底、圆形队徽、队名、盘状态、开赛时间、动画直播（仅填了地址才展示）、赛事名称 */
+  const hero=el("div","cmvp-hero");
+  hero.innerHTML=`<div class="cmvp-grass"></div>
+    <div class="cmvp-row">
+      <div class="cmvp-t"><span class="cmvp-lg">${cmLg(c,"h")}</span><b>${esc(c.home)}</b></div>
+      <div class="cmvp-mid">
+        <div class="cmvp-st" style="color:${st[1]}">${st[0]}</div>
+        <div class="cmvp-time">${esc(c.time)}</div>
+      </div>
+      <div class="cmvp-t"><span class="cmvp-lg">${cmLg(c,"a")}</span><b>${esc(c.away)}</b></div>
+    </div>
+    <div class="cmvp-foot"></div>`;
+  const foot=$(".cmvp-foot",hero);
+  if(c.live){
+    const an=el("button","cmvp-anim"+(S.cmLive?" on":""),"▦ 直播");
+    an.onclick=()=>{S.cmLive=!S.cmLive;render()};
+    foot.appendChild(an);
+  }
+  foot.appendChild(el("div","cmvp-title",esc(c.title||c.league)));
+  if(c.live&&S.cmLive){
+    const pv=el("div","cmvp-play",`<div class="cmh-ball"></div><button class="cmh-close">✕ 关闭直播</button>`);
+    $(".cmh-close",pv).onclick=()=>{S.cmLive=false;render()};
+    hero.appendChild(pv);
+  }
+  card.appendChild(hero);
+
+  /* 只保留「投注」页签，不做赛事分析 */
+  const tabs=el("div","rp-tabs");
+  tabs.appendChild(el("button","on","投注"));
+  card.appendChild(tabs);
+
+  /* 下方只展示各玩法及其投注项 */
+  e.mks.forEach(mk=>{
+    const blk=el("div","vmk");
+    const key="vp:"+mk.key, folded=S.vpCmFold.has(key);
+    const h=el("div","vmk-h",`<span class="nm">${esc(mk.name)}</span><span class="sp"></span>`);
+    const fold=el("button","ic",folded?"﹀":"︿");
+    fold.title=folded?"展开":"收起";
+    fold.onclick=()=>{folded?S.vpCmFold.delete(key):S.vpCmFold.add(key);render()};
+    h.appendChild(fold);
+    blk.appendChild(h);
+    if(!folded){
+      const bd=el("div","vmk-b");
+      const r=el("div","vmk-row cmvp-row");
+      r.style.gridTemplateColumns=`repeat(${mk.items.length>3?3:mk.items.length},1fr)`;
+      mk.items.forEach(it=>r.appendChild(cmBetBtn(c,mk,it)));
+      bd.appendChild(r);blk.appendChild(bd);
+    }
+    card.appendChild(blk);
+  });
+  return card;
+}
+
 
 
 /* ---- 赛事详情（纯投注页面，庄家与玩家看到的完全一致） ---- */
@@ -5564,7 +5739,7 @@ function cmStatusText(c){
   if(c.state==="settled")return "已结束";
   if(c.state==="pending")return c.kicked===false?"待审核":"已结束";
   if(c.state==="sealed")return "已封盘";
-  if(c.state==="closed")return "已关闭";
+  if(c.state==="closed")return "已撤销";
   return "未开赛";
 }
 function cmHero(c){
@@ -5576,7 +5751,7 @@ function cmHero(c){
       <div class="cmh-mid"><div class="cmh-st">${cmStatusText(c)}</div>${sc||`<div class="cmh-vs">VS</div>`}<div class="cmh-t">${esc(c.time)}</div></div>
       <div class="cmh-team"><span class="cmh-logo">${cmLg(c,"a")}</span><b>${esc(c.away)}</b></div>
     </div>
-    <div class="cmh-foot"><span>${esc(c.title||c.league)}</span>${c.live?`<button class="cmh-live">▶ 动画直播</button>`:""}</div>`;
+    <div class="cmh-foot"><span>${esc(c.title||c.league)}</span>${c.live?`<button class="cmh-live">▦ 直播</button>`:""}</div>`;
   const lv=$(".cmh-live",b);
   if(lv)lv.onclick=()=>{S.cmLive=!S.cmLive;render()};
   if(c.live&&S.cmLive){
@@ -5864,7 +6039,7 @@ const CM_TIPS={
   auto:["按均进球数自动生成赔率",`<b>开启</b>：你只填两队均进球数，系统按 Poisson 比分模型生成全部玩法的赔率，并按比分统一做市 ——
       同玩法价格和恒等、跨玩法不套利、亏损不超押金，这三条由结构自动成立。<br>
     <b>关闭</b>：所有赔率由你手动填写，赔率不随成交变动。此模式脱离做市模型，上面三条保证全部失效，
-      因此系统改用两层显式风控：提交时校验同玩法隐含概率之和 ≥ ${CM_MIN_EDGE.toFixed(2)}，每笔成交前再按最坏比分核一次押金硬上限。
+      因此系统改用两层显式风控：提交时按玩法校验隐含概率之和 ≥ 覆盖重数 ×1.02，每笔成交前再按最坏比分核一次押金硬上限。
       手动定价不提供波胆玩法。`],
   lam:["均进球数为什么可以是小数",`它不是「这场一定进几个球」，而是<b>平均下来能进几个</b>。<br>
     举例：填 1.5 表示这支队伍在这种对位下平均每场进 1.5 个球 —— 可能这场进 1 个、下场进 2 个。<br>
@@ -5877,7 +6052,7 @@ const CM_TIPS={
     本期庄家侧与玩家侧抽水均默认 0，配置项先保留，后续启用改配置即可。`],
   dep:["押金",`押金是<b>本场最大亏损上限</b>：任何比分开出，你的亏损都不超过它。<br>
     它同时决定盘口深度 —— 押金越大，同样金额对赔率的推动越小，盘口越吃得下大单。<br>
-    押金在提交开盘时即冻结，审核未通过或赛事作废时全额退回，结算后解冻并结清盈亏。`],
+    押金在提交开盘时即冻结，审核未通过或赛事被强制下架时全额退回，结算后解冻并结清盈亏。`],
   maxStake:["单笔最多收",`单笔投注的规模上限，防止一笔大单把某个方向打穿。<br>
     玩家实际能投的金额是三项取最小：单笔最多收、滑点上限金额、最低赔率限额（手动定价模式下为单笔最多收与押金硬上限两项取最小）。`]
 };
@@ -5929,7 +6104,7 @@ function cmRenderNew(){
     <div class="cm-sec">开放玩法<i class="cm-sub2">前三类必开</i></div>
     ${mbad.length?`<div class="cm-badbox">以下玩法的赔率组合对庄家不利到可被玩家全买套利，请调高后再提交：<br>
       ${mbad.map(x=>x.bad==="odds"?`· ${esc(x.mk.name)}：赔率需大于 1`
-        :`· ${esc(x.mk.name)}：当前 Σ(1÷赔率) = ${x.sum.toFixed(4)}，还差 ${(CM_MIN_EDGE-x.sum).toFixed(4)}`).join("<br>")}</div>`:""}
+        :`· ${esc(x.mk.name)}：当前 Σ(1÷赔率) = ${x.sum.toFixed(4)}，要求 ≥ ${x.need.toFixed(2)}，还差 ${(x.need-x.sum).toFixed(4)}`).join("<br>")}</div>`:""}
     <div class="cm-anchor2" id="cm-plays-tabs"></div>
     <div id="cm-plays"></div>
     <div style="height:8px"></div>`;
@@ -6010,8 +6185,9 @@ function cmRenderNew(){
           });
           if(!cmNew.auto){
             let s=0;mk.items.forEach(it=>{const v=parseFloat(cmNew.mOdds[it.key]);if(v>1)s+=1/v});
-            o.appendChild(el("span","cm-sumchk"+(s<CM_MIN_EDGE?" bad":""),
-              `Σ(1÷赔率) ${s.toFixed(4)}　需 ≥ ${CM_MIN_EDGE.toFixed(2)}`));
+            const need=cmEdgeOf(mk);
+            o.appendChild(el("span","cm-sumchk"+(s<need?" bad":""),
+              `Σ(1÷赔率) ${s.toFixed(4)}　需 ≥ ${need.toFixed(2)}${cmCover(mk)>1?"（覆盖重数 "+cmCover(mk)+"）":""}`));
           }
           row.appendChild(o);
         });
@@ -6041,7 +6217,7 @@ function cmRenderNew(){
   if(au)au.onclick=()=>{
     cmNew.auto=!cmNew.auto;
     /* 从自动切到手动时若已勾选波胆则自动关闭并提示；切回自动时波胆恢复可选 */
-    if(!cmNew.auto&&cmNew.mk.cs){cmNew.mk.cs=0;toast("手动定价不支持波胆，已关闭")}
+    if(!cmNew.auto&&cmNew.mk.cs){cmNew.mk.cs=0;toast("手动定价不支持波胆，已关闭该玩法")}
     cmRenderNew();
   };
 }
@@ -6123,7 +6299,7 @@ function cmSubmit(){
   if(mb.length){
     const x=mb[0];
     toast(x.bad==="odds"?`${x.mk.name}：赔率需大于 1`
-      :`${x.mk.name}：Σ(1÷赔率) = ${x.sum.toFixed(4)}，需 ≥ ${CM_MIN_EDGE.toFixed(2)}，还差 ${(CM_MIN_EDGE-x.sum).toFixed(4)}`);
+      :`${x.mk.name}：Σ(1÷赔率) = ${x.sum.toFixed(4)}，需 ≥ ${x.need.toFixed(2)}，还差 ${(x.need-x.sum).toFixed(4)}`);
     const n=$("#cm-plays");if(n)n.scrollIntoView({block:"start",behavior:"smooth"});
     return;
   }
@@ -6140,7 +6316,7 @@ function cmSubmit(){
     minOdds:parseFloat(cmNew.minOdds),maxOdds:parseFloat(cmNew.maxOdds),W:parseFloat(cmNew.w)||0,
     maxStake:parseFloat(cmNew.maxStake)||2000};
   CM.unshift(c);cmEng(c);
-  /* 押金在提交时即冻结；审核通过才上架，未通过则直接转已关闭并退回押金 */
+  /* 押金在提交时即冻结；审核通过才上架，未通过则直接转已撤销并退回押金 */
   S.balance-=dep;
   if(window.__cmClose)window.__cmClose();
   S.page="history";S.histSide="卖单";S.sellSeg="私盘";S.cmState="全部";
@@ -6326,6 +6502,7 @@ function cmEditLam(c,side,v){
   if(!["open","soldout"].includes(c.state))return;
   if(!(v>=0.1&&v<=6))return toast("均进球数需在 0.1 ~ 6 之间");
   if(side==="h")c.lH=v;else c.lA=v;
+  cmMarkPriced(c);                 /* 改均进球数同样绕过开盘缩放，之后逐笔校验押金 */
   const old=c.eng;
   c.cfg=Object.assign({},c.cfg,{lH:parseFloat(c.lH),lA:parseFloat(c.lA)});
   try{
@@ -6366,6 +6543,7 @@ function cmSetOdds(c,mk,it,target){
       return toast("调高后最坏赔付将突破押金，请先补充押金再调水");
     }
     c.adjSum[it.key]=used+Math.abs(pt);
+    cmMarkPriced(c);
     cmLog(c,"调水",mk.name+" · "+it.name,{key:it.key,pt,before:+before.toFixed(2),after:+target.toFixed(2)});
     cmSyncSold(c);render();return toast("已调水，当前赔率 @"+target.toFixed(2));
   }
@@ -6377,6 +6555,7 @@ function cmSetOdds(c,mk,it,target){
   it.sidx.forEach(k=>e.q[k]+=(lo+hi)/2);
   const after=EG.showOdds(e,cfg,it);
   c.adjSum[it.key]=used+Math.abs(+(after-cur).toFixed(2));
+  cmMarkPriced(c);
   cmLog(c,"调水",mk.name+" · "+it.name,{key:it.key,pt:+(after-cur).toFixed(2),
     before:+cur.toFixed(2),after:+after.toFixed(2)});
   cmSyncSold(c);render();toast("已调水，当前赔率 @"+after.toFixed(2));
@@ -6397,13 +6576,16 @@ function cmOpLog(c){
 /* 单个投注项的子单：点「子单数据」直接弹窗，不在卡片内展开
    子单列表站买家（玩家）立场，与本场全部子单弹窗口径一致 */
 function cmItemSubs(c,mk,it,subs,hit){
-  const done=c.state==="settled";
+  const done=c.state==="settled", voided=c.state==="closed";
+  /* 每笔只展示会员、成交金额、成交赔率、时间与已结算时的输赢，不展示份额 ——
+     份额是做市的内部口径，庄家关心的是收了多少钱、按什么价成交 */
   const rows=subs.map(f=>`<div class="cl-i">
       <div class="cl-r1"><span class="sub-m">${f.mine?"我":"会员"}</span><span class="cl-d">${esc(f.u)}</span>
         <b class="g">@${f.odds.toFixed(2)}</b></div>
-      <div class="cl-r2"><span>${esc(f.time)}　${f.shares.toFixed(2)} 份</span>
+      <div class="cl-r2"><span>${esc(f.time)}</span>
         <span>¥${money(f.amt)}${done?(hit?`　<b class="g">赢 +¥${money(f.shares-f.amt)}</b>`
-                                          :`　<b class="r">输 −¥${money(f.amt)}</b>`):""}</span></div>
+                                          :`　<b class="r">输 −¥${money(f.amt)}</b>`)
+                               :(voided?`　<b>退回 ¥${money(f.amt)}</b>`:"")}</span></div>
     </div>`).join("");
   const sold=subs.reduce((a,f)=>a+f.amt,0);
   cmConfirm({title:`${mk.name} · ${it.name}`,okText:"关闭",hideCancel:true,wide:true,onOk:()=>{},
@@ -6416,15 +6598,14 @@ function cmAllSubs(c){
   cmSubsPage=1;
   const render1=()=>{
     const all=c.subs, shown=all.slice(0,cmSubsPage*20);
-    const done=c.state==="settled";
+    /* 不设标题与说明文案，直接列出投注项、成交赔率、会员名、下注时间、下注金额 */
     return shown.map(f=>{
       const it=cmItem(c,f.key);
       const mk=cmEng(c).mks.find(x=>x.items.some(y=>y.key===f.key));
-      const hit=done&&c.score&&it?it.hit(c.score[0],c.score[1]):false;
       return `<div class="cl-i"><div class="cl-r1"><span class="cl-d">${esc(mk?mk.name:"")} · ${esc(it?it.name:f.key)}</span>
           <b class="g">@${f.odds.toFixed(2)}</b></div>
         <div class="cl-r2"><span>${esc(f.u)}　${esc(f.time)}</span>
-          <span>¥${money(f.amt)}${done?(hit?`　<b class="g">赢 +¥${money(f.shares-f.amt)}</b>`:`　<b class="r">输 −¥${money(f.amt)}</b>`):""}</span></div></div>`;
+          <span>¥${money(f.amt)}</span></div></div>`;
     }).join("")+(all.length>shown.length?`<div class="cm-more" id="cm-more">下拉加载更多（${shown.length}/${all.length}）</div>`:"");
   };
   const d=cmConfirm({title:"本场全部注单",okText:"关闭",hideCancel:true,wide:true,onOk:()=>{},
@@ -6491,12 +6672,13 @@ function cmRiskTable(c){
 /* 开盘详情顶部的状态横幅，文案与 H5 一致 */
 function cmStateHint(c){
   if(c.state==="settled")return {k:"ok",t:`本场已结算，赛果 ${c.score?c.score[0]+"-"+c.score[1]:"--"}。押金已全额解冻退回，盈亏已入账。`};
-  if(c.state==="closed")return {k:"bad",t:"本场已作废，全部成交已撤销、投注金额原路退回，押金全额解冻，本场不计盈亏。"};
-  if(c.state==="soldout")return {k:"warn",t:"押金占用已触顶，暂时无法接受新注。补充押金后可恢复收单。"};
+  if(c.state==="closed"&&c.rejected==="open")return {k:"bad",t:"开盘未通过审核，本场已撤销，押金已全额退回。庄家不能重新申请，如需继续请重新开盘。"};
+  if(c.state==="closed")return {k:"bad",t:"本场已被运营强制下架，全部成交已撤销、投注金额原路退回，押金全额解冻，本场不计盈亏。强制下架不区分原因，一律全额退回。"};
+  if(c.state==="soldout")return {k:"warn",t:"押金已接近上限，暂时无法接受新注。补充押金后可恢复收单。"};
   if(c.state==="sealed")return {k:c.autoSealed?"warn":"plain",
     t:c.autoSealed?`已到自动封盘时点（开赛前 ${c.sealMin} 分钟），盘口已停止收单。比赛结束后请录入赛果，提交后由运营审核，审核通过即正式结算。`
                   :"已停止收单。比赛结束后请录入赛果，提交后由运营审核，审核通过即正式结算。"};
-  if(c.state==="pending"&&c.pendKind==="open")return {k:"plain",t:"开盘申请已提交，押金已冻结，等待运营审核。审核通过后自动上架收单；未通过则直接转为已关闭、押金退回，且不能重新申请，需重新开盘。"};
+  if(c.state==="pending"&&c.pendKind==="open")return {k:"plain",t:"开盘申请已提交，押金已冻结，等待运营审核。审核通过后自动上架收单；未通过则直接转为已撤销、押金退回，且不能重新申请，需重新开盘。"};
   if(c.state==="pending"&&c.rejected==="score")return {k:"bad",t:"赛果审核未通过，请按下方驳回原因改正后重新录入赛果。重新提交后将清除上一次的驳回信息。"};
   if(c.state==="pending")return {k:"plain",t:`赛果 ${c.score?c.score[0]+"-"+c.score[1]:"--"} 已提交，等待运营审核。审核通过后正式结算并兑付。`};
   return null;
@@ -6588,7 +6770,7 @@ function cmCards(m){
         <span>${esc(c.title||c.league)} · 开赛 ${esc(c.time)}</span>
         ${c.state==="sealed"?`<span class="cm-todo">比赛已结束，请录入赛果</span>`:""}
         ${c.rejected==="score"?`<span class="cm-rejline">赛果被驳回，请进入详情查看原因并重新录入</span>`:""}
-        ${c.rejected==="open"?`<span class="cm-rejline">开盘被驳回，请进入详情查看原因</span>`:""}</div></td>
+        ${c.rejected==="open"?`<span class="cm-rejline">开盘未通过审核，本场已撤销，如需继续请重新开盘</span>`:""}</div></td>
       <td class="num">¥${money(c.dep+(c.topup||0))}</td>
       <td><div class="pg-bar"><i style="width:${Math.min(100,rk.use*100).toFixed(0)}%"></i></div>
         <div class="pg-left">已收 ¥${money(e.cash)} / 押金 ¥${money(c.dep+(c.topup||0))}</div></td>
@@ -6709,7 +6891,8 @@ const CM_SPEC={
    "自定义赛事没有 IM 母体，不挂在任何原比赛下方，在赛事列表顶部独立成「自定义赛事」分组，右侧带「私盘」标识，可折叠。",
    "常驻置顶：不做「只看」开关、不占筛选行。下方接 IM 赛事，想看 IM 赛事往下滑即可。",
    "「我要开盘」入口在左侧导航「我的卖单」上方，不放在赛事列表的筛选行。",
-   "仅今日盘与早盘展示（自定义赛事只做赛前盘），且只有足球有，切到其他球类不展示。"]},
+   "仅今日盘与早盘展示（自定义赛事只做赛前盘），且只有足球有，切到其他球类不展示。",
+   "两个盘口按开赛日期分流：开赛在今天的进今日盘，开赛在今天之后的进早盘，分组均常驻置顶、不受早盘日期胶囊影响。"]},
   {t:"列表展示窗口与排序",d:[
    "只显示已到开盘时间的赛事。",
    "开赛后继续展示 90 分钟：此时赛事已封盘，玩家仍可在列表找到并进入详情，但不能投注；超过 90 分钟从列表移除，庄家仍可在「卖单 → 私盘」管理。",
@@ -6717,15 +6900,15 @@ const CM_SPEC={
   {t:"行结构与赔率格",d:[
    "比赛行三列固定，与官方盘一致：全场独赢 / 全场让球 / 全场大/小；完整玩法走队名下方的「全部 N ›」进详情。列表行不展示比赛状态。",
    "行首：收藏 ☆ 在赛事名称左侧，开赛时间在赛事名称下方。赛事名称为庄家开盘时填写的名称。",
-   "赔率格展示规则：整盘已售罄或单个投注项额度触顶显示「-」；已封盘及之后的状态（待审核 / 已结算 / 已关闭）显示锁图标；卖出中正常显示赔率。列表与详情一致，均置灰不可点击。",
+   "赔率格展示规则：整盘已售罄或单个投注项额度触顶显示「-」；已封盘及之后的状态（待审核 / 已结算 / 已撤销）显示锁图标；卖出中正常显示赔率。列表与详情一致，均置灰不可点击。",
    "PC 差异：球类入口在左侧导航是竖排的图标 + 名称 + 数量，不做 H5 的「只留图标、数量移到盘口页签下方」改动 —— 竖排导航去掉名称会读不出是哪个球类。"]},
   {t:"比赛状态（六个）",d:[
    "卖出中：可买入。",
    "已售罄：押金占用触顶、接不了新注，赔率格置灰；补充额度后自动恢复为卖出中。这是资金层面的被动状态。",
    "已封盘：庄家或运营主动停止收单，不可恢复，与已售罄是两回事。",
-   "待审核：开盘待审、赛果待审、赛果被驳回三种内部情形统一对外显示为待审核。",
+   "待审核：开盘待审、赛果待审、赛果被驳回三种内部情形统一对外显示为待审核；开盘被驳回是例外，直接转为已撤销。",
    "已结算：审核通过，按赛果兑付，每份命中兑付 1 个结算单位。",
-   "已关闭：作废（全部成交撤销、投注金额原路退回、不计盈亏），或开盘审核未通过（押金退回、不能重新申请，需重新开盘）。"]},
+   "已撤销：运营强制下架（全部成交撤销、投注金额原路退回、不计盈亏），或开盘审核未通过（押金退回、不能重新申请，需重新开盘）。"]},
   {t:"暂停与售罄",d:[
    "赔率降到平台最低赔率（默认 1.05），或本笔可投额度低于 5 元时，该投注项暂停买入，格子置灰标「暂停」。",
    "全部开放投注项都暂停时整盘转为已售罄；额度回升自动恢复，暂停只影响买入。",
@@ -6736,7 +6919,7 @@ const CM_SPEC={
    "纯投注页面：无论这场盘是谁开的，页面表现完全一致，不展示庄家风险区与控盘操作。庄家管理自己的盘走「卖单 → 私盘 → 开盘详情」，两者是两个独立页面。",
    "横幅：球场背景、圆形队徽、队名、比赛状态与开赛时间；已结算 / 待审核时展示比分；配置了直播地址时展示「动画直播」，点击后在横幅内播放、可关闭；底部为赛事名称（不是庄家昵称）。",
    "玩法 Tab：全部 / 各玩法分类，左侧带折叠箭头。赔率区按主客两列并排，列头为带橙色竖条的队名（大小球为「大球 / 小球」，双方进球为「是 / 否」）；波胆等多项玩法用三列网格。",
-   "PC 差异：PC 不做分享功能，顶栏不放分享按钮，开盘详情也不提供赛事级分享。H5 的「只分享到金刚、分享卡片展示单笔限额与当前赔率、不展示押金」在 PC 不落地。"]},
+   "PC 差异：PC 不做分享功能，顶栏不放分享按钮，开盘详情与卖单私盘卡片也都不提供分享。H5 的分享规则（只分享到金刚、仅卖出中与已售罄展示、卡片展示单笔限额与当前赔率、不展示押金、弹窗标题「分享自定义赛事」）在 PC 不落地。"]},
   {t:"本期玩法（八类）",d:[
    "全场独赢、全场让球、全场大/小（可多线）、双重机会、双方进球、全场波胆、欧洲让球、主客队进球数。前三类开盘时必开。",
    "亚洲让球整数线与大小球整数线永久不做：走盘要退本金，无法用比分状态表达，与按比分做市的底层结构冲突。"]},
@@ -6750,14 +6933,22 @@ const CM_SPEC={
    "玩家侧抽水：每笔成交当下以压低赔率的方式收取，玩家付 100 元只有 (100 − 抽水) 进入做市计算份额，账面看不到单独扣款。",
    "庄家侧抽水：由 APISYS 下发，结算时只对庄家盈利部分收取，亏损不收，结算明细中单列一行。",
    "本期两侧比例均默认 0，结算明细不展示抽水行；开盘弹窗保留配置项，后续启用改配置即可。",
-   "赛事作废时按投注金额全额退回：玩家侧抽水只是少给了份额、并非单独扣款，全额退回即自动包含该部分；庄家侧抽水因未进入结算阶段本就不会产生。"]},
+   "赛事被强制下架时按投注金额全额退回：玩家侧抽水只是少给了份额、并非单独扣款，全额退回即自动包含该部分；庄家侧抽水因未进入结算阶段本就不会产生。"]},
   {t:"单笔上限怎么算",d:[
    "输入框「限额 2.00-X」的 X 是三项取最小后向下取整到两位小数，三项各防一种风险：",
    "A 单笔最多收：庄家开盘时填的固定值（默认 2000），对单笔规模的主观上限。",
    "B 滑点上限金额：滑点 = 1 − 本笔实际赔率 ÷ 所见赔率；系统反推出「让本笔滑点恰好等于滑点上限」的投注额。普通项上限 5%，价格低于冷门线（默认 20%）时线性放宽至最多 20%，放宽比例 =（1 − 当前价格 ÷ 冷门线）。",
    "C 最低赔率限额：把该项价格推到价格上限（对应平台最低赔率 1.05）所需的投注额。",
    "暂停条件：当前价格已达价格上限，或三项取最小后不足 5 元。输入超限不直接拒绝，按上限试算并提示，玩家可自行改小。",
+   "调过价的盘（发生过调水或改均进球数）再加一项押金硬上限，四项取最小 —— 见下一条「押金守卫」。",
    "手动定价模式下改为两项取最小：单笔最多收、押金硬上限（赔率固定，无滑点、无最低赔率限额）。"]},
+  {t:"押金守卫：调过价的盘逐笔校验",d:[
+   "调水不会架空跨玩法同价与价格随资金移动，但会破坏「亏损不超押金」这一条，必须用额外机制补上。",
+   "做市盘的亏损上限是靠开盘缩放保证的 —— 开盘时按押金把做市深度缩放到位。调水直接平移持仓、庄家不付成本，改均进球数则是重建引擎后搬运已售份额，两者都绕过了这个缩放，保证随之失效。算法 PRD 5.3.1 原文：「调价后全场最大亏损不再由开盘缩放保证等于抵押金，风险按各比分兑付与现金实时计算」。",
+   "机制：一旦某盘发生过调水或改均进球数，系统给该盘打标记，此后每笔成交前都要枚举比分算最坏赔付，净敞口（最坏赔付 − 已收投注）超过押金即拒绝本笔，与手动定价模式同一套逻辑。",
+   "该盘的单笔上限变为四项取最小：单笔最多收、滑点上限金额、最低赔率限额、押金硬上限；押金硬上限用二分反推出「恰好不突破押金」的最大金额，算到不足 5 元时该项暂停买入，全部项都暂停则整盘转已售罄。",
+   "没调过价的盘不做这层校验 —— 开盘缩放的保证仍然成立，额外枚举比分只是白白增加开销。",
+   "调水闸门（单次 0.05、单项累计 0.30）与算法 PRD 的「相对开盘赔率 ±50%」是两套口径，本期以更严的前者为准。"]},
   {t:"并发要求（必须写进研发需求）",d:[
    "每笔成交都移动价格，同一场比赛的成交必须串行处理，价格读取与扣减在同一事务内完成。否则份额算错、押金保护失效，平台亏损可能突破押金。",
    "试算与成交之间价格若被他人推动，应以服务端实时价格重新计算，超出玩家可接受滑点时拒绝。"]},
@@ -6771,7 +6962,7 @@ const CM_SPEC={
  slip:[
   {t:"购物车（沿用原有购物车，不另开面板）",d:[
    "选中自定义赛事投注项直接进原购物车；卖出页签自动隐藏，做市成交不支持被其他会员卖出。关闭按钮保留。",
-   "右上角增加清空按钮（关闭按钮左侧），点击直接清空购物车全部选项并关闭面板。",
+   "PC 差异：购物车是常驻侧栏、不是浮层，没有关闭按钮，H5 的右上角清空与关闭按钮在 PC 不落地，移除投注项用每张卡片右上角的 ✕。",
    "卡片右上角是本笔实际成交赔率，随输入金额实时变动，后面紧跟差值「(低 X)」—— 差值 = 所见赔率 − 本笔实际赔率，以数值呈现、不用百分比。盘口类型标注为 [欧洲盘]。",
    "输入框上方一行对照展示所见赔率与成交后赔率，成交后赔率与本笔实际赔率取同一数值 —— 玩家关心的是这笔按什么价成交，不需要再给一个推动后的理论价。",
    "赛事信息行为「自定义赛事 · 赛事名称」。底部不展示串关按钮，自定义赛事不参与串关。",
@@ -6813,7 +7004,9 @@ const CM_SPEC={
    "关闭：所有赔率由庄家手动填写，赔率不随成交变动。此模式脱离做市模型，需要两层独立风控。"]},
   {t:"手动定价模式的风控（两层，缺一不可）",d:[
    "自动模式下由做市结构自动成立的三条保证 —— 同玩法价格和恒等、跨玩法不套利、亏损不超押金 —— 在手动模式下全部失效，必须用显式校验补上。只做第二层挡不住套利，只做第一层挡不住穿仓。",
-   "第一层，提交开盘时的静态校验：同玩法各项赔率的隐含概率之和 Σ(1 ÷ 赔率) 必须 ≥ 1.02，低于此值说明这组赔率对庄家不利到可被玩家全买套利。逐玩法校验，任一玩法不合格即拦截提交，并指出是哪个玩法、当前和值多少、还差多少；填写过程中实时标红提示。",
+   "第一层，提交开盘时的静态校验：同玩法各项赔率的隐含概率之和必须满足 Σ(1 ÷ 赔率) ≥ 覆盖重数 ×（1 + 最低溢价 2%）。逐玩法校验，任一玩法不合格即拦截提交，并指出是哪个玩法、当前和值多少、要求达到多少；填写过程中实时标红提示。",
+   "覆盖重数 = 每个赛果同时被该玩法的几个投注项覆盖，不同玩法不同，阈值必须按它折算：独赢 / 让球 / 大小球 / 波胆 / 欧洲让球 / 进球数 / 双方进球 互斥穷尽，重数 1、阈值 1.02；双重机会的三项（主或平、主或客、平或客）中每个赛果被其中两项同时覆盖，重数 2、阈值 2.04。",
+   "这条很容易写错：若对双重机会沿用 1.02，校验等于没做 —— 它的和值本来就在 2 左右，任何填法都能通过。举例：主胜 40%、平 30%、客 30% 按 2% 溢价推出的双重机会赔率为 1.40 / 1.40 / 1.63，和值 2.042 刚好通过；三项同为 1.48 时和值 2.027，不通过。",
    "押金下限：押金 ÷ 该盘最高赔率 ≥ 最小可成交额（2 元），确保押金不至于小到开不了盘。",
    "手动模式不提供波胆：玩法列表里直接不展示，从 8 类减为 7 类。波胆是最细粒度玩法，其他玩法都能用它的组合复制；自动模式下所有赔率来自同一张比分概率表、无套利是算出来的，手动模式下庄家逐项填赔率、系统无从保证自洽。又因独赢 / 让球 / 大小球三类必开、在手动模式下一定存在，波胆与它们同开必然冲突、等于永远开不了，所以直接不展示而非置灰。从自动切到手动时若已勾选波胆则自动关闭并提示。",
    "第二层，每笔成交前的押金硬上限：枚举主客各 0~6 球加「其他比分」共 50 个状态，算出最坏赔付（Σ 命中该比分的投注项的 已售份额 × 赔率），净敞口 = 最坏赔付 − 已收投注总额；净敞口超过押金即拒绝本笔。拒单时不直接拒绝，反推出恰好不突破押金的最大金额并提示，玩家可改小 —— 这个金额即该投注项在手动模式下的动态单笔上限。",
@@ -6838,8 +7031,8 @@ const CM_SPEC={
    "赛事信息卡：主客队 + 盘状态标签（在队名右侧）、赛事名称与开赛时间、开盘时间与封盘规则、两队均进球数。被驳回时在队名下方展示红色驳回区块（只给标题与原因正文，不展示驳回人与时间）。",
    "开盘时未开启「按均进球数自动生成赔率」的盘，详情页不展示均进球数 —— 手动定价的盘没有这个参数，展示出来会误导。",
    "均进球数仅在卖出中与已售罄可编辑，其余状态只读。改动后重算未成交部分的赔率，已成交子单按原成交赔率结算、不受影响。",
-   "三列汇总：总押金 / 已收单 / 子单数；已结算时增加第四格本场净盈亏。不展示「押金占用」—— 该值依赖最坏比分试算，对庄家不直观。汇总区紧贴赛事信息卡。",
-   "子单数做成超链接（橙色带下划线），点击弹出本场全部子单；不再单独设「本场全部注单」入口行。子单弹窗不设标题与说明文案，直接列出投注项、成交赔率、会员名、下注时间、下注金额（已结算时标明输赢）；每页 20 条，下拉到底自动加载下一页，区域约占屏高 62%。",
+   "三列汇总：总押金 / 已收单 / 子单数；已结算时增加第四格本场净盈亏。全局不展示「押金占用」百分比 —— 该值依赖最坏比分试算、对庄家不直观，赛事详情的风险区与补充押金弹窗里也一并去掉；已售罄的提示改为「押金已接近上限，暂时无法接受新注」。汇总区紧贴赛事信息卡。",
+   "子单数做成超链接（橙色带下划线），点击弹出本场全部子单；不再单独设「本场全部注单」入口行。子单弹窗不设标题与说明文案，直接列出投注项、成交赔率、会员名、下注时间、下注金额；每页 20 条，下拉到底自动加载下一页，区域约占屏高 62%。",
    "不单独设结算明细区块 —— 已结算时顶部汇总第四格已展示本场净盈亏，再列一遍收到投注、命中兑付是重复信息。明细口径仍为「收到投注合计 − 命中兑付合计 = 本场净盈亏」，押金全额解冻退回，本期不计平台抽水。"]},
   {t:"开盘详情 · 比分风险分布",d:[
    "一行标签展示「风险最高」前 3 项 +「更多 ›」，点击弹出 7×7 表格块。仅卖出中与已售罄展示，其余状态不展示（已不能调水，看风险分布无意义）。",
@@ -6873,19 +7066,21 @@ const CM_SPEC={
    "每条两行：类型标签 + 对象 + 变动值，下一行时间 + 赔率变化（非调水类显示已收金额）。不记录庄家名称与押金占用。",
    "庄家可在自己盘上下注，存在「先低价买入再调高赔率诱多」的操纵路径，因此调水与庄家自投都必须留痕，运营在后台也能核查。"]},
   {t:"完整生命周期",d:[
-   "① 庄家开盘：填赛事信息、玩法与盘口线、押金，提交后进入待审核，押金在提交时即冻结。审核通过则上架；未通过则直接转为「已关闭」、押金退回，驳回原因在盘详情的队名下方展示，庄家不能重新申请，需重新开盘。",
+   "① 庄家开盘：填赛事信息、玩法与盘口线、押金，提交后进入待审核，押金在提交时即冻结。审核通过则上架；未通过则直接转为「已撤销」、押金退回，驳回原因在盘详情的队名下方展示，庄家不能重新申请，需重新开盘。",
    "② 上架收单：进入赛事列表，玩家可投注。盘状态在卖出中与已售罄之间自动切换。庄家可调水、补充押金、主动「赛事下架」。",
    "③ 自动封盘：到达开赛前 5 分钟（写死，庄家不可配置）系统自动封盘、停止收单。庄家主动下架也进入该状态。封盘后均进球数与赔率均不可再改。",
    "④ 庄家录入赛果：比赛结束后在开盘详情底部点「录入赛果」，填入常规时间 90 分钟（含补时）比分并提交，状态转为待审核。卖单列表该盘卡片上提示「比赛已结束，请录入赛果」。",
    "⑤ 运营审核：通过则正式结算；不通过时盘仍为待审核，底部按钮变为「重新录入赛果」，重提后清除上一次的驳回信息。审核通过前不发生任何资金兑付。",
    "⑥ 已结算：按赛果兑付子单，押金解冻退回，盘详情展示本场净盈亏。",
-   "异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营作废，状态转为已关闭，全部成交撤销、投注金额全额原路退回、庄家押金全额解冻、本场不计盈亏、不抽庄家的水。",
-   "状态对外收敛：开盘待审核、赛果待审核、赛果被驳回三种内部情形对庄家统一显示为「待审核」，筛选项里也只有一个「待审核」并涵盖这三种；开盘被驳回是例外，直接转为「已关闭」。区别只体现在详情页的驳回区块与底部按钮上。"]},
+   "异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由运营强制下架（与 B 端叫法统一），状态转为已撤销，全部成交撤销、投注金额全额原路退回、庄家押金全额解冻、本场不计盈亏、不抽庄家的水。",
+   "庄家「赛事下架」与运营「强制下架」是两个动作，结果不同：庄家下架 → 已封盘，已成交子单照常等赛果结算、未消费押金结算后退回；运营强制下架 → 已撤销，全部撤销、投注金额原路退回、押金全额解冻。",
+   "强制下架不区分原因，一律全额退回：无论是赛事异常（取消 / 延期超 48 小时 / 腰斩无法确认结果），还是风控原因（庄家违规、赔率异常、赛事不存在）。即使比赛照常进行、赛果也已产生，风控原因下架后同样不按赛果结算 —— 这类盘的交易本身被认定为无效，不能让任何一方从中获利或受损。",
+   "状态对外收敛：开盘待审核、赛果待审核、赛果被驳回三种内部情形对庄家统一显示为「待审核」，筛选项里也只有一个「待审核」并涵盖这三种；开盘被驳回是例外，直接转为「已撤销」、押金退回、不能重新申请。区别只体现在详情页的驳回区块与底部按钮上。"]},
   {t:"底部操作区（按状态）",d:[
    "卖出中 / 已售罄：补充额度 / 停止收单。",
    "已封盘：录入赛果。",
    "待审核：展示等待审核提示，无操作按钮；赛果被驳回时按钮为「重新录入赛果」。",
-   "已结算 / 已关闭：整条隐藏，返回走左上角返回按钮。"]}],
+   "已结算 / 已撤销：整条隐藏，返回走左上角返回按钮。"]}],
 
  report:[
   {t:"汇总报表需包含私盘",d:[
@@ -6899,21 +7094,23 @@ const CM_SPEC={
 
  me:[
   {t:"赛果页",d:[
-   "赛果页仅在足球下展示自定义赛事，独立分组置顶、可展开收起，与下方 IM 赛果版式一致；不提供点击进详情。"]},
+   "筛选区置顶：运动类型、关键字、日期区间与查询按钮在页面最上方。",
+   "自定义赛事赛果放在筛选区下方、IM 赛果之上，独立分组、可展开收起，与下方 IM 赛果版式一致；不提供点击进详情。",
+   "仅在运动类型选「全部运动」或「足球」时展示该分组 —— 自定义赛事只有足球，切到其他球类整组隐藏。"]},
   {t:"本期不做",d:[
    "撤销结算、平台抽水（两侧均为 0）、庄家侧赔率下限配置、玩家卖出份额、自定义赛事参与串关、移除盘口（永久不做）。",
-   "账变记录属后台展示范围；B 端的开盘审核、赛果审核、作废处理、平台参数配置、操作日志，均另行出需求与原型，不在本原型内。",
+   "账变记录属后台展示范围；B 端的开盘审核、赛果审核、强制下架、平台参数配置、操作日志，均另行出需求与原型，不在本原型内。",
    "PC 差异：PC 不做分享功能，全站不提供分享按钮，H5 的赛事级分享与分享卡片字段在 PC 不落地。"]},
   {t:"参数默认值（上线前由运营给出正式取值）",d:[
    "押金下限 100；单笔最多收 2000；封盘时间 开赛前 5 分钟（写死）；玩家侧抽水 0；庄家侧抽水 0；溢价 3%；平台最低赔率 1.05；赔率封顶 99；滑点上限 5%（冷门项放宽至 20%）；冷门线 价格 20%；暂不可投阈值 单笔上限 < 5；调水单次上限 0.05；调水累计上限 0.30。",
-   "让球线范围 主 +4.5 ~ 主 −4.5（10 档半球线）；大小球线范围 0.5 ~ 7.5（8 档）；波胆球数 2 ~ 7 球（互斥单选，默认 6）；进球数档位 0 ~ 7 球（多选，默认 0 / 1 / 2）；手动定价最低溢价 Σ(1÷赔率) ≥ 1.02。"]},
+   "让球线范围 主 +4.5 ~ 主 −4.5（10 档半球线）；大小球线范围 0.5 ~ 7.5（8 档）；波胆球数 2 ~ 7 球（互斥单选，默认 6）；进球数档位 0 ~ 7 球（多选，默认 0 / 1 / 2）；手动定价静态校验 Σ(1÷赔率) ≥ 覆盖重数 ×1.02（双重机会 2.04）。"]},
   {t:"待确认（与后台 PRD 对齐，以本版为准）",d:[
    "庄家自投：后台 PRD 写「C 端已禁止庄家在自己的盘下注」，应改为允许自投、界面无提示，风控靠后台留痕与审核。",
    "自动封盘：后台 PRD 有 cm_auto_seal_default 与 cm_auto_seal_max 两项配置，应改为写死开赛前 5 分钟并删除这两项配置。",
-   "开盘被驳回：后台 PRD 写 C 端显示「待审核」，应改为直接转「已关闭」、押金退回、不能重新申请。",
+   "开盘被驳回：后台 PRD 写 C 端显示「待审核」，应改为直接转「已撤销」、押金退回、不能重新申请。",
    "抽水：后台 PRD 的 cm_player_rake 默认 300/万、结算举例按庄家侧 2% 计算，本期两侧均为 0，结算举例需重算且不含抽水行。",
-   "算法依据：《足球预测交易 · 自定义球盘 算法 PRD》与技术侧 engine.js 均不在当前交付物内，需补齐后作为开发依据；原型内嵌引擎仅供理解口径，不可直接作为生产实现。",
-   "数值验证：调水是直接平移持仓量且庄家不付成本，改均进球数是重建引擎后把已售份额搬过去，这两种操作后亏损上界是否仍成立需做数值模拟确认。"]}]
+   "算法依据：定价、风控与结算算法以《足球预测交易 · 自定义球盘 算法 PRD》为准，该文档已随本期交付物一并上线、入口与需求文档同级；原型内嵌引擎自带「仅供原型演示」标注，数值可用于理解口径，不可直接作为生产实现。",
+   "调价后的亏损上界：此前列为待验证，现已确认并补上机制 —— 开盘缩放给出的「亏损不超押金」保证在调水与改均进球数后确实失效，补救是给调过价的盘打标记并逐笔校验最坏赔付，未调过价的盘不受影响。实测押金 120 的盘调水后反复买到极限，净敞口停在 119.99 不突破，限额归零并自动暂停。"]}]
 };
 
 function renderSpec(r){
@@ -6946,7 +7143,7 @@ function renderRight(){
     b.onclick=()=>{narrow?S.specNarrowOpen=true:S.specOpen=true;saveSpecPref();renderRight()};
     r.appendChild(b);return;
   }
-  const head=el("div","rp-head",`<b>需求说明</b><i class="rp-sub">自定义赛事坐庄 · 对齐 H5 v25.2 / PRD V2.5</i>`);
+  const head=el("div","rp-head",`<b>需求说明</b><i class="rp-sub">自定义赛事坐庄 · 对齐 H5 v26.0 / PRD V3.3</i>`);
   const f=el("button","rp-fold","›");f.title="收起";
   f.onclick=()=>{narrow?S.specNarrowOpen=false:S.specOpen=false;saveSpecPref();renderRight()};
   head.appendChild(f);r.appendChild(head);
