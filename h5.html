@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.6（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.7（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -761,7 +761,7 @@ input:focus{border-color:#FF8C00}
     <li><b>排序</b>：按<b>开赛时间正序</b>排列。</li>
     <li>比赛行三列固定，与官方盘一致：<b>全场独赢 / 全场让球 / 全场大/小</b>；完整玩法进赛事详情查看，入口为队名下方的「全部 N▸」。<b>列表行不展示比赛状态</b>。</li>
     <li>行首结构：<b>收藏 ☆ 在赛事名称左侧，开赛时间在赛事名称下方</b>。赛事名称为庄家开盘时填写的名称。</li>
-    <li><b>赔率格展示规则</b>：整盘已售罄或单个投注项额度触顶显示「<b>-</b>」；已封盘及之后的状态（待审核 / 已结算 / 已关闭）显示<b>锁图标</b>；卖出中正常显示赔率。列表与详情一致，均置灰不可点击。</li>
+    <li><b>赔率格展示规则</b>：整盘已售罄或单个投注项额度触顶显示「<b>-</b>」；已封盘及之后的状态（待审核 / 已结算 / 已撤销）显示<b>锁图标</b>；卖出中正常显示赔率。列表与详情一致，均置灰不可点击。</li>
   </ul>
 
   <h4>比赛状态（六个）</h4>
@@ -771,7 +771,7 @@ input:focus{border-color:#FF8C00}
     <li><b>已封盘</b>：庄家或运营主动停止收单，其他玩家不能再购买该盘口，<b>不可恢复</b>。与已售罄是两回事。</li>
     <li><b>待审核</b>：庄家已录入赛果，等待运营审核。</li>
     <li><b>已结算</b>：审核通过，按赛果兑付，每份命中兑付 1 个结算单位。</li>
-    <li><b>已关闭</b>：运营强制下架（全部成交撤销、投注金额原路退回、不计盈亏），或<b>开盘审核未通过</b>（押金未冻结、本场直接关闭，庄家不能重新申请，需重新开盘）。</li>
+    <li><b>已撤销</b>：运营强制下架（全部成交撤销、投注金额原路退回、不计盈亏），或<b>开盘审核未通过</b>（押金未冻结、本场直接关闭，庄家不能重新申请，需重新开盘）。</li>
   </ul>
 
   <h4>赔率格暂停态</h4>
@@ -793,7 +793,7 @@ input:focus{border-color:#FF8C00}
   <ul>
     <li><b>横幅</b>：球场背景，圆形队徽、队名、比赛状态与开赛时间；已结算 / 待审核时展示比分；配置了直播地址时展示「▦ 动画直播」，点击后在横幅内播放、可关闭；<b>底部为赛事名称</b>（不是庄家昵称）。</li>
     <li><b>顶栏右上角只有分享按钮</b>，<b>不展示盘状态</b>（状态在横幅内已有）。分享只有「分享到金刚」，不含 TG 与复制链接，分享的是整场赛事，接收方进入本场详情、不预选投注项。</li>
-    <li><b>分享按钮仅在「卖出中」与「已售罄」展示</b>，其余状态（已封盘、待审核、已结算、已关闭）隐藏——分享的目的是拉人来投注，封盘后已不可投，分享没有意义；已售罄保留是因为它可能因补充押金恢复收单。<b>卖单私盘卡片上的分享按钮同此规则</b>。弹窗标题为<b>「分享自定义赛事」</b>。</li>
+    <li><b>分享按钮仅在「卖出中」与「已售罄」展示</b>，其余状态（已封盘、待审核、已结算、已撤销）隐藏——分享的目的是拉人来投注，封盘后已不可投，分享没有意义；已售罄保留是因为它可能因补充押金恢复收单。<b>卖单私盘卡片上的分享按钮同此规则</b>。弹窗标题为<b>「分享自定义赛事」</b>。</li>
     <li><b>分享卡片不展示押金</b>（押金是庄家的资金信息，不对外），改为展示<b>单笔限额</b>与当前赔率；整场分享展示全场最高单笔限额。<b>开盘详情内不再提供投注项级分享</b>，只保留赛事分享。</li>
     <li><b>玩法 Tab</b>：全部 / 各玩法分类，左侧带折叠箭头。</li>
     <li><b>赔率区</b>：按主客两列并排，列头为带橙色竖条的队名（大小球为「大球 / 小球」，双方进球为「是 / 否」）；正确比分等多项玩法用三列网格。</li>
@@ -876,9 +876,9 @@ input:focus{border-color:#FF8C00}
     <li>页签：<b>投注项卖单</b>与<b>私盘</b>。本期私盘承载自定义赛事；第二期的「复制 IM 赛事坐庄」同样归入此页签，本期其数据整体隐藏。。<b>从底部导航点「卖单」进入时默认落在「投注项卖单」页签</b>。</li>
     <li>私盘页签<b>只展示本人创建</b>的盘，不会出现他人的盘。</li>
     <li>卡片字段：联赛、状态标签、分享按钮（靠最右，<b>仅卖出中与已售罄展示</b>）、主客队、<b>「自定义赛事 · 赛事名称」一行</b>、盘号、押金、收单进度、开赛时间（<b>不展示均进球数</b>）；进度条右侧文案为「已收 X / <b>押金</b> Y」（不用「抵押」）；已结算盘在状态标签左侧展示<b>本场净盈亏</b>（盈利绿、亏损红、不输不赢黑）。</li>
-    <li><b>状态筛选为七项</b>：全部 / 卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已关闭。<b>待审核</b>涵盖开盘待审、赛果待审、赛果被驳回；<b>开盘被驳回归入已关闭</b>。</li>
+    <li><b>状态筛选为七项</b>：全部 / 卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已撤销。<b>待审核</b>涵盖开盘待审、赛果待审、赛果被驳回；<b>开盘被驳回归入已撤销</b>。</li>
     <li><b>赛果被驳回</b>的盘，状态标签仍为「待审核」，卡片内给一行红色提示「赛果被驳回，请进入详情查看原因并重新录入」，<b>原因正文不在列表展示</b>。</li>
-    <li><b>开盘被驳回</b>的盘状态标签为「<b>已关闭</b>」（不在待审核里），卡片内红色提示「开盘未通过审核，本场已关闭，如需继续请重新开盘」。</li>
+    <li><b>开盘被驳回</b>的盘状态标签为「<b>已撤销</b>」（不在待审核里），卡片内红色提示「开盘未通过审核，本场已撤销，如需继续请重新开盘」。</li>
     <li>点击卡片进入<b>开盘详情</b>（庄家管理页），与赛事大厅进入的赛事详情是两个不同页面。</li>
     <li><b>账变记录</b>属后台展示范围，不在 H5 端处理；<b>B 端</b>的开盘审核、赛果审核、强制下架、平台参数配置、操作日志，均另行出需求与原型，不在本原型内。</li>
   </ul>
@@ -928,16 +928,16 @@ input:focus{border-color:#FF8C00}
 
   <h4>自定义赛事完整生命周期</h4>
   <ul>
-    <li><b>① 庄家开盘</b>：填赛事信息、玩法与盘口线、押金，提交后进入<b>待审核</b>，<b>押金在提交时即冻结</b>。审核通过则上架；<b>未通过则直接转为「已关闭」、押金退回</b>，驳回原因在盘详情的队名下方展示，<b>庄家不能重新申请，需重新开盘</b>。</li>
+    <li><b>① 庄家开盘</b>：填赛事信息、玩法与盘口线、押金，提交后进入<b>待审核</b>，<b>押金在提交时即冻结</b>。审核通过则上架；<b>未通过则直接转为「已撤销」、押金退回</b>，驳回原因在盘详情的队名下方展示，<b>庄家不能重新申请，需重新开盘</b>。</li>
     <li><b>② 上架收单</b>：进入赛事列表，玩家可投注。盘状态在<b>卖出中</b>与<b>已售罄</b>之间自动切换（押金占用触顶即售罄，补充押金后恢复）。庄家可调水、补充押金、主动「赛事下架」。</li>
     <li><b>③ 自动封盘</b>：到达<b>开赛前 5 分钟</b>（写死，庄家不可配置）系统自动封盘、停止收单，状态转为<b>已封盘</b>。庄家主动「赛事下架」也进入该状态。封盘后均进球数与赔率均不可再改。</li>
     <li><b>④ 庄家录入赛果</b>：比赛结束后，庄家在开盘详情底部点「录入赛果」，填入常规时间 90 分钟（含补时）比分并提交，状态转为<b>待审核</b>。卖单列表该盘卡片上提示「比赛已结束，请录入赛果」。</li>
     <li><b>⑤ 运营审核</b>：后台核对公开赛果，通过则正式结算；不通过时盘仍为<b>待审核</b>，底部按钮变为「重新录入赛果」，庄家按驳回说明改正后重新提交，重提后清除上一次的驳回信息。<b>审核通过前不发生任何资金兑付</b>。</li>
     <li><b>驳回原因的展示</b>：运营在后台驳回时填写原因，展示在<b>开盘详情的赛事信息卡内、队名下方</b>的红色区块里，只给标题（开盘审核未通过 / 赛果审核未通过）与原因正文，<b>不展示驳回人与驳回时间</b>。
-      <br><b>卖单列表卡片</b>不加驳回标识，只在卡片内给一行红色提示，<b>不展示原因正文</b>——列表只负责让庄家知道哪条需要处理，具体原因进详情看。不依赖客服通道。赛果被驳回时状态标签为「待审核」、提示「赛果被驳回，请进入详情查看原因并重新录入」；<b>开盘被驳回时状态标签为「已关闭」</b>、提示「开盘未通过审核，本场已关闭，如需继续请重新开盘」。</li>
-    <li><b>状态对外收敛</b>：开盘待审核、赛果待审核、赛果被驳回三种内部情形，<b>对庄家统一显示为「待审核」</b>，筛选项里也只有一个「待审核」并涵盖这三种，区别只体现在详情页的驳回区块与底部按钮上。<b>开盘被驳回是例外</b>——它直接转为「已关闭」，押金退回，庄家不能重新申请、需重新开盘。</li>
+      <br><b>卖单列表卡片</b>不加驳回标识，只在卡片内给一行红色提示，<b>不展示原因正文</b>——列表只负责让庄家知道哪条需要处理，具体原因进详情看。不依赖客服通道。赛果被驳回时状态标签为「待审核」、提示「赛果被驳回，请进入详情查看原因并重新录入」；<b>开盘被驳回时状态标签为「已撤销」</b>、提示「开盘未通过审核，本场已撤销，如需继续请重新开盘」。</li>
+    <li><b>状态对外收敛</b>：开盘待审核、赛果待审核、赛果被驳回三种内部情形，<b>对庄家统一显示为「待审核」</b>，筛选项里也只有一个「待审核」并涵盖这三种，区别只体现在详情页的驳回区块与底部按钮上。<b>开盘被驳回是例外</b>——它直接转为「已撤销」，押金退回，庄家不能重新申请、需重新开盘。</li>
     <li><b>⑥ 已结算</b>：按赛果兑付子单，押金解冻退回，盘详情展示结算明细与本场净盈亏。</li>
-    <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由<b>运营强制下架</b>（与 B 端叫法统一），状态转为<b>已关闭</b>，全部成交撤销、<b>投注金额全额原路退回</b>（含玩家在成交时已付的抽水）、庄家押金全额解冻、本场不计盈亏、不抽庄家的水。<b>本期不做撤销结算</b>，已结算的盘如发现赛果有误走人工处理。</li>
+    <li>异常路径：比赛取消、延期超 48 小时、腰斩后 48 小时未恢复，由<b>运营强制下架</b>（与 B 端叫法统一），状态转为<b>已撤销</b>，全部成交撤销、<b>投注金额全额原路退回</b>（含玩家在成交时已付的抽水）、庄家押金全额解冻、本场不计盈亏、不抽庄家的水。<b>本期不做撤销结算</b>，已结算的盘如发现赛果有误走人工处理。</li>
   </ul>
 
   <h4>控盘操作</h4>
@@ -964,7 +964,7 @@ input:focus{border-color:#FF8C00}
     <li><b>卖出中 / 已售罄</b>：补充额度 / 停止收单。</li>
     <li><b>已封盘</b>：录入赛果。</li>
     <li><b>待审核</b>：展示等待审核提示，无操作按钮。</li>
-    <li><b>已结算 / 已关闭</b>：整条隐藏，返回走左上角返回按钮。</li>
+    <li><b>已结算 / 已撤销</b>：整条隐藏，返回走左上角返回按钮。</li>
   </ul>
 </div>
 
@@ -1722,7 +1722,7 @@ function cmRenderDetail(){
     ${c.state==='settled'?`<div class="hint" style="margin:8px 12px 0">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>(常规时间 90 分钟,不含加时与点球)</div>`:''}
 
     ${c.state==='pending'?`<div class="hint" style="margin:8px 12px 0">赛果 <b>${c.score[0]}-${c.score[1]}</b> 待运营审核,审核通过后正式结算。</div>`:''}
-    ${c.state==='closed'?`<div class="hint" style="margin:8px 12px 0;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销,投注金额已原路退回。</div>`:''}
+    ${c.state==='closed'?`<div class="hint" style="margin:8px 12px 0;background:#FDECEC;color:#C0392B">本场已撤销,全部成交已撤销,投注金额已原路退回。</div>`:''}
 `;
   /* 玩法 Tab:全部 + 各玩法分类 */
   const tabs=[['all','全部']].concat(e.mks.map(mk=>[mk.key,mk.name]));
@@ -1944,12 +1944,12 @@ function cmRenderOwnDetail(){
         <span class="grow"></span></div>`}
 
       ${(c.state==='rejected'||c.state==='openRej')?`<div style="margin-top:9px;padding:9px 11px;background:#FDECEC;border-radius:8px">
-        <div style="font-size:12px;font-weight:700;color:#C0392B;margin-bottom:3px">${c.state==='rejected'?'赛果审核未通过':'开盘审核未通过，本场已关闭'}</div>
+        <div style="font-size:12px;font-weight:700;color:#C0392B;margin-bottom:3px">${c.state==='rejected'?'赛果审核未通过':'开盘审核未通过，本场已撤销'}</div>
         <div style="font-size:12px;color:#C0392B;line-height:1.6">${c.rejectReason||'—'}</div>
         ${c.state==='openRej'?`<div style="font-size:11px;color:#C0392B;opacity:.85;margin-top:5px">押金未冻结，如需继续请重新开盘。</div>`:''}</div>`:''}
     </div>
     ${done?`<div class="hint" style="margin-bottom:10px;background:#E8F7EF;color:#1D6E4E">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>。押金已全额解冻退回,盈亏已入账。</div>`:''}
-    ${closed?`<div class="hint" style="margin-bottom:10px;background:#FDECEC;color:#C0392B">本场已作废,全部成交已撤销、投注金额原路退回,押金全额解冻,本场不计盈亏。</div>`:''}
+    ${closed?`<div class="hint" style="margin-bottom:10px;background:#FDECEC;color:#C0392B">本场已撤销,全部成交已撤销、投注金额原路退回,押金全额解冻,本场不计盈亏。</div>`:''}
     ${c.state==='soldout'?`<div class="hint" style="margin-bottom:10px">押金已接近上限,暂时无法接受新注。<b>补充额度</b>后可恢复收单。</div>`:''}
     ${c.state==='sealed'?`<div class="hint" style="margin-bottom:10px;background:${c.autoSealed?'#FFF8EC':'#F2F3F5'}">${c.autoSealed
       ?`已到自动封盘时点（开赛前 ${cmSealMin(c)} 分钟），盘口已停止收单。比赛结束后<b>请录入赛果</b>，提交后由运营审核，审核通过即正式结算。`
@@ -3188,7 +3188,7 @@ const CM_CFG={lH:1.55,lA:1.05,maxGoals:10,deposit:3000,W:300,vig:0.03,vigMode:'p
   maxOdds:99,minOdds:1.05,maxStake:2000,maxSlip:0.05,coldPrice:0.20,coldMaxSlip:0.20,
   csMax:3,mk:{wdl:1,ou:1,btts:1,cs:1,ah:1,dc:0},ouLines:[1.5,2.5,3.5],ahLines:[0.5],ehLines:[1]};
 let CM=[
-  /* 演示数据:卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已关闭 各一条 */
+  /* 演示数据:卖出中 / 已售罄 / 已封盘 / 待审核 / 已结算 / 已撤销 各一条 */
   {id:'CM001',title:'周末友谊赛 第 3 轮',home:'蓝鸟青年队',away:'红狼联队',league:'自定义赛事',time:'12-28 20:00',created:'12-26 14:02',
    banker:'金刚庄',mine:true,state:'open',lH:1.55,lA:1.05,dep:3000,bucket:'today',sealMin:10,
    hLogo:'🔵',aLogo:'🔴',live:'https://live.example.com/cm001'},
@@ -3261,14 +3261,14 @@ CM.forEach(c=>{
 })();
 /* 六状态:
    open 卖出中 / soldout 已售罄(押金占用触顶,补充额度后恢复) / sealed 已封盘(主动停止收单,不可恢复)
-   pending 待审核 / settled 已结算 / closed 已关闭(作废原路退回) */
+   pending 待审核 / settled 已结算 / closed 已撤销(运营强制下架,全部成交撤销、原路退回) */
 const CM_ST={open:['卖出中','tag-open'],soldout:['已售罄','tag-soldout'],
              sealed:['已封盘','tag-sealed'],pending:['待审核','tag-partial'],
              /* 以下四种内部状态对外统一显示为「待审核」,驳回信息只在盘详情内展示 */
              rejected:['待审核','tag-partial'],          /* 赛果审核未通过,庄家需重填 */
              auditing:['待审核','tag-partial'],          /* 开盘提交后等待运营审核 */
-             openRej:['已关闭','tag-closed'],            /* 开盘审核未通过:直接关闭,需重新开盘 */
-             settled:['已结算','tag-settled'],closed:['已关闭','tag-closed']};
+             openRej:['已撤销','tag-closed'],            /* 开盘审核未通过:直接撤销,需重新开盘 */
+             settled:['已结算','tag-settled'],closed:['已撤销','tag-closed']};
 /* 整盘是否售罄:全部开放投注项均已无可投额度(押金占用触顶) */
 function cmSoldOut(c){
   if(c.state!=='open'&&c.state!=='soldout')return false;
@@ -5213,7 +5213,7 @@ function renderOrders(){
     <div><div class="l">已消费</div><div class="v nowrap">¥${money(consumed)}</div></div>
     <div><div class="l">总结算盈亏</div><div class="v nowrap ${profit>0?'win':(profit<0?'lose':'')}">${profit>0?'+':(profit<0?'-':'')}¥${money(Math.abs(profit))}</div></div></div>`;
   const sts=segIdx===2
-    ? [['all','全部'],['open','卖出中'],['soldout','已售罄'],['sealed','已封盘'],['pending','待审核'],['settled','已结算'],['closed','已关闭']]
+    ? [['all','全部'],['open','卖出中'],['soldout','已售罄'],['sealed','已封盘'],['pending','待审核'],['settled','已结算'],['closed','已撤销']]
     : [['all','全部'],['open','卖出中'],['soldout','已售罄'],['settled','已结算'],['closed','已关闭']];
   const curSt=segIdx===2?cmStFilter:stFilter;
   const setSt=segIdx===2?'cmStFilter':'stFilter';
@@ -5235,8 +5235,7 @@ function renderOrders(){
     /* 私盘分段:本人创建的自定义赛事 */
     CM.forEach(cmSyncState);
     /* 私盘页签用独立筛选变量,不与投注项卖单共用,避免跨页互相影响 */
-    /* 待审核涵盖:开盘待审核 / 赛果待审核 / 开盘被驳回 / 赛果被驳回 */
-    /* 待审核涵盖:开盘待审核 / 赛果待审核 / 赛果被驳回;开盘被驳回归入已关闭 */
+    /* 待审核涵盖:开盘待审核 / 赛果待审核 / 赛果被驳回;开盘被驳回归入已撤销 */
     const PEND=['pending','auditing','rejected'];
     const arr=CM.filter(c=>c.mine).filter(c=>cmStFilter==='all'
       ||(cmStFilter==='pending'?PEND.includes(c.state)
@@ -5259,7 +5258,7 @@ function renderOrders(){
         ${c.state==='sealed'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">比赛已结束,请录入赛果</div>`:''}
         ${c.state==='pending'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px">赛果已提交,等待运营审核</div>`:''}
         ${c.state==='rejected'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px;background:#FDECEC;color:#C0392B">赛果被驳回,请进入详情查看原因并重新录入</div>`:''}
-        ${c.state==='openRej'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px;background:#FDECEC;color:#C0392B">开盘未通过审核，本场已关闭，如需继续请重新开盘</div>`:''}
+        ${c.state==='openRej'?`<div class="hint" style="margin:6px 0 0;padding:6px 9px;font-size:11px;background:#FDECEC;color:#C0392B">开盘未通过审核，本场已撤销，如需继续请重新开盘</div>`:''}
 
         ${c.title?`<div class="muted" style="font-size:11px;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">自定义赛事 · ${c.title}</div>`:''}
         <div class="row" style="font-size:12px;color:#666;gap:6px;margin-top:6px">
