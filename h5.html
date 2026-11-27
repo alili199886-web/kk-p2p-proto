@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.8（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v26.0（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -848,7 +848,13 @@ input:focus{border-color:#FF8C00}
 
   <h4>调水与算法定价的关系</h4>
   <ul>
-    <li><b>调水不会架空算法</b>。算法约束的不是赔率数值本身，而是赔率与风险敞口的绑定：赔率由持仓量决定，亏损上限由押金锁死。调水等效于庄家替市场推动了一次持仓，系统后续定价仍从新的持仓出发，<b>不穿仓、跨玩法同价、价格随资金移动</b>三条约束全部继续成立。</li>
+    <li><b>调水不会架空跨玩法同价与价格随资金移动，但会破坏「亏损不超押金」这一条</b>，必须用额外机制补上。
+      <br>· 做市盘的亏损上限是靠<b>开盘缩放</b>保证的——开盘时按押金把做市深度缩放到位。<b>调水直接平移持仓、庄家不付成本</b>，<b>改均进球数则是重建引擎后搬运已售份额</b>，两者都绕过了这个缩放，保证随之失效。算法 PRD 5.3.1 原文：「调价后全场最大亏损不再由开盘缩放保证等于抵押金，风险按各比分兑付与现金实时计算」。</li>
+    <li><b>押金守卫：调过价的盘逐笔校验</b>。一旦某盘发生过调水或改均进球数，系统给该盘打标记，此后<b>每笔成交前都要枚举比分算最坏赔付</b>，净敞口（最坏赔付 − 已收投注）超过押金即拒绝本笔，与手动定价模式同一套逻辑。
+      <br>· 该盘的单笔上限变为四项取最小：单笔最多收、滑点上限金额、最低赔率限额、<b>押金硬上限</b>；押金硬上限用二分反推出「恰好不突破押金」的最大金额，算到不足 5 元时该项暂停买入。
+      <br>· <b>没调过价的盘不做这层校验</b>——开盘缩放的保证仍然成立，额外枚举只是白白增加开销。
+      <br>· 实测：押金 120、已有敞口 45.38 的盘，调水后该项限额由引擎值 113.09 收紧到 89.81；反复买到极限后净敞口停在 119.99，不突破押金。</li>
+    <li>调水闸门（单次 0.05、单项累计 0.30）与算法 PRD 的「相对开盘赔率 ±50%」是两套口径，本期以更严的前者为准。</li>
     <li><b>跨玩法同价自动维持</b>：调水改的是该投注项命中的全部比分状态，正确比分等相关玩法的价格会同步联动，不会出现「主胜调了、波胆没动」的套利缺口。这是按比分状态做市的结构性好处。</li>
     <li><b>调水的真实作用是调节吸单速度与敞口</b>，不是绕过定价。实测：抬高赔率后玩家投入从 1675 增至 2175、押金占用从 16.7% 升到 49.3%；压低赔率则相反。庄家是在用押金使用效率换成交量。</li>
     <li>因此<b>赛事列表的赔率跟随调水变化是正确的</b>——那就是当前真实可成交的价格。</li>
@@ -2356,6 +2362,7 @@ function cmSetOdds(mkKey,itKey,target){
   const rkBefore=EG.risk(e,cfg);
   it.sidx.forEach(k=>e.q[k]+=(lo+hi)/2);
   const after=EG.showOdds(e,cfg,it);
+  c.priced=true;   /* 调过水:开盘缩放的保证失效,后续成交逐笔校验押金 */
   cmLog(c,'调水',((e.mks.find(x=>x.items.some(y=>y.key===itKey))||{}).name||'')+' · '+it.name,
     {key:itKey,item:it.name,mk:(e.mks.find(x=>x.items.some(y=>y.key===itKey))||{}).name||'',
      pt:+(after-cur).toFixed(2), before:+cur.toFixed(2), after:+after.toFixed(2),
@@ -2385,6 +2392,7 @@ function cmQuickAdj(mkKey,itKey,dir){
   const rkBefore=EG.risk(e,cfg);
   it.sidx.forEach(k=>e.q[k]+=shift);
   const after=EG.showOdds(e,cfg,it);
+  c.priced=true;   /* 调过水:开盘缩放的保证失效,后续成交逐笔校验押金 */
   cmLog(c,'调水',((e.mks.find(x=>x.items.some(y=>y.key===itKey))||{}).name||'')+' · '+it.name,
     {key:itKey,item:it.name,mk:(e.mks.find(x=>x.items.some(y=>y.key===itKey))||{}).name||'',
      pt:+(after-cur).toFixed(2), before:+cur.toFixed(2), after:+after.toFixed(2),
@@ -2411,6 +2419,7 @@ function cmEditLam(side,v){
     }));
     ne.cash=old.cash; ne.vigFee=old.vigFee;
     c.eng=ne;
+    c.priced=true;   /* 改过均进球数:重建引擎后搬运份额,开盘缩放的保证失效 */
   }catch(err){}
   clearTimeout(window._lamT);
   window._lamT=setTimeout(()=>{cmRenderOwnDetail();renderHome();
@@ -2676,10 +2685,49 @@ function manMaxStake(c,itKey){
   for(let t=0;t<40;t++){const mid=(lo+hi)/2; test(mid)<=dep?lo=mid:hi=mid}
   return +(Math.floor(lo*100)/100).toFixed(2);
 }
-/* 统一取限额入口:自动模式走引擎,手动模式走押金硬上限 */
+/* 盘是否已脱离开盘缩放的保证:
+   做市盘的「亏损不超押金」由开盘缩放保证,但调水与改均进球数都会破坏这个前提
+   —— 调水直接平移持仓、庄家不付成本;改均进球数重建引擎后搬运已售份额。
+   一旦发生过这两类操作,后续每笔成交都必须逐笔校验最坏赔付,与手动模式同一套 */
+function cmNeedsGuard(c){
+  return c.auto===false || c.priced===true;
+}
+/* 做市盘的押金硬上限:枚举比分算最坏赔付,反推该项还能接多少
+   注意 EG.risk 读的是 it.soldShares,试算时必须连同它一起临时改,只改 q 会算反 */
+function cmEngMaxStake(c,it){
+  const e=c.eng,cfg=c.cfg,dep=c.dep||0;
+  const worstOf=()=>{
+    const rk=EG.risk(e,cfg);
+    let w=0; (rk.payout||[]).forEach(p=>{if(p>w)w=p});
+    return w;
+  };
+  const c0=e.cash, s0=it.soldShares||0;
+  if(worstOf()-c0>dep)return 0;
+  /* 试算:买入 amt 后的净敞口 = 最坏赔付 − 已收 */
+  const test=amt=>{
+    const r=EG.buy(e,cfg,it,amt);
+    it.soldShares=s0+r.shares; e.cash=c0+amt;
+    const net=worstOf()-e.cash;
+    it.soldShares=s0; e.cash=c0;
+    return net;
+  };
+  if(test(2)>dep)return 0;
+  let lo=2, hi=Math.max(dep*4,200);
+  if(test(hi)<=dep)return +hi.toFixed(2);
+  for(let t=0;t<42;t++){const mid=(lo+hi)/2; test(mid)<=dep?lo=mid:hi=mid}
+  return +(Math.floor(lo*100)/100).toFixed(2);
+}
+/* 统一取限额入口:
+   手动模式 → 押金硬上限;做市盘调过水或改过均进球数 → 引擎限额与押金硬上限取小;
+   未动过价的做市盘 → 开盘缩放已保证不穿仓,只走引擎限额 */
 function cmLimitOf(c,it){
   if(c.auto===false)return manLimit(c,it.key);
-  return EG.limits(c.eng,c.cfg,it);
+  const L=EG.limits(c.eng,c.cfg,it);
+  if(!cmNeedsGuard(c))return L;
+  const g=cmEngMaxStake(c,it);
+  const max=Math.min(L.max,g);
+  return {max:+max.toFixed(2), paused:L.paused||max<5,
+    reason:(g<L.max&&g<5)?'押金已接近上限':L.reason, seen:L.seen};
 }
 /* 手动模式单笔上限:两项取最小 */
 function manLimit(c,itKey){
