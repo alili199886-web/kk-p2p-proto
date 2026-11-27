@@ -2824,20 +2824,20 @@ const BankerPage = {
       },
       { title: '押金(初始/补充)', key: 'dep', width: 180, align: 'right', render: (r) => monoR(`¥${money(r.dep)} / ${r.extra ? '¥' + money(r.extra) : '—'}`) },
       {
-        title: '已收单 / 押金占用', key: 'sold', width: 200, align: 'right',
+        title: '已收单', key: 'sold', width: 170, align: 'right',
         render(r) {
-          if (r.mode !== 'custom') return monoR(`¥${money(r.sold)} / —`);
+          if (r.mode !== 'custom') return monoR(`¥${money(r.sold)}`);
           if (r.st === 'pending_open') return h('span', { style: 'color:#d97706' }, '未上架 · 押金已冻结');
           if (r.st === 'rejected_open') return h('span', { style: 'color:#909399' }, '已驳回 · 押金已释放');
-          return monoR(`¥${money(r.sold)} / ¥${money(r.occ)}`);
+          return monoR(`¥${money(r.sold)}`);
         },
       },
       {
         title: '收单进度', key: 'progress', width: 130,
         render(r) {
           if (r.mode !== 'custom') { const cap = floor2((r.dep + r.extra) / r.odds); return progressBar(cap ? Math.min(100, r.sold / cap * 100) : 0); }
-          if (['pending_open', 'rejected_open', 'settled', 'closed'].includes(r.st)) return dash();
-          return progressBar(Math.min(100, r.occ / (r.dep + r.extra) * 100));
+          /* 自定义赛事不展示收单进度：做市盘没有固定总额度，押金占用需按最坏比分试算，不作展示 */
+          return dash();
         },
       },
       {
@@ -3018,7 +3018,6 @@ const MarketDetail = {
           <div><span>已收单</span><b class="kk-mono">¥{{ money(cmSold(cur)) }}</b></div>
           <div><span>子单数</span><b class="kk-mono">{{ cmSubs(cur) }}</b></div>
           <div v-if="settle"><span>本场净盈亏</span><b class="kk-mono" :class="settle.net >= 0 ? 'kk-win' : 'kk-lose'">{{ sgn(settle.net) }}</b></div>
-          <div v-else><span>押金占用</span><b class="kk-mono">¥{{ money(cur.occ) }}</b><i>{{ Math.round(cur.occ / (cur.dep + cur.extra) * 100) }}%</i></div>
         </div>
 
         <div v-if="settle" class="kk-settle-box">
@@ -3046,11 +3045,11 @@ const MarketDetail = {
               <span v-if="x.subs.length" class="kk-link" @click="openSubs[p.name + x.name] = !openSubs[p.name + x.name]">子单 {{ x.subs.length }}</span>
             </div>
             <table v-if="openAdj[p.name + x.name]" class="kk-sub-table">
-              <thead><tr><th style="text-align:right">调整前</th><th style="text-align:right">调整后</th><th style="text-align:right">幅度</th><th style="text-align:right">当时已收单</th><th style="text-align:right">当时押金占用</th><th>操作人</th><th>时间</th></tr></thead>
+              <thead><tr><th style="text-align:right">调整前</th><th style="text-align:right">调整后</th><th style="text-align:right">幅度</th><th style="text-align:right">当时已收单</th><th>操作人</th><th>时间</th></tr></thead>
               <tbody><tr v-for="(a, ai) in x.adj" :key="ai">
                 <td class="kk-mono" style="text-align:right">{{ f2(a.from) }}</td><td class="kk-mono" style="text-align:right">{{ f2(a.to) }}</td>
                 <td class="kk-mono" style="text-align:right" :class="a.delta >= 0 ? 'kk-win' : 'kk-lose'">{{ a.delta >= 0 ? '+' : '' }}{{ f2(a.delta) }}</td>
-                <td class="kk-mono" style="text-align:right">¥{{ money(a.sold) }}</td><td class="kk-mono" style="text-align:right">¥{{ money(a.occ) }}</td>
+                <td class="kk-mono" style="text-align:right">¥{{ money(a.sold) }}</td>
                 <td class="kk-mono">{{ cur.acc }}</td><td style="color:#909399">{{ a.time }}</td>
               </tr></tbody>
             </table>
@@ -3546,9 +3545,9 @@ const C_SPEC = {
         rows: [
           ['行粒度', '自定义赛事按盘一行；投注项卖出按庄单一行（既有）'],
           ['筛选', '商户、庄家会员ID、盘 / 庄单ID、坐庄模式（全部 / 自定义赛事 / 投注项卖出）、定价模式（全部 / 自动 / 手动）、状态（9 个）、关联标记、开盘时间'],
-          ['列', '盘ID / 庄单ID（黑色、不可点击）、坐庄模式、定价模式、商户、庄家会员ID、庄家昵称、赛事、玩法 / 投注项（「N 类玩法 · M 项」）、押金（初始 / 补充）、已收单 / 押金占用、收单进度、盈亏 / 抽水、关联标记、状态、提交时间、操作'],
-          ['未上架', '开盘待审显示「未上架 · 押金已冻结」；开盘已驳回显示「已驳回 · 押金已释放」；收单进度为 —'],
-          ['收单进度', '押金占用 ÷ (初始押金 + 补充押金)；已结算、已撤销为 —'],
+          ['列', '盘ID / 庄单ID（黑色、不可点击）、坐庄模式、定价模式、商户、庄家会员ID、庄家昵称、赛事、玩法 / 投注项（「N 类玩法 · M 项」）、押金（初始 / 补充）、已收单、收单进度、盈亏 / 抽水、关联标记、状态、提交时间、操作'],
+          ['未上架', '开盘待审显示「未上架 · 押金已冻结」；开盘已驳回显示「已驳回 · 押金已释放」'],
+          ['收单进度', '自定义赛事不展示（显示 —）：做市盘没有固定总额度，押金占用需按最坏比分试算，不作展示；投注项卖出沿用既有进度'],
           ['盈亏 / 抽水', '自定义赛事已结算显示「本场净盈亏 / —」（本期不抽水），与盘详情同源；投注项卖出沿用既有「盈亏 / 抽佣」'],
           ['状态列', '标签下方灰字：已封盘标注来源（自动封盘（开赛前 5 分钟）/ 庄家赛事下架）；与 C 端不一致的状态标注 C 端显示（开盘待审、赛果待审、赛果已驳回 → 待审核；开盘已驳回 → 已撤销）'],
           ['操作', '盘详情；卖出中、已售罄、已封盘、赛果待审、赛果已驳回加「强制下架」'],
@@ -3560,10 +3559,10 @@ const C_SPEC = {
         rows: [
           ['横幅', '主客队（队徽）、比分（已录入时）、开赛时间'],
           ['信息区', '盘状态（含 C 端显示）、商户、庄家、赛事名称、定价模式、两队均进球数（仅自动模式；庄家修改过时附开盘时数值）、提交时间、开盘时间与封盘规则、最低 / 最高赔率、单笔最多收、直播地址、开盘审核结果、赛果审核结果与录入次数'],
-          ['四列汇总', '总押金 / 已收单 / 子单数 / 押金占用；已结算时第四格为本场净盈亏'],
+          ['汇总', '总押金 / 已收单 / 子单数；已结算时增加第四格本场净盈亏'],
           ['结算明细', '已结算时展示：收到投注合计、命中兑付合计、押金解冻退回、本场净盈亏（本期不展示抽水行）'],
           ['玩法与投注项', '按玩法分组；玩法封盘时标「玩法已封盘」；每个投注项展示当前赔率、开盘赔率、偏离百分比、已收、命中需赔，可展开调水记录与子单'],
-          ['调水记录', '调整前后赔率、幅度、当时已收单、当时押金占用、操作人、时间'],
+          ['调水记录', '调整前后赔率、幅度、当时已收单、操作人、时间'],
           ['子单', '子单号（可跳转投注记录）、买家、投注金额、份额、成交赔率、成交时间、结算（庄家视角）、关联标记'],
           ['押金守卫', '自动模式下发生过调水或修改均进球数的盘显示「已启用」（开盘缩放的亏损上限保证失效，每笔成交前枚举比分校验最坏赔付，净敞口超押金即拒单）；未调价显示「未启用」；手动定价固定为「逐笔校验」'],
           ['操作', '右上角「强制下架」，可用状态同列表'],
@@ -3583,7 +3582,7 @@ const C_SPEC = {
           '疑似自成交：子单买家与庄家为同一账号（庄家自投）、同 IP 或同设备任一命中即标记，统一标注「疑似自成交」、不区分类型，悬浮显示命中维度；仅作提示，不拦截成交、不影响结算。C 端允许庄家投自己的盘，界面无提示；风控依靠调水全程留痕、本标注与赛果审核时的核验。',
         ],
       },
-      { type: 'rule', title: '计算举例', list: ['押金 ¥3,000 + 补充 ¥1,000，押金占用 ¥1,180 → 收单进度 = 1180 ÷ 4000 = 30%。投注项主胜开盘 2.35、当前 2.28 → 偏离 = (2.28 − 2.35) ÷ 2.35 = −3.0%。', '强制下架：该盘已收单 ¥1,070.00 全额退回 4 名买家，押金 ¥4,000.00 全额释放给庄家。'] },
+      { type: 'rule', title: '计算举例', list: ['投注项主胜开盘 2.35、当前 2.28 → 偏离 = (2.28 − 2.35) ÷ 2.35 = −3.0%。', '强制下架：该盘已收单 ¥1,070.00 全额退回 4 名买家，押金 ¥4,000.00 全额释放给庄家。'] },
       { type: 'keep', title: '本期不做', list: ['已有赛事私盘（复制 IM 赛事）的列表与盘详情，下期启用（见私盘 B 端原型 v0.7）。', '作废、后台调水、封盘、修改赔率、修改均进球数、撤销结算。', '移除盘口：C 端永久不做，日志无此类型。'] },
       { type: 'keep', title: '二期规划', list: ['盘详情「比分风险分布」7×7 表：展示每个比分开出时本场盈亏，供强制下架判断与赛果核验参考。'] },
       { type: 'perm', title: '权限矩阵', table: { head: ROLE_HEAD, rows: [['列表 / 盘详情', '可见', '可见'], ['强制下架', '可编辑', '需授权']] } },
