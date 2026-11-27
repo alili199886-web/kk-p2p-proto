@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>P2P 开盘坐庄 · 交互原型 v25.7（自定义赛事坐庄）</title>
+<title>P2P 开盘坐庄 · 交互原型 v25.8（自定义赛事坐庄）</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;-webkit-tap-highlight-color:transparent}
 body{background:#e8eaed;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;gap:20px;flex-wrap:wrap}
@@ -791,7 +791,7 @@ input:focus{border-color:#FF8C00}
 
   <h4>页面结构</h4>
   <ul>
-    <li><b>横幅</b>：球场背景，圆形队徽、队名、比赛状态与开赛时间；已结算 / 待审核时展示比分；配置了直播地址时展示「▦ 动画直播」，点击后在横幅内播放、可关闭；<b>底部为赛事名称</b>（不是庄家昵称）。</li>
+    <li><b>横幅</b>：球场背景，圆形队徽、队名、比赛状态与开赛时间；已结算 / 待审核时展示比分；配置了直播地址时展示「▦ 直播」，点击后在横幅内播放、可关闭；<b>底部为赛事名称</b>（不是庄家昵称）。</li>
     <li><b>顶栏右上角只有分享按钮</b>，<b>不展示盘状态</b>（状态在横幅内已有）。分享只有「分享到金刚」，不含 TG 与复制链接，分享的是整场赛事，接收方进入本场详情、不预选投注项。</li>
     <li><b>分享按钮仅在「卖出中」与「已售罄」展示</b>，其余状态（已封盘、待审核、已结算、已撤销）隐藏——分享的目的是拉人来投注，封盘后已不可投，分享没有意义；已售罄保留是因为它可能因补充押金恢复收单。<b>卖单私盘卡片上的分享按钮同此规则</b>。弹窗标题为<b>「分享自定义赛事」</b>。</li>
     <li><b>分享卡片不展示押金</b>（押金是庄家的资金信息，不对外），改为展示<b>单笔限额</b>与当前赔率；整场分享展示全场最高单笔限额。<b>开盘详情内不再提供投注项级分享</b>，只保留赛事分享。</li>
@@ -1711,12 +1711,12 @@ function cmRenderDetail(){
       </div>
       ${c.live?(cmLiveOn?`<div style="position:relative;margin-top:12px;background:#000;border-radius:10px;overflow:hidden;height:150px;display:flex;align-items:center;justify-content:center">
           <div style="text-align:center;color:#8a8f96;font-size:12px;line-height:1.8">
-            <div style="font-size:26px">▦</div>动画直播播放中<br>
+            <div style="font-size:26px">▦</div>直播播放中<br>
             <span style="font-size:10px;opacity:.7;word-break:break-all;padding:0 12px;display:inline-block">${c.live}</span></div>
           <span style="position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer" onclick="cmLiveOn=false;cmRenderDetail()">×</span>
         </div>`
         :`<div style="text-align:center;margin-top:12px;position:relative">
-          <span style="background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:14px;cursor:pointer" onclick="cmLiveOn=true;cmRenderDetail()">▦ 动画直播</span></div>`):''}
+          <span style="background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);color:#fff;font-size:12px;padding:5px 14px;border-radius:14px;cursor:pointer" onclick="cmLiveOn=true;cmRenderDetail()">▦ 直播</span></div>`):''}
       <div style="text-align:center;margin-top:${c.live?'8':'12'}px;position:relative;font-size:11px;color:rgba(255,255,255,.72)">${c.title||c.league}</div>
     </div>
     ${c.state==='settled'?`<div class="hint" style="margin:8px 12px 0">本场已结算,赛果 <b>${c.score[0]}-${c.score[1]}</b>(常规时间 90 分钟,不含加时与点球)</div>`:''}
